@@ -15,15 +15,20 @@ export const T = {
   FLOWERS: 12,
   GARDEN:  13,
   ROOF:    14,
+  DOOR_L:  15,   // left side of hobbit hole entrance
+  DOOR_R:  16,   // right side of hobbit hole entrance
+  ROOF_L:  17,   // left slope of hobbit hill mound
+  ROOF_R:  18,   // right slope of hobbit hill mound
 };
 
 // Collision tile indices
-export const COLLISION_TILES = [T.WATER, T.TREE, T.HILL, T.FENCE, T.BUSH, T.ROOF];
+export const COLLISION_TILES = [T.WATER, T.TREE, T.HILL, T.FENCE, T.BUSH, T.ROOF, T.DOOR_L, T.DOOR_R, T.ROOF_L, T.ROOF_R];
 
 // Shorthand
 const G = T.GRASS, g = T.GRASS2, P = T.PATH, W = T.WATER, R = T.TREE;
 const H = T.HILL, h = T.HILLTOP, D = T.DOOR, B = T.BRIDGE, F = T.FENCE;
 const U = T.BUSH, S = T.STONE, f = T.FLOWERS, d = T.GARDEN, O = T.ROOF;
+const L = T.DOOR_L, J = T.DOOR_R, K = T.ROOF_L, N = T.ROOF_R;
 
 // 40 wide × 40 tall — The Shire: Bag End → Hobbiton → Party Field → The Water
 export const MAP_DATA = [
@@ -32,9 +37,9 @@ export const MAP_DATA = [
   // ── The Hill (Bag End at the top) ──────────────────
   [R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R], // 0
   [R, R, G, G, R, G, f, G, R, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, R, G, f, G, R, G, G, R, R], // 1
-  [R, G, G, f, G, G, G, R, H, H, O, O, O, O, O, h, h, h, O, O, O, O, O, h, h, O, O, O, O, O, H, H, R, G, G, G, G, G, G, R], // 2
-  [R, G, G, G, G, G, R, H, H, h, O, O, O, O, O, h, d, h, O, O, O, O, O, h, d, O, O, O, O, O, h, H, H, G, G, G, G, G, G, R], // 3
-  [R, G, G, G, G, R, H, H, h, h, h, h, D, h, h, h, d, h, h, h, D, h, h, h, d, h, h, D, h, h, h, h, H, H, G, G, G, f, G, R], // 4
+  [R, G, G, f, G, G, G, R, H, H, K, O, O, O, N, h, h, h, K, O, O, O, N, h, h, K, O, O, O, N, H, H, R, G, G, G, G, G, G, R], // 2  ← roof mounds
+  [R, G, G, G, G, G, R, H, H, h, K, O, O, O, N, h, d, h, K, O, O, O, N, h, d, K, O, O, O, N, h, H, H, G, G, G, G, G, G, R], // 3
+  [R, G, G, G, G, R, H, H, h, h, h, L, D, J, h, h, d, h, h, L, D, J, h, h, d, h, L, D, J, h, h, h, H, H, G, G, G, f, G, R], // 4  ← 3-wide doors
   [R, G, G, G, R, H, H, h, h, h, h, P, P, P, h, h, h, h, h, P, P, P, h, h, h, h, P, P, P, h, h, h, h, H, G, G, G, G, G, R], // 5
   [R, G, f, G, R, H, h, h, h, h, P, P, h, P, P, h, h, h, P, P, h, P, P, h, h, P, P, h, P, P, h, h, h, H, R, G, G, G, G, R], // 6
   [R, G, G, G, G, H, H, h, h, P, P, h, h, h, P, P, P, P, P, h, h, h, P, P, P, P, h, h, h, P, P, h, H, H, G, G, G, G, G, R], // 7
@@ -45,11 +50,11 @@ export const MAP_DATA = [
 
   // ── Bagshot Row (row of hobbit holes along the hill base) ──
   [R, G, G, G, G, f, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 12
-  [R, G, G, G, G, G, G, F, F, F, P, P, F, F, F, G, G, F, F, F, P, P, F, F, F, G, G, F, F, F, F, G, G, G, G, G, G, G, G, R], // 13
-  [R, G, G, G, G, G, G, F, O, O, P, P, O, O, F, G, G, F, O, O, P, P, O, O, F, G, G, F, O, O, O, F, G, G, G, G, f, G, G, R], // 14
-  [R, G, G, G, G, G, G, F, D, h, P, P, h, D, F, G, G, F, D, h, P, P, h, D, F, G, G, F, D, h, D, F, G, G, G, G, G, G, G, R], // 15
-  [R, G, G, G, G, G, G, F, h, d, P, P, d, h, F, G, G, F, h, d, P, P, d, h, F, G, G, F, h, d, h, F, G, G, G, G, G, G, G, R], // 16
-  [R, G, G, G, G, G, G, F, F, F, P, P, F, F, F, G, G, F, F, F, P, P, F, F, F, G, G, F, F, F, F, F, G, G, G, G, G, G, G, R], // 17
+  [R, G, G, F, F, F, F, F, F, F, P, P, F, F, F, F, F, F, F, F, P, P, F, F, F, F, F, F, F, F, G, G, G, G, G, G, G, G, G, R], // 13  ← Bagshot Row fences
+  [R, G, G, F, d, K, O, O, N, F, P, P, F, d, K, O, O, N, d, F, P, P, F, d, K, O, O, N, d, F, G, G, G, G, G, G, f, G, G, R], // 14  ← roof mounds
+  [R, G, G, F, d, L, D, D, J, F, P, P, F, d, L, D, D, J, d, F, P, P, F, d, L, D, D, J, d, F, G, G, G, G, G, G, G, G, G, R], // 15  ← 3-wide doors (2 DOOR tiles for wider entrance)
+  [R, G, G, F, d, h, h, h, h, F, P, P, F, d, h, h, h, h, d, F, P, P, F, d, h, h, h, h, d, F, G, G, G, G, G, G, G, G, G, R], // 16
+  [R, G, G, F, F, F, F, F, F, F, P, P, F, F, F, F, F, F, F, F, P, P, F, F, F, F, F, F, F, F, G, G, G, G, G, G, G, G, G, R], // 17  ← fences
 
   // ── Hobbiton village center / Bywater Road ────────
   [R, G, G, f, G, G, G, G, G, P, P, P, P, G, G, G, G, G, G, P, P, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 18
@@ -58,8 +63,8 @@ export const MAP_DATA = [
 
   // ── The Green Dragon Inn area ──────────────────────
   [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, S, S, S, S, S, S, G, G, G, G, f, G, G, G, G, R], // 21
-  [R, G, G, G, R, G, G, G, G, P, P, G, G, G, f, G, G, G, G, P, P, G, G, G, S, O, O, O, O, S, G, G, G, G, G, G, G, G, G, R], // 22
-  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, S, D, h, h, D, S, G, G, G, G, G, G, G, G, G, R], // 23
+  [R, G, G, G, R, G, G, G, G, P, P, G, G, G, f, G, G, G, G, P, P, G, G, S, K, O, O, O, N, S, G, G, G, G, G, G, G, G, G, R], // 22  ← Green Dragon roof
+  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, S, L, D, D, D, J, S, G, G, G, G, G, G, G, G, G, R], // 23  ← Green Dragon entrance
   [R, G, f, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, S, S, S, S, S, S, G, G, G, f, G, G, G, G, G, R], // 24
 
   // ── Party Field ────────────────────────────────────
