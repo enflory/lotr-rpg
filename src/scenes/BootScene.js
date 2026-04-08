@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 
 const TS = 16;
-const TILE_COUNT = 15;
+const TILE_COUNT = 19;
 
 /* ── tiny drawing helpers ────────────────────────────── */
 function px(c, x, y, col) { c.fillStyle = col; c.fillRect(x, y, 1, 1); }
@@ -222,6 +222,86 @@ function drawRoof(c, ox) {
   px(c, ox + 13, 0, '#d0d0d0');
 }
 
+/* ── multi-tile hobbit hole pieces ────────────────────── */
+
+function drawDoorL(c, ox) {
+  // Left side of hobbit hole entrance — cliff face with arch frame and window
+  rc(c, ox, 0, 16, 3, '#3d7a2a');
+  rc(c, ox, 3, 16, 13, '#8a6b3d');
+  rc(c, ox, 3, 16, 1, '#5a4020');
+  // Stone arch frame on right edge (connects to center door)
+  rc(c, ox + 13, 4, 3, 12, '#6b5a3d');
+  rc(c, ox + 14, 3, 2, 2, '#6b5a3d');
+  rc(c, ox + 15, 2, 1, 1, '#6b5a3d');
+  // Small round window
+  circle(c, ox + 6, 9, 2, '#4a3015');
+  circle(c, ox + 6, 9, 1, '#6b8cc0');
+  // Lantern bracket
+  rc(c, ox + 11, 6, 1, 4, '#6b4423');
+  px(c, ox + 11, 5, '#e8c840');
+  px(c, ox + 11, 6, '#e8c840');
+}
+
+function drawDoorR(c, ox) {
+  // Right side of hobbit hole entrance — mirror of left
+  rc(c, ox, 0, 16, 3, '#3d7a2a');
+  rc(c, ox, 3, 16, 13, '#8a6b3d');
+  rc(c, ox, 3, 16, 1, '#5a4020');
+  // Stone arch frame on left edge
+  rc(c, ox, 4, 3, 12, '#6b5a3d');
+  rc(c, ox, 3, 2, 2, '#6b5a3d');
+  px(c, ox, 2, '#6b5a3d');
+  // Small round window
+  circle(c, ox + 10, 9, 2, '#4a3015');
+  circle(c, ox + 10, 9, 1, '#6b8cc0');
+  // Lantern bracket
+  rc(c, ox + 4, 6, 1, 4, '#6b4423');
+  px(c, ox + 4, 5, '#e8c840');
+  px(c, ox + 4, 6, '#e8c840');
+}
+
+function drawRoofL(c, ox) {
+  // Left slope of hobbit hill mound — grass rises from left to right
+  rc(c, ox, 0, 16, 16, '#8a6b3d');
+  for (let x = 0; x < 16; x++) {
+    const h = Math.round(2 + (x * x) / 20);
+    if (h > 0) rc(c, ox + x, 0, 1, Math.min(h, 16), '#3d7a2a');
+  }
+  // Grass texture
+  for (const [dx, dy] of [[10,2],[13,1],[8,3],[14,3],[6,4]])
+    px(c, ox + dx, dy, '#4e8e35');
+  // Edge where grass meets cliff
+  for (let x = 3; x < 16; x++) {
+    const h = Math.round(2 + (x * x) / 20);
+    if (h > 0 && h < 16) px(c, ox + x, h, '#5a4020');
+  }
+  // Cliff texture
+  for (const [dx, dy] of [[2,10],[4,13],[1,7]])
+    px(c, ox + dx, dy, '#7a5d30');
+}
+
+function drawRoofR(c, ox) {
+  // Right slope of hobbit hill mound — grass descends from left to right
+  rc(c, ox, 0, 16, 16, '#8a6b3d');
+  for (let x = 0; x < 16; x++) {
+    const rx = 15 - x; // mirror
+    const h = Math.round(2 + (rx * rx) / 20);
+    if (h > 0) rc(c, ox + x, 0, 1, Math.min(h, 16), '#3d7a2a');
+  }
+  // Grass texture
+  for (const [dx, dy] of [[2,1],[5,2],[3,3],[7,4],[1,3]])
+    px(c, ox + dx, dy, '#4e8e35');
+  // Edge
+  for (let x = 0; x < 13; x++) {
+    const rx = 15 - x;
+    const h = Math.round(2 + (rx * rx) / 20);
+    if (h > 0 && h < 16) px(c, ox + x, h, '#5a4020');
+  }
+  // Cliff texture
+  for (const [dx, dy] of [[12,8],[14,11],[10,13]])
+    px(c, ox + dx, dy, '#7a5d30');
+}
+
 /* ── character drawing ───────────────────────────────── */
 
 const CHARS = {
@@ -411,6 +491,7 @@ export class BootScene extends Phaser.Scene {
       drawGrass, drawGrass2, drawPath, drawWater, drawTree,
       drawHill, drawHillTop, drawDoor, drawBridge, drawFence,
       drawBush, drawStone, drawFlowers, drawGarden, drawRoof,
+      drawDoorL, drawDoorR, drawRoofL, drawRoofR,
     ];
     tileFns.forEach((fn, i) => fn(tc, i * TS));
 
