@@ -182,7 +182,8 @@ export const DIALOGUES = {
   sign_ferry: {
     name: 'Sign',
     lines: [
-      'BUCKLEBURY FERRY\n~ chapter two lies beyond ~',
+      'BUCKLEBURY FERRY\n~ across the Brandywine ~',
+      'The ferry raft is moored on\nthe far shore. Chapter Two\nlies across the river.',
       'TO BE CONTINUED...',
     ],
   },

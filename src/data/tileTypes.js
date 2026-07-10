@@ -35,6 +35,8 @@ export const T = {
   TREE2:     29, // autumn-tinged tree (Woody End)
   SIGN:      30, // wooden signpost (interactable via zone.signs)
   VOID:      31, // dark mass outside interior rooms
+  DOCK:      32, // east-west pier, north half (water edge above)
+  DOCK_S:    33, // east-west pier, south half (water edge + posts below)
 };
 
 export const COLLISION_TILES = [

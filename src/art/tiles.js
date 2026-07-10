@@ -445,6 +445,33 @@ function drawSign(c, ox) {
   rc(c, ox + 3, 5, 8, 1, '#7a5028');
 }
 
+function drawDock(c, ox) {
+  // Pier, north half: water above, deck running to the tile's bottom
+  // so it joins DOCK_S seamlessly
+  rc(c, ox, 0, 16, 3, '#3b7dd8');
+  px(c, ox + 3, 0, '#6bb8e0'); px(c, ox + 11, 1, '#6bb8e0');
+  rc(c, ox, 3, 16, 13, '#8a6b3d');
+  rc(c, ox, 3, 16, 1, '#a0805a');
+  for (let x = 3; x < 16; x += 4)
+    rc(c, ox + x, 3, 1, 13, '#6b4423');
+  px(c, ox + 5, 6, '#4a3015'); px(c, ox + 13, 9, '#4a3015');
+  px(c, ox + 9, 13, '#7a5d30');
+}
+
+function drawDockS(c, ox) {
+  // Pier, south half: deck continues from above, water edge and
+  // support posts below
+  rc(c, ox, 0, 16, 12, '#8a6b3d');
+  for (let x = 3; x < 16; x += 4)
+    rc(c, ox + x, 0, 1, 12, '#6b4423');
+  rc(c, ox, 11, 16, 1, '#5a4020');
+  rc(c, ox, 12, 16, 4, '#3b7dd8');
+  px(c, ox + 6, 15, '#6bb8e0'); px(c, ox + 13, 14, '#6bb8e0');
+  rc(c, ox + 1, 12, 2, 3, '#4a3015');
+  rc(c, ox + 12, 12, 2, 3, '#4a3015');
+  px(c, ox + 7, 4, '#4a3015'); px(c, ox + 11, 8, '#7a5d30');
+}
+
 const TILE_FNS = [
   drawGrass, drawGrass2, drawPath, drawWater, drawTree,
   drawHill, drawHillTop, drawDoor, drawBridge, drawFence,
@@ -452,7 +479,7 @@ const TILE_FNS = [
   drawDoorL, drawDoorR, drawRoofL, drawRoofR,
   drawFloor, drawWall, drawRug, drawTable, drawFireplace,
   drawShelf, drawCounter, drawBed, drawWindowInt,
-  drawFern, drawTree2, drawSign, drawVoid,
+  drawFern, drawTree2, drawSign, drawVoid, drawDock, drawDockS,
 ];
 
 export function makeTilesetDataURL() {

@@ -95,7 +95,6 @@ function generateMap() {
   }
   for (let y = 0; y < HEIGHT; y++) {
     if (!(y === ROAD_Y[0] || y === ROAD_Y[0] + 1)) map[y][0] = T.TREE;
-    map[y][WIDTH - 1] = T.TREE;
   }
 
   // Clearing where Gildor's company appears
@@ -103,8 +102,19 @@ function generateMap() {
     for (let x = 32; x <= 35; x++)
       if (!onRoad(x, y)) map[y][x] = T.GRASS;
 
-  // Ferry signpost at the road's end
-  map[ROAD_Y[37] - 1][37] = T.SIGN;
+  // The Brandywine along the east edge, with the ferry pier jutting
+  // out where the East Road meets the bank (x=36)
+  for (let y = 0; y < HEIGHT; y++)
+    for (let x = 37; x < WIDTH; x++)
+      map[y][x] = T.WATER;
+  // Two-row pier (matches the road height) pointing toward Buckland
+  for (let x = 37; x < WIDTH; x++) {
+    map[ROAD_Y[36]][x] = T.DOCK;
+    map[ROAD_Y[36] + 1][x] = T.DOCK_S;
+  }
+
+  // Ferry signpost on the bank beside the pier
+  map[ROAD_Y[36] - 1][36] = T.SIGN;
 
   return map;
 }
@@ -122,7 +132,7 @@ export const woodyend = {
   ],
   doors: [],
   signs: [
-    { x: 37, y: ROAD_Y[37] - 1, dialogue: 'sign_ferry' },
+    { x: 36, y: ROAD_Y[36] - 1, dialogue: 'sign_ferry' },
   ],
   exits: [
     { x: 0, y: 12, zone: 'shire', entry: 'fromWoodyEnd' },

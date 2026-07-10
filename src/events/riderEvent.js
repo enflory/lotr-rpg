@@ -89,7 +89,8 @@ export function riderEventUpdate(scene, delta) {
     }
 
     // Safely past — he gives up the scent and gallops on
-    if (dx > 110 || r.x > 37 * TILE_SIZE) {
+    // (vanishing into the trees before the riverbank)
+    if (dx > 110 || r.x > 34 * TILE_SIZE) {
       r.destroy();
       ev.rider = null;
       ev.phase = 'done';

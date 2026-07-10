@@ -52,6 +52,9 @@ export class WorldScene extends Phaser.Scene {
     this.player.setSize(10, 8);
     this.player.setOffset(3, 14);
     this.physics.add.collider(this.player, this.layer);
+    // Never walk off the world (e.g. the pier tile touching the map edge)
+    this.physics.world.setBounds(0, 0, this.mapWidth * TILE_SIZE, this.mapHeight * TILE_SIZE);
+    this.player.setCollideWorldBounds(true);
 
     /* ── follower (Sam) ──────────────────────────────── */
     this.follower = null;
@@ -67,6 +70,10 @@ export class WorldScene extends Phaser.Scene {
 
     /* ── interaction hint icon ───────────────────────── */
     this.hintIcon = this.add.image(0, 0, 'hint').setVisible(false).setDepth(900);
+
+    /* ── fern-cover overlays (tall-grass hiding effect) ─ */
+    this.playerFernOverlay = this.add.image(0, 0, 'tileset', T.FERN).setVisible(false);
+    this.followerFernOverlay = this.add.image(0, 0, 'tileset', T.FERN).setVisible(false);
 
     /* ── dialogue UI (fixed to camera) ───────────────── */
     this.dialogBg = this.add.rectangle(160, 210, 304, 52, 0x000000, 0.88)
@@ -215,6 +222,12 @@ export class WorldScene extends Phaser.Scene {
 
     if (this.deniedCooldown > 0) this.deniedCooldown -= delta;
 
+    // Fern cover reads visually: fronds drawn over the character, who
+    // dims slightly. Runs before the early returns so teleports
+    // (e.g. the Rider catch reset) can't leave a stale overlay.
+    this.updateFernCover(this.player, this.playerFernOverlay);
+    this.updateFernCover(this.follower, this.followerFernOverlay);
+
     /* ── dialogue mode ───────────────────────────────── */
     if (this.dialogActive) {
       this.player.setVelocity(0);
@@ -298,6 +311,27 @@ export class WorldScene extends Phaser.Scene {
       : (dy > 0 ? 'down' : 'up');
     const dirFrame = { down: 1, left: 4, right: 7, up: 10 };
     npc.setFrame(dirFrame[dir]);
+  }
+
+  /* ── fern-cover hiding effect ──────────────────────── */
+  updateFernCover(sprite, overlay) {
+    if (!sprite) {
+      overlay.setVisible(false);
+      return;
+    }
+    const tx = Math.floor(sprite.x / TILE_SIZE);
+    const ty = Math.floor((sprite.y + 8) / TILE_SIZE); // feet
+    const row = this.zone.map[ty];
+    const covered = row !== undefined && row[tx] === T.FERN;
+    overlay.setVisible(covered);
+    if (covered) {
+      overlay
+        .setPosition(tx * TILE_SIZE + 8, ty * TILE_SIZE + 8)
+        .setDepth(sprite.y + 1);
+      sprite.setAlpha(0.68);
+    } else {
+      sprite.setAlpha(1);
+    }
   }
 
   /* ── doors and signs ───────────────────────────────── */
