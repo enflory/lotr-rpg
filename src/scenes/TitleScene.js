@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { initAudio } from '../audio/sound.js';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -66,9 +67,10 @@ export class TitleScene extends Phaser.Scene {
   }
 
   startGame() {
+    initAudio(); // must happen inside a user-gesture handler
     this.cameras.main.fadeOut(800, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.scene.start('ShireScene');
+      this.scene.start('WorldScene', { zone: 'shire', entry: 'default' });
     });
   }
 }

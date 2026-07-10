@@ -1,10 +1,9 @@
-// Tileset — 19 16×16 tiles drawn onto one horizontal strip canvas.
-// Order must match the T constants in src/data/map.js.
+// Tileset — 16×16 tiles drawn onto one horizontal strip canvas.
+// Order must match the T constants in src/data/tileTypes.js.
 
 import { px, rc, circle } from './helpers.js';
 
 const TS = 16;
-export const TILE_COUNT = 19;
 
 function drawGrass(c, ox) {
   rc(c, ox, 0, 16, 16, '#5a9e3a');
@@ -256,16 +255,209 @@ function drawRoofR(c, ox) {
     px(c, ox + dx, dy, '#7a5d30');
 }
 
+/* ── interior tiles ─────────────────────────────────────── */
+
+function drawFloor(c, ox) {
+  // Warm wood planks, horizontal, staggered seams
+  rc(c, ox, 0, 16, 16, '#a8804e');
+  for (let y = 0; y < 16; y += 4)
+    rc(c, ox, y + 3, 16, 1, '#8a6238');
+  px(c, ox + 4, 1, '#8a6238'); px(c, ox + 12, 5, '#8a6238');
+  px(c, ox + 7, 9, '#8a6238'); px(c, ox + 2, 13, '#8a6238');
+  px(c, ox + 10, 1, '#c09a64'); px(c, ox + 3, 5, '#c09a64');
+  px(c, ox + 13, 9, '#c09a64'); px(c, ox + 8, 13, '#c09a64');
+}
+
+function drawWall(c, ox) {
+  // Hobbit-hole interior wall: warm plaster above wood wainscot
+  rc(c, ox, 0, 16, 10, '#d8c4a0');
+  for (const [dx, dy] of [[3,2],[9,5],[13,3],[6,7],[1,6]])
+    px(c, ox + dx, dy, '#c8b48e');
+  rc(c, ox, 10, 16, 1, '#6a4a26');
+  rc(c, ox, 11, 16, 5, '#8a6238');
+  rc(c, ox + 5, 11, 1, 5, '#6a4a26');
+  rc(c, ox + 11, 11, 1, 5, '#6a4a26');
+}
+
+function drawRug(c, ox) {
+  // Seamless woven rug — tiles side by side read as one carpet
+  rc(c, ox, 0, 16, 16, '#a84040');
+  for (let y = 0; y < 16; y += 4)
+    for (let x = 0; x < 16; x += 4)
+      rc(c, ox + x + ((y / 4) % 2) * 2, y, 2, 2, '#983838');
+  for (const [dx, dy] of [[2,6],[10,2],[6,12],[14,9],[1,13],[13,14]])
+    px(c, ox + dx, dy, '#c8a040');
+}
+
+function drawTable(c, ox) {
+  rc(c, ox, 0, 16, 16, '#a8804e'); // floor
+  rc(c, ox, 3, 16, 1, '#8a6238');
+  rc(c, ox, 7, 16, 1, '#8a6238');
+  rc(c, ox, 11, 16, 1, '#8a6238');
+  // Shadow, then dark walnut round table — must contrast with the floor
+  circle(c, ox + 8, 9, 7, '#7a5c34');
+  circle(c, ox + 8, 8, 7, '#2e1c0c');
+  circle(c, ox + 8, 8, 6, '#4a2f14');
+  circle(c, ox + 8, 7, 5, '#5f3d1c');
+  // Rim highlight
+  rc(c, ox + 5, 2, 6, 1, '#7a5228');
+  // Cream doily + frothy tankard
+  rc(c, ox + 5, 6, 3, 3, '#e8dcc0');
+  rc(c, ox + 9, 8, 3, 3, '#c8a050');
+  rc(c, ox + 9, 7, 3, 1, '#f0ead6');
+  px(c, ox + 12, 9, '#c8a050');
+}
+
+function drawFireplace(c, ox) {
+  // Stone surround with glowing hearth (draw on wall row)
+  rc(c, ox, 0, 16, 16, '#787068');
+  rc(c, ox, 0, 16, 2, '#605850');
+  rc(c, ox + 1, 3, 3, 2, '#8a8078'); rc(c, ox + 6, 2, 4, 2, '#8a8078');
+  rc(c, ox + 12, 3, 3, 2, '#8a8078');
+  // Hearth opening
+  rc(c, ox + 3, 6, 10, 9, '#201410');
+  rc(c, ox + 4, 8, 8, 7, '#38201a');
+  // Fire
+  rc(c, ox + 6, 10, 4, 4, '#c84818');
+  rc(c, ox + 7, 9, 2, 4, '#e87828');
+  px(c, ox + 7, 8, '#f8b848'); px(c, ox + 8, 10, '#f8d868');
+  px(c, ox + 6, 11, '#f8b848'); px(c, ox + 9, 12, '#f8b848');
+  // Logs
+  rc(c, ox + 5, 14, 6, 1, '#4a2c14');
+}
+
+function drawShelf(c, ox) {
+  rc(c, ox, 0, 16, 16, '#6a4a26');
+  rc(c, ox, 0, 16, 1, '#8a6238');
+  // Two shelf rows of book spines
+  const spines = ['#a84040', '#4a70a0', '#4a8848', '#c8a040', '#8a5599', '#b06830'];
+  for (let row = 0; row < 2; row++) {
+    const y = 2 + row * 7;
+    rc(c, ox + 1, y + 5, 14, 1, '#8a6238'); // shelf board
+    for (let i = 0; i < 6; i++) {
+      const bx = 2 + i * 2;
+      rc(c, ox + bx, y + (i % 2), 2, 5 - (i % 2), spines[(i + row * 3) % 6]);
+      px(c, ox + bx, y + (i % 2), '#00000030');
+    }
+  }
+  rc(c, ox, 15, 16, 1, '#4a3015');
+}
+
+function drawCounter(c, ox) {
+  // Inn bar counter (front face + top)
+  rc(c, ox, 0, 16, 5, '#b08850');
+  rc(c, ox, 0, 16, 1, '#c8a068');
+  rc(c, ox, 5, 16, 1, '#5a3a1c');
+  rc(c, ox, 6, 16, 10, '#8a6238');
+  rc(c, ox + 3, 8, 1, 6, '#6a4a26');
+  rc(c, ox + 8, 8, 1, 6, '#6a4a26');
+  rc(c, ox + 13, 8, 1, 6, '#6a4a26');
+  // Tankard on top
+  rc(c, ox + 10, 1, 3, 3, '#c8b090');
+  px(c, ox + 13, 2, '#c8b090');
+  px(c, ox + 11, 0, '#f0e8d0'); // foam
+}
+
+function drawBed(c, ox) {
+  rc(c, ox, 0, 16, 16, '#a8804e');
+  // Frame
+  rc(c, ox + 1, 0, 14, 16, '#6a4a26');
+  // Pillow
+  rc(c, ox + 3, 1, 10, 4, '#e8e0d0');
+  rc(c, ox + 3, 4, 10, 1, '#c8c0b0');
+  // Quilt — patchwork
+  rc(c, ox + 2, 5, 12, 10, '#7a4a8a');
+  rc(c, ox + 2, 5, 6, 5, '#8a5a9a');
+  rc(c, ox + 8, 10, 6, 5, '#8a5a9a');
+  rc(c, ox + 2, 9, 12, 1, '#5a3a68');
+  rc(c, ox + 8, 5, 1, 10, '#5a3a68');
+}
+
+function drawWindowInt(c, ox) {
+  // Wall tile with a round window looking out on green
+  drawWall(c, ox);
+  circle(c, ox + 8, 5, 4, '#5a3a1c');
+  circle(c, ox + 8, 5, 3, '#8ab8d8');
+  rc(c, ox + 5, 6, 7, 2, '#6aa848'); // green hills through glass
+  rc(c, ox + 8, 2, 1, 7, '#5a3a1c');
+  rc(c, ox + 5, 5, 7, 1, '#5a3a1c');
+}
+
+/* ── forest tiles ───────────────────────────────────────── */
+
+function drawFern(c, ox) {
+  // Lush fern brake — must read clearly as a hiding spot
+  rc(c, ox, 0, 16, 16, '#4e9235');
+  // Shadowed base
+  circle(c, ox + 8, 9, 6, '#26541c');
+  // Radiating fronds
+  const fronds = [
+    [8, 9, 3, 2], [8, 9, 13, 2], [8, 9, 8, 0],
+    [8, 9, 4, 13], [8, 9, 12, 13], [8, 9, 1, 7], [8, 9, 15, 7],
+  ];
+  for (const [cx, cy, tx, ty] of fronds) {
+    const steps = 5;
+    for (let i = 0; i <= steps; i++) {
+      const x = Math.round(cx + ((tx - cx) * i) / steps);
+      const y = Math.round(cy + ((ty - cy) * i) / steps);
+      px(c, ox + x, y, i > 3 ? '#5fae44' : '#3a8030');
+    }
+  }
+  // Frond barbs
+  for (const [dx, dy] of [[6,4],[10,4],[4,7],[12,7],[6,11],[10,11],[8,6]])
+    px(c, ox + dx, dy, '#4a9c3a');
+  px(c, ox + 8, 9, '#26541c');
+}
+
+function drawTree2(c, ox) {
+  // Autumn-tinged tree for the Woody End
+  rc(c, ox, 0, 16, 16, '#4e9235');
+  circle(c, ox + 8, 12, 5, '#3d7a2a');
+  rc(c, ox + 6, 11, 4, 5, '#4a2c14');
+  rc(c, ox + 7, 12, 2, 4, '#6a4528');
+  circle(c, ox + 8, 6, 7, '#3c3410');
+  circle(c, ox + 8, 6, 6, '#6a6018');
+  circle(c, ox + 7, 5, 4, '#8a7c24');
+  rc(c, ox + 4, 3, 2, 2, '#a89230');
+  rc(c, ox + 8, 2, 3, 2, '#a89230');
+  rc(c, ox + 6, 6, 2, 1, '#a89230');
+  px(c, ox + 10, 4, '#c8a838');
+  px(c, ox + 11, 7, '#8a7c24');
+}
+
+function drawVoid(c, ox) {
+  // Dark earthen mass outside interior rooms
+  rc(c, ox, 0, 16, 16, '#171210');
+  for (const [dx, dy] of [[3,4],[11,2],[7,9],[13,12],[1,14],[9,6],[5,13],[15,8]])
+    px(c, ox + dx, dy, '#211a15');
+}
+
+function drawSign(c, ox) {
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  px(c, ox + 2, 13, '#4a8630'); px(c, ox + 12, 14, '#4a8630');
+  // Post
+  rc(c, ox + 7, 6, 2, 9, '#6b4423');
+  px(c, ox + 7, 14, '#4a3015');
+  // Board with grain lines
+  rc(c, ox + 1, 1, 14, 6, '#4a3015');
+  rc(c, ox + 2, 2, 12, 4, '#a0703c');
+  rc(c, ox + 3, 3, 10, 1, '#7a5028');
+  rc(c, ox + 3, 5, 8, 1, '#7a5028');
+}
+
 const TILE_FNS = [
   drawGrass, drawGrass2, drawPath, drawWater, drawTree,
   drawHill, drawHillTop, drawDoor, drawBridge, drawFence,
   drawBush, drawStone, drawFlowers, drawGarden, drawRoof,
   drawDoorL, drawDoorR, drawRoofL, drawRoofR,
+  drawFloor, drawWall, drawRug, drawTable, drawFireplace,
+  drawShelf, drawCounter, drawBed, drawWindowInt,
+  drawFern, drawTree2, drawSign, drawVoid,
 ];
 
 export function makeTilesetDataURL() {
   const canvas = document.createElement('canvas');
-  canvas.width = TILE_COUNT * TS;
+  canvas.width = TILE_FNS.length * TS;
   canvas.height = TS;
   const c = canvas.getContext('2d');
   TILE_FNS.forEach((fn, i) => fn(c, i * TS));

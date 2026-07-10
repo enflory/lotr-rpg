@@ -218,6 +218,79 @@ const GD_LEFT = validateRows('GD_LEFT', [
 
 const GD_RIGHT = mirrorRows(GD_LEFT);
 
+/* ── Elf template (20 rows) — tall, slender, circlet ────── */
+
+const EL_DOWN = validateRows('EL_DOWN', [
+  '.....oooooo.....',
+  '....ohhllhho....',
+  '...ohhlhhlhho...',
+  '..ohhhhhhhhhho..',
+  '..ohbbbbbbbbho..',
+  '..ohSWESSEWSho..',
+  '..ohsSSNNSSsho..',
+  '...ohSSSSSSho...',
+  '...ohhVVVVhho...',
+  '..ohVVvVVvVVho..',
+  '..oGVVVVVVVVGo..',
+  '..oGVVVBBVVVGo..',
+  '..oGVVVVVVVVGo..',
+  '..oXVVVVVVVVXo..',
+  '..oXVVVVVVVVXo..',
+  '..oVVVVVVVVVVo..',
+  '..oXVVVVVVVVXo..',
+  '..oXVVVVVVVVXo..',
+  '..oVVVVVVVVVVo..',
+  '...oXXXXXXXXo...',
+]);
+
+const EL_UP = validateRows('EL_UP', [
+  '.....oooooo.....',
+  '....ohhllhho....',
+  '...ohhlhhlhho...',
+  '..ohhhhhhhhhho..',
+  '..ohbbbbbbbbho..',
+  '..ohhhhhhhhhho..',
+  '..ohhlhhhhlhho..',
+  '...ohhhhhhhho...',
+  '...ohhhhhhhho...',
+  '..ohVVhhhhVVho..',
+  '..oGVVVVVVVVGo..',
+  '..oGVVVVVVVVGo..',
+  '..oGVVVVVVVVGo..',
+  '..oXVVVVVVVVXo..',
+  '..oXVVVVVVVVXo..',
+  '..oVVVVVVVVVVo..',
+  '..oXVVVVVVVVXo..',
+  '..oXVVVVVVVVXo..',
+  '..oVVVVVVVVVVo..',
+  '...oXXXXXXXXo...',
+]);
+
+const EL_LEFT = validateRows('EL_LEFT', [
+  '.....oooooo.....',
+  '....ohhllhho....',
+  '...ohhlhhlhho...',
+  '..ohhhhhhhhhho..',
+  '..ohbbbbbbhhho..',
+  '..ohSESSSShhho..',
+  '..ohsSNSSSshho..',
+  '...ohSSSSShho...',
+  '...ohhVVVVhho...',
+  '..ohVVvVVVVVho..',
+  '..oGVVVVVVVVGo..',
+  '..oGVVBBVVVVGo..',
+  '..oGVVVVVVVVGo..',
+  '..oXVVVVVVVVXo..',
+  '..oXVVVVVVVVXo..',
+  '..oVVVVVVVVVVo..',
+  '..oXVVVVVVVVXo..',
+  '..oXVVVVVVVVXo..',
+  '..oVVVVVVVVVVo..',
+  '...oXXXXXXXXo...',
+]);
+
+const EL_RIGHT = mirrorRows(EL_LEFT);
+
 /* ── palettes ───────────────────────────────────────────── */
 // Shared slots: o outline · H/h/l hair dark/mid/light · S/s skin/shade ·
 // E eye · W eye-white · N mouth · C/c collar/vest · V/v/G shirt or dress
@@ -229,6 +302,7 @@ const OUTLINE = '#181008';
 const MALE = { down: M_DOWN, left: M_LEFT, right: M_RIGHT, up: M_UP };
 const FEMALE = { down: F_DOWN, left: F_LEFT, right: F_RIGHT, up: F_UP };
 const WIZARD = { down: GD_DOWN, left: GD_LEFT, right: GD_RIGHT, up: GD_UP };
+const ELF = { down: EL_DOWN, left: EL_LEFT, right: EL_RIGHT, up: EL_UP };
 
 export const CHAR_DEFS = {
   frodo: {
@@ -302,6 +376,31 @@ export const CHAR_DEFS = {
     feet: ['#d8b080', '#b89060'],
   },
 
+  ted: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#3a2a15', h: '#5c4222', l: '#7a5c30',
+      C: '#b8b0a0', c: '#989080',
+      V: '#7a4028', v: '#96562e', G: '#582c1a',
+      B: '#301810', b: '#909090',
+      P: '#4a4438', p: '#322e24',
+    },
+    feet: ['#d8b080', '#b89060'],
+  },
+
+  gildor: {
+    maps: ELF,
+    pal: {
+      o: '#1c1c22',
+      S: '#f4dcc0', s: '#dcc0a0', E: '#28304a', W: '#f0ece4', N: '#c8a080',
+      h: '#e8d070', l: '#f8ec9a', b: '#e8c840',
+      V: '#c8d4dc', v: '#e4ecf2', G: '#98a8b4', X: '#7a8a98',
+      B: '#8898a8',
+    },
+    feet: ['#8898a8', '#68788a'],
+  },
+
   gandalf: {
     maps: WIZARD,
     pal: {
@@ -328,6 +427,75 @@ export const CHAR_DEFS = {
 export const CHAR_NAMES = Object.keys(CHAR_DEFS);
 
 /* ── sheet builder ──────────────────────────────────────── */
+
+/* ── Black Rider — mounted, side view, 32×32, 2 gallop frames ── */
+// Frame 0 faces right; ShireScene flips with setFlipX for leftward travel.
+
+export function makeRiderSheet() {
+  const FW = 32, FH = 32;
+  const canvas = document.createElement('canvas');
+  canvas.width = FW * 2;
+  canvas.height = FH;
+  const c = canvas.getContext('2d');
+
+  const K = '#08080c';   // near-black outline
+  const B = '#16161e';   // body black
+  const b = '#26262f';   // highlight
+  const M = '#101018';   // mane/tail
+
+  for (let frame = 0; frame < 2; frame++) {
+    const x = frame * FW;
+
+    // Horse body — heavy black mass
+    rc(c, x + 6, 14, 18, 8, K);
+    rc(c, x + 7, 15, 16, 6, B);
+    rc(c, x + 9, 15, 8, 2, b);
+    rc(c, x + 23, 15, 3, 5, B);
+    // Neck + head (rightward)
+    rc(c, x + 22, 9, 4, 7, K);
+    rc(c, x + 23, 10, 2, 6, B);
+    rc(c, x + 24, 7, 5, 4, K);
+    rc(c, x + 25, 8, 4, 2, B);
+    px(c, x + 28, 8, b); // muzzle
+    px(c, x + 26, 7, '#801818'); // baleful eye
+    // Ears
+    px(c, x + 24, 6, K); px(c, x + 26, 6, K);
+    // Mane
+    rc(c, x + 21, 8, 2, 7, M);
+    // Tail streaming left
+    rc(c, x + 4, 14, 3, 2, M);
+    rc(c, x + 2, 15, 3, 2, M);
+    px(c, x + 1, 17, M); px(c, x + 2, 17, M);
+
+    // Legs — alternate gallop poses
+    if (frame === 0) {
+      rc(c, x + 8, 22, 2, 7, K);   // fore-back
+      rc(c, x + 12, 22, 2, 6, K);
+      rc(c, x + 18, 22, 2, 6, K);
+      rc(c, x + 22, 22, 2, 7, K);  // hind-front
+    } else {
+      rc(c, x + 7, 22, 2, 6, K);
+      rc(c, x + 11, 23, 2, 6, K);
+      rc(c, x + 19, 23, 2, 6, K);
+      rc(c, x + 23, 22, 2, 6, K);
+    }
+
+    // Rider — hooded black cloak
+    rc(c, x + 12, 4, 6, 11, K);      // cloaked torso
+    rc(c, x + 13, 5, 4, 9, B);
+    rc(c, x + 13, 2, 5, 4, K);       // hood
+    rc(c, x + 14, 3, 3, 2, B);
+    px(c, x + 17, 4, '#000006');     // hood void — no face
+    px(c, x + 16, 4, '#000006');
+    // Cloak billowing behind
+    rc(c, x + 9, 6, 3, 8, K);
+    rc(c, x + 10, 7, 2, 6, B);
+    // Arm/rein
+    px(c, x + 18, 8, B); px(c, x + 19, 9, B); px(c, x + 20, 10, b);
+  }
+
+  return canvas.toDataURL();
+}
 
 const DIR_ORDER = ['down', 'left', 'right', 'up']; // sheet row order
 

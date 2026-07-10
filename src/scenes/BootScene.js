@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { makeTilesetDataURL } from '../art/tiles.js';
-import { CHAR_NAMES, makeCharSheet, CH } from '../art/characters.js';
+import { CHAR_NAMES, makeCharSheet, makeRiderSheet, CH } from '../art/characters.js';
 import { makeHintSprite } from '../art/ui.js';
 
 const TS = 16;
@@ -23,6 +23,11 @@ export class BootScene extends Phaser.Scene {
         frameHeight: CH,
       });
     }
+
+    this.load.spritesheet('rider', makeRiderSheet(), {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
 
     this.load.image('hint', makeHintSprite());
   }
@@ -48,6 +53,13 @@ export class BootScene extends Phaser.Scene {
         });
       });
     }
+
+    this.anims.create({
+      key: 'rider-gallop',
+      frames: this.anims.generateFrameNumbers('rider', { start: 0, end: 1 }),
+      frameRate: 8,
+      repeat: -1,
+    });
 
     this.scene.start('TitleScene');
   }
