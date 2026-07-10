@@ -28,8 +28,10 @@ export class ShireScene extends Phaser.Scene {
       'frodo',
       1, // face down, standing
     );
-    this.player.setSize(10, 10);
-    this.player.setOffset(3, 5);
+    // Sprites are 16×24; the physics body covers just the feet so the
+    // head/torso can overlap tiles behind (Zelda-style depth).
+    this.player.setSize(10, 8);
+    this.player.setOffset(3, 14);
     this.physics.add.collider(this.player, layer);
     this.lastDir = 'down';
 
@@ -39,30 +41,31 @@ export class ShireScene extends Phaser.Scene {
     for (const [key, spawn] of Object.entries(NPC_SPAWNS)) {
       const npc = this.physics.add.staticSprite(
         spawn.x * TILE_SIZE + 8,
-        spawn.y * TILE_SIZE + 8,
+        spawn.y * TILE_SIZE + 6, // feet rest on the spawn tile
         key,
         dirFrameMap[spawn.dir],
       );
       npc.setData('key', key);
       npc.setData('dir', spawn.dir);
       npc.setSize(12, 12);
+      npc.setDepth(npc.y);
       this.npcs.push(npc);
     }
 
     /* ── interaction hint icon ───────────────────────── */
-    this.hintIcon = this.add.image(0, 0, 'hint').setVisible(false).setDepth(10);
+    this.hintIcon = this.add.image(0, 0, 'hint').setVisible(false).setDepth(900);
 
     /* ── dialogue UI (fixed to camera) ───────────────── */
     this.dialogBg = this.add.rectangle(160, 210, 304, 52, 0x000000, 0.88)
-      .setScrollFactor(0).setDepth(20).setVisible(false);
+      .setScrollFactor(0).setDepth(1000).setVisible(false);
     this.dialogBorder = this.add.rectangle(160, 210, 304, 52)
-      .setScrollFactor(0).setDepth(20).setVisible(false).setStrokeStyle(1, 0xc8a84e);
+      .setScrollFactor(0).setDepth(1000).setVisible(false).setStrokeStyle(1, 0xc8a84e);
 
     this.dialogNameText = this.add.text(14, 188, '', {
       fontFamily: '"Press Start 2P"',
       fontSize: '7px',
       color: '#c8a84e',
-    }).setScrollFactor(0).setDepth(21).setVisible(false);
+    }).setScrollFactor(0).setDepth(1001).setVisible(false);
 
     this.dialogBodyText = this.add.text(14, 200, '', {
       fontFamily: '"Press Start 2P"',
@@ -70,13 +73,13 @@ export class ShireScene extends Phaser.Scene {
       color: '#f0ead6',
       wordWrap: { width: 286 },
       lineSpacing: 4,
-    }).setScrollFactor(0).setDepth(21).setVisible(false);
+    }).setScrollFactor(0).setDepth(1001).setVisible(false);
 
     this.dialogArrow = this.add.text(296, 228, '\u25bc', {
       fontFamily: '"Press Start 2P"',
       fontSize: '6px',
       color: '#c8a84e',
-    }).setScrollFactor(0).setDepth(21).setVisible(false);
+    }).setScrollFactor(0).setDepth(1001).setVisible(false);
 
     this.tweens.add({
       targets: this.dialogArrow,
@@ -138,6 +141,9 @@ export class ShireScene extends Phaser.Scene {
     } else {
       this.player.anims.play(`frodo-idle-${this.lastDir}`, true);
     }
+
+    // Depth-sort by feet position so characters overlap correctly
+    this.player.setDepth(this.player.y);
 
     /* ── NPC interaction check ───────────────────────── */
     let closestNpc = null;
@@ -299,7 +305,7 @@ export class ShireScene extends Phaser.Scene {
       color: '#f0ead6',
       stroke: '#1a1a1a',
       strokeThickness: 2,
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(15).setAlpha(0);
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(950).setAlpha(0);
 
     this.tweens.add({
       targets: label,
