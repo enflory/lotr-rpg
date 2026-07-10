@@ -2,7 +2,7 @@
 
 ## Vision
 
-A top-down pixel art RPG set in Middle-earth, faithful to Tolkien's books. Think original Game Boy Pokemon / Link's Awakening aesthetic, but you're playing through The Lord of the Rings as Frodo.
+A top-down pixel art RPG set in Middle-earth, faithful to Tolkien's books. Think GBA-era visual complexity — A Link to the Past and Four Swords is the aesthetic target — but you're playing through The Lord of the Rings as Frodo.
 
 The magic is in **exploring the LOTR universe** with the immersive feel of LOTRO but the charm and simplicity of a retro Game Boy RPG.
 

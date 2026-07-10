@@ -448,6 +448,252 @@ function makeCharSheet(ch) {
   return canvas.toDataURL();
 }
 
+/* ── pixel-map drawing helper ──────────────────────────── */
+
+function drawPixelMap(c, x, y, rows, palette) {
+  for (let ry = 0; ry < rows.length; ry++) {
+    const row = rows[ry];
+    for (let rx = 0; rx < row.length; rx++) {
+      const col = palette[row[rx]];
+      if (col) px(c, x + rx, y + ry, col);
+    }
+  }
+}
+
+const CH = 24; // character frame height for 16×24 sprites
+
+/* ── ChatGPT-inspired Frodo (JRPG style) — 16×24 ────────── */
+
+const CG_PAL = {
+  'o': '#181008', 'H': '#4a2510', 'h': '#6a3a1a', 'l': '#8a5528',
+  'S': '#f0c8a0', 's': '#d0a878', 'E': '#181830', 'W': '#e0d8d0',
+  'N': '#c09070', 'V': '#287028', 'v': '#389838', 'G': '#185018',
+  'C': '#e0d4c0', 'c': '#c0b098', 'B': '#301810', 'b': '#c09030',
+  'P': '#6a4828', 'p': '#4a3018',
+};
+
+const CG_DOWN = [
+  '.....oooooo.....',
+  '....oHHhhHHo....',
+  '...oHhhlhlhHo...',
+  '..ooHhhhhhHhoo..',
+  '..oHhSSSSSShHo..',
+  '..ohSWESSEWSho..',
+  '..osSSSNNSSSso..',
+  '...osSSSSSSso...',
+  '....osCCCCso....',
+  '...oVVCccCVVo...',
+  '..oVVvVVVVvVVo..',
+  '..oGVVVVVVVVGo..',
+  '..oGVVVBBVVVGo..',
+  '...oVVBbbBVVo...',
+  '...oPPPPPPPPo...',
+  '...oPPpPPpPPo...',
+  '....oPPPPPPo....',
+  '.....opPPpo.....',
+];
+
+const CG_UP = [
+  '.....oooooo.....',
+  '....oHHhhHHo....',
+  '...oHhhlhlhHo...',
+  '..ooHhhhhhHhoo..',
+  '..oHHhHhHhHHHo..',
+  '..oHHHHHHHHHHo..',
+  '..ohHHhHhHHhho..',
+  '...ohHHHHHHho...',
+  '....osCCCCso....',
+  '...oVVCccCVVo...',
+  '..oVVVVVVVVVVo..',
+  '..oGVVVVVVVVGo..',
+  '..oGVVVBBVVVGo..',
+  '...oVVBBBBVVo...',
+  '...oPPPPPPPPo...',
+  '...oPPpPPpPPo...',
+  '....oPPPPPPo....',
+  '.....opPPpo.....',
+];
+
+const CG_LEFT = [
+  '.....oooooo.....',
+  '....oHHhhHHo....',
+  '...oHhhlhlhHo...',
+  '..ooHhhhhhHhoo..',
+  '..oHhSSSSSHHHo..',
+  '..oSESSSSSHHho..',
+  '..osSNSSSSssho..',
+  '...osSSSSSSso...',
+  '....osCCCCso....',
+  '...oVVCccCVVo...',
+  '..oVVvVVVVvVVo..',
+  '..oGVVVVVVVVGo..',
+  '..oGVVVBBVVVGo..',
+  '...oVVBbbBVVo...',
+  '...oPPPPPPPPo...',
+  '...oPPpPPpPPo...',
+  '....oPPPPPPo....',
+  '.....opPPpo.....',
+];
+
+const CG_RIGHT = [
+  '.....oooooo.....',
+  '....oHHhhHHo....',
+  '...oHhhlhlhHo...',
+  '..ooHhhhhhHhoo..',
+  '..oHHHSSSSShHo..',
+  '..ohHHSSSSSESo..',
+  '..ohssSSSSNSso..',
+  '...osSSSSSSso...',
+  '....osCCCCso....',
+  '...oVVCccCVVo...',
+  '..oVVvVVVVvVVo..',
+  '..oGVVVVVVVVGo..',
+  '..oGVVVBBVVVGo..',
+  '...oVVBbbBVVo...',
+  '...oPPPPPPPPo...',
+  '...oPPpPPpPPo...',
+  '....oPPPPPPo....',
+  '.....opPPpo.....',
+];
+
+/* ── Gemini-inspired Frodo (Pokemon/cute style) — 16×24 ──── */
+
+const GM_PAL = {
+  'o': '#201810', 'H': '#3a2515', 'h': '#5a3825', 'l': '#7a5838',
+  'K': '#483020', 'S': '#f8d8b8', 's': '#e0b890', 'E': '#181820',
+  'W': '#e8e0d8', 'R': '#e8a088', 'V': '#4a8848', 'v': '#60a860',
+  'G': '#306830', 'C': '#f0e8d8', 'c': '#d8d0c0', 'B': '#503818',
+  'b': '#b88838', 'P': '#7a5838', 'p': '#5a4028',
+};
+
+const GM_DOWN = [
+  '....oooooooo....',
+  '...oHHhllhHHo...',
+  '..oHhKhhhhKhHo..',
+  '..oHhhhhhhhhHo..',
+  '..oHhSSSSSShHo..',
+  '..oSWESSSSEWSo..',
+  '..oSRSSssSSRSo..',
+  '...osSSSSSSSo...',
+  '....ossCCCsso...',
+  '...oVVCccCVVo...',
+  '..oVVvVVVVvVVo..',
+  '..oGVVVVVVVVGo..',
+  '...oVVBbbBVVo...',
+  '...oPPPPPPPPo...',
+  '...oPPpPPpPPo...',
+  '....oPPPPPPo....',
+  '.....oPPPPo.....',
+  '.....opPPpo.....',
+];
+
+const GM_UP = [
+  '....oooooooo....',
+  '...oHHhllhHHo...',
+  '..oHhKhhhhKhHo..',
+  '..oHhhhhhhhhHo..',
+  '..oHHhHhHhHHHo..',
+  '..oHHHHHHHHHHo..',
+  '..ohHHKhKHHhho..',
+  '...ohHHHHHHho...',
+  '....ossCCCsso...',
+  '...oVVCccCVVo...',
+  '..oVVVVVVVVVVo..',
+  '..oGVVVVVVVVGo..',
+  '...oVVBbbBVVo...',
+  '...oPPPPPPPPo...',
+  '...oPPpPPpPPo...',
+  '....oPPPPPPo....',
+  '.....oPPPPo.....',
+  '.....opPPpo.....',
+];
+
+const GM_LEFT = [
+  '....oooooooo....',
+  '...oHHhllhHHo...',
+  '..oHhKhhhhKhHo..',
+  '..oHhhhhhhhhHo..',
+  '..oHhSSSSSHHHo..',
+  '..oSESSSSSHHho..',
+  '..oSRSSsSSssho..',
+  '...osSSSSSSSo...',
+  '....ossCCCsso...',
+  '...oVVCccCVVo...',
+  '..oVVvVVVVvVVo..',
+  '..oGVVVVVVVVGo..',
+  '...oVVBbbBVVo...',
+  '...oPPPPPPPPo...',
+  '...oPPpPPpPPo...',
+  '....oPPPPPPo....',
+  '.....oPPPPo.....',
+  '.....opPPpo.....',
+];
+
+const GM_RIGHT = [
+  '....oooooooo....',
+  '...oHHhllhHHo...',
+  '..oHhKhhhhKhHo..',
+  '..oHhhhhhhhhHo..',
+  '..oHHHSSSSShHo..',
+  '..ohHHSSSSSESo..',
+  '..ohssSSsSSRSo..',
+  '...osSSSSSSSo...',
+  '....ossCCCsso...',
+  '...oVVCccCVVo...',
+  '..oVVvVVVVvVVo..',
+  '..oGVVVVVVVVGo..',
+  '...oVVBbbBVVo...',
+  '...oPPPPPPPPo...',
+  '...oPPpPPpPPo...',
+  '....oPPPPPPo....',
+  '.....oPPPPo.....',
+  '.....opPPpo.....',
+];
+
+/* ── build a custom Frodo spritesheet from pixel maps (16×24) ── */
+
+function makeCustomFrodoSheet(dirMaps, palette, feetColor, feetShadow) {
+  const canvas = document.createElement('canvas');
+  canvas.width = 3 * TS;
+  canvas.height = 4 * CH;
+  const c = canvas.getContext('2d');
+
+  const dirs = [dirMaps.down, dirMaps.left, dirMaps.right, dirMaps.up];
+  const ol = palette['o']; // outline color
+
+  for (let di = 0; di < 4; di++) {
+    for (let frame = 0; frame < 3; frame++) {
+      const fx = frame * TS;
+      const fy = di * CH;
+
+      // Body pixel map (starts at fy+2, 2px top padding)
+      drawPixelMap(c, fx, fy + 2, dirs[di], palette);
+
+      // Big bare hobbit feet with walk animation
+      const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
+      const footY = fy + 2 + dirs[di].length; // right below body
+
+      // Left foot (3px wide × 2px tall + outline)
+      px(c, fx + 3 + legOff, footY, ol);
+      rc(c, fx + 4 + legOff, footY, 3, 1, feetColor);
+      px(c, fx + 7 + legOff, footY, ol);
+      px(c, fx + 3 + legOff, footY + 1, ol);
+      rc(c, fx + 4 + legOff, footY + 1, 3, 1, feetShadow);
+      px(c, fx + 7 + legOff, footY + 1, ol);
+
+      // Right foot
+      px(c, fx + 8 - legOff, footY, ol);
+      rc(c, fx + 9 - legOff, footY, 3, 1, feetColor);
+      px(c, fx + 12 - legOff, footY, ol);
+      px(c, fx + 8 - legOff, footY + 1, ol);
+      rc(c, fx + 9 - legOff, footY + 1, 3, 1, feetShadow);
+      px(c, fx + 12 - legOff, footY + 1, ol);
+    }
+  }
+
+  return canvas.toDataURL();
+}
+
 /* ── interaction hint sprite ───────────────────────────── */
 
 function makeHintSprite() {
@@ -508,13 +754,25 @@ export class BootScene extends Phaser.Scene {
       });
     }
 
+    // ── custom Frodo variants ──
+    this.load.spritesheet('frodo_chatgpt', makeCustomFrodoSheet(
+      { down: CG_DOWN, left: CG_LEFT, right: CG_RIGHT, up: CG_UP },
+      CG_PAL, '#d8b080', '#b89060',
+    ), { frameWidth: TS, frameHeight: CH });
+
+    this.load.spritesheet('frodo_gemini', makeCustomFrodoSheet(
+      { down: GM_DOWN, left: GM_LEFT, right: GM_RIGHT, up: GM_UP },
+      GM_PAL, '#e8c098', '#c8a078',
+    ), { frameWidth: TS, frameHeight: CH });
+
     // ── hint icon ──
     this.load.image('hint', makeHintSprite());
   }
 
   create() {
-    // Create walk animations for each character
-    for (const name of Object.keys(CHARS)) {
+    // Create walk animations for each character (including custom Frodo variants)
+    const allCharNames = [...Object.keys(CHARS), 'frodo_chatgpt', 'frodo_gemini'];
+    for (const name of allCharNames) {
       const dirs = ['down', 'left', 'right', 'up'];
       dirs.forEach((dir, di) => {
         this.anims.create({

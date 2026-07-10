@@ -153,7 +153,7 @@ export class ShireScene extends Phaser.Scene {
     }
 
     if (closestNpc) {
-      this.hintIcon.setPosition(closestNpc.x, closestNpc.y - 14).setVisible(true);
+      this.hintIcon.setPosition(closestNpc.x, closestNpc.y - 18).setVisible(true);
       if (Phaser.Input.Keyboard.JustDown(this.spaceKey) || Phaser.Input.Keyboard.JustDown(this.enterKey)) {
         this.faceNpcToPlayer(closestNpc);
         this.startDialogue(closestNpc.getData('key'));

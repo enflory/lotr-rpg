@@ -102,6 +102,8 @@ export const NPC_SPAWNS = {
   gaffer:  { x: 10, y: 15, dir: 'right' }, // Near Bagshot Row
   lobelia: { x: 10, y: 19, dir: 'right' }, // On Bywater Road
   rosie:   { x: 26, y: 23, dir: 'down' },  // Near the Green Dragon Inn
+  frodo_chatgpt: { x: 22, y: 7, dir: 'down' },  // Frodo variant (ChatGPT style) — near player start
+  frodo_gemini:  { x: 24, y: 7, dir: 'down' },  // Frodo variant (Gemini style) — near player start
 };
 
 // Frodo start position — on the path just below Bag End's door

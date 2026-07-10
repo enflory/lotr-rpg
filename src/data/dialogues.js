@@ -68,4 +68,20 @@ export const DIALOGUES = {
       'BYWATER\nHobbiton 1 mile north',
     ],
   },
+
+  frodo_chatgpt: {
+    name: 'Frodo (ChatGPT)',
+    lines: [
+      'This is the ChatGPT-inspired\nsprite variant.',
+      'JRPG style — darker outline,\nmore saturated colors.',
+    ],
+  },
+
+  frodo_gemini: {
+    name: 'Frodo (Gemini)',
+    lines: [
+      'This is the Gemini-inspired\nsprite variant.',
+      'Pokemon/cute style — rounder,\nsofter palette, big curly hair.',
+    ],
+  },
 };
