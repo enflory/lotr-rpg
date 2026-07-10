@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { initAudio } from '../audio/sound.js';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -22,7 +23,7 @@ export class TitleScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // Subtitle
-    this.add.text(cx, cy - 10, 'An Unexpected Journey', {
+    this.add.text(cx, cy - 10, 'Chapter One ~ Three is Company', {
       fontFamily: '"Press Start 2P"',
       fontSize: '7px',
       color: '#8a8a8a',
@@ -53,8 +54,13 @@ export class TitleScene extends Phaser.Scene {
       repeat: -1,
     });
 
-    // Version / credit
-    this.add.text(cx, 230, 'PROTOTYPE v0.1', {
+    // Controls + version
+    this.add.text(cx, 218, 'ARROWS move   SPACE talk   Q objective   M sound', {
+      fontFamily: '"Press Start 2P"',
+      fontSize: '5px',
+      color: '#6a6a6a',
+    }).setOrigin(0.5);
+    this.add.text(cx, 230, 'PROTOTYPE v0.2', {
       fontFamily: '"Press Start 2P"',
       fontSize: '5px',
       color: '#4a4a4a',
@@ -66,9 +72,10 @@ export class TitleScene extends Phaser.Scene {
   }
 
   startGame() {
+    initAudio(); // must happen inside a user-gesture handler
     this.cameras.main.fadeOut(800, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.scene.start('ShireScene');
+      this.scene.start('WorldScene', { zone: 'shire', entry: 'default' });
     });
   }
 }

@@ -9,7 +9,7 @@
 ## 1. Product Overview
 
 ### 1.1 Vision
-A top-down pixel art RPG covering The Lord of the Rings: The Fellowship of the Ring, faithful to Tolkien's published text. Game Boy / Link's Awakening aesthetic. The player controls Frodo Baggins from Bag End to the breaking of the Fellowship at Parth Galen.
+A top-down pixel art RPG covering The Lord of the Rings: The Fellowship of the Ring, faithful to Tolkien's published text. GBA / A Link to the Past and Four Swords aesthetic. The player controls Frodo Baggins from Bag End to the breaking of the Fellowship at Parth Galen.
 
 ### 1.2 Core Principles
 - **Book-faithful**: Follow Tolkien's text. Include what adaptations cut (Tom Bombadil, Barrow-downs, the Woody End). No invented lore.
@@ -197,7 +197,7 @@ The full game needs ~10 tilesets (15-25 tiles each) + 32+ character sprites = si
 > - Pro: True to the book (Frodo doesn't fight much). Unique. Keeps development scope manageable.
 > - Con: May feel thin to RPG players. Less "game" in the game.
 >
-> **Option B: Simple real-time combat (Link's Awakening style)**
+> **Option B: Simple real-time combat (A Link to the Past style)**
 > Frodo can swing Sting, companions attack nearby enemies. Enemies have HP, you have HP. Simple and immediate.
 > - Pro: Familiar, satisfying. Leverages the retro aesthetic.
 > - Con: Frodo-with-a-sword doesn't match the book well. Needs careful balancing.
