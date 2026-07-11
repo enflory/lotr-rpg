@@ -21,25 +21,25 @@ function spawnFirework(scene) {
   const color = SPARK_COLORS[Math.floor(Math.random() * SPARK_COLORS.length)];
 
   // Center flash
-  const flash = scene.add.circle(cx, cy, 3, 0xffffff).setDepth(990);
+  const flash = scene.add.circle(cx, cy, 4, 0xffffff).setDepth(990);
   scene.tweens.add({
     targets: flash,
     alpha: 0,
-    scale: 2.2,
-    duration: 260,
+    scale: 2.4,
+    duration: 300,
     onComplete: () => flash.destroy(),
   });
 
-  // Radial sparks
-  for (let i = 0; i < 8; i++) {
-    const angle = (i / 8) * Math.PI * 2;
-    const spark = scene.add.circle(cx, cy, 1.5, color).setDepth(990);
+  // Radial sparks — fly at full brightness, then wink out
+  for (let i = 0; i < 10; i++) {
+    const angle = (i / 10) * Math.PI * 2;
+    const spark = scene.add.circle(cx, cy, 2, color).setDepth(990);
     scene.tweens.add({
       targets: spark,
-      x: cx + Math.cos(angle) * (10 + Math.random() * 8),
-      y: cy + Math.sin(angle) * (10 + Math.random() * 8),
-      alpha: 0,
-      duration: 480 + Math.random() * 240,
+      x: cx + Math.cos(angle) * (14 + Math.random() * 10),
+      y: cy + Math.sin(angle) * (14 + Math.random() * 10),
+      alpha: { value: 0, delay: 420, duration: 280 },
+      duration: 700,
       onComplete: () => spark.destroy(),
     });
   }
@@ -55,7 +55,7 @@ export function partyEventUpdate(scene, delta) {
   if (ev.phase === 'party') {
     ev.fireworkIn -= delta;
     if (ev.fireworkIn <= 0) {
-      ev.fireworkIn = 1200 + Math.random() * 1400;
+      ev.fireworkIn = 900 + Math.random() * 1100;
       spawnFirework(scene);
     }
     if (hasFlag('bilboFarewell')) {
