@@ -10,9 +10,34 @@
 
 /** @type {Record<string, import('./types.js').Dialogue>} */
 export const DIALOGUES = {
+  bilbo: {
+    name: 'Bilbo',
+    stages: [
+      {
+        when: (f) => !f.bilboFarewell,
+        lines: [
+          'My dear Bagginses and\nBoffins, Tooks and\nBrandybucks!',
+          'Today is my one hundred\nand eleventh birthday:\nI am eleventy-one today!',
+          'I hope you are all enjoying\nyourselves as much as I am.',
+          'I regret to announce that\nthis is the END.',
+          'I am going. I am leaving\nNOW. GOOD-BYE!',
+        ],
+        set: 'bilboFarewell',
+      },
+      { lines: ['...'] },
+    ],
+  },
+
   gandalf: {
     name: 'Gandalf',
     stages: [
+      {
+        when: (f) => !f.prologueDone,
+        lines: [
+          'Ah, Frodo my boy! A fine\nnight for fireworks, and\nfiner ones you never saw.',
+          'Keep an eye on your uncle\nat his speech. I fancy he\nhas a surprise in store.',
+        ],
+      },
       {
         when: (f) => !f.metGandalf,
         lines: [
@@ -73,6 +98,13 @@ export const DIALOGUES = {
     name: 'The Gaffer',
     stages: [
       {
+        when: (f) => !f.prologueDone,
+        lines: [
+          'A very nice well-spoken\ngentlehobbit is Mr. Bilbo,\nas I\'ve always said.',
+          'Free beer and a feast for\nall comers! That IS a\nbirthday party, that is.',
+        ],
+      },
+      {
         when: (f) => !f.samJoined,
         lines: [
           'Elves and Dragons! Cabbages\nand potatoes are better for\nme and you.',
@@ -102,6 +134,13 @@ export const DIALOGUES = {
     name: 'Rosie Cotton',
     stages: [
       {
+        when: (f) => !f.prologueDone,
+        lines: [
+          "Isn't it grand? Songs and\ndancing and fireworks\nover the Party Tree!",
+          'A hundred and eleven years\nold, and still the best\nparties in the Shire.',
+        ],
+      },
+      {
         when: (f) => !f.samJoined,
         lines: [
           'Good morning, Mr. Frodo!\nWhat can I get you? The\nale is fresh from the cask.',
@@ -119,10 +158,21 @@ export const DIALOGUES = {
 
   ted: {
     name: 'Ted Sandyman',
-    lines: [
-      'Queer things you do hear\nthese days, to be sure.',
-      "Tree-men, giants beyond\nthe North Moors? Half of\nit's your cousin Hal's tales.",
-      "There's only one Dragon in\nBywater, and that's Green!\nHa ha!",
+    stages: [
+      {
+        when: (f) => !f.prologueDone,
+        lines: [
+          "Mad Baggins and his\nfireworks! Still, I'll not\nsay no to free ale.",
+          'A hundred and eleven?\nUnnatural, if you ask me.',
+        ],
+      },
+      {
+        lines: [
+          'Queer things you do hear\nthese days, to be sure.',
+          "Tree-men, giants beyond\nthe North Moors? Half of\nit's your cousin Hal's tales.",
+          "There's only one Dragon in\nBywater, and that's Green!\nHa ha!",
+        ],
+      },
     ],
   },
 

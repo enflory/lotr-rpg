@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { initAudio } from '../audio/sound.js';
+import { hasFlag, setObjective } from '../state/GameState.js';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -83,9 +84,13 @@ export class TitleScene extends Phaser.Scene {
 
   startGame() {
     initAudio(); // must happen inside a user-gesture handler
+    // A fresh game opens at Bilbo's farewell party; presetting
+    // `prologueDone` (QA hooks) boots straight into the main story.
+    const prologue = !hasFlag('prologueDone');
+    if (prologue) setObjective('Speak with Bilbo beneath the Party Tree');
     this.cameras.main.fadeOut(800, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
-      this.scene.start('WorldScene', { zone: 'shire', entry: 'default' });
+      this.scene.start('WorldScene', { zone: 'shire', entry: prologue ? 'party' : 'default' });
     });
   }
 }

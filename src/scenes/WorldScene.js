@@ -24,6 +24,7 @@ export class WorldScene extends Phaser.Scene {
     const zone = ZONES[this.zoneKey];
     this.zone = zone;
     this.riderEvent = null;
+    this.partyEvent = null; // scene.restart reuses the instance
     this.inputLocked = false;
     this.deniedCooldown = 0;
 
