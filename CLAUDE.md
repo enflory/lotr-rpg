@@ -26,7 +26,7 @@ Unit tests live in `tests/` (Vitest, Node environment — no browser or canvas n
 
 - **BootScene** (`src/scenes/BootScene.js`): thin loader — builds every texture from `src/art/` and registers walk/idle/gallop animations.
 - **TitleScene**: title screen; ENTER starts the game and initializes WebAudio (must happen inside a user gesture).
-- **WorldScene** (`src/scenes/WorldScene.js`): renders *any* zone. Handles movement (72 px/s, feet-only physics bodies, y-sorted depth), the Sam follower (trails the player's position queue), NPC dialogue with typewriter effect, doors/signs/exits, objective banners (Q recalls, M mutes), and per-zone scripted events via `zone.onUpdate`.
+- **WorldScene** (`src/scenes/WorldScene.js`): renders _any_ zone. Handles movement (72 px/s, feet-only physics bodies, y-sorted depth), the Sam follower (trails the player's position queue), NPC dialogue with typewriter effect, doors/signs/exits, objective banners (Q recalls, M mutes), and per-zone scripted events via `zone.onUpdate`.
 
 ### Art Pipeline (`src/art/`)
 

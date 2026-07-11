@@ -9,7 +9,9 @@ function fakeCtx() {
   return {
     calls,
     fillStyle: null,
-    fillRect(x, y, w, h) { calls.push({ x, y, w, h, col: this.fillStyle }); },
+    fillRect(x, y, w, h) {
+      calls.push({ x, y, w, h, col: this.fillStyle });
+    },
   };
 }
 
@@ -83,7 +85,8 @@ describe('validateRows', () => {
   });
 
   it('throws with the map name and row index on a ragged row', () => {
-    expect(() => validateRows('bad', ['aaaa', 'bbb'], 4))
-      .toThrow(/bad row 1 is 3 chars \(expected 4\)/);
+    expect(() => validateRows('bad', ['aaaa', 'bbb'], 4)).toThrow(
+      /bad row 1 is 3 chars \(expected 4\)/,
+    );
   });
 });

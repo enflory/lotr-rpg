@@ -14,21 +14,25 @@ export class TitleScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#0a0a12');
 
     // Title
-    this.add.text(cx, cy - 60, 'THE LORD\nOF THE RINGS', {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '14px',
-      color: '#c8a84e',
-      align: 'center',
-      lineSpacing: 6,
-    }).setOrigin(0.5);
+    this.add
+      .text(cx, cy - 60, 'THE LORD\nOF THE RINGS', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '14px',
+        color: '#c8a84e',
+        align: 'center',
+        lineSpacing: 6,
+      })
+      .setOrigin(0.5);
 
     // Subtitle
-    this.add.text(cx, cy - 10, 'Chapter One ~ Three is Company', {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '7px',
-      color: '#8a8a8a',
-      align: 'center',
-    }).setOrigin(0.5);
+    this.add
+      .text(cx, cy - 10, 'Chapter One ~ Three is Company', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '7px',
+        color: '#8a8a8a',
+        align: 'center',
+      })
+      .setOrigin(0.5);
 
     // Ring symbol — a simple circle
     const ring = this.add.graphics();
@@ -38,12 +42,14 @@ export class TitleScene extends Phaser.Scene {
     ring.strokeCircle(cx, cy + 30, 10);
 
     // Prompt
-    const prompt = this.add.text(cx, cy + 75, 'PRESS ENTER', {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '7px',
-      color: '#f0ead6',
-      align: 'center',
-    }).setOrigin(0.5);
+    const prompt = this.add
+      .text(cx, cy + 75, 'PRESS ENTER', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '7px',
+        color: '#f0ead6',
+        align: 'center',
+      })
+      .setOrigin(0.5);
 
     // Blink the prompt
     this.tweens.add({
@@ -55,16 +61,20 @@ export class TitleScene extends Phaser.Scene {
     });
 
     // Controls + version
-    this.add.text(cx, 218, 'ARROWS move   SPACE talk   Q objective   M sound', {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '5px',
-      color: '#6a6a6a',
-    }).setOrigin(0.5);
-    this.add.text(cx, 230, 'PROTOTYPE v0.2', {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '5px',
-      color: '#4a4a4a',
-    }).setOrigin(0.5);
+    this.add
+      .text(cx, 218, 'ARROWS move   SPACE talk   Q objective   M sound', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '5px',
+        color: '#6a6a6a',
+      })
+      .setOrigin(0.5);
+    this.add
+      .text(cx, 230, 'PROTOTYPE v0.2', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '5px',
+        color: '#4a4a4a',
+      })
+      .setOrigin(0.5);
 
     // Start on ENTER or SPACE
     this.input.keyboard.once('keydown-ENTER', () => this.startGame());

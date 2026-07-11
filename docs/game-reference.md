@@ -15,6 +15,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 ## Chapter Breakdown
 
 ### Chapter 1: The Shire
+
 **Places**: Bag End, Hobbiton, Bagshot Row, The Green Dragon, Party Field, The Water, Green Hill Country, Woody End
 **Key characters**: Frodo, Bilbo, Gandalf, Sam, Merry, Pippin, Gaffer, Lobelia, Lotho, Fatty Bolger, Rosie, Gildor Inglorion
 **Story beats**: Bilbo's farewell party, Gandalf reveals the Ring's nature, Frodo sells Bag End, departure at dusk, encounter with Gildor's Elves, first Black Rider sighting
@@ -23,6 +24,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Status**: Prototype exists (Bag End → Hobbiton → Party Field → The Water). Needs expansion south through Green Hill Country and Woody End.
 
 ### Chapter 2: Into the Wild
+
 **Places**: Farmer Maggot's Bamfurlong, the Marish, Bucklebury Ferry, Crickhollow, Old Forest, Tom Bombadil's house
 **Key characters**: Farmer Maggot (+ dogs Grip, Fang, Wolf), Tom Bombadil, Goldberry
 **Story beats**: Mushroom theft/Maggot encounter, Black Rider at the Ferry crossing, the Conspiracy revealed at Crickhollow, Old Man Willow traps Merry & Pippin, Tom's rescue, rest at Tom's house
@@ -30,6 +32,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Visual palette**: Boggy farmland (Marish) → dark hostile forest (dense canopy, gnarled roots, slimy moss) → sudden warmth (Tom's house: firelight, golden meadow, water-lilies)
 
 ### Chapter 3: Ancient Terrors
+
 **Places**: Barrow-downs, road to Bree
 **Key characters**: Barrow-wight, Tom Bombadil (rescue)
 **Story beats**: Crossing the downs, fog rolls in, separation from companions, wight captures the hobbits, Frodo's courage (singing for Tom), Tom breaks the spell, ancient blades given to each hobbit
@@ -37,6 +40,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Visual palette**: Treeless green hills with standing stones → grey fog → pale greenish corpse-light inside barrow → sudden daylight on rescue
 
 ### Chapter 4: The Prancing Pony
+
 **Places**: Bree (village, gate, The Prancing Pony inn), Bill Ferny's house
 **Key characters**: Harry Goatleaf (gatekeeper), Barliman Butterbur, Nob, Bill Ferny, Aragorn/Strider
 **Story beats**: Arrival at Bree gate, the common room (Frodo's accidental Ring slip), Strider reveals himself, Gandalf's delayed letter, Nazgul raid the inn, pony Bill acquired, departure east
@@ -44,6 +48,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Visual palette**: Stone houses on a hillside, warm inn interiors (lanterns, log fire, smoky common room), nighttime danger outside. First environment with human-scale architecture.
 
 ### Chapter 5: The Long Road
+
 **Places**: Midgewater Marshes, Weathertop, Trollshaws, road toward Bruinen
 **Key characters**: Aragorn, Nazgul (Witch-king), Glorfindel
 **Story beats**: Miserable marsh crossing, campfire on Weathertop (Aragorn tells the tale of Beren and Luthien), Nazgul attack (Frodo stabbed by Morgul-blade), stone trolls comic relief, Glorfindel's arrival, desperate ride to the Ford
@@ -51,6 +56,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Visual palette**: Brown/grey bogland → windswept hilltop ruins → autumn woodland (red/gold Trollshaws) → rushing river. Mood shifts from misery → dread → brief humor → desperate flight.
 
 ### Chapter 6: Rivendell
+
 **Places**: Ford of Bruinen, Rivendell (Hall of Fire, Bilbo's room, Council terrace, gardens)
 **Key characters**: Elrond, Bilbo (aged), Arwen, Gloin, Gimli, Legolas, Boromir, Gandalf (reunited), Lindir, Erestor, Galdor
 **Story beats**: Flood at the Ford (Elrond's power), Frodo healed, reunion with Bilbo, the feast, Hall of Fire (Bilbo's poem), Council of Elrond (the full history revealed), "I will take the Ring", Fellowship formed
@@ -58,6 +64,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Visual palette**: Hidden valley, waterfalls, fir/beech/oak on slopes, warm interiors with carved pillars, firelight in the Hall of Fire. Colors shift from autumn gold to silver-grey to winter chill during the stay.
 
 ### Chapter 7: The Dark Below
+
 **Places**: Hollin, Caradhras (Redhorn Pass), Doors of Durin, Moria (halls, mines, Bridge of Khazad-dum), Dimrill Dale
 **Key characters**: Full Fellowship, Watcher in the Water, cave troll, orcs, Balrog
 **Story beats**: Silent march through Hollin, crebain spotted, Caradhras defeats them, retreat to Moria, riddle of the Doors, Watcher attacks, four days underground, Chamber of Mazarbul (Balin's tomb, "They are coming"), running battle, Bridge of Khazad-dum, Gandalf falls, grief in Dimrill Dale
@@ -65,6 +72,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Visual palette**: Grey/brown emptiness (Hollin) → blood-red mountain (Caradhras) → black stone, corpse-dust, and faint phosphorescence (Moria) → sudden daylight and Mirrormere's deep blue. The most dramatic visual range of any chapter.
 
 ### Chapter 8: Through the Mountains
+
 **Places**: Nimrodel stream, Lothlórien forest (border → Cerin Amroth → Caras Galadhon), Mirror of Galadriel
 **Key characters**: Haldir (+ Rumil, Orophin), Celeborn, Galadriel
 **Story beats**: Crossing Nimrodel (healing), blindfolded march, Cerin Amroth (timeless beauty), meeting Celeborn and Galadriel (the searching gaze), rest and grief, Mirror of Galadriel (Frodo sees the Eye, offers Galadriel the Ring), gifts given, departure by boat
@@ -72,6 +80,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Visual palette**: Silver-grey bark, golden leaves (floor and canopy), white niphredil and gold elanor flowers, green/gold/silver lamps at night. No blemish or stain. The most beautiful zone in the game — deliberate contrast with Moria's darkness.
 
 ### Chapter 9: The Great River
+
 **Places**: Anduin (river journey), Brown Lands (east bank), Sarn Gebir rapids, the Argonath, Nen Hithoel
 **Key characters**: Full Fellowship (minus Gandalf), orc archers
 **Story beats**: Departure from Lorien (looking back at the golden wood fading), days on the river, orc arrows at Sarn Gebir, portage, the Argonath (Aragorn's moment of awe), camp at Parth Galen, growing tension (Boromir's strange behavior)
@@ -79,6 +88,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Visual palette**: Grey water, brown/dead eastern shores, green western plains, overcast skies. Then the monumental grey stone of the Argonath. Muted, wide, melancholy — "the grey and leafless world" after Lorien's gold.
 
 ### Chapter 10: The Breaking
+
 **Places**: Parth Galen, Amon Hen (Hill of Seeing), the shore
 **Key characters**: Full Fellowship, Boromir (fall and redemption), orc warband
 **Story beats**: The choice (which way to go?), Boromir confronts Frodo (the Ring's corruption), Frodo puts on the Ring (Seat of Seeing — sees all of Middle-earth and the Eye), Frodo decides to go alone, Sam refuses to stay behind, Boromir's last stand, the two hobbits push off in a boat
@@ -89,18 +99,18 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 
 ## Character Roster by Chapter
 
-| Chapter | Party Members | Major NPCs | Minor NPCs |
-|---------|--------------|------------|------------|
-| 1. The Shire | Frodo, Sam, Merry, Pippin | Gandalf, Bilbo | Gaffer, Lobelia, Lotho, Fatty, Rosie, Gildor |
-| 2. Into the Wild | Frodo, Sam, Merry, Pippin | Tom Bombadil, Goldberry | Farmer Maggot |
-| 3. Ancient Terrors | Frodo, Sam, Merry, Pippin | Tom Bombadil (rescue) | Barrow-wight |
-| 4. The Prancing Pony | Frodo, Sam, Merry, Pippin, Aragorn | Butterbur, Bill Ferny | Harry Goatleaf, Nob |
-| 5. The Long Road | Frodo, Sam, Merry, Pippin, Aragorn | Glorfindel, Nazgul | — |
-| 6. Rivendell | Frodo (+ Fellowship forms) | Elrond, Bilbo, Gandalf, Boromir | Arwen, Gloin, Lindir, Erestor, Galdor |
-| 7. The Dark Below | Full Fellowship | Balrog | Watcher, orcs |
-| 8. Through the Mountains | Fellowship (minus Gandalf) | Galadriel, Celeborn | Haldir, Rumil, Orophin |
-| 9. The Great River | Fellowship (minus Gandalf) | — | Orc archers |
-| 10. The Breaking | Frodo, Sam (end) | Boromir | Orc warband |
+| Chapter                  | Party Members                      | Major NPCs                      | Minor NPCs                                   |
+| ------------------------ | ---------------------------------- | ------------------------------- | -------------------------------------------- |
+| 1. The Shire             | Frodo, Sam, Merry, Pippin          | Gandalf, Bilbo                  | Gaffer, Lobelia, Lotho, Fatty, Rosie, Gildor |
+| 2. Into the Wild         | Frodo, Sam, Merry, Pippin          | Tom Bombadil, Goldberry         | Farmer Maggot                                |
+| 3. Ancient Terrors       | Frodo, Sam, Merry, Pippin          | Tom Bombadil (rescue)           | Barrow-wight                                 |
+| 4. The Prancing Pony     | Frodo, Sam, Merry, Pippin, Aragorn | Butterbur, Bill Ferny           | Harry Goatleaf, Nob                          |
+| 5. The Long Road         | Frodo, Sam, Merry, Pippin, Aragorn | Glorfindel, Nazgul              | —                                            |
+| 6. Rivendell             | Frodo (+ Fellowship forms)         | Elrond, Bilbo, Gandalf, Boromir | Arwen, Gloin, Lindir, Erestor, Galdor        |
+| 7. The Dark Below        | Full Fellowship                    | Balrog                          | Watcher, orcs                                |
+| 8. Through the Mountains | Fellowship (minus Gandalf)         | Galadriel, Celeborn             | Haldir, Rumil, Orophin                       |
+| 9. The Great River       | Fellowship (minus Gandalf)         | —                               | Orc archers                                  |
+| 10. The Breaking         | Frodo, Sam (end)                   | Boromir                         | Orc warband                                  |
 
 ---
 
@@ -119,18 +129,18 @@ Gaffer, Rosie, Fatty Bolger, Lotho, Nob, Harry Goatleaf, Bill Ferny, Gildor, Hal
 
 ## Zone Visual Identity
 
-| Zone | Dominant Colors | Tile Signature | Mood |
-|------|----------------|---------------|------|
-| The Shire | Green, yellow, warm brown | Round doors, hedgerows, flowers | Cozy, domestic |
-| Old Forest | Dark green, brown, black | Gnarled trunks, dense canopy, roots | Hostile, claustrophobic |
-| Tom's House | Gold, warm orange, green | Firelight, water-lilies, stone | Safe, magical |
-| Barrow-downs | Grey-green, pale, fog-white | Standing stones, green mounds | Eerie, exposed |
-| Bree | Brown stone, warm interior, dark exterior | Stone walls, thatched roofs, human scale | Crossroads, suspicion |
-| Wilderness | Brown, grey, muted autumn | Bog, ruins, wind-swept hilltops | Misery, endurance |
-| Rivendell | Gold→silver→grey (seasonal) | Waterfalls, carved stone, arches | Peace, wisdom |
-| Moria | Black, faint red, dust | Pillars, chasms, darkness | Dread, awe |
-| Lothlórien | Gold, silver, white, pale green | Mallorn trunks, star-flowers, lamps | Transcendent beauty |
-| Great River | Grey, brown, muted green | Water, stone statues, flat banks | Melancholy, vastness |
+| Zone         | Dominant Colors                           | Tile Signature                           | Mood                    |
+| ------------ | ----------------------------------------- | ---------------------------------------- | ----------------------- |
+| The Shire    | Green, yellow, warm brown                 | Round doors, hedgerows, flowers          | Cozy, domestic          |
+| Old Forest   | Dark green, brown, black                  | Gnarled trunks, dense canopy, roots      | Hostile, claustrophobic |
+| Tom's House  | Gold, warm orange, green                  | Firelight, water-lilies, stone           | Safe, magical           |
+| Barrow-downs | Grey-green, pale, fog-white               | Standing stones, green mounds            | Eerie, exposed          |
+| Bree         | Brown stone, warm interior, dark exterior | Stone walls, thatched roofs, human scale | Crossroads, suspicion   |
+| Wilderness   | Brown, grey, muted autumn                 | Bog, ruins, wind-swept hilltops          | Misery, endurance       |
+| Rivendell    | Gold→silver→grey (seasonal)               | Waterfalls, carved stone, arches         | Peace, wisdom           |
+| Moria        | Black, faint red, dust                    | Pillars, chasms, darkness                | Dread, awe              |
+| Lothlórien   | Gold, silver, white, pale green           | Mallorn trunks, star-flowers, lamps      | Transcendent beauty     |
+| Great River  | Grey, brown, muted green                  | Water, stone statues, flat banks         | Melancholy, vastness    |
 
 ---
 

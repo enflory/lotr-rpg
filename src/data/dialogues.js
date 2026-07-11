@@ -27,9 +27,7 @@ export const DIALOGUES = {
       },
       {
         when: (f) => !f.samJoined,
-        lines: [
-          'Samwise is in the garden --\nor under the window, more\nlike. Go and fetch him.',
-        ],
+        lines: ['Samwise is in the garden --\nor under the window, more\nlike. Go and fetch him.'],
       },
       {
         lines: [
@@ -48,7 +46,7 @@ export const DIALOGUES = {
         when: (f) => !f.metGandalf,
         lines: [
           "I ain't been dropping no\neaves, Mr. Frodo, honest!",
-          "I was just trimming the\ngrass border, if you\nfollow me.",
+          'I was just trimming the\ngrass border, if you\nfollow me.',
           "Elves, Mr. Frodo! I'd\ndearly love to see them.",
         ],
       },
@@ -65,9 +63,7 @@ export const DIALOGUES = {
         objective: 'Leave by the East Road, east of Hobbiton',
       },
       {
-        lines: [
-          "Ready when you are,\nMr. Frodo. The East Road\nis east, past the inn turn.",
-        ],
+        lines: ['Ready when you are,\nMr. Frodo. The East Road\nis east, past the inn turn.'],
       },
     ],
   },
@@ -113,7 +109,7 @@ export const DIALOGUES = {
       },
       {
         lines: [
-          "Off somewhere, are you?\nWith Sam Gamgee too, I\nhear. Well I never.",
+          'Off somewhere, are you?\nWith Sam Gamgee too, I\nhear. Well I never.',
           'You bring him back safe,\nMr. Frodo. Mind you do.',
         ],
       },
@@ -123,7 +119,7 @@ export const DIALOGUES = {
   ted: {
     name: 'Ted Sandyman',
     lines: [
-      "Queer things you do hear\nthese days, to be sure.",
+      'Queer things you do hear\nthese days, to be sure.',
       "Tree-men, giants beyond\nthe North Moors? Half of\nit's your cousin Hal's tales.",
       "There's only one Dragon in\nBywater, and that's Green!\nHa ha!",
     ],
@@ -144,39 +140,29 @@ export const DIALOGUES = {
         objective: 'Reach the Bucklebury Ferry sign, far east',
       },
       {
-        lines: [
-          'The stars will be out soon.\nGo east, and take our good\nwishes with you.',
-        ],
+        lines: ['The stars will be out soon.\nGo east, and take our good\nwishes with you.'],
       },
     ],
   },
 
   sign_greendragon: {
     name: 'Sign',
-    lines: [
-      'THE GREEN DRAGON INN\n~ Fine Ales & Good Company ~',
-    ],
+    lines: ['THE GREEN DRAGON INN\n~ Fine Ales & Good Company ~'],
   },
 
   sign_bagend: {
     name: 'Sign',
-    lines: [
-      'BAG END\n~ No Admittance\n  Except on Party Business ~',
-    ],
+    lines: ['BAG END\n~ No Admittance\n  Except on Party Business ~'],
   },
 
   sign_bywater: {
     name: 'Sign',
-    lines: [
-      'BYWATER\nHobbiton 1 mile north',
-    ],
+    lines: ['BYWATER\nHobbiton 1 mile north'],
   },
 
   door_locked: {
     name: 'Door',
-    lines: [
-      'The round door is shut\nfast. Nobody seems to\nbe at home.',
-    ],
+    lines: ['The round door is shut\nfast. Nobody seems to\nbe at home.'],
   },
 
   sign_ferry: {

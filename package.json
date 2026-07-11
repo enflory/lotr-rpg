@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "keywords": [],
   "author": "",
@@ -19,7 +22,11 @@
     "phaser": "^3.90.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.61.1",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.5",
     "vite": "^8.0.7",
     "vitest": "^4.1.10"
   }

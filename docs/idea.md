@@ -17,6 +17,7 @@ The magic is in **exploring the LOTR universe** with the immersive feel of LOTRO
 Following the books, the natural structure maps well to game regions:
 
 ### Book I: The Ring Sets Out
+
 1. **The Shire** — Bag End, Hobbiton, the birthday party, selling Bag End to the Sackville-Bagginses
 2. **The Road to Crickhollow** — Farmer Maggot's fields, shortcuts through the woods, Black Rider encounters on the road
 3. **The Old Forest** — Old Man Willow, getting lost in the trees
@@ -28,6 +29,7 @@ Following the books, the natural structure maps well to game regions:
 9. **Rivendell** — Council of Elrond, forming the Fellowship
 
 ### Book II: The Ring Goes South
+
 10. **The Misty Mountains** — Caradhras attempt, snow
 11. **Moria** — Doors of Durin, the long dark, Balin's tomb, the Balrog
 12. **Lothlorien** — Galadriel, the Mirror, gifts
@@ -35,6 +37,7 @@ Following the books, the natural structure maps well to game regions:
 14. **Breaking of the Fellowship** — Boromir's fall, Frodo and Sam depart alone
 
 ### Books III-VI (future scope)
+
 - Could split into parallel storylines (Frodo/Sam vs. Aragorn/companions)
 - Rohan, Helm's Deep, Isengard, Shelob's Lair, Minas Tirith, Mount Doom
 

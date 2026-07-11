@@ -48,14 +48,17 @@ test('talking to Gandalf reveals the Ring and sets the story flag', async ({ pag
   // line; keep pressing until the stage closes and the flag lands.
   await press(page, ' ');
   await expect
-    .poll(async () => {
-      const done = await page.evaluate(() => {
-        const scene = window.__game.scene.getScene('WorldScene');
-        return !scene.dialogActive && !!window.__state.flags.metGandalf;
-      });
-      if (!done) await press(page, ' ', 60);
-      return done;
-    }, { timeout: 20_000 })
+    .poll(
+      async () => {
+        const done = await page.evaluate(() => {
+          const scene = window.__game.scene.getScene('WorldScene');
+          return !scene.dialogActive && !!window.__state.flags.metGandalf;
+        });
+        if (!done) await press(page, ' ', 60);
+        return done;
+      },
+      { timeout: 20_000 },
+    )
     .toBe(true);
 
   const state = await page.evaluate(() => ({
