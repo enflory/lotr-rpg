@@ -5,12 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Dev Commands
 
 ```bash
-npm run dev       # Vite dev server with HMR
-npm run build     # Production build → dist/
-npm run preview   # Preview built output
+npm run dev        # Vite dev server with HMR
+npm run build      # Production build → dist/
+npm run preview    # Preview built output
+npm test           # Vitest suite (tests/) — run after any data/logic change
+npm run test:watch # Vitest in watch mode
 ```
 
-No test framework is configured. Verify changes with `npm run build` (checks for compilation errors) and browser testing. `art-test.html` (served by the dev server at `/art-test.html`) renders the full tileset and every character spritesheet at high zoom for visual QA of procedural art. `window.__game` (Phaser game) and `window.__state` (GameState) are exposed for Playwright-driven QA — teleport the player, set flags, and screenshot.
+Unit tests live in `tests/` (Vitest, Node environment — no browser or canvas needed). They cover the data layer (dialogue staging, zone cross-reference integrity, tile registry invariants), the art helpers (via a fake 2D context that records `fillRect` calls), and the Black Rider state machine (via a fake Phaser scene). Phaser scenes themselves are not unit-tested. When adding a zone, NPC, dialogue, or tile, the integrity tests in `tests/zones.test.js` and `tests/tiles.test.js` will catch dangling references and ordering mistakes — run `npm test` first when debugging content bugs. Verify visual/gameplay changes with `npm run build` and browser testing. `art-test.html` (served by the dev server at `/art-test.html`) renders the full tileset and every character spritesheet at high zoom for visual QA of procedural art. `window.__game` (Phaser game) and `window.__state` (GameState) are exposed for Playwright-driven QA — teleport the player, set flags, and screenshot.
 
 **Playwright QA gotcha:** synthetic key events work, but a keydown+keyup pair shorter than one frame is invisible to `Phaser.Input.Keyboard.JustDown` polling (keyup clears the flag). Interaction input is therefore event-driven (`keydown-SPACE` handler queues a flag consumed by update). When simulating input, hold keys ≥40ms.
 
