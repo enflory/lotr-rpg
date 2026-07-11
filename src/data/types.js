@@ -44,6 +44,16 @@
  */
 
 /**
+ * @typedef {Object} PickupDef
+ * @property {string} id globally unique (prefix with zone key)
+ * @property {number} x tile column
+ * @property {number} y tile row
+ * @property {string} item key in ITEMS
+ * @property {(flags: Record<string, boolean>) => boolean} [when] spawn condition
+ * @property {string} [onCollect] dialogue key auto-started after collection
+ */
+
+/**
  * @typedef {Object} Zone
  * @property {string} key registry key
  * @property {string} label shown as the zone title card
@@ -54,6 +64,7 @@
  * @property {DoorDef[]} doors
  * @property {SignDef[]} signs
  * @property {ExitDef[]} exits
+ * @property {PickupDef[]} [pickups]
  * @property {(scene: any) => void} [onCreate] one-time scripting when the zone builds
  * @property {(scene: any, delta: number) => void} [onUpdate] per-frame scripting
  */

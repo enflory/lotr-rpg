@@ -10,8 +10,10 @@ import {
   addItem,
   removeItem,
   itemCount,
+  collect,
+  isCollected,
 } from '../state/GameState.js';
-import { ITEMS } from '../data/items.js';
+import { ITEMS, ITEM_KEYS } from '../data/items.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
 
 const SPEED = 72;
@@ -80,6 +82,10 @@ export class WorldScene extends Phaser.Scene {
       if (def.when && !def.when(gameState.flags)) continue;
       this.spawnNpc(def);
     }
+
+    /* ── pickups ─────────────────────────────────────── */
+    this.pickups = [];
+    for (const def of zone.pickups ?? []) this.spawnPickup(def);
 
     /* ── interaction hint icon ───────────────────────── */
     this.hintIcon = this.add.image(0, 0, 'hint').setVisible(false).setDepth(900);
@@ -219,6 +225,21 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
+  /* ── pickups ───────────────────────────────────────── */
+  spawnPickup(def) {
+    if (isCollected(def.id)) return;
+    if (def.when && !def.when(gameState.flags)) return;
+    if (this.pickups.some((p) => p.def.id === def.id)) return;
+    const spr = this.add.image(
+      def.x * TILE_SIZE + 8,
+      def.y * TILE_SIZE + 8,
+      'items',
+      ITEM_KEYS.indexOf(def.item),
+    );
+    spr.setDepth(def.y * TILE_SIZE);
+    this.pickups.push({ def, spr });
+  }
+
   /* ── follower ──────────────────────────────────────── */
   createFollower(key) {
     this.follower = this.add.sprite(this.player.x - 10, this.player.y + 6, key, 1);
@@ -319,6 +340,21 @@ export class WorldScene extends Phaser.Scene {
     // Depth-sort by feet position so characters overlap correctly
     this.player.setDepth(this.player.y);
     this.updateFollower(moving);
+
+    /* ── pickup collection (walk-over) ───────────────── */
+    for (let i = this.pickups.length - 1; i >= 0; i--) {
+      const { def, spr } = this.pickups[i];
+      if (Phaser.Math.Distance.Between(this.player.x, this.player.y + 8, spr.x, spr.y) > 10)
+        continue;
+      this.pickups.splice(i, 1);
+      spr.destroy();
+      collect(def.id);
+      addItem(def.item);
+      sfx.jingle();
+      const n = itemCount(def.item);
+      this.showBanner(`Got: ${ITEMS[def.item].name}${n > 1 ? ` (${n})` : ''}!`);
+      if (def.onCollect) this.startDialogue(def.onCollect);
+    }
 
     /* ── NPC proximity + hint ────────────────────────── */
     let closestNpc = null;
@@ -541,6 +577,19 @@ export class WorldScene extends Phaser.Scene {
       setObjective(stage.objective);
       sfx.jingle();
       this.showBanner(`~ ${stage.objective} ~`);
+    }
+
+    this.refreshSpawns();
+  }
+
+  /* ── spawn refresh (flags flip mid-scene via dialogue) ─ */
+  refreshSpawns() {
+    for (const def of this.zone.pickups ?? []) this.spawnPickup(def);
+    for (const def of this.zone.npcs) {
+      if (def.when && !def.when(gameState.flags)) continue;
+      if (this.npcs.some((n) => n.getData('key') === def.key)) continue;
+      if (this.follower && this.follower.getData('key') === def.key) continue;
+      this.spawnNpc(def);
     }
   }
 

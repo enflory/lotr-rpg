@@ -8,6 +8,7 @@ import { LANE_Y, FARM, marish } from '../src/data/zones/marish.js';
 import { DIALOGUES } from '../src/data/dialogues.js';
 import { CHAR_DEFS } from '../src/art/characters.js';
 import { T, COLLISION_TILES } from '../src/data/tileTypes.js';
+import { ITEMS } from '../src/data/items.js';
 
 const zones = Object.values(ZONES);
 const validTiles = new Set(Object.values(T));
@@ -296,5 +297,20 @@ describe('the Marish (generated map)', () => {
     expect(at({})).toEqual(['maggot@23']);
     expect(at({ rodeWaggon: true })).toEqual(['merry@32']);
     expect(at({ rodeWaggon: true, crossedFerry: true })).toEqual(['merry@40']);
+  });
+});
+
+describe('pickups', () => {
+  const all = zones.flatMap((z) => (z.pickups ?? []).map((p) => ({ zone: z, p })));
+
+  it('every pickup has a unique id, a real item, and a walkable in-bounds tile', () => {
+    const ids = all.map(({ p }) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const { zone, p } of all) {
+      expect(ITEMS[p.item], `${p.id} references unknown item ${p.item}`).toBeTruthy();
+      expect(inBounds(zone, p.x, p.y), `${p.id} out of bounds`).toBe(true);
+      expect(walkable(zone, p.x, p.y), `${p.id} on solid tile`).toBe(true);
+      if (p.onCollect) expect(DIALOGUES[p.onCollect], `${p.id} onCollect`).toBeTruthy();
+    }
   });
 });
