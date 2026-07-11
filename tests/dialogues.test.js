@@ -74,6 +74,25 @@ describe('resolveDialogue staging', () => {
     const again = resolveDialogue('gildor', { escapedRider: true, metGildor: true });
     expect(again.set).toBeUndefined();
   });
+
+  it('maggot offers the waggon and the mushrooms exactly once', () => {
+    const first = resolveDialogue('maggot', {});
+    expect(first.set).toEqual(['maggotRide', 'mushrooms']);
+    expect(first.objective).toMatch(/Ferry/);
+    expect(first.lines.join(' ')).toMatch(/BAGGINS/);
+
+    const again = resolveDialogue('maggot', { maggotRide: true });
+    expect(again.set).toBeUndefined();
+  });
+
+  it('merry readies the raft on first meeting only', () => {
+    const first = resolveDialogue('merry', {});
+    expect(first.set).toBe('merryMet');
+    expect(first.objective).toMatch(/raft/i);
+
+    const again = resolveDialogue('merry', { merryMet: true });
+    expect(again.set).toBeUndefined();
+  });
 });
 
 describe('dialogue data integrity', () => {
@@ -114,6 +133,8 @@ describe('dialogue data integrity', () => {
       'samJoined',
       'escapedRider',
       'metGildor',
+      'maggotRide',
+      'merryMet',
     ];
     for (let mask = 0; mask < 1 << storyFlags.length; mask++) {
       const flags = {};

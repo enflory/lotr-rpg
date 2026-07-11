@@ -4,6 +4,7 @@
 import { describe, it, expect } from 'vitest';
 import { ZONES } from '../src/data/zones/index.js';
 import { ROAD_Y, woodyend } from '../src/data/zones/woodyend.js';
+import { LANE_Y, FARM, marish } from '../src/data/zones/marish.js';
 import { DIALOGUES } from '../src/data/dialogues.js';
 import { CHAR_DEFS } from '../src/art/characters.js';
 import { T, COLLISION_TILES } from '../src/data/tileTypes.js';
@@ -196,9 +197,8 @@ describe('the Woody End (generated map)', () => {
     for (const y of ROAD_Y) expect(y).toBeLessThan(map.length - 2);
   });
 
-  it('the East Road is carved two tiles tall along ROAD_Y', () => {
-    // Stop before the riverbank where the road becomes the ferry pier
-    for (let x = 0; x < 36; x++) {
+  it('the East Road is carved two tiles tall across the full width', () => {
+    for (let x = 0; x < map[0].length; x++) {
       expect(map[ROAD_Y[x]][x], `road missing at (${x},${ROAD_Y[x]})`).toBe(T.PATH);
       expect(map[ROAD_Y[x] + 1][x], `road missing at (${x},${ROAD_Y[x] + 1})`).toBe(T.PATH);
     }
@@ -216,20 +216,85 @@ describe('the Woody End (generated map)', () => {
     }
   });
 
-  it('the ferry pier juts into the Brandywine at road height', () => {
-    for (let x = 37; x < 40; x++) {
-      expect(map[ROAD_Y[36]][x]).toBe(T.DOCK);
-      expect(map[ROAD_Y[36] + 1][x]).toBe(T.DOCK_S);
+  it('the road runs out the east edge toward the Marish, gated on Gildor', () => {
+    const east = woodyend.exits.filter((e) => e.zone === 'marish');
+    expect(east.length).toBe(2);
+    for (const exit of east) {
+      expect(exit.x).toBe(39);
+      expect(exit.requires).toBe('metGildor');
     }
-  });
-
-  it('the ferry sign stands on the bank beside the pier', () => {
-    expect(map[ROAD_Y[36] - 1][36]).toBe(T.SIGN);
+    // No river remains in the Woody End — the Brandywine moved to the Marish
+    map.forEach((row, y) =>
+      row.forEach((t, x) => {
+        expect(t, `stray water/pier tile at (${x},${y})`).not.toBe(T.WATER);
+        expect(t, `stray water/pier tile at (${x},${y})`).not.toBe(T.DOCK);
+      }),
+    );
   });
 
   it('gildor only appears after escaping the Rider', () => {
     const gildor = woodyend.npcs.find((n) => n.key === 'gildor');
     expect(gildor.when({})).toBeFalsy();
     expect(gildor.when({ escapedRider: true })).toBeTruthy();
+  });
+});
+
+describe('the Marish (generated map)', () => {
+  const map = marish.map;
+
+  it('LANE_Y covers the map width with sane values', () => {
+    expect(LANE_Y.length).toBe(map[0].length);
+    for (const y of LANE_Y) expect(y).toBeGreaterThan(1);
+    for (const y of LANE_Y) expect(y).toBeLessThan(map.length - 2);
+  });
+
+  it('the lane is carved two tiles tall up to the river', () => {
+    for (let x = 0; x < 34; x++) {
+      expect(map[LANE_Y[x]][x], `lane missing at (${x},${LANE_Y[x]})`).toBe(T.PATH);
+      expect(map[LANE_Y[x] + 1][x], `lane missing at (${x},${LANE_Y[x] + 1})`).toBe(T.PATH);
+    }
+  });
+
+  it('the farm fence is closed except for the gate, which meets the lane', () => {
+    for (let x = FARM.x0; x <= FARM.x1; x++) {
+      if (x === FARM.gateX || x === FARM.gateX + 1) {
+        expect(map[FARM.y0][x], `gate blocked at (${x},${FARM.y0})`).toBe(T.PATH);
+      } else {
+        expect(map[FARM.y0][x], `north fence broken at (${x},${FARM.y0})`).toBe(T.FENCE);
+      }
+      expect(map[FARM.y1][x], `south fence broken at (${x},${FARM.y1})`).toBe(T.FENCE);
+    }
+    for (let y = FARM.y0; y <= FARM.y1; y++) {
+      expect(map[y][FARM.x0], `west fence broken at (${FARM.x0},${y})`).toBe(T.FENCE);
+      expect(map[y][FARM.x1], `east fence broken at (${FARM.x1},${y})`).toBe(T.FENCE);
+    }
+    // Path stub connects the gate up to the lane's bottom row
+    for (let y = LANE_Y[FARM.gateX] + 1; y <= FARM.y0; y++) {
+      expect(map[y][FARM.gateX], `gate path broken at (${FARM.gateX},${y})`).toBe(T.PATH);
+    }
+  });
+
+  it('the pier stands at lane height with six tiles of open water beyond', () => {
+    expect(map[13][34]).toBe(T.DOCK);
+    expect(map[14][34]).toBe(T.DOCK_S);
+    for (const y of [13, 14]) {
+      for (let x = 35; x <= 39; x++) {
+        expect(map[y][x], `raft channel at (${x},${y})`).toBe(T.WATER);
+      }
+    }
+  });
+
+  it('the Buckland shore is walkable where the raft lands', () => {
+    for (const y of [12, 13, 14]) {
+      expect(solid.has(map[y][40]), `far bank blocked at (40,${y})`).toBe(false);
+    }
+  });
+
+  it('maggot and merry come and go with the story flags', () => {
+    const at = (flags) =>
+      marish.npcs.filter((n) => !n.when || n.when(flags)).map((n) => `${n.key}@${n.x}`);
+    expect(at({})).toEqual(['maggot@23']);
+    expect(at({ rodeWaggon: true })).toEqual(['merry@32']);
+    expect(at({ rodeWaggon: true, crossedFerry: true })).toEqual(['merry@40']);
   });
 });

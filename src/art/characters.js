@@ -402,6 +402,39 @@ export const CHAR_DEFS = {
     feet: ['#d8b080', '#b89060'],
   },
 
+  maggot: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE,
+      S: '#e8b890', s: '#c89868', E: '#181830', W: '#e0d8d0', N: '#b08060', // ruddy farmer
+      H: '#4a3520', h: '#6a4e2c', l: '#8a6a3c',
+      C: '#d8c8a0', c: '#b8a880',
+      V: '#8a4a2a', v: '#a86038', G: '#6a3a1e', // russet jerkin
+      B: '#301810', b: '#a08030',
+      P: '#4a4030', p: '#343024',
+    },
+    feet: ['#d0ac82', '#b08c62'],
+    // Broad-brimmed straw hat.
+    extra(c, x, y) {
+      rc(c, x + 5, y, 6, 1, '#a08030');
+      rc(c, x + 5, y + 1, 6, 1, '#c8a850');
+      rc(c, x + 3, y + 2, 10, 1, '#b89440');
+    },
+  },
+
+  merry: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#7a5828', h: '#a87838', l: '#c89848',
+      C: '#e8cc50', c: '#c8a840', // bright yellow scarf
+      V: '#4a7a3a', v: '#5e9a4a', G: '#365c2a', // Brandybuck green
+      B: '#301810', b: '#c09030',
+      P: '#5a4a68', p: '#3e3448',
+    },
+    feet: ['#d8b080', '#b89060'],
+  },
+
   gildor: {
     maps: ELF,
     pal: {

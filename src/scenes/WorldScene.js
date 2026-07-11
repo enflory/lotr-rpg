@@ -25,6 +25,7 @@ export class WorldScene extends Phaser.Scene {
     this.zone = zone;
     this.riderEvent = null;
     this.partyEvent = null; // scene.restart reuses the instance
+    this.ferryEvent = null;
     this.inputLocked = false;
     this.deniedCooldown = 0;
 
@@ -269,6 +270,7 @@ export class WorldScene extends Phaser.Scene {
       this.player.setVelocity(0);
       this.player.anims.play(`frodo-idle-${this.lastDir}`, true);
       this.updateFollower(false);
+      this.hintIcon.setVisible(false); // no interactions during set pieces
       if (this.zone.onUpdate && !this.transitioning) this.zone.onUpdate(this, delta);
       return;
     }

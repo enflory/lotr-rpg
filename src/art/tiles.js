@@ -598,6 +598,39 @@ function drawLantern(c, ox) {
   px(c, ox + 4, 6, '#c8a838'); px(c, ox + 11, 7, '#c8a838');
 }
 
+/* ── The Marish ─────────────────────────────────────────── */
+
+function drawBog(c, ox) {
+  // Squelchy wet ground — darker, browner grass with standing water
+  rc(c, ox, 0, 16, 16, '#587a34');
+  for (const [dx, dy] of [[2,3],[9,1],[13,5],[5,8],[11,11],[1,13],[7,14],[14,9]])
+    px(c, ox + dx, dy, '#4a6a2c');
+  // Mud patches
+  rc(c, ox + 3, 5, 4, 2, '#5e5430');
+  rc(c, ox + 10, 12, 4, 2, '#5e5430');
+  px(c, ox + 4, 6, '#6e6438'); px(c, ox + 11, 13, '#6e6438');
+  // Puddle glints
+  rc(c, ox + 8, 6, 3, 2, '#4a6a80');
+  px(c, ox + 9, 6, '#7aa8b8');
+  rc(c, ox + 2, 10, 2, 2, '#4a6a80');
+  px(c, ox + 2, 10, '#7aa8b8');
+}
+
+function drawReeds(c, ox) {
+  // Marsh rushes on sodden ground — impassable
+  rc(c, ox, 0, 16, 16, '#4e7030');
+  rc(c, ox + 1, 10, 6, 4, '#3e6070'); rc(c, ox + 9, 3, 5, 3, '#3e6070');
+  px(c, ox + 3, 11, '#6b98b8'); px(c, ox + 11, 4, '#6b98b8');
+  px(c, ox + 6, 14, '#42622a'); px(c, ox + 13, 8, '#42622a');
+  // Stalks with cattail heads
+  for (const [sx, top, tall] of [[2, 5, 10], [5, 2, 13], [8, 4, 11], [11, 1, 14], [14, 6, 9]]) {
+    rc(c, ox + sx, top, 1, tall, '#6a8a3a');
+    px(c, ox + sx, top + Math.floor(tall / 2), '#5a7a30');
+    rc(c, ox + sx, top, 1, 2, '#8a6b3d'); // cattail
+    px(c, ox + sx, top - 1 < 0 ? 0 : top - 1, '#a08850'); // tip
+  }
+}
+
 export const TILE_FNS = [
   drawGrass, drawGrass2, drawPath, drawWater, drawTree,
   drawHill, drawHillTop, drawDoor, drawBridge, drawFence,
@@ -607,7 +640,7 @@ export const TILE_FNS = [
   drawShelf, drawCounter, drawBed, drawWindowInt,
   drawFern, drawTree2, drawSign, drawVoid, drawDock, drawDockS,
   drawPartyTL, drawPartyTR, drawPartyBL, drawPartyBR, drawTent, drawLantern,
-  drawPartyNL, drawPartyNR,
+  drawPartyNL, drawPartyNR, drawBog, drawReeds,
 ];
 
 export function makeTilesetDataURL() {

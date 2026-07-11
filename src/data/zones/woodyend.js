@@ -1,6 +1,7 @@
 // The Woody End — wooded country east of Hobbiton, where the hobbits
 // first meet a Black Rider. Map is generated: a winding East Road
-// through mixed woods with fern brakes to hide in.
+// through mixed woods with fern brakes to hide in. The road runs out
+// the east edge and down into the Marish (gated on meeting Gildor).
 
 import { T } from '../tileTypes.js';
 import { riderEventUpdate } from '../../events/riderEvent.js';
@@ -88,33 +89,20 @@ function generateMap() {
     map[below][x + 3] = T.FERN;
   }
 
-  // Border trees, with the road gap on the west edge only
+  // Border trees, with road gaps on the west and east edges
   for (let x = 0; x < WIDTH; x++) {
     map[0][x] = T.TREE;
     map[HEIGHT - 1][x] = T.TREE;
   }
   for (let y = 0; y < HEIGHT; y++) {
     if (!(y === ROAD_Y[0] || y === ROAD_Y[0] + 1)) map[y][0] = T.TREE;
+    if (!(y === ROAD_Y[WIDTH - 1] || y === ROAD_Y[WIDTH - 1] + 1)) map[y][WIDTH - 1] = T.TREE;
   }
 
   // Clearing where Gildor's company appears
   for (let y = 14; y <= 16; y++)
     for (let x = 32; x <= 35; x++)
       if (!onRoad(x, y)) map[y][x] = T.GRASS;
-
-  // The Brandywine along the east edge, with the ferry pier jutting
-  // out where the East Road meets the bank (x=36)
-  for (let y = 0; y < HEIGHT; y++)
-    for (let x = 37; x < WIDTH; x++)
-      map[y][x] = T.WATER;
-  // Two-row pier (matches the road height) pointing toward Buckland
-  for (let x = 37; x < WIDTH; x++) {
-    map[ROAD_Y[36]][x] = T.DOCK;
-    map[ROAD_Y[36] + 1][x] = T.DOCK_S;
-  }
-
-  // Ferry signpost on the bank beside the pier
-  map[ROAD_Y[36] - 1][36] = T.SIGN;
 
   return map;
 }
@@ -127,17 +115,26 @@ export const woodyend = {
   map: generateMap(),
   spawns: {
     west: { x: 1, y: 12, dir: 'right' },
+    east: { x: 38, y: 12, dir: 'left' },
   },
   npcs: [
     { key: 'gildor', x: 33, y: 15, dir: 'down', when: (f) => f.escapedRider },
   ],
   doors: [],
-  signs: [
-    { x: 36, y: ROAD_Y[36] - 1, dialogue: 'sign_ferry' },
-  ],
+  signs: [],
   exits: [
     { x: 0, y: 12, zone: 'shire', entry: 'fromWoodyEnd' },
     { x: 0, y: 13, zone: 'shire', entry: 'fromWoodyEnd' },
+    {
+      x: 39, y: 12, zone: 'marish', entry: 'west',
+      requires: 'metGildor',
+      denied: "I should hear the Elf's\ncounsel first.",
+    },
+    {
+      x: 39, y: 13, zone: 'marish', entry: 'west',
+      requires: 'metGildor',
+      denied: "I should hear the Elf's\ncounsel first.",
+    },
   ],
   onUpdate: riderEventUpdate,
 };

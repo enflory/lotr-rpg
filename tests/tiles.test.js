@@ -33,6 +33,7 @@ describe('tile registry invariants', () => {
       T.DOCK,
       T.DOCK_S,
       T.DOOR,
+      T.BOG,
     ]) {
       expect(COLLISION_TILES, `tile ${t} should be walkable`).not.toContain(t);
     }

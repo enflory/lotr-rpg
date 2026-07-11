@@ -46,6 +46,9 @@ export const T = {
   LANTERN: 39, // lamp post
   PARTY_NL: 40, // crown row, north of PARTY_TL/TR
   PARTY_NR: 41,
+  // The Marish
+  BOG: 42, // squelchy wet ground (walkable)
+  REEDS: 43, // marsh rushes (solid)
 };
 
 export const COLLISION_TILES = [
@@ -77,6 +80,7 @@ export const COLLISION_TILES = [
   T.LANTERN,
   T.PARTY_NL,
   T.PARTY_NR,
+  T.REEDS,
 ];
 
 export const TILE_SIZE = 16;
