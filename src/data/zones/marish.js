@@ -41,7 +41,6 @@ function generateMap() {
     map.push(row);
   }
 
-  const onLane = (x, y) => x < RIVER_X && (y === LANE_Y[x] || y === LANE_Y[x] + 1);
   const nearLane = (x, y) => {
     for (let dx = -1; dx <= 1; dx++) {
       const cx = Math.min(WIDTH - 1, Math.max(0, x + dx));
