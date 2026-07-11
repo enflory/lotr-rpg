@@ -931,6 +931,8 @@ Trigger in `woodyend.js` `onUpdate` (session-scoped, replays per visit — the e
   }
 ```
 
+(`woodyend.js` will need `sfx` and `hasFlag`/`setFlag` imports for the onCreate/onUpdate additions — `TILE_SIZE` too.)
+
 - [ ] **Step 5:** `npm test` (integrity covers the 3 npcs + feast dialogue), browser QA: escape the rider → banner+motif approaching the clearing → talk to all four elves → examine the feast after Gildor (provisions granted, second examine gives the fallback). Overlay lists provisions.
 - [ ] **Step 6: Commit** — `feat: the hall of trees — Gildor's company, feast, elf-song`
 
@@ -968,7 +970,7 @@ export const RIDER_START_X = RIVER_X - 18;
 **Files:**
 - Modify: `src/data/zones/marish.js`, `src/art/characters.js`, `src/data/dialogues.js`
 
-- [ ] **Step 1: Farm dressing** in `generateMap()` **after the garden-row loop** (so dressing wins where they overlap): barn (`stamp` rows `[[T.ROOF_L, T.ROOF, T.ROOF_R],[T.BARN, T.BARN, T.BARN]]` at **(26,16)** — 3 wide, clear of the gate columns 24–25 so the farm entrance stays open), well at (21,17), waggon at (27,20) (`T.WAGGON`). Signs: `{ x: 27, y: 20, dialogue: 'examine_waggon' }` ('Maggot's waggon, packed\nfor the Ferry road.'), `{ x: 21, y: 17, dialogue: 'examine_well' }`, barn examine on a BARN tile ('Hay, harness, and the\nsmell of good earth.'). Stock signpost: SIGN tile at (10,16) + `sign_stock` ('STOCK ½ mile\n~ mind the dikes ~'). Brandy Hall examine on the far bank: signs entry on the TREE at `(BANK_X + 1, LANE_ROW - 3)` → `examine_brandyhall` ('Across the water, lights\nglimmer on the hill:\nBrandy Hall, Buckland.').
+- [ ] **Step 1: Farm dressing** in `generateMap()` **after the garden-row loop** (so dressing wins where they overlap): barn (`stamp` rows `[[T.ROOF_L, T.ROOF, T.ROOF_R],[T.BARN, T.BARN, T.BARN]]` at **(26,16)** — 3 wide, clear of the gate columns 24–25 so the farm entrance stays open), well at (21,17), waggon at (27,20) (`T.WAGGON`). Signs: `{ x: 27, y: 20, dialogue: 'examine_waggon' }` ('Maggot's waggon, packed\nfor the Ferry road.'), `{ x: 21, y: 17, dialogue: 'examine_well' }`, barn examine on a BARN tile ('Hay, harness, and the\nsmell of good earth.'). Stock signpost: SIGN tile at (10,16) + `sign_stock` ('STOCK ½ mile\n~ mind the dikes ~'). Brandy Hall examine on the far bank: signs entry on a border TREE at `(BANK_X + 2, LANE_ROW - 3)` = (54,12) — column `BANK_X + 1` is walkable shore, trees start at `BANK_X + 2` → `examine_brandyhall` ('Across the water, lights\nglimmer on the hill:\nBrandy Hall, Buckland.').
 - [ ] **Step 2: Mrs. Maggot** — `CHAR_DEFS.mrsmaggot` (`maps: FEMALE`, warm apron palette: V `#a05838`/v `#c07048`/G `#7a4028`, C `#f0e8d0`, hair greying brown H `#5a4a35`/h `#7a6a50`/l `#9a8a6c`). NPC **just below** the farmhouse door: `{ key: 'mrsmaggot', x: 20, y: 17, dir: 'down' }` (no `when` — she's home throughout; y=16 is the DOOR_R tile itself and would fail the NPC-on-solid integrity test). Dialogue staged (the dogs errand hangs off her — Maggot himself despawns after the waggon ride):
 
 ```js
@@ -1011,7 +1013,7 @@ Note: the `dogsAsked` stage must not steal the objective from the main story mid
 - Test: `tests/dogsEvent.test.js`
 
 - [ ] **Step 1: Dog sprites** — a 10-row `DOG` quadruped template (side view left + mirrored right; down/up compact), `noFeet: true`, legs via `extra` shuffle (same approach as the fox). Three `CHAR_DEFS` entries sharing `DOG`: `grip` (black `#2a2a30` coat), `fang` (brindle `#6a4a2a`), `wolf` (grey `#8a8a90`). Check `/art-test.html`.
-- [ ] **Step 2: Placement + dialogue.** NPCs in `marish.js` (each `when: (f) => f.dogsAsked && !f.dogGrip` etc.): grip by the west pool (6,21), fang in the north-east reeds (30,4), wolf near the causeway (38,18). `dogsAsked` is set by Mrs. Maggot's dialogue, so the Task 4 `refreshSpawns()` in `closeDialogue` makes all three appear the moment her dialogue ends — no zone re-entry needed. Dialogues, name per dog, e.g.:
+- [ ] **Step 2: Placement + dialogue.** NPCs in `marish.js` (each `when: (f) => f.dogsAsked && !f.dogGrip` etc.): grip by the west pool (6,22), fang in the north-east reeds (31,6), wolf near the causeway (38,18) — as with all placed content, nudge any coordinate the NPC-on-solid integrity test rejects (the pool reed-rings and random bog scatter are solid). `dogsAsked` is set by Mrs. Maggot's dialogue, so the Task 4 `refreshSpawns()` in `closeDialogue` makes all three appear the moment her dialogue ends — no zone re-entry needed. Dialogues, name per dog, e.g.:
 
 ```js
   grip: {
@@ -1138,7 +1140,7 @@ test('exploration: pickups collect and the overlay tallies them', async ({ page 
 ## Deliberate deviations from the spec
 
 - **Sam commenting on the elven provisions in the Marish** — cut: Sam is a follower, and followers have no dialogue interaction. The provisions' item description and the feast examine carry the flavor instead.
-- **Ferry landing rope-and-post detail** — cut as art-budget trim; the second lantern and causeway dikes carry the landing's dressing.
+- **Ferry landing rope-and-post detail and second lantern** — cut as art-budget trim; the existing lantern/sign and the new causeway dikes carry the landing's dressing.
 - **Extra Sam-vs-Ted argument lines in the Green Dragon** — delivered through Old Noakes and Daddy Twofoot chiming in at their table (Task 9) rather than by editing Ted's existing staged lines.
 
 ## Post-plan
