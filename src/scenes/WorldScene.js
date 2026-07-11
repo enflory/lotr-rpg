@@ -270,6 +270,7 @@ export class WorldScene extends Phaser.Scene {
       this.player.setVelocity(0);
       this.player.anims.play(`frodo-idle-${this.lastDir}`, true);
       this.updateFollower(false);
+      this.hintIcon.setVisible(false); // no interactions during set pieces
       if (this.zone.onUpdate && !this.transitioning) this.zone.onUpdate(this, delta);
       return;
     }

@@ -599,10 +599,11 @@ function drawBog(c, ox) {
 }
 
 function drawReeds(c, ox) {
-  // Marsh rushes standing in dark water — impassable
-  rc(c, ox, 0, 16, 16, '#3b6a98');
-  rc(c, ox + 2, 4, 3, 2, '#2a5078'); rc(c, ox + 10, 10, 4, 2, '#2a5078');
-  px(c, ox + 5, 13, '#6b98b8'); px(c, ox + 12, 3, '#6b98b8');
+  // Marsh rushes on sodden ground — impassable
+  rc(c, ox, 0, 16, 16, '#4e7030');
+  rc(c, ox + 1, 10, 6, 4, '#3e6070'); rc(c, ox + 9, 3, 5, 3, '#3e6070');
+  px(c, ox + 3, 11, '#6b98b8'); px(c, ox + 11, 4, '#6b98b8');
+  px(c, ox + 6, 14, '#42622a'); px(c, ox + 13, 8, '#42622a');
   // Stalks with cattail heads
   for (const [sx, top, tall] of [[2, 5, 10], [5, 2, 13], [8, 4, 11], [11, 1, 14], [14, 6, 9]]) {
     rc(c, ox + sx, top, 1, tall, '#6a8a3a');

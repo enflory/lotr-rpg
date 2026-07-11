@@ -89,6 +89,101 @@ test("prologue: Bilbo's farewell party opens the game", async ({ page }) => {
     .toBeGreaterThan(15); // back at Bag End's default spawn (20,7)
 });
 
+test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
+  // Jump the story to "just met Gildor", with Sam following
+  await page.evaluate(() => {
+    Object.assign(window.__state.flags, {
+      prologueDone: true,
+      timeskipShown: true,
+      metGandalf: true,
+      samJoined: true,
+      escapedRider: true,
+      metGildor: true,
+    });
+    window.__state.follower = 'sam';
+  });
+  await press(page, 'Enter');
+  await page.waitForFunction(() => window.__game?.scene.isActive('WorldScene'));
+  await page.evaluate(() => {
+    window.__game.scene.getScene('WorldScene').goToZone('marish', 'west');
+  });
+  await page.waitForFunction(
+    () => window.__game.scene.getScene('WorldScene').zone?.key === 'marish',
+  );
+
+  // Talk to Maggot at his gate → waggon offer (sets maggotRide)
+  await page.evaluate(() => {
+    const scene = window.__game.scene.getScene('WorldScene');
+    scene.player.setPosition(23 * 16 + 8, 15 * 16 + 8); // in the gateway above him
+  });
+  await press(page, ' ');
+  await expect
+    .poll(
+      async () => {
+        const done = await page.evaluate(() => !!window.__state.flags.maggotRide);
+        if (!done) await press(page, ' ');
+        return done;
+      },
+      { timeout: 20_000 },
+    )
+    .toBe(true);
+
+  // The waggon ride fade-teleports to the landing and spawns Merry
+  await page.waitForFunction(() => window.__state.flags.rodeWaggon, null, { timeout: 10_000 });
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const scene = window.__game.scene.getScene('WorldScene');
+        return Math.floor(scene.player.x / 16);
+      }),
+    )
+    .toBe(30);
+
+  // Talk to Merry (32,12) → raft ready (sets merryMet)
+  await page.evaluate(() => {
+    const scene = window.__game.scene.getScene('WorldScene');
+    scene.player.setPosition(32 * 16 + 8, 13 * 16 + 8);
+  });
+  await press(page, ' ');
+  await expect
+    .poll(
+      async () => {
+        const done = await page.evaluate(() => !!window.__state.flags.merryMet);
+        if (!done) await press(page, ' ');
+        return done;
+      },
+      { timeout: 20_000 },
+    )
+    .toBe(true);
+
+  // Walk east onto the pier — the crossing runs itself from there
+  await page.keyboard.down('ArrowRight');
+  await page.waitForFunction(
+    () => {
+      const scene = window.__game.scene.getScene('WorldScene');
+      return Math.floor(scene.player.x / 16) >= 34 || scene.inputLocked;
+    },
+    null,
+    { timeout: 10_000 },
+  );
+  await page.keyboard.up('ArrowRight');
+  await page.waitForFunction(() => window.__state.flags.crossedFerry, null, { timeout: 15_000 });
+
+  const end = await page.evaluate(() => {
+    const scene = window.__game.scene.getScene('WorldScene');
+    return {
+      objective: window.__state.objective,
+      tileX: Math.floor(scene.player.x / 16),
+      bodyEnabled: scene.player.body.enable,
+    };
+  });
+  expect(end.objective).toMatch(/Chapter Two/);
+  expect(end.tileX).toBeGreaterThanOrEqual(37); // the Buckland shore
+  expect(end.bodyEnabled).toBe(true);
+});
+
 test('talking to Gandalf reveals the Ring and sets the story flag', async ({ page }) => {
   await startGame(page);
 
