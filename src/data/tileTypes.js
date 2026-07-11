@@ -44,6 +44,9 @@ export const T = {
   PARTY_BR: 37,
   TENT: 38, // striped festival pavilion
   LANTERN: 39, // lamp post
+  // The Marish
+  BOG: 40, // squelchy wet ground (walkable)
+  REEDS: 41, // marsh rushes (solid)
 };
 
 export const COLLISION_TILES = [
@@ -73,6 +76,7 @@ export const COLLISION_TILES = [
   T.PARTY_BR,
   T.TENT,
   T.LANTERN,
+  T.REEDS,
 ];
 
 export const TILE_SIZE = 16;
