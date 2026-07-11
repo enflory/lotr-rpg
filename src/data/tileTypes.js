@@ -38,12 +38,14 @@ export const T = {
   DOCK: 32, // east-west pier, north half (water edge above)
   DOCK_S: 33, // east-west pier, south half (water edge + posts below)
   // Party Field
-  PARTY_TL: 34, // Party Tree, 2×2 composite — top-left quarter
+  PARTY_TL: 34, // Party Tree, 2×3 composite — canopy middle row
   PARTY_TR: 35,
-  PARTY_BL: 36, // bottom quarters carry the trunk
+  PARTY_BL: 36, // bottom row carries the trunk
   PARTY_BR: 37,
   TENT: 38, // striped festival pavilion
   LANTERN: 39, // lamp post
+  PARTY_NL: 40, // crown row, north of PARTY_TL/TR
+  PARTY_NR: 41,
 };
 
 export const COLLISION_TILES = [
@@ -73,6 +75,8 @@ export const COLLISION_TILES = [
   T.PARTY_BR,
   T.TENT,
   T.LANTERN,
+  T.PARTY_NL,
+  T.PARTY_NR,
 ];
 
 export const TILE_SIZE = 16;

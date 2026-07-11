@@ -474,49 +474,65 @@ function drawDockS(c, ox) {
 
 /* ── Party Field ────────────────────────────────────────── */
 
-// The Party Tree spans a 2×2 tile block. Each quarter draws its share
-// of one big canopy centred on the block's middle; pixels are clipped
-// to the 16px tile so nothing bleeds into neighbours on the strip.
+// The Party Tree spans a 2-wide × 3-tall tile block (crown, canopy,
+// trunk rows). Each tile draws its share of one big canopy centred in
+// block coordinates; pixels are clipped to the 16px tile so nothing
+// bleeds into neighbours on the strip.
 function clippedCircle(c, ox, cx, cy, r, col) {
   c.fillStyle = col;
   for (let dy = -r; dy <= r; dy++)
     for (let dx = -r; dx <= r; dx++) {
       if (dx * dx + dy * dy > r * r) continue;
-      const x = cx + dx, y = cy + dy;
+      const x = cx + dx,
+        y = cy + dy;
       if (x < 0 || x > 15 || y < 0 || y > 15) continue;
       c.fillRect(ox + x, y, 1, 1);
     }
 }
 
-// Canopy layers shared by all four quarters, in block coordinates
-// (0..31 square, centre 16,16). Each tile passes its own offset.
+// Canopy layers shared by all six tiles, in block coordinates
+// (32 wide × 48 tall, canopy centred at 16,18). Each tile passes its
+// own offset.
 function partyCanopy(c, ox, bx, by) {
   const layer = (cx, cy, r, col) => clippedCircle(c, ox, cx - bx, cy - by, r, col);
-  layer(16, 14, 14, '#1e4a16'); // dark rim
-  layer(16, 14, 12, '#2e6a20'); // body
-  layer(13, 11, 8, '#3d8a2c'); // lit side
-  layer(11, 9, 4, '#4a9c3a'); // highlight crown
+  layer(16, 18, 17, '#1e4a16'); // dark rim
+  layer(16, 18, 15, '#2e6a20'); // body
+  layer(12, 13, 9, '#3d8a2c'); // lit side
+  layer(10, 10, 5, '#4a9c3a'); // highlight crown
   // Festival lamps strung through the boughs
   for (const [lx, ly, col] of [
-    [7, 10, '#e8c840'], [24, 8, '#e05050'], [16, 5, '#e8c840'],
-    [10, 20, '#e05050'], [22, 21, '#e8c840'], [27, 15, '#f8e880'],
-    [5, 16, '#f8e880'],
+    [6, 12, '#e8c840'], [25, 10, '#e05050'], [16, 4, '#e8c840'],
+    [9, 24, '#e05050'], [23, 26, '#e8c840'], [29, 17, '#f8e880'],
+    [3, 19, '#f8e880'], [14, 31, '#e05050'], [20, 32, '#e8c840'],
   ]) {
-    const x = lx - bx, y = ly - by;
+    const x = lx - bx,
+      y = ly - by;
     if (x >= 0 && x <= 15 && y >= 0 && y <= 15) px(c, ox + x, y, col);
   }
 }
 
+function drawPartyNL(c, ox) {
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  px(c, ox + 2, 3, '#4a8630');
+  partyCanopy(c, ox, 0, 0);
+}
+
+function drawPartyNR(c, ox) {
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  px(c, ox + 13, 2, '#4a8630');
+  partyCanopy(c, ox, 16, 0);
+}
+
 function drawPartyTL(c, ox) {
   rc(c, ox, 0, 16, 16, '#5a9e3a');
-  px(c, ox + 2, 2, '#4a8630'); px(c, ox + 5, 13, '#6aae4a');
-  partyCanopy(c, ox, 0, 0);
+  px(c, ox + 2, 2, '#4a8630');
+  partyCanopy(c, ox, 0, 16);
 }
 
 function drawPartyTR(c, ox) {
   rc(c, ox, 0, 16, 16, '#5a9e3a');
-  px(c, ox + 13, 3, '#4a8630'); px(c, ox + 11, 12, '#6aae4a');
-  partyCanopy(c, ox, 16, 0);
+  px(c, ox + 13, 3, '#4a8630');
+  partyCanopy(c, ox, 16, 16);
 }
 
 function drawPartyBL(c, ox) {
@@ -527,8 +543,9 @@ function drawPartyBL(c, ox) {
   rc(c, ox + 13, 4, 3, 9, '#6a4528');
   rc(c, ox + 10, 12, 6, 2, '#4a2c14');
   px(c, ox + 9, 13, '#4a2c14');
-  px(c, ox + 14, 6, '#8a6038'); px(c, ox + 13, 9, '#8a6038');
-  partyCanopy(c, ox, 0, 16);
+  px(c, ox + 14, 6, '#8a6038');
+  px(c, ox + 13, 9, '#8a6038');
+  partyCanopy(c, ox, 0, 32);
   // Grass shadow under the boughs
   rc(c, ox + 4, 14, 10, 1, '#4a8630');
 }
@@ -540,8 +557,9 @@ function drawPartyBR(c, ox) {
   rc(c, ox, 4, 3, 9, '#6a4528');
   rc(c, ox, 12, 6, 2, '#4a2c14');
   px(c, ox + 6, 13, '#4a2c14');
-  px(c, ox + 1, 7, '#8a6038'); px(c, ox + 2, 10, '#8a6038');
-  partyCanopy(c, ox, 16, 16);
+  px(c, ox + 1, 7, '#8a6038');
+  px(c, ox + 2, 10, '#8a6038');
+  partyCanopy(c, ox, 16, 32);
   rc(c, ox + 2, 14, 10, 1, '#4a8630');
 }
 
@@ -589,6 +607,7 @@ export const TILE_FNS = [
   drawShelf, drawCounter, drawBed, drawWindowInt,
   drawFern, drawTree2, drawSign, drawVoid, drawDock, drawDockS,
   drawPartyTL, drawPartyTR, drawPartyBL, drawPartyBR, drawTent, drawLantern,
+  drawPartyNL, drawPartyNR,
 ];
 
 export function makeTilesetDataURL() {

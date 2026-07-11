@@ -10,6 +10,7 @@ const H = T.HILL, h = T.HILLTOP, D = T.DOOR, B = T.BRIDGE, F = T.FENCE;
 const S = T.STONE, f = T.FLOWERS, d = T.GARDEN, O = T.ROOF;
 const L = T.DOOR_L, J = T.DOOR_R, K = T.ROOF_L, N = T.ROOF_R, X = T.SIGN;
 const Q = T.PARTY_TL, U = T.PARTY_TR, V = T.PARTY_BL, Y = T.PARTY_BR;
+const q = T.PARTY_NL, u = T.PARTY_NR;
 const E = T.TENT, M = T.LANTERN;
 
 // 40 wide × 40 tall
@@ -41,10 +42,10 @@ const MAP = [
   // ── Hobbiton village center / Bywater Road ────────
   [R, G, G, f, G, G, G, G, G, P, P, P, P, G, G, G, G, G, G, P, P, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 18
   [R, G, G, G, G, G, P, P, P, P, G, G, P, P, P, P, P, P, P, P, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P], // 19  ← East Road exit →
-  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 20
+  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, G, P, P, P, P, P, P, P, P, P, P], // 20  ← wide East Road mouth
 
   // ── Party Field (west) · Green Dragon Inn (east) ───
-  [R, M, G, f, G, G, G, G, M, P, P, G, G, G, G, G, G, G, X, P, P, G, G, G, S, S, S, S, S, S, G, G, G, G, f, G, G, G, G, R], // 21  ← field lanterns · Bywater sign
+  [R, M, G, f, q, u, G, G, M, P, P, G, G, G, G, G, G, G, X, P, P, G, G, G, S, S, S, S, S, S, G, G, G, G, f, G, G, G, G, R], // 21  ← lanterns · Party Tree crown · Bywater sign
   [R, G, G, G, Q, U, G, G, G, P, P, G, G, G, f, G, G, G, G, P, P, G, G, S, K, O, O, O, N, S, G, G, G, G, G, G, G, G, G, R], // 22  ← the Party Tree
   [R, G, G, G, V, Y, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, S, L, D, D, D, J, S, G, G, G, G, G, G, G, G, G, R], // 23  ← Green Dragon entrance
   [R, G, f, G, G, G, f, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, X, S, S, S, S, S, S, G, G, G, f, G, G, G, G, G, R], // 24  ← inn sign
@@ -113,6 +114,11 @@ export const shire = {
   exits: [
     {
       x: 39, y: 19, zone: 'woodyend', entry: 'west',
+      requires: 'samJoined',
+      denied: "I shouldn't set out\nwithout Sam.",
+    },
+    {
+      x: 39, y: 20, zone: 'woodyend', entry: 'west',
       requires: 'samJoined',
       denied: "I shouldn't set out\nwithout Sam.",
     },
