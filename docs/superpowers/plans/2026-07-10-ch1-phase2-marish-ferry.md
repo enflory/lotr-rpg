@@ -12,13 +12,13 @@
 
 ---
 
-## Story flow (abridged from *A Short Cut to Mushrooms* / *A Conspiracy Unmasked*)
+## Story flow (abridged from _A Short Cut to Mushrooms_ / _A Conspiracy Unmasked_)
 
-1. After Gildor (`metGildor`), the Woody End's east road opens. Objective (updated Gildor stage): *"Make for Bucklebury Ferry, through the Marish"*.
-2. Marish: follow the lane southeast through boggy fields to Bamfurlong. Maggot at his gate: recognizes Frodo (mushroom-thief history), recounts the black rider who came asking for *Baggins*, offers the waggon lift + a basket of mushrooms from Mrs. Maggot. Close → `maggotRide`, `mushrooms`.
+1. After Gildor (`metGildor`), the Woody End's east road opens. Objective (updated Gildor stage): _"Make for Bucklebury Ferry, through the Marish"_.
+2. Marish: follow the lane southeast through boggy fields to Bamfurlong. Maggot at his gate: recognizes Frodo (mushroom-thief history), recounts the black rider who came asking for _Baggins_, offers the waggon lift + a basket of mushrooms from Mrs. Maggot. Close → `maggotRide`, `mushrooms`.
 3. Waggon ride: fade out, banner ("Maggot's waggon rattles on through the dark…"), player+follower repositioned at the ferry landing, `rodeWaggon`, fade in. Maggot despawns (drove home).
-4. Merry waits at the lamplit landing (`when: rodeWaggon`): "There you are! I've been waiting…" → `merryMet`, objective *"Board the ferry raft"*.
-5. Stepping onto the pier end triggers the crossing: input locked, player/Sam/Merry placed on a raft (tileset-frame images), body disabled, tween across the river. Midway a Rider gallops to the landing, halts — red flash, sting, banner. On the far bank: `crossedFerry`, jingle, objective *"To be continued…"*, Buckland sign with the chapter-end text.
+4. Merry waits at the lamplit landing (`when: rodeWaggon`): "There you are! I've been waiting…" → `merryMet`, objective _"Board the ferry raft"_.
+5. Stepping onto the pier end triggers the crossing: input locked, player/Sam/Merry placed on a raft (tileset-frame images), body disabled, tween across the river. Midway a Rider gallops to the landing, halts — red flash, sting, banner. On the far bank: `crossedFerry`, jingle, objective _"To be continued…"_, Buckland sign with the chapter-end text.
 
 ## Files
 
@@ -32,7 +32,7 @@
 - Modify: `src/data/dialogues.js` — `maggot`, `merry`, `sign_ferry` (rewritten for the landing), `sign_buckland` (TO BE CONTINUED), Gildor objective text.
 - Test: `tests/ferryEvent.test.js` (new), `tests/zones.test.js` (woodyend pier tests → replaced with east-exit/full-width-road tests; marish generated-map tests), `tests/dialogues.test.js`, `e2e/smoke.spec.js` (marish journey test).
 
-## Marish layout (40×26, seeded LCG `0xba9`) 
+## Marish layout (40×26, seeded LCG `0xba9`)
 
 - `LANE_Y[x]`: 12 for x<10, 15 for x<22, 11 for x<32, 11 to the pier. Lane 2 tiles tall, carved like the Woody End road with vertical joins.
 - Base: GRASS/GRASS2 with BOG patches (~18% away from lane), WATER pools ringed by REEDS, FLOWERS sparse. Border TREE except lane gaps west/none east (river).
@@ -48,29 +48,36 @@ Phases: `idle → (maggotRide && !rodeWaggon) ride` [lock, fadeOut, teleport to 
 ## Tasks
 
 ### Task 1: Tiles
+
 - [ ] BOG + REEDS in `T`/`COLLISION_TILES`/`TILE_FNS`; `npm test`; art-test screenshot QA; commit `feat: marish tiles (bog, reeds)`.
 
 ### Task 2: Maggot & Merry sprites
+
 - [ ] `CHAR_DEFS.maggot` (russet `V:#8a4a2a`-family, straw hat extra) and `CHAR_DEFS.merry` (green `V:#4a7a3a`, yellow scarf `C:#e0c050`); art-test QA; commit `feat: maggot and merry sprites`.
 
 ### Task 3: Woody End rework
+
 - [ ] Update `tests/zones.test.js` woodyend block first: road PATH across full width at `ROAD_Y[x]`; no DOCK anywhere; east exits at (39, ROAD_Y[39]±0/1) target `marish.west` requiring `metGildor`. Run — FAIL.
 - [ ] Edit `woodyend.js` generation + exits; Gildor dialogue objective text. `npm test` green (marish registration lands in Task 4 — keep exit-target assertion tolerant or land Tasks 3+4 in one commit if the registry check requires it).
 - [ ] Commit: `feat: woody end road continues east to the marish`.
 
 ### Task 4: Marish zone
+
 - [ ] Write marish generated-map tests first (lane carved along LANE_Y; farm fence closed except 2-tile gate; gate path connects to lane; pier at lane height; east-bank strip walkable; maggot/merry `when` gating). FAIL → implement `marish.js` + registry entry → green.
 - [ ] Commit: `feat: the marish — bamfurlong farm, ferry landing, brandywine`.
 
 ### Task 5: Dialogues
+
 - [ ] `maggot` (recognition, Rider account, waggon offer; `set: ['maggotRide','mushrooms']`, objective "Ride with Farmer Maggot to the Ferry"), `merry` (`set:'merryMet'`, objective "Board the ferry raft"), `sign_ferry` rewrite, `sign_buckland` (chapter-end / TO BE CONTINUED). Dialogue staging tests. Commit: `feat: maggot, merry, and ferry dialogues`.
 
 ### Task 6: Ferry event
+
 - [ ] `tests/ferryEvent.test.js` fake-scene: ride fires once; boarding requires merryMet + pier position; body disabled during crossing and re-enabled after; rider spawned mid-crossing; `crossedFerry` set at landing; inert after. FAIL → implement `src/events/ferryEvent.js` → green.
 - [ ] `WorldScene.create`: `this.ferryEvent = null` beside the other event resets.
 - [ ] Commit: `feat: waggon ride and brandywine ferry crossing set piece`.
 
 ### Task 7: e2e + QA + PR
+
 - [ ] New e2e test: preset flags (`prologueDone, timeskipShown, metGandalf, samJoined, escapedRider, metGildor`) + `__state.follower='sam'` before ENTER; `goToZone('marish','west')`; dialogue-poll Maggot → `rodeWaggon` && repositioned; dialogue-poll Merry; hold ArrowRight onto the pier; poll `crossedFerry`.
 - [ ] `npm run lint && npm run typecheck && npm test && npm run build && npm run test:e2e` all green; manual Playwright playthrough with screenshots (farm, waggon fade, landing lamp, crossing, Rider on the bank, Buckland sign).
 - [ ] Update `CLAUDE.md` Current State. Push, PR against `ch1-party-field` with play instructions.

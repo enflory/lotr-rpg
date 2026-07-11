@@ -12,12 +12,12 @@
 
 ---
 
-## Story flow (abridged from *A Long-expected Party*)
+## Story flow (abridged from _A Long-expected Party_)
 
-1. New game → spawn in the Party Field at dusk of the party. Objective: *"Speak with Bilbo beneath the Party Tree"*. Fireworks burst over the field on a timer. Gaffer, Rosie, Ted, and Gandalf stand among the tents with party dialogue.
+1. New game → spawn in the Party Field at dusk of the party. Objective: _"Speak with Bilbo beneath the Party Tree"_. Fireworks burst over the field on a timer. Gaffer, Rosie, Ted, and Gandalf stand among the tents with party dialogue.
 2. Talk to Bilbo → his speech (paraphrased book lines) → dialogue close sets `bilboFarewell`.
 3. Event machine: white flash, Bilbo vanishes (sting SFX), banner, then fade out, set `prologueDone`, restart the shire zone at the `default` spawn.
-4. On re-create, a one-shot banner: *"Seventeen years pass..."* (flag `timeskipShown`). Objective becomes the existing *"Speak with Gandalf outside Bag End"*. Game proceeds exactly as today.
+4. On re-create, a one-shot banner: _"Seventeen years pass..."_ (flag `timeskipShown`). Objective becomes the existing _"Speak with Gandalf outside Bag End"_. Game proceeds exactly as today.
 
 Skip path (existing e2e tests, QA): presetting `prologueDone` before pressing ENTER on the title boots straight into the current opening.
 

@@ -21,7 +21,10 @@ function makeScene() {
     add: {
       circle: (x, y, r, color) => {
         const c = {
-          x, y, r, color,
+          x,
+          y,
+          r,
+          color,
           destroyed: false,
           setDepth() {
             return c;

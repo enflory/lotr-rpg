@@ -100,7 +100,7 @@ export const DIALOGUES = {
       {
         when: (f) => !f.prologueDone,
         lines: [
-          'A very nice well-spoken\ngentlehobbit is Mr. Bilbo,\nas I\'ve always said.',
+          "A very nice well-spoken\ngentlehobbit is Mr. Bilbo,\nas I've always said.",
           'Free beer and a feast for\nall comers! That IS a\nbirthday party, that is.',
         ],
       },
