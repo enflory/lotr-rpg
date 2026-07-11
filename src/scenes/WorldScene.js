@@ -442,7 +442,7 @@ export class WorldScene extends Phaser.Scene {
         return;
       }
 
-      if (tile === T.SIGN) {
+      if (tile === T.SIGN || COLLISION_TILES.includes(tile)) {
         const sign = this.zone.signs.find((s) => s.x === tx && s.y === ty);
         if (sign) {
           this.startDialogue(sign.dialogue);

@@ -116,13 +116,14 @@ describe('doors and exits', () => {
 });
 
 describe('signs and NPCs', () => {
-  it('every sign sits on a SIGN tile and has a dialogue entry', () => {
+  it('every sign/examine sits on a SIGN or solid tile and has a dialogue entry', () => {
     for (const zone of zones) {
       for (const sign of zone.signs) {
+        const tile = zone.map[sign.y][sign.x];
         expect(
-          zone.map[sign.y][sign.x],
-          `${zone.key} sign (${sign.x},${sign.y}) not on SIGN tile`,
-        ).toBe(T.SIGN);
+          tile === T.SIGN || solid.has(tile),
+          `${zone.key} sign (${sign.x},${sign.y}) on walkable non-sign tile — unreachable`,
+        ).toBe(true);
         expect(
           DIALOGUES[sign.dialogue],
           `${zone.key} sign references unknown dialogue ${sign.dialogue}`,
