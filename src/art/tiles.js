@@ -472,6 +472,114 @@ function drawDockS(c, ox) {
   px(c, ox + 7, 4, '#4a3015'); px(c, ox + 11, 8, '#7a5d30');
 }
 
+/* ── Party Field ────────────────────────────────────────── */
+
+// The Party Tree spans a 2×2 tile block. Each quarter draws its share
+// of one big canopy centred on the block's middle; pixels are clipped
+// to the 16px tile so nothing bleeds into neighbours on the strip.
+function clippedCircle(c, ox, cx, cy, r, col) {
+  c.fillStyle = col;
+  for (let dy = -r; dy <= r; dy++)
+    for (let dx = -r; dx <= r; dx++) {
+      if (dx * dx + dy * dy > r * r) continue;
+      const x = cx + dx, y = cy + dy;
+      if (x < 0 || x > 15 || y < 0 || y > 15) continue;
+      c.fillRect(ox + x, y, 1, 1);
+    }
+}
+
+// Canopy layers shared by all four quarters, in block coordinates
+// (0..31 square, centre 16,16). Each tile passes its own offset.
+function partyCanopy(c, ox, bx, by) {
+  const layer = (cx, cy, r, col) => clippedCircle(c, ox, cx - bx, cy - by, r, col);
+  layer(16, 14, 14, '#1e4a16'); // dark rim
+  layer(16, 14, 12, '#2e6a20'); // body
+  layer(13, 11, 8, '#3d8a2c'); // lit side
+  layer(11, 9, 4, '#4a9c3a'); // highlight crown
+  // Festival lamps strung through the boughs
+  for (const [lx, ly, col] of [
+    [7, 10, '#e8c840'], [24, 8, '#e05050'], [16, 5, '#e8c840'],
+    [10, 20, '#e05050'], [22, 21, '#e8c840'], [27, 15, '#f8e880'],
+    [5, 16, '#f8e880'],
+  ]) {
+    const x = lx - bx, y = ly - by;
+    if (x >= 0 && x <= 15 && y >= 0 && y <= 15) px(c, ox + x, y, col);
+  }
+}
+
+function drawPartyTL(c, ox) {
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  px(c, ox + 2, 2, '#4a8630'); px(c, ox + 5, 13, '#6aae4a');
+  partyCanopy(c, ox, 0, 0);
+}
+
+function drawPartyTR(c, ox) {
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  px(c, ox + 13, 3, '#4a8630'); px(c, ox + 11, 12, '#6aae4a');
+  partyCanopy(c, ox, 16, 0);
+}
+
+function drawPartyBL(c, ox) {
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  px(c, ox + 3, 13, '#4a8630');
+  // Trunk (left half, hugging the block seam) with root flare
+  rc(c, ox + 11, 4, 5, 9, '#4a2c14');
+  rc(c, ox + 13, 4, 3, 9, '#6a4528');
+  rc(c, ox + 10, 12, 6, 2, '#4a2c14');
+  px(c, ox + 9, 13, '#4a2c14');
+  px(c, ox + 14, 6, '#8a6038'); px(c, ox + 13, 9, '#8a6038');
+  partyCanopy(c, ox, 0, 16);
+  // Grass shadow under the boughs
+  rc(c, ox + 4, 14, 10, 1, '#4a8630');
+}
+
+function drawPartyBR(c, ox) {
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  px(c, ox + 12, 14, '#4a8630');
+  rc(c, ox, 4, 5, 9, '#4a2c14');
+  rc(c, ox, 4, 3, 9, '#6a4528');
+  rc(c, ox, 12, 6, 2, '#4a2c14');
+  px(c, ox + 6, 13, '#4a2c14');
+  px(c, ox + 1, 7, '#8a6038'); px(c, ox + 2, 10, '#8a6038');
+  partyCanopy(c, ox, 16, 16);
+  rc(c, ox + 2, 14, 10, 1, '#4a8630');
+}
+
+function drawTent(c, ox) {
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  px(c, ox + 1, 14, '#4a8630'); px(c, ox + 14, 15, '#4a8630');
+  // Peaked pavilion, cream and red stripes widening to the ground
+  for (let y = 0; y < 10; y++) {
+    const hw = 1 + Math.round((y * 6) / 9);
+    rc(c, ox + 8 - hw, 3 + y, hw * 2, 1, y % 4 < 2 ? '#e8e0c8' : '#c04848');
+  }
+  // Canvas shading down the right slope
+  for (let y = 3; y < 13; y++) px(c, ox + 8 + Math.round(((y - 3) * 6) / 9), y, '#b0a888');
+  // Ground skirt + entrance flap
+  rc(c, ox + 1, 12, 14, 1, '#c04848');
+  rc(c, ox + 6, 9, 4, 4, '#3a2618');
+  px(c, ox + 7, 9, '#241608'); px(c, ox + 8, 10, '#241608');
+  // Pole pennant
+  px(c, ox + 8, 1, '#e8c840'); px(c, ox + 9, 2, '#e05050'); px(c, ox + 8, 2, '#e05050');
+}
+
+function drawLantern(c, ox) {
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  px(c, ox + 3, 12, '#4a8630'); px(c, ox + 12, 13, '#4a8630');
+  // Post
+  rc(c, ox + 7, 6, 2, 8, '#6b4423');
+  rc(c, ox + 6, 13, 4, 1, '#4a3015');
+  px(c, ox + 7, 8, '#4a3015');
+  // Lamp box with a warm pane
+  rc(c, ox + 5, 1, 6, 6, '#3a2a1a');
+  rc(c, ox + 6, 2, 4, 4, '#f8e880');
+  px(c, ox + 7, 3, '#fff8d0'); px(c, ox + 8, 4, '#f0d860');
+  px(c, ox + 7, 0, '#3a2a1a'); px(c, ox + 8, 0, '#3a2a1a');
+  // Glow motes
+  px(c, ox + 3, 3, '#e8c840'); px(c, ox + 12, 4, '#e8c840');
+  px(c, ox + 4, 6, '#c8a838'); px(c, ox + 11, 7, '#c8a838');
+}
+
 export const TILE_FNS = [
   drawGrass, drawGrass2, drawPath, drawWater, drawTree,
   drawHill, drawHillTop, drawDoor, drawBridge, drawFence,
@@ -480,6 +588,7 @@ export const TILE_FNS = [
   drawFloor, drawWall, drawRug, drawTable, drawFireplace,
   drawShelf, drawCounter, drawBed, drawWindowInt,
   drawFern, drawTree2, drawSign, drawVoid, drawDock, drawDockS,
+  drawPartyTL, drawPartyTR, drawPartyBL, drawPartyBR, drawTent, drawLantern,
 ];
 
 export function makeTilesetDataURL() {
