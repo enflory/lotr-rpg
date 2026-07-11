@@ -150,3 +150,18 @@ describe('dialogue data integrity', () => {
     }
   });
 });
+
+describe('item-aware stages', () => {
+  it('passes an item-count fn through to stage predicates', () => {
+    DIALOGUES.__test = {
+      name: 'X',
+      stages: [
+        { when: (f, count) => count('mushroom') >= 3, lines: ['plenty'] },
+        { lines: ['few'] },
+      ],
+    };
+    expect(resolveDialogue('__test', {}, () => 5).lines).toEqual(['plenty']);
+    expect(resolveDialogue('__test', {}, () => 0).lines).toEqual(['few']);
+    delete DIALOGUES.__test;
+  });
+});

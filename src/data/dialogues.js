@@ -1,12 +1,15 @@
 // NPC dialogues — drawn from or closely paraphrasing The Lord of the Rings.
 //
 // Each entry is either { name, lines } (always the same) or
-// { name, stages: [...] } where the FIRST stage whose `when(flags)` is
-// true (or that has no `when`) is shown. A stage may carry effects that
+// { name, stages: [...] } where the FIRST stage whose `when(flags, count)` is
+// true (or that has no `when`) is shown. `count(itemKey)` reports how many
+// of an item the player is carrying. A stage may carry effects that
 // fire when its dialogue finishes:
 //   set:       flag name (or array) to set
 //   objective: new objective banner text
 //   join:      character key that becomes the player's follower
+//   give:      item key granted to the player
+//   take:      item key removed from the player
 
 /** @type {Record<string, import('./types.js').Dialogue>} */
 export const DIALOGUES = {
@@ -273,13 +276,14 @@ export const DIALOGUES = {
  * Resolve which stage of a dialogue applies for the current flags.
  * @param {string} key
  * @param {Record<string, boolean>} flags
+ * @param {(item: string) => number} [count] item-count lookup, for item-aware predicates
  * @returns {({ name: string } & import('./types.js').DialogueStage) | null}
  */
-export function resolveDialogue(key, flags) {
+export function resolveDialogue(key, flags, count = () => 0) {
   const dlg = DIALOGUES[key];
   if (!dlg) return null;
   if (dlg.lines) return { name: dlg.name, lines: dlg.lines };
-  const stage = dlg.stages.find((s) => !s.when || s.when(flags));
+  const stage = dlg.stages.find((s) => !s.when || s.when(flags, count));
   if (!stage) return null;
   return { name: dlg.name, ...stage };
 }

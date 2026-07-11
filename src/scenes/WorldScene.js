@@ -2,7 +2,16 @@ import Phaser from 'phaser';
 import { T, TILE_SIZE, COLLISION_TILES } from '../data/tileTypes.js';
 import { ZONES } from '../data/zones/index.js';
 import { resolveDialogue } from '../data/dialogues.js';
-import { gameState, setFlag, hasFlag, setObjective } from '../state/GameState.js';
+import {
+  gameState,
+  setFlag,
+  hasFlag,
+  setObjective,
+  addItem,
+  removeItem,
+  itemCount,
+} from '../state/GameState.js';
+import { ITEMS } from '../data/items.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
 
 const SPEED = 72;
@@ -440,7 +449,7 @@ export class WorldScene extends Phaser.Scene {
 
   /* ── dialogue system ───────────────────────────────── */
   startDialogue(key) {
-    const dlg = resolveDialogue(key, gameState.flags);
+    const dlg = resolveDialogue(key, gameState.flags, itemCount);
     if (!dlg) return;
 
     this.dialogActive = true;
@@ -516,6 +525,12 @@ export class WorldScene extends Phaser.Scene {
     if (stage.set) {
       for (const flag of [].concat(stage.set)) setFlag(flag);
     }
+    if (stage.give) {
+      addItem(stage.give);
+      sfx.jingle();
+      this.showBanner(`Got: ${ITEMS[stage.give].name}!`);
+    }
+    if (stage.take) removeItem(stage.take);
     if (stage.join && !gameState.follower) {
       gameState.follower = stage.join;
       this.removeNpc(stage.join);

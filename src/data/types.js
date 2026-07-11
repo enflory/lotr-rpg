@@ -61,10 +61,12 @@
 /**
  * @typedef {Object} DialogueStage
  * @property {string[]} lines
- * @property {(flags: Record<string, boolean>) => boolean} [when] first matching stage wins
+ * @property {(flags: Record<string, boolean>, count: (item: string) => number) => boolean} [when] first matching stage wins
  * @property {string|string[]} [set] flag(s) set when the dialogue closes
  * @property {string} [objective] new objective banner text
  * @property {string} [join] character key that becomes the follower
+ * @property {string} [give] item key granted when the dialogue closes
+ * @property {string} [take] item key removed when the dialogue closes
  */
 
 /**
