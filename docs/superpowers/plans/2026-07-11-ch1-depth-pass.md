@@ -174,29 +174,23 @@ this.load.spritesheet('items', makeItemIconsDataURL(), { frameWidth: 12, frameHe
 - [ ] **Step 1: Write failing tests** — append to `tests/dialogues.test.js`:
 
 ```js
-import { resolveDialogue } from '../src/data/dialogues.js';
+// top-level: import { DIALOGUES, resolveDialogue } from '../src/data/dialogues.js';
 
 describe('item-aware stages', () => {
   it('passes an item-count fn through to stage predicates', () => {
-    const dlg = {
+    DIALOGUES.__test = {
       name: 'X',
       stages: [
         { when: (f, count) => count('mushroom') >= 3, lines: ['plenty'] },
         { lines: ['few'] },
       ],
     };
-    // resolveDialogue works off the registry; test the stage-matching core
-    // via a temporary registry entry:
-    const { DIALOGUES } = await import('../src/data/dialogues.js');
-    DIALOGUES.__test = dlg;
     expect(resolveDialogue('__test', {}, () => 5).lines).toEqual(['plenty']);
     expect(resolveDialogue('__test', {}, () => 0).lines).toEqual(['few']);
     delete DIALOGUES.__test;
   });
 });
 ```
-
-(Adapt to the file's existing import style — top-level import, not dynamic, if simpler.)
 
 - [ ] **Step 2: Run** — expect FAIL (predicate receives one arg; count is undefined → throws).
 - [ ] **Step 3: Implement:**
@@ -298,6 +292,36 @@ In `update()` right after the movement block (player position is settled, not du
 ```
 
 Imports: `collect`, `isCollected` from GameState; `ITEM_KEYS` from items data.
+
+Extract the pickup-spawn loop body into a method so it can run twice (create + refresh):
+
+```js
+  spawnPickup(def) {
+    if (isCollected(def.id)) return;
+    if (def.when && !def.when(gameState.flags)) return;
+    if (this.pickups.some((p) => p.def.id === def.id)) return;
+    const spr = this.add.image(def.x * TILE_SIZE + 8, def.y * TILE_SIZE + 8, 'items',
+      ITEM_KEYS.indexOf(def.item));
+    spr.setDepth(def.y * TILE_SIZE);
+    this.pickups.push({ def, spr });
+  }
+```
+
+**Mid-scene refresh (critical):** NPC and pickup `when` predicates are only evaluated in `create()`, but several flags flip *mid-scene* through dialogue (`cratesAsked` in Task 10, `dogsAsked` in Task 16). Add a refresh method and call it at the **end of `closeDialogue()`** (after all stage effects have applied):
+
+```js
+  refreshSpawns() {
+    for (const def of this.zone.pickups ?? []) this.spawnPickup(def);
+    for (const def of this.zone.npcs) {
+      if (def.when && !def.when(gameState.flags)) continue;
+      if (this.npcs.some((n) => n.getData('key') === def.key)) continue;
+      if (this.follower && this.follower.getData('key') === def.key) continue;
+      this.spawnNpc(def);
+    }
+  }
+```
+
+Additive only — it never despawns (despawning stays with events/`join` as today). Flags set by *events* rather than dialogue (e.g. `escapedRider`) still need imperative `spawnNpc` calls in the event itself — Task 13 handles the elves that way.
 
 - [ ] **Step 4: Browser QA.** Temporarily add to `shire.js`: `pickups: [{ id: 'qa_test', x: 21, y: 8, item: 'mushroom' }]`. Run `npm run dev`, start the game (preset `window.__state.flags.prologueDone = true` on the title screen per CLAUDE.md), walk over it: icon visible → jingle → "Got: Mushroom!" banner → gone; leave and re-enter the zone → still gone. **Remove the QA pickup.**
 - [ ] **Step 5:** `npm test && npm run typecheck && npm run lint` — green.
@@ -574,9 +598,10 @@ function buildMap() {
   // 40×40 hand-authored core → 48×44
   const map = extendMap(BASE, { east: 8, south: 4, fill: G });
 
-  // Open the old east and south tree borders (now interior)
+  // Open the old east and south tree borders (now interior) —
+  // x/y bounds include 39 so the old corner tree goes too
   for (let y = 1; y < 39; y++) if (map[y][39] === R) map[y][39] = G;
-  for (let x = 1; x < 39; x++) if (map[39][x] === R) map[39][x] = G;
+  for (let x = 1; x < 40; x++) if (map[39][x] === R) map[39][x] = G;
 
   // The Water flows on east; the East Road runs to the new edge
   for (const y of [36, 37]) for (let x = 40; x < 48; x++) map[y][x] = W;
@@ -683,7 +708,7 @@ Zone updates in the same file: `map: buildMap()`, exits → `{ x: 47, y: 19, ...
 ### Task 10: Mathoms, Bag End examines, and the three Hobbiton errands
 
 **Files:**
-- Modify: `src/data/zones/shire.js`, `src/data/zones/bagend.js`, `src/data/zones/greendragon.js`, `src/data/dialogues.js`, `src/events/partyEvent.js` (no change expected — verify only)
+- Modify: `src/data/zones/shire.js`, `src/data/zones/bagend.js`, `src/data/zones/greendragon.js`, `src/data/dialogues.js`, `tests/dialogues.test.js`, `src/events/partyEvent.js` (no change expected — verify only)
 
 - [ ] **Step 1: Mathom pickups (6)** — add `pickups` arrays:
   - `shire.js`: `shire_mathom_1` (5,30 — under the Party Tree's field, among the tents), `shire_mathom_2` (36,31 — orchard), `shire_mathom_3` (2,16 — behind Bagshot Row), `shire_mathom_4` (10,41 — mill lane), `shire_mathom_5` (45,21 — behind the Ivy Bush).
@@ -723,7 +748,11 @@ Dialogues: `examine_desk` (name `Bilbo's Desk`): the unfinished *There and Back 
 
 Lobelia gains a stage **above** her current lines: `when: (f) => f.foundSpoons && !f.gaveSpoons` → she snatches them ('Well! At least SOMEONE\nin this family knows\nwhat is owed to me.'), `set: 'gaveSpoons'`, `take: 'silver_spoons'`. Convert her static `lines` entry to `stages` form (existing lines become the fallback stage).
 - [ ] **Step 4: Errand — the Gaffer's half-pint.** Rosie gains a stage after her prologue stage, before her others: `when: (f) => f.prologueDone && !f.halfPintTaken` → her current "Good morning" lines plus: "Would you run a half-pint\ndown to the Gaffer? He's\ntoo proud to ask." — `set: 'halfPintTaken'`, `give: 'ale_mug'`. The Gaffer gains a stage above his post-skip lines: `when: (f) => f.halfPintTaken && !f.halfPintDelivered` → "Ah! Rosie Cotton's a\ntreasure. Mind you tell\nher I said so." — `set: 'halfPintDelivered'`, `take: 'ale_mug'`.
-- [ ] **Step 5: Errand — Gandalf's crates (prologue).** Gandalf's prologue stage gains `set: 'cratesAsked'` and one extra line: 'But see here -- three of\nmy crates went astray in\nthe field. Fetch them, eh?'. Three pickups in `shire.js`: `party_crate_1` (2,31), `party_crate_2` (7,25), `party_crate_3` (3,34), all `item: 'firework_crate'`, `when: (f) => f.cratesAsked && !f.prologueDone`. Gandalf gains a prologue thanks stage **above** the crates ask: `when: (f, count) => !f.prologueDone && count('firework_crate') >= 3` → 'Every squib and cracker\naccounted for! This will\nbe a night to remember.'
+- [ ] **Step 5: Errand — Gandalf's crates (prologue).** Gandalf's prologue stage gains `set: 'cratesAsked'` and one extra line: 'But see here -- three of\nmy crates went astray in\nthe field. Fetch them, eh?'. Three pickups in `shire.js`: `party_crate_1` (2,31), `party_crate_2` (6,26), `party_crate_3` (3,34), all `item: 'firework_crate'`, `when: (f) => f.cratesAsked && !f.prologueDone`. As with the mathoms, nudge any coordinate the integrity test rejects (tents and lanterns are solid). The Task 4 `refreshSpawns()` call in `closeDialogue` makes the crates appear the moment Gandalf's dialogue closes — no zone re-entry needed. Gandalf gains a prologue thanks stage **above** the crates ask: `when: (f, count) => !f.prologueDone && count('firework_crate') >= 3` → 'Every squib and cracker\naccounted for! This will\nbe a night to remember.'
+
+**Existing-test update:** `tests/dialogues.test.js` ("party guests talk about the party until the time skip") asserts Gandalf's prologue stage has no `set` — update that assertion to expect `'cratesAsked'`, and make sure the new thanks stage (which needs `count >= 3`) doesn't shadow the ask stage under the test's default count of 0.
+
+- [ ] **Step 5b: Mathom completion reward (spec Part 2).** Gandalf gains one more stage, directly **above his final fallback**: `when: (f, count) => count('mathom') >= 6 && !f.mathomsPraised` → 'Six of Bilbo's old mathoms!\nThe museum at Michel Delving\nnever held a finer haul.' with `set: 'mathomsPraised'`.
 - [ ] **Step 6: Green Dragon dressing** — signs: `{ x: 4, y: 4, dialogue: 'examine_casks' }`, `{ x: 16, y: 3, dialogue: 'examine_shelf_gd' }` (name `Ale Casks` / `Shelf`, one flavor line each — e.g. casks: '1418 was a fine year\nfor beer, they will say.\nNot yet, though.' → keep it book-safe: 'Rows of casks from the\nCotton farm. The Dragon\nnever runs dry.').
 - [ ] **Step 7:** `npm test` — all integrity suites green (pickups, signs, dialogue refs). Browser QA: full spoons loop, half-pint loop, and a prologue run collecting the crates before Bilbo's speech (verify the party still flows into the time skip cleanly). Press I after each errand — ticks appear.
 - [ ] **Step 8: Commit** — `feat: mathoms, Bag End examines, and the three Hobbiton errands`
@@ -748,13 +777,13 @@ export const GILDOR_SPOT = { x: 56, y: 15 };
 if (dx > 110 || r.x > RIDER_EXIT_X * TILE_SIZE) { ... scene.spawnNpc({ key: 'gildor', ...GILDOR_SPOT, dir: 'down' }); }
 ```
 
-Check `tests/riderEvent.test.js` for coordinate assumptions (trigger x=11, give-up threshold) and update the give-up test to use the imported `RIDER_EXIT_X`.
+Check `tests/riderEvent.test.js` for coordinate assumptions: the existing give-up test relies on `dx > 110` (no 34-tile literal), so it passes unchanged — **add** a new test that a rider past `RIDER_EXIT_X * TILE_SIZE` gives up even at small dx. A stale "ROAD_Y[13] is 14"-style comment in that file can be corrected in passing.
 - [ ] **Step 2: Regenerate the map.** New `ROAD_Y` (still exported, length 64): `x<8→13, x<18→15, x<30→11, x<40→14, x<52→10, else→12`. In `generateMap()`:
   - Tree-tunnel: after the grove-thickening pass, for `x` in 40..48 force `map[ROAD_Y[x]-1][x] = T.TREE` and `map[ROAD_Y[x]+2][x] = T.TREE` (canopy closes right up to the verge; skip any cell the road bend carved to PATH).
   - Fir hollow: a cleared pocket south of the road — for y 20..24, x 20..26 set GRASS, ring it with TREE except a 2-tile gap at (23,20)-(24,20); centre gets 4 FERN tiles. Export `HOLLOW = { x0: 20, y0: 20, x1: 26, y1: 24 }`.
   - Gildor's clearing moves east: clear GRASS for y 13..17, x 52..59; FEAST tiles at (55,17) and (56,17).
   - Keep the guaranteed fern-brake loop as is (it scales with WIDTH automatically) and the border/exit logic (east exits move to x=63).
-- [ ] **Step 3: Zone data** — gildor npc → `GILDOR_SPOT`, exits → x 63 (rows per new ROAD_Y at the edge: 12,13), spawns `east: { x: 62, y: 12 }`, `west` unchanged at road height 13.
+- [ ] **Step 3: Zone data** — gildor npc → `GILDOR_SPOT`. **All four edge points move with the new ROAD_Y:** `ROAD_Y[0] = 13`, so the west exits become `(0,13)` and `(0,14)` and the `west` spawn `{ x: 1, y: 13, dir: 'right' }`; `ROAD_Y[63] = 12`, so the east (Marish) exits become `(63,12)` and `(63,13)` and the `east` spawn `{ x: 62, y: 12, dir: 'left' }`. The border-gap loop in `generateMap()` already follows `ROAD_Y[0]`/`ROAD_Y[WIDTH-1]`, so the map matches automatically.
 - [ ] **Step 4: Tests.** `tests/zones.test.js` Woody End suite: the fern-brake loop bound `x0 < 32` → `x0 < 56`; the exit assertion `exit.x === 39` → `63`. Add:
 
 ```js
@@ -846,7 +875,19 @@ Compose in `woodyend.js`: `onUpdate: (scene, delta) => { riderEventUpdate(scene,
   - `elf_a`: 'We are Exiles. Most of our\nkindred have long departed,\nand we too tarry here but\na while.' (split to fit) + a line naming the Havens west.
   - `elf_b`: the hymn — 'Snow-white! Snow-white!\nO Lady clear! O Queen\nbeyond the Western Seas!' + 'We sing to Elbereth,\nwho kindled the stars.'
   - `elf_c`: 'The starlight was on your\nface when you slept, Master\nSamwise.' → better book-safe: 'Eat, and be merry. Even\nthe wandering Companies\nkeep a good table.'
-- [ ] **Step 3: Zone data** — npcs (all `when: (f) => f.escapedRider`): `elf_a` (54,14, right), `elf_b` (58,13, down), `elf_c` (57,16, left). Feast examine — signs: `{ x: 55, y: 17, dialogue: 'elf_feast' }`, `{ x: 56, y: 17, dialogue: 'elf_feast' }`. Dialogue:
+- [ ] **Step 3: Zone data** — npcs (all `when: (f) => f.escapedRider`): `elf_a` (54,14, right), `elf_b` (58,13, down), `elf_c` (57,16, left). **`escapedRider` is set mid-scene by the rider event, and `refreshSpawns()` only runs on dialogue close** — so the rider give-up block in `riderEvent.js` (which already spawns Gildor imperatively) must also spawn the three elves. Export their spots from `woodyend.js` next to `GILDOR_SPOT`:
+
+```js
+export const ELF_SPOTS = [
+  { key: 'elf_a', x: 54, y: 14, dir: 'right' },
+  { key: 'elf_b', x: 58, y: 13, dir: 'down' },
+  { key: 'elf_c', x: 57, y: 16, dir: 'left' },
+];
+// riderEvent.js give-up block:
+for (const spot of ELF_SPOTS) scene.spawnNpc(spot);
+```
+
+The zone `npcs` entries (same coords, `when: escapedRider`) cover re-entry after the fact. Feast examine — signs: `{ x: 55, y: 17, dialogue: 'elf_feast' }`, `{ x: 56, y: 17, dialogue: 'elf_feast' }`. Dialogue:
 
 ```js
   elf_feast: {
@@ -913,6 +954,10 @@ export const RIDER_START_X = RIVER_X - 18;
 ```
 
 - [ ] **Step 2: `ferryEvent.js`** — delete its local `PIER_X/LANE_ROW/RAFT_X/BANK_LAND_X` and the rider start literal `28`; import the five exports from `../data/zones/marish.js`. Merry's spawn/repositioning x-coords (32, 40, 12-row) become derived: landing merry at `{ x: PIER_X - 2, y: LANE_ROW - 1 }`, far-bank merry at `{ x: BANK_LAND_X, y: LANE_ROW - 1 }`. Update `marish.js` npcs/spawns/signs to the same derived spots (landing spawn `{ x: PIER_X - 4, y: LANE_ROW }`, ferry sign at `(PIER_X - 1, LANE_ROW - 1)`, buckland sign at `(BANK_X + 1, LANE_ROW - 1)`).
+
+**Two more coordinate sets move with the resize:**
+- The **west edge**: `LANE_Y[0]` is now 14, so the exits to woodyend become `(0,14)` and `(0,15)` and the `west` spawn `{ x: 1, y: 14, dir: 'right' }` — the old row-12/13 spots would land on border trees.
+- **Farmer Maggot** stands at the gate, now `gateX = 24`: his npc entry becomes `{ key: 'maggot', x: 24, y: 16, dir: 'up', when: (f) => !f.rodeWaggon }`. The e2e teleports the player to `(24,15)`; at `(24,16)` Maggot is 14px away — inside `INTERACT_DIST` (20). Update the staging test expectation `maggot@23` → `maggot@24` and the merry positions to the derived values.
 - [ ] **Step 3: Causeway.** In `generateMap()`, after carving the lane: for x 34..45, set `map[LANE_Y[x] + 2][x] = T.DITCH` and `map[LANE_Y[x] - 1][x] = T.DITCH` where the cell isn't already PATH (raised causeway between dikes, book Ch. 4). Ensure the farm gate stub (gateX 24) is west of 34 — untouched.
 - [ ] **Step 4: Tests.** `tests/zones.test.js` Marish suite: lane loop bound `x < 34` → `x < RIVER_X` (import it), pier/raft/bank coordinates → the imported consts, npc x-positions in the staging test → derived values. `tests/ferryEvent.test.js`: replace literal coordinates with the same imports (the fake-scene logic is unchanged). `e2e/smoke.spec.js` marish test: Maggot gateway teleport `(23,15)` → `(FARM.gateX, FARM.y0 + 1)` = `(24,15)`; landing x expectation `30` → `PIER_X - 4 = 42`; merry talk position `(32,13)` → `(44,15)`; pier threshold `>= 34` → `>= 46`; final `tileX >= 40` → `>= 52`. (e2e can't import the module — write the resolved numbers with a comment.)
 - [ ] **Step 5:** `npm test && npm run test:e2e` — the full crossing must pass. Browser QA: walk the causeway, ride the waggon, cross; the halting Rider still arrives on the lane.
@@ -923,8 +968,8 @@ export const RIDER_START_X = RIVER_X - 18;
 **Files:**
 - Modify: `src/data/zones/marish.js`, `src/art/characters.js`, `src/data/dialogues.js`
 
-- [ ] **Step 1: Farm dressing** in `generateMap()` after the farmhouse: barn (`stamp` rows `[[T.ROOF_L, T.ROOF, T.ROOF, T.ROOF_R],[T.BARN, T.BARN, T.BARN, T.BARN]]` at (25,15)), well at (21,17), waggon at (27,20) (`T.WAGGON`), extra GARDEN rows kept clear of all three. Signs: `{ x: 27, y: 20, dialogue: 'examine_waggon' }` ('Maggot's waggon, packed\nfor the Ferry road.'), `{ x: 21, y: 17, dialogue: 'examine_well' }`, barn examine on a BARN tile ('Hay, harness, and the\nsmell of good earth.'). Stock signpost: SIGN tile at (10,16) + `sign_stock` ('STOCK ½ mile\n~ mind the dikes ~'). Brandy Hall examine on the far bank: signs entry on the TREE at `(BANK_X + 1, LANE_ROW - 3)` → `examine_brandyhall` ('Across the water, lights\nglimmer on the hill:\nBrandy Hall, Buckland.').
-- [ ] **Step 2: Mrs. Maggot** — `CHAR_DEFS.mrsmaggot` (`maps: FEMALE`, warm apron palette: V `#a05838`/v `#c07048`/G `#7a4028`, C `#f0e8d0`, hair greying brown H `#5a4a35`/h `#7a6a50`/l `#9a8a6c`). NPC at the farmhouse door `{ key: 'mrsmaggot', x: 20, y: 16, dir: 'down' }` (no `when` — she's home throughout). Dialogue staged (the dogs errand hangs off her — Maggot himself despawns after the waggon ride):
+- [ ] **Step 1: Farm dressing** in `generateMap()` **after the garden-row loop** (so dressing wins where they overlap): barn (`stamp` rows `[[T.ROOF_L, T.ROOF, T.ROOF_R],[T.BARN, T.BARN, T.BARN]]` at **(26,16)** — 3 wide, clear of the gate columns 24–25 so the farm entrance stays open), well at (21,17), waggon at (27,20) (`T.WAGGON`). Signs: `{ x: 27, y: 20, dialogue: 'examine_waggon' }` ('Maggot's waggon, packed\nfor the Ferry road.'), `{ x: 21, y: 17, dialogue: 'examine_well' }`, barn examine on a BARN tile ('Hay, harness, and the\nsmell of good earth.'). Stock signpost: SIGN tile at (10,16) + `sign_stock` ('STOCK ½ mile\n~ mind the dikes ~'). Brandy Hall examine on the far bank: signs entry on the TREE at `(BANK_X + 1, LANE_ROW - 3)` → `examine_brandyhall` ('Across the water, lights\nglimmer on the hill:\nBrandy Hall, Buckland.').
+- [ ] **Step 2: Mrs. Maggot** — `CHAR_DEFS.mrsmaggot` (`maps: FEMALE`, warm apron palette: V `#a05838`/v `#c07048`/G `#7a4028`, C `#f0e8d0`, hair greying brown H `#5a4a35`/h `#7a6a50`/l `#9a8a6c`). NPC **just below** the farmhouse door: `{ key: 'mrsmaggot', x: 20, y: 17, dir: 'down' }` (no `when` — she's home throughout; y=16 is the DOOR_R tile itself and would fail the NPC-on-solid integrity test). Dialogue staged (the dogs errand hangs off her — Maggot himself despawns after the waggon ride):
 
 ```js
   mrsmaggot: {
@@ -966,7 +1011,7 @@ Note: the `dogsAsked` stage must not steal the objective from the main story mid
 - Test: `tests/dogsEvent.test.js`
 
 - [ ] **Step 1: Dog sprites** — a 10-row `DOG` quadruped template (side view left + mirrored right; down/up compact), `noFeet: true`, legs via `extra` shuffle (same approach as the fox). Three `CHAR_DEFS` entries sharing `DOG`: `grip` (black `#2a2a30` coat), `fang` (brindle `#6a4a2a`), `wolf` (grey `#8a8a90`). Check `/art-test.html`.
-- [ ] **Step 2: Placement + dialogue.** NPCs in `marish.js` (each `when: (f) => f.dogsAsked && !f.dogGrip` etc.): grip by the west pool (6,21), fang in the north-east reeds (30,4), wolf near the causeway (38,18). Dialogues, name per dog, e.g.:
+- [ ] **Step 2: Placement + dialogue.** NPCs in `marish.js` (each `when: (f) => f.dogsAsked && !f.dogGrip` etc.): grip by the west pool (6,21), fang in the north-east reeds (30,4), wolf near the causeway (38,18). `dogsAsked` is set by Mrs. Maggot's dialogue, so the Task 4 `refreshSpawns()` in `closeDialogue` makes all three appear the moment her dialogue ends — no zone re-entry needed. Dialogues, name per dog, e.g.:
 
 ```js
   grip: {
@@ -1089,6 +1134,12 @@ test('exploration: pickups collect and the overlay tallies them', async ({ page 
 - [ ] **Step 5: Commit** — `feat: completion nod from Merry, exploration e2e, docs`
 
 ---
+
+## Deliberate deviations from the spec
+
+- **Sam commenting on the elven provisions in the Marish** — cut: Sam is a follower, and followers have no dialogue interaction. The provisions' item description and the feast examine carry the flavor instead.
+- **Ferry landing rope-and-post detail** — cut as art-budget trim; the second lantern and causeway dikes carry the landing's dressing.
+- **Extra Sam-vs-Ted argument lines in the Green Dragon** — delivered through Old Noakes and Daddy Twofoot chiming in at their table (Task 9) rather than by editing Ted's existing staged lines.
 
 ## Post-plan
 
