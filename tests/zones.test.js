@@ -21,8 +21,12 @@ for (const dlg of Object.values(DIALOGUES)) {
 }
 
 const inBounds = (zone, x, y) =>
-  Number.isInteger(x) && Number.isInteger(y) &&
-  y >= 0 && y < zone.map.length && x >= 0 && x < zone.map[0].length;
+  Number.isInteger(x) &&
+  Number.isInteger(y) &&
+  y >= 0 &&
+  y < zone.map.length &&
+  x >= 0 &&
+  x < zone.map[0].length;
 
 const walkable = (zone, x, y) => !solid.has(zone.map[y][x]);
 
@@ -45,9 +49,11 @@ describe('zone maps', () => {
 
   it('maps contain only valid tile indices', () => {
     for (const zone of zones) {
-      zone.map.forEach((row, y) => row.forEach((t, x) => {
-        expect(validTiles.has(t), `${zone.key} (${x},${y}) has invalid tile ${t}`).toBe(true);
-      }));
+      zone.map.forEach((row, y) =>
+        row.forEach((t, x) => {
+          expect(validTiles.has(t), `${zone.key} (${x},${y}) has invalid tile ${t}`).toBe(true);
+        }),
+      );
     }
   });
 });
@@ -68,7 +74,10 @@ describe('doors and exits', () => {
     for (const zone of zones) {
       for (const door of zone.doors) {
         expect(inBounds(zone, door.x, door.y), `${zone.key} door out of bounds`).toBe(true);
-        expect(zone.map[door.y][door.x], `${zone.key} door (${door.x},${door.y}) not on DOOR tile`).toBe(T.DOOR);
+        expect(
+          zone.map[door.y][door.x],
+          `${zone.key} door (${door.x},${door.y}) not on DOOR tile`,
+        ).toBe(T.DOOR);
         const target = ZONES[door.zone];
         expect(target, `${zone.key} door targets unknown zone ${door.zone}`).toBeTruthy();
         expect(target.spawns[door.entry], `${door.zone} has no spawn ${door.entry}`).toBeTruthy();
@@ -80,7 +89,10 @@ describe('doors and exits', () => {
     for (const zone of zones) {
       for (const exit of zone.exits) {
         expect(inBounds(zone, exit.x, exit.y), `${zone.key} exit out of bounds`).toBe(true);
-        expect(walkable(zone, exit.x, exit.y), `${zone.key} exit (${exit.x},${exit.y}) unreachable (solid tile)`).toBe(true);
+        expect(
+          walkable(zone, exit.x, exit.y),
+          `${zone.key} exit (${exit.x},${exit.y}) unreachable (solid tile)`,
+        ).toBe(true);
         const target = ZONES[exit.zone];
         expect(target, `${zone.key} exit targets unknown zone ${exit.zone}`).toBeTruthy();
         expect(target.spawns[exit.entry], `${exit.zone} has no spawn ${exit.entry}`).toBeTruthy();
@@ -92,8 +104,10 @@ describe('doors and exits', () => {
     for (const zone of zones) {
       for (const exit of zone.exits) {
         if (!exit.requires) continue;
-        expect(settableFlags.has(exit.requires),
-          `${zone.key} exit requires unreachable flag ${exit.requires}`).toBe(true);
+        expect(
+          settableFlags.has(exit.requires),
+          `${zone.key} exit requires unreachable flag ${exit.requires}`,
+        ).toBe(true);
       }
     }
   });
@@ -103,8 +117,14 @@ describe('signs and NPCs', () => {
   it('every sign sits on a SIGN tile and has a dialogue entry', () => {
     for (const zone of zones) {
       for (const sign of zone.signs) {
-        expect(zone.map[sign.y][sign.x], `${zone.key} sign (${sign.x},${sign.y}) not on SIGN tile`).toBe(T.SIGN);
-        expect(DIALOGUES[sign.dialogue], `${zone.key} sign references unknown dialogue ${sign.dialogue}`).toBeTruthy();
+        expect(
+          zone.map[sign.y][sign.x],
+          `${zone.key} sign (${sign.x},${sign.y}) not on SIGN tile`,
+        ).toBe(T.SIGN);
+        expect(
+          DIALOGUES[sign.dialogue],
+          `${zone.key} sign references unknown dialogue ${sign.dialogue}`,
+        ).toBeTruthy();
       }
     }
   });

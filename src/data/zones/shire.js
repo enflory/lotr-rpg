@@ -3,9 +3,9 @@
 import { T } from '../tileTypes.js';
 
 // Shorthand
-const G = T.GRASS, g = T.GRASS2, P = T.PATH, W = T.WATER, R = T.TREE;
+const G = T.GRASS, P = T.PATH, W = T.WATER, R = T.TREE;
 const H = T.HILL, h = T.HILLTOP, D = T.DOOR, B = T.BRIDGE, F = T.FENCE;
-const U = T.BUSH, S = T.STONE, f = T.FLOWERS, d = T.GARDEN, O = T.ROOF;
+const S = T.STONE, f = T.FLOWERS, d = T.GARDEN, O = T.ROOF;
 const L = T.DOOR_L, J = T.DOOR_R, K = T.ROOF_L, N = T.ROOF_R, X = T.SIGN;
 
 // 40 wide × 40 tall

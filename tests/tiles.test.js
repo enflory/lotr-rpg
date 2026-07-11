@@ -22,7 +22,18 @@ describe('tile registry invariants', () => {
   });
 
   it('tiles the player must walk on are not solid', () => {
-    for (const t of [T.GRASS, T.GRASS2, T.PATH, T.BRIDGE, T.FLOOR, T.RUG, T.FERN, T.DOCK, T.DOCK_S, T.DOOR]) {
+    for (const t of [
+      T.GRASS,
+      T.GRASS2,
+      T.PATH,
+      T.BRIDGE,
+      T.FLOOR,
+      T.RUG,
+      T.FERN,
+      T.DOCK,
+      T.DOCK_S,
+      T.DOOR,
+    ]) {
       expect(COLLISION_TILES, `tile ${t} should be walkable`).not.toContain(t);
     }
   });

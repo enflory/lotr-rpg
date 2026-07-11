@@ -1,0 +1,10 @@
+# Hand-aligned code art: zone maps have column-numbered comments and the
+# sprite/tile pixel maps are visually formatted — machine formatting
+# destroys their readability
+src/data/zones/
+src/art/
+src/audio/sound.js
+
+package-lock.json
+dist/
+docs/lore/

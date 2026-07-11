@@ -88,9 +88,14 @@ describe('dialogue data integrity', () => {
     const storyFlags = ['metGandalf', 'samJoined', 'escapedRider', 'metGildor'];
     for (let mask = 0; mask < 1 << storyFlags.length; mask++) {
       const flags = {};
-      storyFlags.forEach((f, i) => { if (mask & (1 << i)) flags[f] = true; });
+      storyFlags.forEach((f, i) => {
+        if (mask & (1 << i)) flags[f] = true;
+      });
       for (const key of Object.keys(DIALOGUES)) {
-        expect(resolveDialogue(key, flags), `${key} unresolvable at ${JSON.stringify(flags)}`).not.toBeNull();
+        expect(
+          resolveDialogue(key, flags),
+          `${key} unresolvable at ${JSON.stringify(flags)}`,
+        ).not.toBeNull();
       }
     }
   });

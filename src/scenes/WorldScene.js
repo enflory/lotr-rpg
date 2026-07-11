@@ -11,7 +11,9 @@ const FOLLOW_DELAY = 14; // frames of lag behind the player
 
 // One scene renders every zone; transitions restart it with new data.
 export class WorldScene extends Phaser.Scene {
-  constructor() { super('WorldScene'); }
+  constructor() {
+    super('WorldScene');
+  }
 
   init(data) {
     this.zoneKey = data.zone || 'shire';
@@ -76,30 +78,49 @@ export class WorldScene extends Phaser.Scene {
     this.followerFernOverlay = this.add.image(0, 0, 'tileset', T.FERN).setVisible(false);
 
     /* ── dialogue UI (fixed to camera) ───────────────── */
-    this.dialogBg = this.add.rectangle(160, 210, 304, 52, 0x000000, 0.88)
-      .setScrollFactor(0).setDepth(1000).setVisible(false);
-    this.dialogBorder = this.add.rectangle(160, 210, 304, 52)
-      .setScrollFactor(0).setDepth(1000).setVisible(false).setStrokeStyle(1, 0xc8a84e);
+    this.dialogBg = this.add
+      .rectangle(160, 210, 304, 52, 0x000000, 0.88)
+      .setScrollFactor(0)
+      .setDepth(1000)
+      .setVisible(false);
+    this.dialogBorder = this.add
+      .rectangle(160, 210, 304, 52)
+      .setScrollFactor(0)
+      .setDepth(1000)
+      .setVisible(false)
+      .setStrokeStyle(1, 0xc8a84e);
 
-    this.dialogNameText = this.add.text(14, 188, '', {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '7px',
-      color: '#c8a84e',
-    }).setScrollFactor(0).setDepth(1001).setVisible(false);
+    this.dialogNameText = this.add
+      .text(14, 188, '', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '7px',
+        color: '#c8a84e',
+      })
+      .setScrollFactor(0)
+      .setDepth(1001)
+      .setVisible(false);
 
-    this.dialogBodyText = this.add.text(14, 200, '', {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '6px',
-      color: '#f0ead6',
-      wordWrap: { width: 286 },
-      lineSpacing: 4,
-    }).setScrollFactor(0).setDepth(1001).setVisible(false);
+    this.dialogBodyText = this.add
+      .text(14, 200, '', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '6px',
+        color: '#f0ead6',
+        wordWrap: { width: 286 },
+        lineSpacing: 4,
+      })
+      .setScrollFactor(0)
+      .setDepth(1001)
+      .setVisible(false);
 
-    this.dialogArrow = this.add.text(296, 228, '▼', {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '6px',
-      color: '#c8a84e',
-    }).setScrollFactor(0).setDepth(1001).setVisible(false);
+    this.dialogArrow = this.add
+      .text(296, 228, '▼', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '6px',
+        color: '#c8a84e',
+      })
+      .setScrollFactor(0)
+      .setDepth(1001)
+      .setVisible(false);
 
     this.tweens.add({
       targets: this.dialogArrow,
@@ -110,15 +131,20 @@ export class WorldScene extends Phaser.Scene {
     });
 
     /* ── event/objective banner ──────────────────────── */
-    this.banner = this.add.text(160, 44, '', {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '8px',
-      color: '#ffd75e',
-      align: 'center',
-      stroke: '#1a1208',
-      strokeThickness: 3,
-      lineSpacing: 4,
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(980).setAlpha(0);
+    this.banner = this.add
+      .text(160, 44, '', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '8px',
+        color: '#ffd75e',
+        align: 'center',
+        stroke: '#1a1208',
+        strokeThickness: 3,
+        lineSpacing: 4,
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(980)
+      .setAlpha(0);
     this.bannerTween = null;
 
     /* ── camera ──────────────────────────────────────── */
@@ -130,7 +156,9 @@ export class WorldScene extends Phaser.Scene {
     // Event-driven interact: JustDown polling misses key taps shorter
     // than one frame (keyup clears the flag before update polls it)
     this.interactQueued = false;
-    const queueInteract = (e) => { if (!e.repeat) this.interactQueued = true; };
+    const queueInteract = (e) => {
+      if (!e.repeat) this.interactQueued = true;
+    };
     this.input.keyboard.on('keydown-SPACE', queueInteract);
     this.input.keyboard.on('keydown-ENTER', queueInteract);
     this.input.keyboard.on('keydown-Q', () => {
@@ -203,9 +231,8 @@ export class WorldScene extends Phaser.Scene {
       const dx = p.x - this.follower.x;
       const dy = p.y - this.follower.y;
       if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-        this.followerDir = Math.abs(dx) > Math.abs(dy)
-          ? (dx > 0 ? 'right' : 'left')
-          : (dy > 0 ? 'down' : 'up');
+        this.followerDir =
+          Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
         this.follower.anims.play(`${this.follower.getData('key')}-walk-${this.followerDir}`, true);
       }
       this.follower.setPosition(p.x, p.y);
@@ -247,12 +274,23 @@ export class WorldScene extends Phaser.Scene {
 
     /* ── movement ────────────────────────────────────── */
     const { left, right, up, down } = this.cursors;
-    let vx = 0, vy = 0;
+    let vx = 0,
+      vy = 0;
 
-    if (left.isDown)  { vx = -SPEED; this.lastDir = 'left'; }
-    else if (right.isDown) { vx = SPEED; this.lastDir = 'right'; }
-    if (up.isDown)    { vy = -SPEED; this.lastDir = 'up'; }
-    else if (down.isDown)  { vy = SPEED; this.lastDir = 'down'; }
+    if (left.isDown) {
+      vx = -SPEED;
+      this.lastDir = 'left';
+    } else if (right.isDown) {
+      vx = SPEED;
+      this.lastDir = 'right';
+    }
+    if (up.isDown) {
+      vy = -SPEED;
+      this.lastDir = 'up';
+    } else if (down.isDown) {
+      vy = SPEED;
+      this.lastDir = 'down';
+    }
 
     this.player.setVelocity(vx, vy);
 
@@ -274,9 +312,7 @@ export class WorldScene extends Phaser.Scene {
     let closestNpc = null;
     let closestDist = Infinity;
     for (const npc of this.npcs) {
-      const dist = Phaser.Math.Distance.Between(
-        this.player.x, this.player.y, npc.x, npc.y,
-      );
+      const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, npc.x, npc.y);
       if (dist < INTERACT_DIST && dist < closestDist) {
         closestDist = dist;
         closestNpc = npc;
@@ -306,9 +342,7 @@ export class WorldScene extends Phaser.Scene {
   faceNpcToPlayer(npc) {
     const dx = this.player.x - npc.x;
     const dy = this.player.y - npc.y;
-    const dir = Math.abs(dx) > Math.abs(dy)
-      ? (dx > 0 ? 'right' : 'left')
-      : (dy > 0 ? 'down' : 'up');
+    const dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
     const dirFrame = { down: 1, left: 4, right: 7, up: 10 };
     npc.setFrame(dirFrame[dir]);
   }
@@ -325,9 +359,7 @@ export class WorldScene extends Phaser.Scene {
     const covered = row !== undefined && row[tx] === T.FERN;
     overlay.setVisible(covered);
     if (covered) {
-      overlay
-        .setPosition(tx * TILE_SIZE + 8, ty * TILE_SIZE + 8)
-        .setDepth(sprite.y + 1);
+      overlay.setPosition(tx * TILE_SIZE + 8, ty * TILE_SIZE + 8).setDepth(sprite.y + 1);
       sprite.setAlpha(0.68);
     } else {
       sprite.setAlpha(1);
@@ -339,7 +371,13 @@ export class WorldScene extends Phaser.Scene {
     const tileX = Math.floor(this.player.x / TILE_SIZE);
     const tileY = Math.floor(this.player.y / TILE_SIZE);
 
-    for (const [ddx, ddy] of [[0, 0], [0, -1], [0, 1], [-1, 0], [1, 0]]) {
+    for (const [ddx, ddy] of [
+      [0, 0],
+      [0, -1],
+      [0, 1],
+      [-1, 0],
+      [1, 0],
+    ]) {
       const tx = tileX + ddx;
       const ty = tileY + ddy;
       if (tx < 0 || tx >= this.mapWidth || ty < 0 || ty >= this.mapHeight) continue;
@@ -503,13 +541,18 @@ export class WorldScene extends Phaser.Scene {
   }
 
   showLocationLabel(name) {
-    const label = this.add.text(160, 26, name, {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '10px',
-      color: '#f0ead6',
-      stroke: '#1a1a1a',
-      strokeThickness: 2,
-    }).setOrigin(0.5).setScrollFactor(0).setDepth(950).setAlpha(0);
+    const label = this.add
+      .text(160, 26, name, {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '10px',
+        color: '#f0ead6',
+        stroke: '#1a1a1a',
+        strokeThickness: 2,
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(950)
+      .setAlpha(0);
 
     this.tweens.add({
       targets: label,

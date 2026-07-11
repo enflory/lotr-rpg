@@ -6,10 +6,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { riderEventUpdate } from '../src/events/riderEvent.js';
 import { gameState } from '../src/state/GameState.js';
 import { T, TILE_SIZE } from '../src/data/tileTypes.js';
-import { ROAD_Y } from '../src/data/zones/woodyend.js';
 
-const WIDTH = 40, HEIGHT = 24;
-const TRIGGER_X = 11 * TILE_SIZE + 8; // past TRIGGER_TILE_X
+const WIDTH = 40,
+  HEIGHT = 24;
 
 function makeScene({ fernAt = [] } = {}) {
   const map = Array.from({ length: HEIGHT }, () => Array(WIDTH).fill(T.GRASS));
@@ -18,34 +17,60 @@ function makeScene({ fernAt = [] } = {}) {
   const scene = {
     zone: { map, spawns: { west: { x: 1, y: 12 } } },
     player: {
-      x: 8, y: 8,
-      setPosition(x, y) { this.x = x; this.y = y; },
+      x: 8,
+      y: 8,
+      setPosition(x, y) {
+        this.x = x;
+        this.y = y;
+      },
     },
     banners: [],
-    showBanner(text) { this.banners.push(text); },
+    showBanner(text) {
+      this.banners.push(text);
+    },
     add: {
       sprite(x, y, key) {
         return {
-          x, y, key, destroyed: false,
-          play() {}, setDepth() {},
-          destroy() { this.destroyed = true; },
+          x,
+          y,
+          key,
+          destroyed: false,
+          play() {},
+          setDepth() {},
+          destroy() {
+            this.destroyed = true;
+          },
           anims: {
             paused: false,
-            pause() { this.paused = true; },
-            resume() { this.paused = false; },
+            pause() {
+              this.paused = true;
+            },
+            resume() {
+              this.paused = false;
+            },
           },
         };
       },
     },
     cameras: {
       main: {
-        flash() {}, fadeIn() {}, fadeOut() {},
-        once(event, cb) { scene._fadeCb = cb; },
+        flash() {},
+        fadeIn() {},
+        fadeOut() {},
+        once(event, cb) {
+          scene._fadeCb = cb;
+        },
       },
     },
-    time: { delayedCall(ms, cb) { scene._delayedCb = cb; } },
+    time: {
+      delayedCall(ms, cb) {
+        scene._delayedCb = cb;
+      },
+    },
     npcsSpawned: [],
-    spawnNpc(def) { this.npcsSpawned.push(def); },
+    spawnNpc(def) {
+      this.npcsSpawned.push(def);
+    },
     snapFollower() {},
     inputLocked: false,
   };
@@ -131,7 +156,7 @@ describe('riding', () => {
     riderEventUpdate(scene, 0);
 
     scene._delayedCb(); // the 900ms dramatic pause
-    scene._fadeCb();    // fade-out complete
+    scene._fadeCb(); // fade-out complete
     expect(scene.player.x).toBe(1 * TILE_SIZE + 8);
     expect(scene.player.y).toBe(12 * TILE_SIZE + 8);
     expect(scene.riderEvent.phase).toBe('armed');
@@ -165,7 +190,7 @@ describe('sniffing', () => {
     riderEventUpdate(scene, 16); // trigger
     placePlayer(scene, 13, 13);
     scene.riderEvent.rider.x = scene.player.x - 2;
-    riderEventUpdate(scene, 0);  // → sniffing
+    riderEventUpdate(scene, 0); // → sniffing
     expect(scene.riderEvent.phase).toBe('sniffing');
     return scene;
   }
@@ -194,7 +219,7 @@ describe('sniffing', () => {
   it('does not sniff twice at the same hiding player', () => {
     const scene = sniffing();
     riderEventUpdate(scene, 1700); // resume riding
-    riderEventUpdate(scene, 0);    // still beside the hidden player
+    riderEventUpdate(scene, 0); // still beside the hidden player
     expect(scene.riderEvent.phase).toBe('riding');
   });
 });

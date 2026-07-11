@@ -6,13 +6,13 @@
 // zone entrance. Book-faithful: the Rider stops, sniffs, and moves on.
 
 import { T, TILE_SIZE } from '../data/tileTypes.js';
-import { gameState, setFlag, hasFlag, setObjective } from '../state/GameState.js';
+import { setFlag, hasFlag, setObjective } from '../state/GameState.js';
 import { ROAD_Y } from '../data/zones/woodyend.js';
 import { sfx } from '../audio/sound.js';
 
-const RIDER_SPEED = 88;       // px/sec — faster than the player's 72
+const RIDER_SPEED = 88; // px/sec — faster than the player's 72
 const TRIGGER_TILE_X = 11;
-const CATCH_RANGE = 22;       // px, horizontal
+const CATCH_RANGE = 22; // px, horizontal
 
 function roadCenterY(x) {
   const tx = Math.min(ROAD_Y.length - 1, Math.max(0, Math.floor(x / TILE_SIZE)));

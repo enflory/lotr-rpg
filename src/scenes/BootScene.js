@@ -9,7 +9,9 @@ const TS = 16;
 // one 16×24 spritesheet per character, and UI sprites. All art is
 // procedural — there are no external image assets.
 export class BootScene extends Phaser.Scene {
-  constructor() { super('BootScene'); }
+  constructor() {
+    super('BootScene');
+  }
 
   preload() {
     this.load.spritesheet('tileset', makeTilesetDataURL(), {
