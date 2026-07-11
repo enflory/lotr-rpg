@@ -141,6 +141,52 @@ describe('signs and NPCs', () => {
   });
 });
 
+describe('the Party Field (western Shire)', () => {
+  const shire = ZONES.shire;
+
+  it('the Party Tree 2×3 composite is intact', () => {
+    expect(shire.map[21][4]).toBe(T.PARTY_NL);
+    expect(shire.map[21][5]).toBe(T.PARTY_NR);
+    expect(shire.map[22][4]).toBe(T.PARTY_TL);
+    expect(shire.map[22][5]).toBe(T.PARTY_TR);
+    expect(shire.map[23][4]).toBe(T.PARTY_BL);
+    expect(shire.map[23][5]).toBe(T.PARTY_BR);
+  });
+
+  it('the East Road leaves Hobbiton two tiles tall', () => {
+    for (let x = 30; x <= 39; x++) {
+      expect(shire.map[19][x], `road missing at (${x},19)`).toBe(T.PATH);
+      expect(shire.map[20][x], `road missing at (${x},20)`).toBe(T.PATH);
+    }
+    const east = shire.exits.filter((e) => e.zone === 'woodyend');
+    expect(east.map((e) => `${e.x},${e.y}`).sort()).toEqual(['39,19', '39,20']);
+  });
+
+  it('the field spur connects the party spawn to the north-south road', () => {
+    for (let x = 2; x <= 10; x++) {
+      expect(shire.map[27][x], `spur broken at (${x},27)`).toBe(T.PATH);
+    }
+  });
+
+  it('prologue NPCs appear only before the time skip', () => {
+    const at = (flags) =>
+      shire.npcs
+        .filter((n) => !n.when || n.when(flags))
+        .map((n) => n.key)
+        .sort();
+    expect(at({})).toEqual(['bilbo', 'gaffer', 'gandalf', 'rosie', 'ted']);
+    expect(at({ prologueDone: true })).toEqual(['gaffer', 'gandalf', 'lobelia', 'sam']);
+    expect(at({ prologueDone: true, samJoined: true })).toEqual(['gaffer', 'gandalf', 'lobelia']);
+  });
+
+  it('no NPC key is duplicated for any flag state', () => {
+    for (const flags of [{}, { prologueDone: true }]) {
+      const keys = shire.npcs.filter((n) => !n.when || n.when(flags)).map((n) => n.key);
+      expect(new Set(keys).size, `duplicate NPC at ${JSON.stringify(flags)}`).toBe(keys.length);
+    }
+  });
+});
+
 describe('the Woody End (generated map)', () => {
   const map = woodyend.map;
 

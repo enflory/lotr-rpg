@@ -1,12 +1,17 @@
-// The Shire — Hobbiton: Bag End, Bagshot Row, the Green Dragon, The Water.
+// The Shire — Hobbiton: Bag End, Bagshot Row, the Green Dragon, The Water,
+// and the Party Field (with the Party Tree) west of the village.
 
 import { T } from '../tileTypes.js';
+import { partyEventUpdate, partyZoneCreate } from '../../events/partyEvent.js';
 
 // Shorthand
 const G = T.GRASS, P = T.PATH, W = T.WATER, R = T.TREE;
 const H = T.HILL, h = T.HILLTOP, D = T.DOOR, B = T.BRIDGE, F = T.FENCE;
 const S = T.STONE, f = T.FLOWERS, d = T.GARDEN, O = T.ROOF;
 const L = T.DOOR_L, J = T.DOOR_R, K = T.ROOF_L, N = T.ROOF_R, X = T.SIGN;
+const Q = T.PARTY_TL, U = T.PARTY_TR, V = T.PARTY_BL, Y = T.PARTY_BR;
+const q = T.PARTY_NL, u = T.PARTY_NR;
+const E = T.TENT, M = T.LANTERN;
 
 // 40 wide × 40 tall
 const MAP = [
@@ -37,24 +42,24 @@ const MAP = [
   // ── Hobbiton village center / Bywater Road ────────
   [R, G, G, f, G, G, G, G, G, P, P, P, P, G, G, G, G, G, G, P, P, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 18
   [R, G, G, G, G, G, P, P, P, P, G, G, P, P, P, P, P, P, P, P, G, G, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P, P], // 19  ← East Road exit →
-  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 20
+  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, G, P, P, P, P, P, P, P, P, P, P], // 20  ← wide East Road mouth
 
-  // ── The Green Dragon Inn area ──────────────────────
-  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, X, P, P, G, G, G, S, S, S, S, S, S, G, G, G, G, f, G, G, G, G, R], // 21  ← Bywater sign
-  [R, G, G, G, R, G, G, G, G, P, P, G, G, G, f, G, G, G, G, P, P, G, G, S, K, O, O, O, N, S, G, G, G, G, G, G, G, G, G, R], // 22
-  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, S, L, D, D, D, J, S, G, G, G, G, G, G, G, G, G, R], // 23  ← Green Dragon entrance
-  [R, G, f, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, X, S, S, S, S, S, S, G, G, G, f, G, G, G, G, G, R], // 24  ← inn sign
+  // ── Party Field (west) · Green Dragon Inn (east) ───
+  [R, M, G, f, q, u, G, G, M, P, P, G, G, G, G, G, G, G, X, P, P, G, G, G, S, S, S, S, S, S, G, G, G, G, f, G, G, G, G, R], // 21  ← lanterns · Party Tree crown · Bywater sign
+  [R, G, G, G, Q, U, G, G, G, P, P, G, G, G, f, G, G, G, G, P, P, G, G, S, K, O, O, O, N, S, G, G, G, G, G, G, G, G, G, R], // 22  ← the Party Tree
+  [R, G, G, G, V, Y, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, S, L, D, D, D, J, S, G, G, G, G, G, G, G, G, G, R], // 23  ← Green Dragon entrance
+  [R, G, f, G, G, G, f, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, X, S, S, S, S, S, S, G, G, G, f, G, G, G, G, G, R], // 24  ← inn sign
 
-  // ── Party Field ────────────────────────────────────
-  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 25
+  // ── Party Field tents · the grove between the roads ─
+  [R, G, E, G, G, G, G, E, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 25
   [R, G, G, G, G, G, G, G, G, P, P, G, G, f, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 26
-  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, R, R, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, f, G, G, R], // 27
+  [R, G, P, P, P, P, P, P, P, P, P, G, G, G, G, R, R, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, f, G, G, R], // 27  ← field spur off the road
   [R, G, G, G, G, G, G, G, G, P, P, G, G, G, R, R, R, R, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 28
   [R, G, G, G, G, f, G, G, G, P, P, G, G, R, R, R, R, R, R, P, P, G, G, G, G, G, G, f, G, G, G, G, G, G, G, G, G, G, G, R], // 29
-  [R, G, G, G, G, G, G, G, G, P, P, G, G, R, R, R, R, R, R, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 30
-  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, R, R, R, R, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, f, G, G, G, G, G, R], // 31
+  [R, G, E, G, G, G, G, G, G, P, P, G, G, R, R, R, R, R, R, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 30
+  [R, G, G, G, G, f, G, G, G, P, P, G, G, G, R, R, R, R, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, f, G, G, G, G, G, R], // 31
   [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, R, R, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 32
-  [R, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R, G, G, G, R], // 33
+  [R, G, M, G, G, G, G, M, G, P, P, G, G, G, G, G, G, G, G, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R, G, G, G, R], // 33
 
   // ── Path to the bridge ─────────────────────────────
   [R, G, G, G, G, G, G, G, G, G, P, P, P, P, P, P, P, P, P, P, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, G, R], // 34
@@ -80,12 +85,20 @@ export const shire = {
     fromBagEnd:      { x: 20, y: 5, dir: 'down' },
     fromGreenDragon: { x: 26, y: 24, dir: 'down' },
     fromWoodyEnd:    { x: 38, y: 19, dir: 'left' },
+    party:           { x: 6, y: 27, dir: 'left' },
   },
   npcs: [
-    { key: 'gandalf', x: 19, y: 8, dir: 'down' },
-    { key: 'sam',     x: 16, y: 5, dir: 'down', when: (f) => !f.samJoined },
-    { key: 'gaffer',  x: 10, y: 15, dir: 'right' },
-    { key: 'lobelia', x: 10, y: 19, dir: 'right' },
+    // The Long-expected Party (prologue, before the time skip)
+    { key: 'bilbo',   x: 4, y: 25, dir: 'down',  when: (f) => !f.prologueDone },
+    { key: 'gandalf', x: 2, y: 28, dir: 'right', when: (f) => !f.prologueDone },
+    { key: 'gaffer',  x: 2, y: 26, dir: 'right', when: (f) => !f.prologueDone },
+    { key: 'rosie',   x: 7, y: 26, dir: 'left',  when: (f) => !f.prologueDone },
+    { key: 'ted',     x: 7, y: 29, dir: 'left',  when: (f) => !f.prologueDone },
+    // Seventeen years later
+    { key: 'gandalf', x: 19, y: 8, dir: 'down',  when: (f) => f.prologueDone },
+    { key: 'sam',     x: 16, y: 5, dir: 'down',  when: (f) => f.prologueDone && !f.samJoined },
+    { key: 'gaffer',  x: 10, y: 15, dir: 'right', when: (f) => f.prologueDone },
+    { key: 'lobelia', x: 10, y: 19, dir: 'right', when: (f) => f.prologueDone },
   ],
   doors: [
     { x: 20, y: 4, zone: 'bagend', entry: 'default' },       // Bag End
@@ -104,5 +117,12 @@ export const shire = {
       requires: 'samJoined',
       denied: "I shouldn't set out\nwithout Sam.",
     },
+    {
+      x: 39, y: 20, zone: 'woodyend', entry: 'west',
+      requires: 'samJoined',
+      denied: "I shouldn't set out\nwithout Sam.",
+    },
   ],
+  onCreate: partyZoneCreate,
+  onUpdate: partyEventUpdate,
 };

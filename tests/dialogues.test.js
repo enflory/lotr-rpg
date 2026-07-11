@@ -13,21 +13,43 @@ describe('resolveDialogue staging', () => {
     expect(before.lines).toEqual(after.lines);
   });
 
+  it('bilbo gives the farewell speech once, at the party', () => {
+    const speech = resolveDialogue('bilbo', {});
+    expect(speech.set).toBe('bilboFarewell');
+    expect(speech.lines.join(' ')).toMatch(/eleventy-one/);
+
+    const after = resolveDialogue('bilbo', { bilboFarewell: true });
+    expect(after.set).toBeUndefined();
+  });
+
+  it('party guests talk about the party until the time skip', () => {
+    for (const key of ['gandalf', 'gaffer', 'rosie', 'ted']) {
+      const party = resolveDialogue(key, {});
+      expect(party.set, `${key} party stage must not set flags`).toBeUndefined();
+      const later = resolveDialogue(key, { prologueDone: true });
+      expect(later.lines, `${key} must change after the prologue`).not.toEqual(party.lines);
+    }
+  });
+
   it('gandalf first meeting reveals the Ring and sets metGandalf', () => {
-    const dlg = resolveDialogue('gandalf', {});
+    const dlg = resolveDialogue('gandalf', { prologueDone: true });
     expect(dlg.set).toBe('metGandalf');
     expect(dlg.objective).toMatch(/Sam/);
     expect(dlg.lines.join(' ')).toMatch(/One Ring/);
   });
 
   it('gandalf nudges toward Sam until he joins', () => {
-    const dlg = resolveDialogue('gandalf', { metGandalf: true });
+    const dlg = resolveDialogue('gandalf', { prologueDone: true, metGandalf: true });
     expect(dlg.set).toBeUndefined();
     expect(dlg.lines.join(' ')).toMatch(/fetch him/i);
   });
 
   it('gandalf gives travel directions once Sam has joined', () => {
-    const dlg = resolveDialogue('gandalf', { metGandalf: true, samJoined: true });
+    const dlg = resolveDialogue('gandalf', {
+      prologueDone: true,
+      metGandalf: true,
+      samJoined: true,
+    });
     expect(dlg.lines.join(' ')).toMatch(/Woody End/);
   });
 
@@ -85,7 +107,14 @@ describe('dialogue data integrity', () => {
   });
 
   it('every staged dialogue resolves at every reachable flag combination', () => {
-    const storyFlags = ['metGandalf', 'samJoined', 'escapedRider', 'metGildor'];
+    const storyFlags = [
+      'bilboFarewell',
+      'prologueDone',
+      'metGandalf',
+      'samJoined',
+      'escapedRider',
+      'metGildor',
+    ];
     for (let mask = 0; mask < 1 << storyFlags.length; mask++) {
       const flags = {};
       storyFlags.forEach((f, i) => {

@@ -54,6 +54,7 @@
  * @property {DoorDef[]} doors
  * @property {SignDef[]} signs
  * @property {ExitDef[]} exits
+ * @property {(scene: any) => void} [onCreate] one-time scripting when the zone builds
  * @property {(scene: any, delta: number) => void} [onUpdate] per-frame scripting
  */
 

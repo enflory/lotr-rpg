@@ -33,8 +33,9 @@ export const greendragon = {
     default: { x: 9, y: 11, dir: 'up' },
   },
   npcs: [
-    { key: 'rosie', x: 9, y: 4, dir: 'down' },  // serving at the bar's end
-    { key: 'ted',   x: 8, y: 6, dir: 'left' },  // holding forth at a table
+    // Both are over at the Party Field during the prologue
+    { key: 'rosie', x: 9, y: 4, dir: 'down', when: (f) => f.prologueDone },  // serving at the bar's end
+    { key: 'ted',   x: 8, y: 6, dir: 'left', when: (f) => f.prologueDone },  // holding forth at a table
   ],
   doors: [],
   signs: [],

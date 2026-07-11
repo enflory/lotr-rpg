@@ -331,6 +331,19 @@ export const CHAR_DEFS = {
     feet: ['#d8b080', '#b89060'],
   },
 
+  bilbo: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#6a5a40', h: '#8a7a58', l: '#a89a74', // greying curls
+      C: '#f0e8d0', c: '#d0c4a8',
+      V: '#3a6a2a', v: '#4e8a3a', G: '#2a4e1e', // green waistcoat
+      B: '#301810', b: '#e0c050', // bright brass buttons
+      P: '#7a3a28', p: '#552818', // plum breeches
+    },
+    feet: ['#d8b080', '#b89060'],
+  },
+
   gaffer: {
     maps: MALE,
     pal: {
