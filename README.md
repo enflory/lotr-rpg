@@ -20,9 +20,18 @@ npm run build    # outputs to dist/
 npm run preview  # preview the build
 ```
 
+## Testing
+
+```bash
+npm test            # run the Vitest suite once
+npm run test:watch  # watch mode
+```
+
+Unit tests in `tests/` cover the dialogue staging system, zone map integrity (every door, exit, sign, and NPC cross-checked against what it references), the tile registry, the procedural art helpers, and the Black Rider encounter state machine.
+
 ## Status
 
-**Prototype** — The Shire is playable (Bag End through The Water) with 5 NPCs and dialogue. The full game is planned as 10 chapters covering all of Fellowship. See `docs/PRD.md` for the product requirements and `docs/game-reference.md` for the chapter breakdown.
+**Chapter 1 vertical slice** — playable end to end: Bag End, Hobbiton, the Green Dragon, and the Woody End. Gandalf reveals the Ring, Sam joins as a follower, and you must hide from a Black Rider in the ferns on the way to the Bucklebury Ferry. The full game is planned as 10 chapters covering all of Fellowship. See `docs/PRD.md` for the product requirements and `docs/game-reference.md` for the chapter breakdown.
 
 ## Tech
 

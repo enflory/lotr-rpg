@@ -472,7 +472,7 @@ function drawDockS(c, ox) {
   px(c, ox + 7, 4, '#4a3015'); px(c, ox + 11, 8, '#7a5d30');
 }
 
-const TILE_FNS = [
+export const TILE_FNS = [
   drawGrass, drawGrass2, drawPath, drawWater, drawTree,
   drawHill, drawHillTop, drawDoor, drawBridge, drawFence,
   drawBush, drawStone, drawFlowers, drawGarden, drawRoof,
