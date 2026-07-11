@@ -48,10 +48,14 @@ and add interesting detail inside and out.
 
 ### Examines
 
-No new engine. The existing `signs` mechanism (coordinate → dialogue on
-SPACE) is reused for barrels, the mill wheel, Bilbo's desk, firework
-crates, etc. — sign entries placed on non-sign tiles. Flavor text lives
-in the dialogue registry as usual.
+Reuse the `signs` zone array (coordinate → dialogue on SPACE) for
+barrels, the mill wheel, Bilbo's desk, firework crates, etc. One small
+engine change is required: WorldScene currently consults `zone.signs`
+only when the faced tile is `T.SIGN`, so the interaction check must be
+relaxed to a coordinate-first lookup against `zone.signs` (any solid
+tile), while preserving current behavior for real signposts and the
+`door_locked` fallback. Flavor text lives in the dialogue registry as
+usual.
 
 ### Errands (quests)
 
@@ -176,8 +180,10 @@ collectible; the vignettes are the reward.
 Grip, Fang, and Wolf are still spooked from the Black Rider (textual).
 They hide around the farm and marsh; find each (new small two-frame dog
 sprite, bark bubble + personality line) and send them home. All three
-home → Maggot gains a new stage and Mrs. Maggot adds extra mushrooms to
-the tally.
+home → Maggot gains a new stage and Mrs. Maggot gives **Mrs. Maggot's
+basket** (a distinct item, matching the book's parting gift — it does
+NOT count toward the Mushrooms 12 tally, which tracks world pickups
+only).
 
 ### Mushrooms
 
@@ -190,15 +196,19 @@ made playable.
 ## Completion & final beats
 
 Overlay tallies: **Mathoms 0/6 · Mushrooms 0/12 · Errands 0/4**
-(crates, spoons, half-pint, dogs). If all are complete before boarding
-the raft, Merry gets one extra line on the Buckland shore — a soft 100%
-nod, no mechanical gate.
+(crates, spoons, half-pint, dogs). The crates errand is **missable by
+design** — it exists only during the prologue (and the e2e prologue
+skip bypasses it entirely). Merry's soft 100% line on the Buckland
+shore therefore requires only the two tallies plus the three post-party
+errands (spoons, half-pint, dogs); crates show in the overlay but do
+not gate the nod. No mechanical gate anywhere.
 
 ## Bill of materials
 
 - **Art**: fox and dog sprites; Mrs. Maggot, Old Noakes, Daddy Twofoot,
-  Sandyman palettes; 3 elf recolors; ~8 new tiles (mill wall/wheel,
-  causeway, feast, crate, barn, well, mathom sparkle, ditch).
+  Sandyman palettes; 3 elf recolors; ~7 new tiles (mill wall/wheel,
+  causeway, feast, crate, barn, well, ditch). Mathoms are item icons in
+  `src/art/items.js`, not tiles.
 - **Audio**: one short *elf-song* motif (stretch — cut if fiddly).
 - **Code**: `src/data/items.js`, `src/data/quests.js`,
   `src/art/items.js`, pickup/overlay handling in WorldScene, fox/dog
@@ -211,6 +221,12 @@ nod, no mechanical gate.
 - Shire map edits must preserve partyEvent coordinates.
 - Scope discipline: the overlay stays a single panel; no menu-scene
   creep.
+
+## Implementation phasing
+
+Part 1 (the reusable layer + its tests) is a standalone first phase;
+Parts 2–4 (zone content passes) all depend on it and can then land zone
+by zone.
 
 ## Testing
 
