@@ -5,8 +5,9 @@ import { shire } from './shire.js';
 import { bagend } from './bagend.js';
 import { greendragon } from './greendragon.js';
 import { woodyend } from './woodyend.js';
+import { marish } from './marish.js';
 
-export const ZONES = { shire, bagend, greendragon, woodyend };
+export const ZONES = { shire, bagend, greendragon, woodyend, marish };
 
 // Guard against ragged hand-authored maps
 for (const zone of Object.values(ZONES)) {

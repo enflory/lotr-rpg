@@ -185,10 +185,11 @@ export const DIALOGUES = {
           'Hail, Frodo! We are Elves\nof the House of Finrod.\nI am Gildor Inglorion.',
           'That black horseman hunts\nyou. He is a servant of\nthe Enemy. Do not meet him!',
           'The Shire is no longer any\nprotection to you. Make for\nBucklebury Ferry, and swiftly.',
+          'The road runs east, down\ninto the Marish. Farmer\nMaggot dwells there -- a\nstout friend in need.',
           'Be brave, Frodo son of\nDrogo. Elves shall watch\nyour road where they may.',
         ],
         set: 'metGildor',
-        objective: 'Reach the Bucklebury Ferry sign, far east',
+        objective: 'Make for Bucklebury Ferry, through the Marish',
       },
       {
         lines: ['The stars will be out soon.\nGo east, and take our good\nwishes with you.'],
@@ -218,10 +219,52 @@ export const DIALOGUES = {
 
   sign_ferry: {
     name: 'Sign',
+    lines: ['BUCKLEBURY FERRY\n~ across the Brandywine ~'],
+  },
+
+  sign_buckland: {
+    name: 'Sign',
     lines: [
-      'BUCKLEBURY FERRY\n~ across the Brandywine ~',
-      'The ferry raft is moored on\nthe far shore. Chapter Two\nlies across the river.',
+      'BUCKLAND\n~ Crickhollow lies north ~',
+      'You have crossed the\nBrandywine. Chapter Two\nlies ahead.',
       'TO BE CONTINUED...',
+    ],
+  },
+
+  maggot: {
+    name: 'Farmer Maggot',
+    stages: [
+      {
+        when: (f) => !f.maggotRide,
+        lines: [
+          "You again! Off my land, or\nI'll set my dogs on--\n...wait. Mr. Frodo BAGGINS?",
+          "It's years since you were\nround here after my\nmushrooms, you young rascal.",
+          'Now listen. A queer black\nrider came by this very\nday, asking after BAGGINS.',
+          'I sent him packing, but my\ndogs Grip, Fang and Wolf\nare still shivering.',
+          "You shouldn't be walking\nthe lanes at night. Climb\nin my waggon.",
+          "I'll run you to the Ferry\nmyself. And here --\nmushrooms, from the missus!",
+        ],
+        set: ['maggotRide', 'mushrooms'],
+        objective: 'Ride with Farmer Maggot to the Ferry',
+      },
+      { lines: ['Up you get, Mr. Baggins.\nThe Ferry waits for no one.'] },
+    ],
+  },
+
+  merry: {
+    name: 'Merry',
+    stages: [
+      {
+        when: (f) => !f.merryMet,
+        lines: [
+          "There you are at last! I've\nbeen watching this landing\nall evening.",
+          'Merry Brandybuck, at your\nservice. The ferry raft\nis ready -- step aboard.',
+          "Best be quick about it.\nThere's a fog coming off\nthe River tonight.",
+        ],
+        set: 'merryMet',
+        objective: 'Board the ferry raft',
+      },
+      { lines: ['Step aboard! Buckland is\njust across the water.'] },
     ],
   },
 };
