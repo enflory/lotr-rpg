@@ -1,6 +1,6 @@
 {
   "name": "lotr-rpg",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "Top-down pixel art RPG of The Fellowship of the Ring — Phaser 3, all art and audio procedurally generated",
   "private": true,
   "type": "module",
