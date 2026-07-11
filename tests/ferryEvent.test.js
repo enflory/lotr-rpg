@@ -9,12 +9,26 @@ import { TILE_SIZE } from '../src/data/tileTypes.js';
 
 function makeSprite(key, x = 0, y = 0) {
   return {
-    key, x, y,
-    setPosition(nx, ny) { this.x = nx; this.y = ny; },
-    setDepth() { return this; },
-    getData() { return this.key; },
+    key,
+    x,
+    y,
+    setPosition(nx, ny) {
+      this.x = nx;
+      this.y = ny;
+    },
+    setDepth() {
+      return this;
+    },
+    getData() {
+      return this.key;
+    },
     play() {},
-    anims: { paused: false, pause() { this.paused = true; } },
+    anims: {
+      paused: false,
+      pause() {
+        this.paused = true;
+      },
+    },
   };
 }
 
@@ -27,9 +41,13 @@ function makeScene() {
     follower: makeSprite('sam'),
     npcs: [],
     banners: [],
-    showBanner(t) { this.banners.push(t); },
+    showBanner(t) {
+      this.banners.push(t);
+    },
     removed: [],
-    removeNpc(k) { this.removed.push(k); },
+    removeNpc(k) {
+      this.removed.push(k);
+    },
     spawned: [],
     spawnNpc(def) {
       const npc = makeSprite(def.key, def.x * TILE_SIZE, def.y * TILE_SIZE);
@@ -42,7 +60,19 @@ function makeScene() {
     sprites: [],
     add: {
       image: (x, y, tex, frame) => {
-        const img = { x, y, tex, frame, setPosition(nx, ny) { img.x = nx; img.y = ny; }, setDepth() { return img; } };
+        const img = {
+          x,
+          y,
+          tex,
+          frame,
+          setPosition(nx, ny) {
+            img.x = nx;
+            img.y = ny;
+          },
+          setDepth() {
+            return img;
+          },
+        };
         scene.images.push(img);
         return img;
       },
@@ -55,11 +85,17 @@ function makeScene() {
     cameras: {
       main: {
         flashes: [],
-        flash(...a) { this.flashes.push(a); },
+        flash(...a) {
+          this.flashes.push(a);
+        },
         fadedOut: false,
-        fadeOut() { this.fadedOut = true; },
+        fadeOut() {
+          this.fadedOut = true;
+        },
         fadeIn() {},
-        once(evt, cb) { cb(); },
+        once(evt, cb) {
+          cb();
+        },
       },
     },
   };

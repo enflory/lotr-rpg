@@ -72,9 +72,17 @@ export function ferryEventUpdate(scene, delta) {
     const rx = RAFT_X * TILE_SIZE;
     const ry = LANE_ROW * TILE_SIZE;
     for (const [dx, dy, frame] of [
-      [0, 0, T.DOCK], [1, 0, T.DOCK], [0, 1, T.DOCK_S], [1, 1, T.DOCK_S],
+      [0, 0, T.DOCK],
+      [1, 0, T.DOCK],
+      [0, 1, T.DOCK_S],
+      [1, 1, T.DOCK_S],
     ]) {
-      const img = scene.add.image(rx + dx * TILE_SIZE + 8, ry + dy * TILE_SIZE + 8, 'tileset', frame);
+      const img = scene.add.image(
+        rx + dx * TILE_SIZE + 8,
+        ry + dy * TILE_SIZE + 8,
+        'tileset',
+        frame,
+      );
       img.setDepth(ry + dy * TILE_SIZE - 4);
       ev.raft.push(img);
     }
@@ -124,7 +132,7 @@ export function ferryEventUpdate(scene, delta) {
         ev.riderHalted = true;
         ev.rider.anims.pause();
         scene.cameras.main.flash(300, 120, 0, 0);
-        scene.showBanner('A dark figure halts at\nthe water\'s edge...');
+        scene.showBanner("A dark figure halts at\nthe water's edge...");
       }
     }
 

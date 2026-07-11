@@ -244,7 +244,7 @@ describe('the Marish (generated map)', () => {
     }
   });
 
-  it("the farm fence is closed except for the gate, which meets the lane", () => {
+  it('the farm fence is closed except for the gate, which meets the lane', () => {
     for (let x = FARM.x0; x <= FARM.x1; x++) {
       if (x === FARM.gateX || x === FARM.gateX + 1) {
         expect(map[FARM.y0][x], `gate blocked at (${x},${FARM.y0})`).toBe(T.PATH);
