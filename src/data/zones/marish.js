@@ -5,9 +5,9 @@
 // with the pier and the far Buckland bank.
 
 import { T } from '../tileTypes.js';
-import { ferryEventUpdate } from '../../events/ferryEvent.js';
+import { ferryEventUpdate, ferryZoneCreate } from '../../events/ferryEvent.js';
 
-const WIDTH = 40, HEIGHT = 26;
+const WIDTH = 44, HEIGHT = 26;
 
 // Deterministic PRNG so the marsh is the same every visit
 function lcg(seed) {
@@ -28,7 +28,7 @@ for (let x = 0; x < WIDTH; x++) {
 export const FARM = { x0: 14, x1: 27, y0: 13, y1: 21, gateX: 23 };
 
 const RIVER_X = 34; // water from here east
-const BANK_X = 37; // far (Buckland) shore
+const BANK_X = 40; // far (Buckland) shore — six tiles of open water between
 
 function generateMap() {
   const rnd = lcg(0xba9);
@@ -144,12 +144,11 @@ function generateMap() {
     map[0][x] = T.TREE;
     map[HEIGHT - 1][x] = T.TREE;
   }
-  map[0][BANK_X] = T.TREE; map[0][BANK_X + 1] = T.TREE; map[0][WIDTH - 1] = T.TREE;
+  map[0][BANK_X] = T.TREE; map[0][BANK_X + 1] = T.TREE;
   map[HEIGHT - 1][BANK_X] = T.TREE; map[HEIGHT - 1][BANK_X + 1] = T.TREE;
-  map[HEIGHT - 1][WIDTH - 1] = T.TREE;
   for (let y = 0; y < HEIGHT; y++) {
     if (!(y === LANE_Y[0] || y === LANE_Y[0] + 1)) map[y][0] = T.TREE;
-    map[y][WIDTH - 1] = T.TREE;
+    for (let x = BANK_X + 2; x < WIDTH; x++) map[y][x] = T.TREE;
   }
 
   return map;
@@ -170,16 +169,17 @@ export const marish = {
     // landing after it; after the crossing Merry stands on the far bank.
     { key: 'maggot', x: 23, y: 16, dir: 'up', when: (f) => !f.rodeWaggon },
     { key: 'merry', x: 32, y: 12, dir: 'down', when: (f) => f.rodeWaggon && !f.crossedFerry },
-    { key: 'merry', x: 37, y: 12, dir: 'down', when: (f) => f.crossedFerry },
+    { key: 'merry', x: 40, y: 12, dir: 'down', when: (f) => f.crossedFerry },
   ],
   doors: [],
   signs: [
     { x: 33, y: 12, dialogue: 'sign_ferry' },
-    { x: 38, y: 12, dialogue: 'sign_buckland' },
+    { x: 41, y: 12, dialogue: 'sign_buckland' },
   ],
   exits: [
     { x: 0, y: 12, zone: 'woodyend', entry: 'east' },
     { x: 0, y: 13, zone: 'woodyend', entry: 'east' },
   ],
+  onCreate: ferryZoneCreate,
   onUpdate: ferryEventUpdate,
 };

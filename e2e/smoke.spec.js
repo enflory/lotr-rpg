@@ -180,7 +180,7 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
     };
   });
   expect(end.objective).toMatch(/Chapter Two/);
-  expect(end.tileX).toBeGreaterThanOrEqual(37); // the Buckland shore
+  expect(end.tileX).toBeGreaterThanOrEqual(40); // the Buckland shore
   expect(end.bodyEnabled).toBe(true);
 });
 

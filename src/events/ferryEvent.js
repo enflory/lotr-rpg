@@ -2,8 +2,10 @@
 // landing, and the raft crossing of the Brandywine — with a Black
 // Rider halting on the bank behind, as in the book.
 //
-// Phases: idle → riding (fade-teleport to the landing) → armed →
-// boarding → crossing → landed/done. Inert once `crossedFerry`.
+// The raft is moored beside the pier from the moment the zone builds
+// (ferryZoneCreate); the crossing machine floats it over. Phases:
+// idle → riding (fade-teleport to the landing) → armed → crossing →
+// done. Inert once `crossedFerry`.
 
 import { T, TILE_SIZE } from '../data/tileTypes.js';
 import { hasFlag, setFlag, setObjective } from '../state/GameState.js';
@@ -11,10 +13,30 @@ import { sfx } from '../audio/sound.js';
 
 const PIER_X = 34; // stepping onto the pier boards the raft
 const LANE_ROW = 13; // lane/pier top row at the river
-const RAFT_X = 35; // raft floats just off the pier end
-const CROSS_MS = 4500;
-const CROSS_PX = 2 * TILE_SIZE; // raft travel to the far bank
+const RAFT_X = 35; // raft moors just off the pier end
+const CROSS_MS = 6000;
+const CROSS_PX = 3 * TILE_SIZE; // raft travel — it stops in the shallows,
+// never overlapping the grass bank (the deck art has water edges)
+const BANK_LAND_X = 40; // where the crew steps ashore
 const RIDER_SPEED = 96; // px/sec, hard gallop down the lane
+
+// zone.onCreate — moor the raft: west of the river before the
+// crossing, in the eastern shallows after it.
+export function ferryZoneCreate(scene) {
+  const rx = (hasFlag('crossedFerry') ? RAFT_X + 3 : RAFT_X) * TILE_SIZE;
+  const ry = LANE_ROW * TILE_SIZE;
+  scene.ferryRaft = [];
+  for (const [dx, dy, frame] of [
+    [0, 0, T.DOCK],
+    [1, 0, T.DOCK],
+    [0, 1, T.DOCK_S],
+    [1, 1, T.DOCK_S],
+  ]) {
+    const img = scene.add.image(rx + dx * TILE_SIZE + 8, ry + dy * TILE_SIZE + 8, 'tileset', frame);
+    img.setDepth(ry + dy * TILE_SIZE - 4);
+    scene.ferryRaft.push(img);
+  }
+}
 
 export function ferryEventUpdate(scene, delta) {
   if (hasFlag('crossedFerry')) return;
@@ -24,7 +46,6 @@ export function ferryEventUpdate(scene, delta) {
     ev = scene.ferryEvent = {
       phase: 'idle',
       crossT: 0,
-      raft: [],
       crew: [],
       rider: null,
       riderHalted: false,
@@ -63,7 +84,7 @@ export function ferryEventUpdate(scene, delta) {
     const tx = Math.floor(scene.player.x / TILE_SIZE);
     if (tx < PIER_X) return;
 
-    // ── board the raft ─────────────────────────────────
+    // ── board the moored raft ──────────────────────────
     ev.phase = 'crossing';
     ev.crossT = 0;
     scene.inputLocked = true;
@@ -71,22 +92,6 @@ export function ferryEventUpdate(scene, delta) {
 
     const rx = RAFT_X * TILE_SIZE;
     const ry = LANE_ROW * TILE_SIZE;
-    for (const [dx, dy, frame] of [
-      [0, 0, T.DOCK],
-      [1, 0, T.DOCK],
-      [0, 1, T.DOCK_S],
-      [1, 1, T.DOCK_S],
-    ]) {
-      const img = scene.add.image(
-        rx + dx * TILE_SIZE + 8,
-        ry + dy * TILE_SIZE + 8,
-        'tileset',
-        frame,
-      );
-      img.setDepth(ry + dy * TILE_SIZE - 4);
-      ev.raft.push(img);
-    }
-
     // Crew aboard: Frodo, Sam behind, Merry at the pole
     ev.crew = [];
     const aboard = (sprite, ox, oy) => {
@@ -108,7 +113,7 @@ export function ferryEventUpdate(scene, delta) {
     const off = p * CROSS_PX;
     const rx = RAFT_X * TILE_SIZE + off;
     const ry = LANE_ROW * TILE_SIZE;
-    ev.raft.forEach((img, i) => {
+    (scene.ferryRaft || []).forEach((img, i) => {
       img.setPosition(rx + (i % 2) * TILE_SIZE + 8, ry + Math.floor(i / 2) * TILE_SIZE + 8);
     });
     for (const { sprite, ox, oy } of ev.crew) {
@@ -139,11 +144,11 @@ export function ferryEventUpdate(scene, delta) {
     if (p >= 1) {
       // ── the Buckland shore ───────────────────────────
       ev.phase = 'done';
-      scene.player.setPosition(37 * TILE_SIZE + 8, LANE_ROW * TILE_SIZE + 8);
+      scene.player.setPosition(BANK_LAND_X * TILE_SIZE + 8, LANE_ROW * TILE_SIZE + 8);
       scene.player.body.enable = true;
       scene.snapFollower();
       const merry = scene.npcs.find((n) => n.getData('key') === 'merry');
-      if (merry) merry.setPosition(37 * TILE_SIZE + 8, 12 * TILE_SIZE + 6);
+      if (merry) merry.setPosition(BANK_LAND_X * TILE_SIZE + 8, 12 * TILE_SIZE + 6);
       scene.inputLocked = false;
       setFlag('crossedFerry');
       setObjective('To be continued in Chapter Two...');

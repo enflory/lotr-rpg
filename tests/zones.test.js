@@ -274,17 +274,19 @@ describe('the Marish (generated map)', () => {
     }
   });
 
-  it('the pier stands at lane height with the raft channel beyond', () => {
+  it('the pier stands at lane height with six tiles of open water beyond', () => {
     expect(map[13][34]).toBe(T.DOCK);
     expect(map[14][34]).toBe(T.DOCK_S);
     for (const y of [13, 14]) {
-      for (const x of [35, 36]) expect(map[y][x], `raft channel at (${x},${y})`).toBe(T.WATER);
+      for (let x = 35; x <= 39; x++) {
+        expect(map[y][x], `raft channel at (${x},${y})`).toBe(T.WATER);
+      }
     }
   });
 
   it('the Buckland shore is walkable where the raft lands', () => {
     for (const y of [12, 13, 14]) {
-      expect(solid.has(map[y][37]), `far bank blocked at (37,${y})`).toBe(false);
+      expect(solid.has(map[y][40]), `far bank blocked at (40,${y})`).toBe(false);
     }
   });
 
@@ -293,6 +295,6 @@ describe('the Marish (generated map)', () => {
       marish.npcs.filter((n) => !n.when || n.when(flags)).map((n) => `${n.key}@${n.x}`);
     expect(at({})).toEqual(['maggot@23']);
     expect(at({ rodeWaggon: true })).toEqual(['merry@32']);
-    expect(at({ rodeWaggon: true, crossedFerry: true })).toEqual(['merry@37']);
+    expect(at({ rodeWaggon: true, crossedFerry: true })).toEqual(['merry@40']);
   });
 });
