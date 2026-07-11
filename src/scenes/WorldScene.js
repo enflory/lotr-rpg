@@ -14,6 +14,7 @@ import {
   isCollected,
 } from '../state/GameState.js';
 import { ITEMS, ITEM_KEYS } from '../data/items.js';
+import { QUESTS } from '../data/quests.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
 
 const SPEED = 72;
@@ -163,6 +164,27 @@ export class WorldScene extends Phaser.Scene {
       .setDepth(980)
       .setAlpha(0);
     this.bannerTween = null;
+
+    /* ── inventory/errand overlay (I) ─────────────────── */
+    this.overlayVisible = false;
+    this.overlayBg = this.add
+      .rectangle(160, 120, 260, 168, 0x000000, 0.92)
+      .setScrollFactor(0)
+      .setDepth(1100)
+      .setVisible(false)
+      .setStrokeStyle(1, 0xc8a84e);
+    this.overlayText = this.add
+      .text(40, 46, '', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '6px',
+        color: '#f0ead6',
+        lineSpacing: 6,
+      })
+      .setScrollFactor(0)
+      .setDepth(1101)
+      .setVisible(false);
+    this.overlayIcons = [];
+    this.input.keyboard.on('keydown-I', () => this.toggleOverlay());
 
     /* ── camera ──────────────────────────────────────── */
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
@@ -485,6 +507,7 @@ export class WorldScene extends Phaser.Scene {
 
   /* ── dialogue system ───────────────────────────────── */
   startDialogue(key) {
+    if (this.overlayVisible) this.toggleOverlay();
     const dlg = resolveDialogue(key, gameState.flags, itemCount);
     if (!dlg) return;
 
@@ -629,5 +652,58 @@ export class WorldScene extends Phaser.Scene {
       yoyo: true,
       onComplete: () => label.destroy(),
     });
+  }
+
+  /* ── inventory/errand overlay ─────────────────────────── */
+  toggleOverlay() {
+    this.overlayVisible = !this.overlayVisible;
+    this.overlayBg.setVisible(this.overlayVisible);
+    this.overlayText.setVisible(this.overlayVisible);
+    for (const icon of this.overlayIcons) icon.destroy();
+    this.overlayIcons = [];
+    if (!this.overlayVisible) return;
+    sfx.confirm();
+
+    const lines = [];
+    let row = 0;
+    for (const key of ITEM_KEYS) {
+      const n = itemCount(key);
+      if (!n) continue;
+      const icon = this.add
+        .image(48, 58 + row * 14, 'items', ITEM_KEYS.indexOf(key))
+        .setScrollFactor(0)
+        .setDepth(1101);
+      this.overlayIcons.push(icon);
+      lines.push(`   ${ITEMS[key].name}${n > 1 ? ` x${n}` : ''}`);
+      row++;
+    }
+    if (!lines.length) lines.push('(nothing carried)');
+
+    lines.push('');
+    const count = itemCount;
+    for (const q of QUESTS) {
+      if (!q.active(gameState.flags, count) && !q.done(gameState.flags, count)) continue;
+      lines.push(`${q.done(gameState.flags, count) ? '[x]' : '[ ]'} ${q.title}`);
+    }
+
+    lines.push('');
+    lines.push(this.tallyLine());
+    this.overlayText.setText(lines.join('\n'));
+  }
+
+  tallyLine() {
+    const totals = {};
+    const found = {};
+    for (const z of Object.values(ZONES)) {
+      for (const p of z.pickups ?? []) {
+        totals[p.item] = (totals[p.item] || 0) + 1;
+        if (isCollected(p.id)) found[p.item] = (found[p.item] || 0) + 1;
+      }
+    }
+    const parts = [];
+    for (const key of ['mathom', 'mushroom']) {
+      if (totals[key]) parts.push(`${ITEMS[key].name}s ${found[key] || 0}/${totals[key]}`);
+    }
+    return parts.join(' · ');
   }
 }

@@ -87,4 +87,13 @@
  * @property {DialogueStage[]} [stages] staged form
  */
 
+/**
+ * @typedef {Object} QuestDef
+ * @property {string} key registry key
+ * @property {string} title shown in the errand overlay
+ * @property {string} hint one-line nudge toward the next step
+ * @property {(flags: Record<string, boolean>, count: (item: string) => number) => boolean} active
+ * @property {(flags: Record<string, boolean>, count: (item: string) => number) => boolean} done
+ */
+
 export {};
