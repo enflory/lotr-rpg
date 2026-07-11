@@ -10,7 +10,13 @@ npm run build      # Production build → dist/
 npm run preview    # Preview built output
 npm test           # Vitest suite (tests/) — run after any data/logic change
 npm run test:watch # Vitest in watch mode
+npm run test:e2e   # Playwright smoke tests (e2e/) — boots the real game
+npm run lint       # ESLint (flat config)
+npm run typecheck  # tsc over JSDoc annotations (src/data, src/state, src/events)
+npm run format     # Prettier — zone maps, pixel art, and songs are exempt (.prettierignore)
 ```
+
+The data-layer contracts (Zone, Dialogue, etc.) are JSDoc typedefs in `src/data/types.js`, enforced by `npm run typecheck`. Annotate new zones/dialogues with `@type` so mistakes (bad `dir`, missing fields) fail the check. CI runs lint, typecheck, format check, unit tests, build, and e2e on every push/PR.
 
 Unit tests live in `tests/` (Vitest, Node environment — no browser or canvas needed). They cover the data layer (dialogue staging, zone cross-reference integrity, tile registry invariants), the art helpers (via a fake 2D context that records `fillRect` calls), and the Black Rider state machine (via a fake Phaser scene). Phaser scenes themselves are not unit-tested. When adding a zone, NPC, dialogue, or tile, the integrity tests in `tests/zones.test.js` and `tests/tiles.test.js` will catch dangling references and ordering mistakes — run `npm test` first when debugging content bugs. Verify visual/gameplay changes with `npm run build` and browser testing. `art-test.html` (served by the dev server at `/art-test.html`) renders the full tileset and every character spritesheet at high zoom for visual QA of procedural art. `window.__game` (Phaser game) and `window.__state` (GameState) are exposed for Playwright-driven QA — teleport the player, set flags, and screenshot.
 

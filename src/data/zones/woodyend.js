@@ -119,6 +119,7 @@ function generateMap() {
   return map;
 }
 
+/** @type {import('../types.js').Zone} */
 export const woodyend = {
   key: 'woodyend',
   label: 'The Woody End',

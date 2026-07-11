@@ -8,6 +8,7 @@
 //   objective: new objective banner text
 //   join:      character key that becomes the player's follower
 
+/** @type {Record<string, import('./types.js').Dialogue>} */
 export const DIALOGUES = {
   gandalf: {
     name: 'Gandalf',
@@ -175,7 +176,12 @@ export const DIALOGUES = {
   },
 };
 
-// Resolve which stage of a dialogue applies for the current flags.
+/**
+ * Resolve which stage of a dialogue applies for the current flags.
+ * @param {string} key
+ * @param {Record<string, boolean>} flags
+ * @returns {({ name: string } & import('./types.js').DialogueStage) | null}
+ */
 export function resolveDialogue(key, flags) {
   const dlg = DIALOGUES[key];
   if (!dlg) return null;

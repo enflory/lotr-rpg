@@ -69,6 +69,7 @@ const MAP = [
   [R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R], // 39
 ];
 
+/** @type {import('../types.js').Zone} */
 export const shire = {
   key: 'shire',
   label: 'The Shire',

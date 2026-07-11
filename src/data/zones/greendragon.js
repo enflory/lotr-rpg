@@ -23,6 +23,7 @@ const MAP = [
   [V, V, V, V, V, V, V, V, V, F, F, V, V, V, V, V, V, V, V, V], // 14
 ];
 
+/** @type {import('../types.js').Zone} */
 export const greendragon = {
   key: 'greendragon',
   label: 'The Green Dragon',

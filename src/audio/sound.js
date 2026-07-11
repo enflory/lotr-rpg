@@ -13,7 +13,7 @@ let current = { id: null, timer: null, nextBarTime: 0 };
 
 export function initAudio() {
   if (!ctx) {
-    const AC = window.AudioContext || window.webkitAudioContext;
+    const AC = window.AudioContext || /** @type {any} */ (window).webkitAudioContext;
     if (!AC) return;
     ctx = new AC();
     master = ctx.createGain();
