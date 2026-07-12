@@ -90,6 +90,22 @@ describe('resolveDialogue staging', () => {
     expect(again.set).toBeUndefined();
   });
 
+  it("Bilbo's desk points to Lobelia's spoons only while the errand is live", () => {
+    // Before meeting Gandalf: just the book, no clue.
+    const early = resolveDialogue('examine_desk', {});
+    expect(early.lines.join(' ')).toMatch(/ink is long dry/i);
+    expect(early.lines.join(' ')).not.toMatch(/spoons/i);
+
+    // After Gandalf, before the spoons are found: the note names the chest.
+    const clue = resolveDialogue('examine_desk', { metGandalf: true });
+    expect(clue.lines.join(' ')).toMatch(/spoons/i);
+    expect(clue.lines.join(' ')).toMatch(/old\s+chest/i);
+
+    // Once found, the desk reverts to its plain description.
+    const after = resolveDialogue('examine_desk', { metGandalf: true, foundSpoons: true });
+    expect(after.lines.join(' ')).not.toMatch(/spoons/i);
+  });
+
   it('merry readies the raft on first meeting only', () => {
     const first = resolveDialogue('merry', {});
     expect(first.set).toBe('merryMet');

@@ -357,7 +357,22 @@ export const DIALOGUES = {
 
   examine_desk: {
     name: "Bilbo's Desk",
-    lines: ['On the desk, the unfinished\npages of THERE AND BACK\nAGAIN. The ink is long dry.'],
+    stages: [
+      {
+        // A nudge toward Lobelia's spoons, once the errand is live
+        when: (f) => f.metGandalf && !f.foundSpoons,
+        lines: [
+          "There and Back Again lies\nopen. Tucked in the pages,\na note in Bilbo's hand:",
+          "'The silver spoons Lobelia\ncovets are in the old\nchest, by the window --",
+          "do give them back to her,\nthere's a good hobbit.'",
+        ],
+      },
+      {
+        lines: [
+          'On the desk, the unfinished\npages of THERE AND BACK\nAGAIN. The ink is long dry.',
+        ],
+      },
+    ],
   },
 
   examine_books: {
