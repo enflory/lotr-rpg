@@ -433,6 +433,18 @@ export const CHAR_DEFS = {
     feet: ['#d8b080', '#b89060'],
   },
 
+  mrsmaggot: {
+    maps: FEMALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#5a4a35', h: '#7a6a50', l: '#9a8a6c',
+      C: '#f0e8d0', c: '#d0c4a8',
+      V: '#a05838', v: '#c07048', G: '#7a4028',
+      B: '#2e4868', b: '#e0d0b0',
+    },
+    feet: ['#d8b080', '#b89060'],
+  },
+
   ted: {
     maps: MALE,
     pal: {

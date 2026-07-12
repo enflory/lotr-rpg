@@ -313,9 +313,9 @@ describe('the Marish (generated map)', () => {
   it('maggot and merry come and go with the story flags', () => {
     const at = (flags) =>
       marish.npcs.filter((n) => !n.when || n.when(flags)).map((n) => `${n.key}@${n.x}`);
-    expect(at({})).toEqual(['maggot@24']);
-    expect(at({ rodeWaggon: true })).toEqual(['merry@44']);
-    expect(at({ rodeWaggon: true, crossedFerry: true })).toEqual(['merry@52']);
+    expect(at({})).toEqual(['maggot@24', 'mrsmaggot@20']);
+    expect(at({ rodeWaggon: true })).toEqual(['mrsmaggot@20', 'merry@44']);
+    expect(at({ rodeWaggon: true, crossedFerry: true })).toEqual(['mrsmaggot@20', 'merry@52']);
   });
 });
 

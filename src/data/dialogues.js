@@ -420,6 +420,27 @@ export const DIALOGUES = {
     ],
   },
 
+  examine_waggon: {
+    name: "Maggot's Waggon",
+    lines: ['Piled with baskets and\nsacking, packed for the\nFerry road.'],
+  },
+  examine_well: {
+    name: 'The Well',
+    lines: ['Cold, clear water. A tin\ncup hangs from the\nwindlass on a chain.'],
+  },
+  examine_barn: {
+    name: 'The Barn',
+    lines: ['Hay, harness, and the good\nsmell of earth. Something\nrustles in the loft.'],
+  },
+  sign_stock: {
+    name: 'Signpost',
+    lines: ['STOCK  1/2 mile\n~ mind the dikes on\n  the causeway ~'],
+  },
+  examine_brandyhall: {
+    name: 'The Far Shore',
+    lines: ['Across the water, lights\nglimmer on the hill:\nBrandy Hall, in Buckland.'],
+  },
+
   maggot: {
     name: 'Farmer Maggot',
     stages: [
@@ -437,6 +458,32 @@ export const DIALOGUES = {
         objective: 'Ride with Farmer Maggot to the Ferry',
       },
       { lines: ['Up you get, Mr. Baggins.\nThe Ferry waits for no one.'] },
+    ],
+  },
+
+  mrsmaggot: {
+    name: 'Mrs. Maggot',
+    stages: [
+      {
+        when: (f) => !f.dogsAsked,
+        lines: [
+          "Welcome, dears! Any friend\nof Maggot's is welcome\nhere at Bamfurlong.",
+          'Only -- our dogs! Grip,\nFang and Wolf bolted when\nthat black rider came.',
+          'Still out hiding in the\nmarsh, poor things. Send\nthem home if you find them?',
+        ],
+        set: 'dogsAsked',
+        objective: 'Find Grip, Fang and Wolf in the marsh',
+      },
+      {
+        when: (f) => f.dogGrip && f.dogFang && f.dogWolf && !f.gotBasket,
+        lines: [
+          "All three home and fed!\nYou have a farmer's way\nwith beasts, Mr. Baggins.",
+          'Take this -- mushrooms,\npacked proper, from our\nown beds. Bless you.',
+        ],
+        set: 'gotBasket',
+        give: 'maggot_basket',
+      },
+      { lines: ['Mind the dikes on the\ncauseway, dears.'] },
     ],
   },
 

@@ -5,6 +5,7 @@
 // with the pier and the far Buckland bank.
 
 import { T } from '../tileTypes.js';
+import { stamp } from './mapUtils.js';
 import { ferryEventUpdate, ferryZoneCreate } from '../../events/ferryEvent.js';
 
 const WIDTH = 56, HEIGHT = 30;
@@ -134,6 +135,16 @@ function generateMap() {
     }
   }
 
+  // ── Farm dressing: barn, well, waggon ───────────────
+  stamp(map, 26, 16, [
+    [T.ROOF_L, T.ROOF, T.ROOF_R],
+    [T.BARN, T.BARN, T.BARN],
+  ]);
+  map[17][21] = T.WELL;
+  map[20][27] = T.WAGGON;
+  // Signpost off the lane, pointing to Stock
+  map[16][10] = T.SIGN;
+
   // ── The Brandywine and the ferry landing ────────────
   for (let y = 0; y < HEIGHT; y++)
     for (let x = RIVER_X; x < WIDTH; x++)
@@ -181,6 +192,7 @@ export const marish = {
     // At his gate until the waggon ride; Merry waits at the lamplit
     // landing after it; after the crossing Merry stands on the far bank.
     { key: 'maggot', x: 24, y: 16, dir: 'up', when: (f) => !f.rodeWaggon },
+    { key: 'mrsmaggot', x: 20, y: 17, dir: 'down' },
     { key: 'merry', x: 44, y: 14, dir: 'down', when: (f) => f.rodeWaggon && !f.crossedFerry },
     { key: 'merry', x: 52, y: 14, dir: 'down', when: (f) => f.crossedFerry },
   ],
@@ -188,6 +200,11 @@ export const marish = {
   signs: [
     { x: 45, y: 14, dialogue: 'sign_ferry' },
     { x: 53, y: 14, dialogue: 'sign_buckland' },
+    { x: 27, y: 20, dialogue: 'examine_waggon' },
+    { x: 21, y: 17, dialogue: 'examine_well' },
+    { x: 27, y: 17, dialogue: 'examine_barn' },
+    { x: 10, y: 16, dialogue: 'sign_stock' },
+    { x: 54, y: 12, dialogue: 'examine_brandyhall' },
   ],
   exits: [
     { x: 0, y: 14, zone: 'woodyend', entry: 'east' },
