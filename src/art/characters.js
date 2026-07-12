@@ -334,6 +334,51 @@ const FOX_LEFT = validateRows('FOX_LEFT', [
 
 const FOX_RIGHT = mirrorRows(FOX_LEFT);
 
+/* ── Dog template (10-row body, no feet — legs are drawn via `extra`) ── */
+
+const DOG_DOWN = validateRows('DOG_DOWN', [
+  '.....o....o.....',
+  '....oD....Do....',
+  '....oDDDDDDo....',
+  '....oDDooDDo....',
+  '...oDDDoDDDDo...',
+  '...oDDDDDDDDo...',
+  '...oDDWWWWDDo...',
+  '...oDDddddDDo...',
+  '....oDDDDDDo....',
+  '.....oDDDDo.....',
+]);
+
+const DOG_UP = validateRows('DOG_UP', [
+  '.....o....o.....',
+  '....oD....Do....',
+  '....oDDDDDDo....',
+  '....oDDDDDDo....',
+  '...oDDDDDDDDo...',
+  '...oDDDDDDDDo...',
+  '...oDDDDDDDDo...',
+  '...oDDDDDDDDo...',
+  '....oDDDDDDo....',
+  '.....oDDDDo.....',
+]);
+
+const DOG_LEFT = validateRows('DOG_LEFT', [
+  '..o..o..........',
+  '.oD.Do..........',
+  'oDDoDDo.........',
+  'oDDDDDDo........',
+  'dDDDDDDDo.......',
+  '.DDDDDDDDDo.....',
+  '..WWWDDDDDDo....',
+  '...dddDDDDDoo...',
+  '.....ddddDDDDoo.',
+  '.........oooDDWW',
+]);
+
+const DOG_RIGHT = mirrorRows(DOG_LEFT);
+
+const DOG = { down: DOG_DOWN, left: DOG_LEFT, right: DOG_RIGHT, up: DOG_UP };
+
 /* ── palettes ───────────────────────────────────────────── */
 // Shared slots: o outline · H/h/l hair dark/mid/light · S/s skin/shade ·
 // E eye · W eye-white · N mouth · C/c collar/vest · V/v/G shirt or dress
@@ -609,6 +654,68 @@ export const CHAR_DEFS = {
       const legY = y + 10; // just under the 10-row body
       const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
       const legColor = '#8a4a1e';
+      if (dir === 'left' || dir === 'right') {
+        for (const lx of [3 + legOff, 10 - legOff]) {
+          rc(c, x + lx, legY, 1, 3, legColor);
+        }
+      } else {
+        for (const lx of [4 + legOff, 7 - legOff, 8 + legOff, 11 - legOff]) {
+          rc(c, x + lx, legY, 1, 3, legColor);
+        }
+      }
+    },
+  },
+
+  // Farmer Maggot's dogs, loose in the marsh — Bamfurlong's errand.
+  // Same low-slung quadruped idiom as the fox (noFeet + `extra` legs).
+  grip: {
+    maps: DOG,
+    pal: { o: '#14141a', D: '#2a2a30', d: '#44444c', W: '#e8e4d8' },
+    noFeet: true,
+    extra(c, x, y, dir, frame) {
+      const legY = y + 10;
+      const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
+      const legColor = '#181820';
+      if (dir === 'left' || dir === 'right') {
+        for (const lx of [3 + legOff, 10 - legOff]) {
+          rc(c, x + lx, legY, 1, 3, legColor);
+        }
+      } else {
+        for (const lx of [4 + legOff, 7 - legOff, 8 + legOff, 11 - legOff]) {
+          rc(c, x + lx, legY, 1, 3, legColor);
+        }
+      }
+    },
+  },
+
+  fang: {
+    maps: DOG,
+    pal: { o: '#14141a', D: '#6a4a2a', d: '#8a6238', W: '#e8e4d8' },
+    noFeet: true,
+    extra(c, x, y, dir, frame) {
+      const legY = y + 10;
+      const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
+      const legColor = '#4a3218';
+      if (dir === 'left' || dir === 'right') {
+        for (const lx of [3 + legOff, 10 - legOff]) {
+          rc(c, x + lx, legY, 1, 3, legColor);
+        }
+      } else {
+        for (const lx of [4 + legOff, 7 - legOff, 8 + legOff, 11 - legOff]) {
+          rc(c, x + lx, legY, 1, 3, legColor);
+        }
+      }
+    },
+  },
+
+  wolf: {
+    maps: DOG,
+    pal: { o: '#14141a', D: '#8a8a90', d: '#aaaab0', W: '#e8e4d8' },
+    noFeet: true,
+    extra(c, x, y, dir, frame) {
+      const legY = y + 10;
+      const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
+      const legColor = '#5a5a60';
       if (dir === 'left' || dir === 'right') {
         for (const lx of [3 + legOff, 10 - legOff]) {
           rc(c, x + lx, legY, 1, 3, legColor);

@@ -487,6 +487,45 @@ export const DIALOGUES = {
     ],
   },
 
+  grip: {
+    name: 'Grip',
+    stages: [
+      {
+        lines: [
+          '*A low growl -- then a\nwhine. He knows you for\na friend of the farm.*',
+          '*Grip turns and streaks\noff home across the\nfields.*',
+        ],
+        set: 'dogGrip',
+      },
+    ],
+  },
+
+  fang: {
+    name: 'Fang',
+    stages: [
+      {
+        lines: [
+          '*Fang backs away, hackles\nup -- then catches your\nscent and relaxes.*',
+          '*He barks once and lopes\noff toward Bamfurlong.*',
+        ],
+        set: 'dogFang',
+      },
+    ],
+  },
+
+  wolf: {
+    name: 'Wolf',
+    stages: [
+      {
+        lines: [
+          '*Wolf crouches low in the\nreeds, trembling -- then\nyour voice steadies him.*',
+          '*Tail up now, he trots\noff for home at a run.*',
+        ],
+        set: 'dogWolf',
+      },
+    ],
+  },
+
   merry: {
     name: 'Merry',
     stages: [

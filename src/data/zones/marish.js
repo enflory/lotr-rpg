@@ -7,6 +7,7 @@
 import { T } from '../tileTypes.js';
 import { stamp } from './mapUtils.js';
 import { ferryEventUpdate, ferryZoneCreate } from '../../events/ferryEvent.js';
+import { dogsEventUpdate } from '../../events/dogsEvent.js';
 
 const WIDTH = 56, HEIGHT = 30;
 
@@ -195,6 +196,9 @@ export const marish = {
     { key: 'mrsmaggot', x: 20, y: 17, dir: 'down' },
     { key: 'merry', x: 44, y: 14, dir: 'down', when: (f) => f.rodeWaggon && !f.crossedFerry },
     { key: 'merry', x: 52, y: 14, dir: 'down', when: (f) => f.crossedFerry },
+    { key: 'grip', x: 6, y: 22, dir: 'right', when: (f) => f.dogsAsked && !f.dogGrip },
+    { key: 'fang', x: 31, y: 6, dir: 'left', when: (f) => f.dogsAsked && !f.dogFang },
+    { key: 'wolf', x: 38, y: 18, dir: 'up', when: (f) => f.dogsAsked && !f.dogWolf },
   ],
   doors: [],
   signs: [
@@ -211,5 +215,8 @@ export const marish = {
     { x: 0, y: 15, zone: 'woodyend', entry: 'east' },
   ],
   onCreate: ferryZoneCreate,
-  onUpdate: ferryEventUpdate,
+  onUpdate: (scene, delta) => {
+    ferryEventUpdate(scene, delta);
+    dogsEventUpdate(scene);
+  },
 };
