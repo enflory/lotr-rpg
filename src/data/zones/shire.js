@@ -99,8 +99,8 @@ function buildMap() {
 
   // ── Sandyman's Mill on the south bank ─────────────
   // Wheel in the river beside the building; lane west from the bridge
-  map[37][2] = S; // T.WHEEL in Task 8
-  map[38][2] = S; // T.WHEEL in Task 8
+  map[37][2] = T.WHEEL;
+  map[38][2] = T.WHEEL;
   stamp(map, 3, 38, [
     [S, K, O, N, S],
     [S, L, D, J, S],
