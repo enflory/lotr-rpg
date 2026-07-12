@@ -6,6 +6,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { riderEventUpdate } from '../src/events/riderEvent.js';
 import { gameState } from '../src/state/GameState.js';
 import { T, TILE_SIZE } from '../src/data/tileTypes.js';
+import { RIDER_EXIT_X } from '../src/data/zones/woodyend.js';
 
 const WIDTH = 40,
   HEIGHT = 24;
@@ -130,7 +131,7 @@ describe('riding', () => {
   });
 
   it('pauses to sniff when passing a hidden player', () => {
-    // ROAD_Y[13] is 14, so the fern above the road is (13, 13)
+    // ROAD_Y[13] is 15, so the fern above the road is (13, 13)
     const scene = riding([[13, 13]]);
     placePlayer(scene, 13, 13);
     scene.riderEvent.rider.x = scene.player.x - 2;
@@ -180,6 +181,14 @@ describe('riding', () => {
     expect(gameState.flags.escapedRider).toBe(true);
     expect(gameState.objective).toMatch(/Elf/);
     expect(scene.npcsSpawned.map((n) => n.key)).toContain('gildor');
+  });
+
+  it('gives up once past RIDER_EXIT_X even at close range', () => {
+    const scene = riding();
+    scene.riderEvent.rider.x = RIDER_EXIT_X * TILE_SIZE + 4; // player is at tile 11, so dx is small
+    riderEventUpdate(scene, 0);
+    expect(scene.riderEvent.phase).toBe('done');
+    expect(gameState.flags.escapedRider).toBe(true);
   });
 });
 

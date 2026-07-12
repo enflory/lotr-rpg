@@ -219,7 +219,7 @@ describe('the Woody End (generated map)', () => {
 
   it('has fern hiding spots adjacent to the road along the whole stretch', () => {
     // The Black Rider set piece is unwinnable without ferns to hide in.
-    for (let x0 = 4; x0 < 32; x0 += 8) {
+    for (let x0 = 4; x0 < 56; x0 += 8) {
       let ferns = 0;
       for (let x = x0; x < x0 + 8; x++) {
         if (map[ROAD_Y[x] - 1][x] === T.FERN) ferns++;
@@ -233,7 +233,7 @@ describe('the Woody End (generated map)', () => {
     const east = woodyend.exits.filter((e) => e.zone === 'marish');
     expect(east.length).toBe(2);
     for (const exit of east) {
-      expect(exit.x).toBe(39);
+      expect(exit.x).toBe(63);
       expect(exit.requires).toBe('metGildor');
     }
     // No river remains in the Woody End — the Brandywine moved to the Marish
@@ -249,6 +249,13 @@ describe('the Woody End (generated map)', () => {
     const gildor = woodyend.npcs.find((n) => n.key === 'gildor');
     expect(gildor.when({})).toBeFalsy();
     expect(gildor.when({ escapedRider: true })).toBeTruthy();
+  });
+
+  it('the tree-tunnel closes over the road mid-forest', () => {
+    for (let x = 41; x <= 47; x++) {
+      expect(map[ROAD_Y[x] - 1][x]).toBe(T.TREE);
+      expect(map[ROAD_Y[x] + 2][x]).toBe(T.TREE);
+    }
   });
 });
 

@@ -6,7 +6,10 @@
 import { T } from '../tileTypes.js';
 import { riderEventUpdate } from '../../events/riderEvent.js';
 
-const WIDTH = 40, HEIGHT = 24;
+export const WIDTH = 64, HEIGHT = 28;
+export const RIDER_EXIT_X = 50; // he gives up before the elf clearing
+export const GILDOR_SPOT = { x: 56, y: 15 };
+export const HOLLOW = { x0: 20, y0: 20, x1: 26, y1: 24 };
 
 // Deterministic PRNG so the forest is the same every visit
 function lcg(seed) {
@@ -17,7 +20,7 @@ function lcg(seed) {
 // Road top-row y per column (road is 2 tiles tall)
 export const ROAD_Y = [];
 for (let x = 0; x < WIDTH; x++) {
-  ROAD_Y[x] = x < 8 ? 12 : x < 20 ? 14 : x < 32 ? 10 : 12;
+  ROAD_Y[x] = x < 8 ? 13 : x < 18 ? 15 : x < 30 ? 11 : x < 40 ? 14 : x < 52 ? 10 : 12;
 }
 
 function generateMap() {
@@ -31,7 +34,6 @@ function generateMap() {
     map.push(row);
   }
 
-  const onRoad = (x, y) => y === ROAD_Y[x] || y === ROAD_Y[x] + 1;
   const nearRoad = (x, y) => {
     for (let dx = -1; dx <= 1; dx++) {
       const cx = Math.min(WIDTH - 1, Math.max(0, x + dx));
@@ -89,6 +91,22 @@ function generateMap() {
     map[below][x + 3] = T.FERN;
   }
 
+  // Tree-tunnel: canopy closes right over the road mid-forest.
+  for (let x = 40; x <= 48; x++) {
+    const above = ROAD_Y[x] - 1, below = ROAD_Y[x] + 2;
+    if (map[above][x] !== T.PATH) map[above][x] = T.TREE;
+    if (map[below][x] !== T.PATH) map[below][x] = T.TREE;
+  }
+
+  // Fir hollow — a cleared campsite pocket south of the road.
+  for (let y = 20; y <= 24; y++)
+    for (let x = 20; x <= 26; x++) map[y][x] = T.GRASS;
+  for (let x = 20; x <= 26; x++) { map[20][x] = T.TREE; map[24][x] = T.TREE; }
+  for (let y = 20; y <= 24; y++) { map[y][20] = T.TREE; map[y][26] = T.TREE; }
+  map[20][23] = T.GRASS; map[20][24] = T.GRASS; // north entrance gap
+  map[22][23] = T.FERN; map[22][24] = T.FERN;
+  map[23][23] = T.FERN; map[23][24] = T.FERN;
+
   // Border trees, with road gaps on the west and east edges
   for (let x = 0; x < WIDTH; x++) {
     map[0][x] = T.TREE;
@@ -99,10 +117,13 @@ function generateMap() {
     if (!(y === ROAD_Y[WIDTH - 1] || y === ROAD_Y[WIDTH - 1] + 1)) map[y][WIDTH - 1] = T.TREE;
   }
 
-  // Clearing where Gildor's company appears
-  for (let y = 14; y <= 16; y++)
-    for (let x = 32; x <= 35; x++)
-      if (!onRoad(x, y)) map[y][x] = T.GRASS;
+  // Clearing where Gildor's company appears (the hall of trees).
+  // Guard against T.PATH so the road carries straight through into it,
+  // matching the book: the road leads Frodo right up to the Elves.
+  for (let y = 13; y <= 17; y++)
+    for (let x = 52; x <= 59; x++)
+      if (map[y][x] !== T.PATH) map[y][x] = T.GRASS;
+  map[17][55] = T.FEAST; map[17][56] = T.FEAST;
 
   return map;
 }
@@ -114,24 +135,24 @@ export const woodyend = {
   music: 'forest',
   map: generateMap(),
   spawns: {
-    west: { x: 1, y: 12, dir: 'right' },
-    east: { x: 38, y: 12, dir: 'left' },
+    west: { x: 1, y: 13, dir: 'right' },
+    east: { x: 62, y: 12, dir: 'left' },
   },
   npcs: [
-    { key: 'gildor', x: 33, y: 15, dir: 'down', when: (f) => f.escapedRider },
+    { key: 'gildor', ...GILDOR_SPOT, dir: 'down', when: (f) => f.escapedRider },
   ],
   doors: [],
   signs: [],
   exits: [
-    { x: 0, y: 12, zone: 'shire', entry: 'fromWoodyEnd' },
     { x: 0, y: 13, zone: 'shire', entry: 'fromWoodyEnd' },
+    { x: 0, y: 14, zone: 'shire', entry: 'fromWoodyEnd' },
     {
-      x: 39, y: 12, zone: 'marish', entry: 'west',
+      x: 63, y: 12, zone: 'marish', entry: 'west',
       requires: 'metGildor',
       denied: "I should hear the Elf's\ncounsel first.",
     },
     {
-      x: 39, y: 13, zone: 'marish', entry: 'west',
+      x: 63, y: 13, zone: 'marish', entry: 'west',
       requires: 'metGildor',
       denied: "I should hear the Elf's\ncounsel first.",
     },
