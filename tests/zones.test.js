@@ -185,7 +185,12 @@ describe('the Party Field (western Shire)', () => {
         .sort();
     expect(at({})).toEqual(['bilbo', 'gaffer', 'gandalf', 'noakes', 'rosie', 'ted', 'twofoot']);
     expect(at({ prologueDone: true })).toEqual(['gaffer', 'gandalf', 'lobelia', 'sam', 'sandyman']);
-    expect(at({ prologueDone: true, samJoined: true })).toEqual(['gaffer', 'gandalf', 'lobelia', 'sandyman']);
+    expect(at({ prologueDone: true, samJoined: true })).toEqual([
+      'gaffer',
+      'gandalf',
+      'lobelia',
+      'sandyman',
+    ]);
   });
 
   it('no NPC key is duplicated for any flag state', () => {
