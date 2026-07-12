@@ -291,91 +291,108 @@ const EL_LEFT = validateRows('EL_LEFT', [
 
 const EL_RIGHT = mirrorRows(EL_LEFT);
 
-/* ── Fox template (10-row body, no feet — legs are drawn via `extra`) ── */
+/* ── Fox template (no feet — stubby legs are drawn via `extra`) ──
+   Side view: alert stance, brush tail curled over the back with a white
+   tip; white chest and muzzle, dark nose. Down view: pricked ears with
+   lighter inner, eyes, white muzzle band. Up view: tail tip peeks below. */
 
 const FOX_DOWN = validateRows('FOX_DOWN', [
-  '.....o....o.....',
-  '....oF....Fo....',
-  '....oFFFFFFo....',
-  '....oFFooFFo....',
-  '...oFFFoFFFFo...',
-  '...oFFFFFFFFo...',
-  '...oFFWWWWFFo...',
-  '...oFFffffFFo...',
-  '....oFFFFFFo....',
-  '.....oFFFFo.....',
+  '...oo....oo.....',
+  '..oFfo..ofFo....',
+  '..oFFooooFFo....',
+  '..oFFFFFFFFo....',
+  '..oFEFFFFEFo....',
+  '..oFWWNNWWFo....',
+  '..oFFWWWWFFo....',
+  '...oFFFFFFo.....',
+  '...oFFFFFFo.....',
+  '....oFFFFo......',
 ]);
 
 const FOX_UP = validateRows('FOX_UP', [
-  '.....o....o.....',
-  '....oF....Fo....',
-  '....oFFFFFFo....',
-  '....oFFFFFFo....',
-  '...oFFFFFFFFo...',
-  '...oFFFFFFFFo...',
-  '...oFFFFFFFFo...',
-  '...oFFFFFFFFo...',
-  '....oFFFFFFo....',
-  '.....oFFFFo.....',
+  '...oo....oo.....',
+  '..oFFo..oFFo....',
+  '..oFFooooFFo....',
+  '..oFFFFFFFFo....',
+  '..oFFFFFFFFo....',
+  '..oFFFFFFFFo....',
+  '...oFFFFFFo.....',
+  '...oFFFFFFo.....',
+  '....oFFFFo......',
+  '.....oWWo.......',
 ]);
 
 const FOX_LEFT = validateRows('FOX_LEFT', [
-  '..o..o..........',
-  '.oF.Fo..........',
-  'oFFoFFo.........',
-  'oFFFFFFo........',
-  'fFFFFFFFo.......',
-  '.FFFFFFFFFo.....',
-  '..WWWFFFFFFo....',
-  '...fffFFFFFoo...',
-  '.....ffffFFFFoo.',
-  '.........oooFFWW',
+  '.oo.oo..........',
+  '.oFooFo.....oo..',
+  '.oFFFFo....oWWo.',
+  'oFEFFFFo...oWWFo',
+  'oNFFFFFo..oFFFo.',
+  '.oWFFFFFooFFFo..',
+  '.oWWFFFFFFFFo...',
+  '..oFFFFFFFFFo...',
+  '..oFFooooFFo....',
 ]);
 
 const FOX_RIGHT = mirrorRows(FOX_LEFT);
 
-/* ── Dog template (10-row body, no feet — legs are drawn via `extra`) ── */
+/* ── Dog template (no feet — stubby legs are drawn via `extra`) ──
+   Maggot's dogs are big and wolvish: pricked ears, deep white chest,
+   blunt muzzle, raised tail with no white tip (that's the fox's mark). */
 
 const DOG_DOWN = validateRows('DOG_DOWN', [
-  '.....o....o.....',
-  '....oD....Do....',
-  '....oDDDDDDo....',
-  '....oDDooDDo....',
-  '...oDDDoDDDDo...',
-  '...oDDDDDDDDo...',
-  '...oDDWWWWDDo...',
-  '...oDDddddDDo...',
-  '....oDDDDDDo....',
-  '.....oDDDDo.....',
+  '..oo......oo....',
+  '.oDDo....oDDo...',
+  '.oDDooooooDDo...',
+  '..oDDDDDDDDo....',
+  '..oDEDDDDEDo....',
+  '..oDDWNNWDDo....',
+  '..oDWWWWWWDo....',
+  '..oDDDDDDDDo....',
+  '...oDDDDDDo.....',
+  '....oDDDDo......',
 ]);
 
 const DOG_UP = validateRows('DOG_UP', [
-  '.....o....o.....',
-  '....oD....Do....',
-  '....oDDDDDDo....',
-  '....oDDDDDDo....',
-  '...oDDDDDDDDo...',
-  '...oDDDDDDDDo...',
-  '...oDDDDDDDDo...',
-  '...oDDDDDDDDo...',
-  '....oDDDDDDo....',
-  '.....oDDDDo.....',
+  '..oo......oo....',
+  '.oDDo....oDDo...',
+  '.oDDooooooDDo...',
+  '..oDDDDDDDDo....',
+  '..oDDDDDDDDo....',
+  '..oDDDDDDDDo....',
+  '..oDDDDDDDDo....',
+  '...oDDDDDDo.....',
+  '....oDDDDo......',
+  '.....oDo........',
 ]);
 
 const DOG_LEFT = validateRows('DOG_LEFT', [
-  '..o..o..........',
-  '.oD.Do..........',
-  'oDDoDDo.........',
-  'oDDDDDDo........',
-  'dDDDDDDDo.......',
-  '.DDDDDDDDDo.....',
-  '..WWWDDDDDDo....',
-  '...dddDDDDDoo...',
-  '.....ddddDDDDoo.',
-  '.........oooDDWW',
+  '.oo.oo..........',
+  '.oDooDo.........',
+  '.oDDDDo.....oDDo',
+  'oDEDDDDo...oDDo.',
+  'oNDDDDDo...oDDo.',
+  '.oWDDDDDDDDDDo..',
+  '.oWWDDDDDDDDDo..',
+  '..oDDDDDDDDDo...',
+  '..oDDooooDDDo...',
 ]);
 
 const DOG_RIGHT = mirrorRows(DOG_LEFT);
+
+/* Four stubby legs (2×2) under a quadruped body, planted below the
+   haunches, with the walk shuffle. Positions assume the left-facing
+   template; the right facing mirrors them along with the body. */
+function quadLegs(maps, color) {
+  return (c, x, y, dir, frame) => {
+    const legY = y + maps[dir].length;
+    const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
+    let xs =
+      dir === 'left' || dir === 'right' ? [3 + legOff, 9 - legOff] : [4 + legOff, 8 - legOff];
+    if (dir === 'right') xs = xs.map((lx) => 14 - lx);
+    for (const lx of xs) rc(c, x + lx, legY, 2, 2, color);
+  };
+}
 
 const DOG = { down: DOG_DOWN, left: DOG_LEFT, right: DOG_RIGHT, up: DOG_UP };
 
@@ -647,85 +664,33 @@ export const CHAR_DEFS = {
 
   fox: {
     maps: FOX,
-    pal: { o: '#14141a', F: '#c06a28', f: '#d88a4a', W: '#e8e4d8' },
+    pal: { o: '#14141a', F: '#c06a28', f: '#d88a4a', W: '#e8e4d8', E: '#181018', N: '#181018' },
     noFeet: true,
-    // Four thin legs under the low-slung body, with the walk shuffle.
-    extra(c, x, y, dir, frame) {
-      const legY = y + 10; // just under the 10-row body
-      const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
-      const legColor = '#8a4a1e';
-      if (dir === 'left' || dir === 'right') {
-        for (const lx of [3 + legOff, 10 - legOff]) {
-          rc(c, x + lx, legY, 1, 3, legColor);
-        }
-      } else {
-        for (const lx of [4 + legOff, 7 - legOff, 8 + legOff, 11 - legOff]) {
-          rc(c, x + lx, legY, 1, 3, legColor);
-        }
-      }
-    },
+    extra: quadLegs(FOX, '#8a4a1e'),
   },
 
   // Farmer Maggot's dogs, loose in the marsh — Bamfurlong's errand.
-  // Same low-slung quadruped idiom as the fox (noFeet + `extra` legs).
+  // Same quadruped idiom as the fox (noFeet + `extra` legs). Grip's coat
+  // is near-black, so his eye is amber to keep the face readable.
   grip: {
     maps: DOG,
-    pal: { o: '#14141a', D: '#2a2a30', d: '#44444c', W: '#e8e4d8' },
+    pal: { o: '#14141a', D: '#34343c', W: '#e8e4d8', E: '#c8a850', N: '#0a0a0e' },
     noFeet: true,
-    extra(c, x, y, dir, frame) {
-      const legY = y + 10;
-      const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
-      const legColor = '#181820';
-      if (dir === 'left' || dir === 'right') {
-        for (const lx of [3 + legOff, 10 - legOff]) {
-          rc(c, x + lx, legY, 1, 3, legColor);
-        }
-      } else {
-        for (const lx of [4 + legOff, 7 - legOff, 8 + legOff, 11 - legOff]) {
-          rc(c, x + lx, legY, 1, 3, legColor);
-        }
-      }
-    },
+    extra: quadLegs(DOG, '#181820'),
   },
 
   fang: {
     maps: DOG,
-    pal: { o: '#14141a', D: '#6a4a2a', d: '#8a6238', W: '#e8e4d8' },
+    pal: { o: '#14141a', D: '#6a4a2a', W: '#e8e4d8', E: '#181018', N: '#181018' },
     noFeet: true,
-    extra(c, x, y, dir, frame) {
-      const legY = y + 10;
-      const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
-      const legColor = '#4a3218';
-      if (dir === 'left' || dir === 'right') {
-        for (const lx of [3 + legOff, 10 - legOff]) {
-          rc(c, x + lx, legY, 1, 3, legColor);
-        }
-      } else {
-        for (const lx of [4 + legOff, 7 - legOff, 8 + legOff, 11 - legOff]) {
-          rc(c, x + lx, legY, 1, 3, legColor);
-        }
-      }
-    },
+    extra: quadLegs(DOG, '#4a3218'),
   },
 
   wolf: {
     maps: DOG,
-    pal: { o: '#14141a', D: '#8a8a90', d: '#aaaab0', W: '#e8e4d8' },
+    pal: { o: '#14141a', D: '#8a8a90', W: '#e8e4d8', E: '#181018', N: '#0a0a0e' },
     noFeet: true,
-    extra(c, x, y, dir, frame) {
-      const legY = y + 10;
-      const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
-      const legColor = '#5a5a60';
-      if (dir === 'left' || dir === 'right') {
-        for (const lx of [3 + legOff, 10 - legOff]) {
-          rc(c, x + lx, legY, 1, 3, legColor);
-        }
-      } else {
-        for (const lx of [4 + legOff, 7 - legOff, 8 + legOff, 11 - legOff]) {
-          rc(c, x + lx, legY, 1, 3, legColor);
-        }
-      }
-    },
+    extra: quadLegs(DOG, '#5a5a60'),
   },
 };
 
