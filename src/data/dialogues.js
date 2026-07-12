@@ -179,6 +179,61 @@ export const DIALOGUES = {
     ],
   },
 
+  sandyman: {
+    name: 'Sandyman the Miller',
+    stages: [
+      {
+        when: (f) => !f.prologueDone,
+        lines: [
+          'All this party crowd\nwanting flour for seed-cakes\nand honey-cakes besides!',
+          "I'll be grinding till\nmidnight, mark my words.",
+        ],
+      },
+      {
+        lines: [
+          'Queer folk you and your\nuncle draw to Hobbiton,\nMr. Baggins.',
+          "Walking trees now, is it?\nSounds like your cousin\nHal's tall tales to me.",
+        ],
+      },
+    ],
+  },
+
+  noakes: {
+    name: 'Old Noakes',
+    stages: [
+      {
+        when: (f) => !f.prologueDone,
+        lines: [
+          'A very nice well-spoken\ngentlehobbit, Mr. Bilbo --\nbut queer, mark you.',
+          "All that Baggins gold is\nburied in tunnels up at\nBag End, I'll be bound.",
+        ],
+      },
+      {
+        lines: [
+          'They fool about with boats\non that big river -- and\nthat isn\'t natural!',
+        ],
+      },
+    ],
+  },
+
+  twofoot: {
+    name: 'Daddy Twofoot',
+    stages: [
+      {
+        when: (f) => !f.prologueDone,
+        lines: [
+          "I'm his next-door neighbour,\nyou know, so I ought to know.",
+          'The Gaffer and I have been\nsaying it for years:\nstrange doings at Bag End.',
+        ],
+      },
+      {
+        lines: [
+          "Walking trees, giants beyond\nthe North Moors -- queer\nfolk, this Baggins lot.",
+        ],
+      },
+    ],
+  },
+
   gildor: {
     name: 'Gildor',
     stages: [
@@ -213,6 +268,16 @@ export const DIALOGUES = {
   sign_bywater: {
     name: 'Sign',
     lines: ['BYWATER\nHobbiton 1 mile north'],
+  },
+
+  sign_mill: {
+    name: 'Sign',
+    lines: ["SANDYMAN'S MILL\n~ Bywater ~"],
+  },
+
+  sign_ivybush: {
+    name: 'Sign',
+    lines: ['THE IVY BUSH\n~ on the Bywater Road ~'],
   },
 
   door_locked: {

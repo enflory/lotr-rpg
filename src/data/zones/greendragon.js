@@ -36,6 +36,8 @@ export const greendragon = {
     // Both are over at the Party Field during the prologue
     { key: 'rosie', x: 9, y: 4, dir: 'down', when: (f) => f.prologueDone },  // serving at the bar's end
     { key: 'ted',   x: 8, y: 6, dir: 'left', when: (f) => f.prologueDone },  // holding forth at a table
+    { key: 'noakes',  x: 12, y: 8, dir: 'left',  when: (f) => f.prologueDone },
+    { key: 'twofoot', x: 14, y: 8, dir: 'right', when: (f) => f.prologueDone },
   ],
   doors: [],
   signs: [],

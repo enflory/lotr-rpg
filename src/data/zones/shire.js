@@ -148,11 +148,14 @@ export const shire = {
     { key: 'gaffer',  x: 2, y: 26, dir: 'right', when: (f) => !f.prologueDone },
     { key: 'rosie',   x: 7, y: 26, dir: 'left',  when: (f) => !f.prologueDone },
     { key: 'ted',     x: 7, y: 29, dir: 'left',  when: (f) => !f.prologueDone },
+    { key: 'noakes',  x: 41, y: 24, dir: 'right', when: (f) => !f.prologueDone },
+    { key: 'twofoot', x: 45, y: 24, dir: 'left',  when: (f) => !f.prologueDone },
     // Seventeen years later
     { key: 'gandalf', x: 19, y: 8, dir: 'down',  when: (f) => f.prologueDone },
     { key: 'sam',     x: 16, y: 5, dir: 'down',  when: (f) => f.prologueDone && !f.samJoined },
     { key: 'gaffer',  x: 10, y: 15, dir: 'right', when: (f) => f.prologueDone },
     { key: 'lobelia', x: 10, y: 19, dir: 'right', when: (f) => f.prologueDone },
+    { key: 'sandyman', x: 6, y: 41, dir: 'up',   when: (f) => f.prologueDone },
   ],
   doors: [
     { x: 20, y: 4, zone: 'bagend', entry: 'default' },       // Bag End
@@ -164,6 +167,8 @@ export const shire = {
     { x: 22, y: 5, dialogue: 'sign_bagend' },
     { x: 18, y: 21, dialogue: 'sign_bywater' },
     { x: 23, y: 24, dialogue: 'sign_greendragon' },
+    { x: 8, y: 39, dialogue: 'sign_mill' },
+    { x: 40, y: 24, dialogue: 'sign_ivybush' },
   ],
   exits: [
     {

@@ -402,6 +402,45 @@ export const CHAR_DEFS = {
     feet: ['#d8b080', '#b89060'],
   },
 
+  sandyman: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#6a5a48', h: '#8a7a64', l: '#a89a84',
+      C: '#e8e4d8', c: '#c8c4b0',
+      V: '#7a7460', v: '#928c74', G: '#5a5648',
+      B: '#301810', b: '#8a8a70',
+      P: '#4a4438', p: '#322e24',
+    },
+    feet: ['#d0ac82', '#b08c62'],
+  },
+
+  noakes: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#909090', h: '#b8b8b8', l: '#d8d8d8',
+      C: '#d8ccb0', c: '#b8ac90',
+      V: '#8a5a2a', v: '#a87038', G: '#66421e',
+      B: '#301810', b: '#a08030',
+      P: '#3a3428', p: '#282418',
+    },
+    feet: ['#d0ac82', '#b08c62'],
+  },
+
+  twofoot: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#4a3520', h: '#6a4e2c', l: '#8a6a3c',
+      C: '#e0d4c0', c: '#c0b4a0',
+      V: '#a08030', v: '#c0a040', G: '#786020',
+      B: '#301810', b: '#c09030',
+      P: '#5a4030', p: '#3e2c20',
+    },
+    feet: ['#d0ac82', '#b08c62'],
+  },
+
   maggot: {
     maps: MALE,
     pal: {
