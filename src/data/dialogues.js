@@ -295,6 +295,46 @@ export const DIALOGUES = {
     ],
   },
 
+  elf_a: {
+    name: "Elf of Gildor's Company",
+    lines: [
+      'We are Exiles. Most of our\nkindred departed long ago,\nand we too tarry but a while.',
+      'West, ever west, our hearts\ncall us -- to the Havens,\nand the Sea beyond.',
+    ],
+  },
+
+  elf_b: {
+    name: "Elf of Gildor's Company",
+    lines: [
+      'Snow-white! Snow-white!\nO Lady clear! O Queen\nbeyond the Western Seas!',
+      'We sing to Elbereth\nGilthoniel, who kindled\nthe stars. Be at peace.',
+    ],
+  },
+
+  elf_c: {
+    name: "Elf of Gildor's Company",
+    lines: [
+      'Eat, and be merry! Even the\nwandering Companies of the\nEldar keep a good table.',
+      'You walk in luck tonight,\nMaster Baggins. Few mortals\nsup with the Fair Folk.',
+    ],
+  },
+
+  elf_feast: {
+    name: 'The Feast',
+    stages: [
+      {
+        when: (f) => f.metGildor && !f.tookProvisions,
+        lines: [
+          'Bread surpassing white\nloaves, fruits sweet as\nwildberries -- laid for guests.',
+          "Gildor's folk have set\naside a share for your\nroad tomorrow.",
+        ],
+        set: 'tookProvisions',
+        give: 'elven_provisions',
+      },
+      { lines: ['A hall of living trees,\nand a table set\nunder the stars.'] },
+    ],
+  },
+
   sign_greendragon: {
     name: 'Sign',
     lines: ['THE GREEN DRAGON INN\n~ Fine Ales & Good Company ~'],

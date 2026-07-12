@@ -7,7 +7,7 @@
 
 import { T, TILE_SIZE } from '../data/tileTypes.js';
 import { setFlag, hasFlag, setObjective } from '../state/GameState.js';
-import { ROAD_Y, RIDER_EXIT_X, GILDOR_SPOT } from '../data/zones/woodyend.js';
+import { ROAD_Y, RIDER_EXIT_X, GILDOR_SPOT, ELF_SPOTS } from '../data/zones/woodyend.js';
 import { sfx } from '../audio/sound.js';
 
 const RIDER_SPEED = 88; // px/sec — faster than the player's 72
@@ -100,6 +100,7 @@ export function riderEventUpdate(scene, delta) {
       scene.showBanner('The hoofbeats fade away...');
       // Gildor's company arrives, as in the book — Elves drive off the Rider
       scene.spawnNpc({ key: 'gildor', ...GILDOR_SPOT, dir: 'down' });
+      for (const spot of ELF_SPOTS) scene.spawnNpc(spot);
     }
     return;
   }

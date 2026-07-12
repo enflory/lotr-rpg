@@ -530,6 +530,42 @@ export const CHAR_DEFS = {
     feet: ['#8898a8', '#68788a'],
   },
 
+  elf_a: {
+    maps: ELF,
+    pal: {
+      o: '#1c1c22',
+      S: '#f4dcc0', s: '#dcc0a0', E: '#28304a', W: '#f0ece4', N: '#c8a080',
+      h: '#3a3a4a', l: '#55556a', b: '#e8c840',
+      V: '#b8c8d8', v: '#d8e4ee', G: '#8ea0b0', X: '#7a8a98',
+      B: '#8898a8',
+    },
+    feet: ['#8898a8', '#68788a'],
+  },
+
+  elf_b: {
+    maps: ELF,
+    pal: {
+      o: '#1c1c22',
+      S: '#f4dcc0', s: '#dcc0a0', E: '#28304a', W: '#f0ece4', N: '#c8a080',
+      h: '#e8d070', l: '#f8ec9a', b: '#e8c840',
+      V: '#d8cca0', v: '#ece4c0', G: '#a89870', X: '#7a8a98',
+      B: '#8898a8',
+    },
+    feet: ['#8898a8', '#68788a'],
+  },
+
+  elf_c: {
+    maps: ELF,
+    pal: {
+      o: '#1c1c22',
+      S: '#f4dcc0', s: '#dcc0a0', E: '#28304a', W: '#f0ece4', N: '#c8a080',
+      h: '#3a3a4a', l: '#55556a', b: '#e8c840',
+      V: '#a8a8bc', v: '#c4c4d4', G: '#82828f', X: '#7a8a98',
+      B: '#8898a8',
+    },
+    feet: ['#8898a8', '#68788a'],
+  },
+
   gandalf: {
     maps: WIZARD,
     pal: {

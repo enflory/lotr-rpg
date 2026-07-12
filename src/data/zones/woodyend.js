@@ -3,15 +3,21 @@
 // through mixed woods with fern brakes to hide in. The road runs out
 // the east edge and down into the Marish (gated on meeting Gildor).
 
-import { T } from '../tileTypes.js';
+import { T, TILE_SIZE } from '../tileTypes.js';
 import { riderEventUpdate } from '../../events/riderEvent.js';
 import { foxEventUpdate } from '../../events/foxEvent.js';
 import { hasFlag, setFlag } from '../../state/GameState.js';
+import { sfx } from '../../audio/sound.js';
 
 export const WIDTH = 64, HEIGHT = 28;
 export const RIDER_EXIT_X = 50; // he gives up before the elf clearing
 export const GILDOR_SPOT = { x: 56, y: 15 };
 export const HOLLOW = { x0: 20, y0: 20, x1: 26, y1: 24 };
+export const ELF_SPOTS = [
+  { key: 'elf_a', x: 54, y: 14, dir: 'right' },
+  { key: 'elf_b', x: 58, y: 13, dir: 'down' },
+  { key: 'elf_c', x: 57, y: 16, dir: 'left' },
+];
 
 // Deterministic PRNG so the forest is the same every visit
 function lcg(seed) {
@@ -142,9 +148,15 @@ export const woodyend = {
   },
   npcs: [
     { key: 'gildor', ...GILDOR_SPOT, dir: 'down', when: (f) => f.escapedRider },
+    { key: 'elf_a', x: 54, y: 14, dir: 'right', when: (f) => f.escapedRider },
+    { key: 'elf_b', x: 58, y: 13, dir: 'down', when: (f) => f.escapedRider },
+    { key: 'elf_c', x: 57, y: 16, dir: 'left', when: (f) => f.escapedRider },
   ],
   doors: [],
-  signs: [],
+  signs: [
+    { x: 55, y: 17, dialogue: 'elf_feast' },
+    { x: 56, y: 17, dialogue: 'elf_feast' },
+  ],
   exits: [
     { x: 0, y: 13, zone: 'shire', entry: 'fromWoodyEnd' },
     { x: 0, y: 14, zone: 'shire', entry: 'fromWoodyEnd' },
@@ -170,5 +182,13 @@ export const woodyend = {
   onUpdate: (scene, delta) => {
     riderEventUpdate(scene, delta);
     foxEventUpdate(scene);
+    if (hasFlag('escapedRider') && !scene._elfsongPlayed) {
+      const tx = Math.floor(scene.player.x / TILE_SIZE);
+      if (tx >= 48) {
+        scene._elfsongPlayed = true;
+        sfx.elfsong();
+        scene.showBanner('Singing drifts through\nthe trees ahead...');
+      }
+    }
   },
 };
