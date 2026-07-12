@@ -21,14 +21,16 @@ export function foxEventUpdate(scene) {
     tweens: [
       { x: (HOLLOW.x0 + 3) * TILE_SIZE, duration: 1400 },
       {
-        x: fox.x, duration: 900, // pause: stop and look
+        x: fox.x,
+        duration: 900, // pause: stop and look
         onStart: () => {
           fox.anims.play('fox-idle-right');
           scene.startDialogue('fox_thought');
         },
       },
       {
-        x: (HOLLOW.x1 + 1) * TILE_SIZE + 8, duration: 1400,
+        x: (HOLLOW.x1 + 1) * TILE_SIZE + 8,
+        duration: 1400,
         onStart: () => fox.anims.play('fox-walk-right'),
         onComplete: () => fox.destroy(),
       },

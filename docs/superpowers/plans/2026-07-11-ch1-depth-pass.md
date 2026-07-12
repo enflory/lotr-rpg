@@ -11,6 +11,7 @@
 **Read first:** `CLAUDE.md` (build commands, QA gotchas), the spec, `src/data/types.js`, `tests/zones.test.js`.
 
 **Conventions for every task:**
+
 - Run `npm test` before starting (must be green) and after finishing (must be green).
 - Run `npm run typecheck && npm run lint` before each commit.
 - Commit after each task with the message given in the task.
@@ -23,6 +24,7 @@
 ### Task 1: Item state in GameState
 
 **Files:**
+
 - Modify: `src/state/GameState.js`
 - Test: `tests/gameState.test.js`
 
@@ -94,6 +96,7 @@ export function isCollected(id) {
 ### Task 2: Item registry + icons
 
 **Files:**
+
 - Create: `src/data/items.js`, `src/art/items.js`
 - Modify: `src/scenes/BootScene.js`, `.prettierignore` (add `src/art/items.js` — pixel art is format-exempt)
 - Test: `tests/items.test.js`
@@ -168,6 +171,7 @@ this.load.spritesheet('items', makeItemIconsDataURL(), { frameWidth: 12, frameHe
 ### Task 3: Dialogue effects `give`/`take` + item-aware stage predicates
 
 **Files:**
+
 - Modify: `src/data/dialogues.js` (resolveDialogue signature), `src/data/types.js`, `src/scenes/WorldScene.js`
 - Test: `tests/dialogues.test.js`
 
@@ -199,12 +203,12 @@ describe('item-aware stages', () => {
   - `src/scenes/WorldScene.js`: `startDialogue` passes `itemCount` (import from GameState): `resolveDialogue(key, gameState.flags, itemCount)`. In `closeDialogue()`, after the `set` block:
 
 ```js
-    if (stage.give) {
-      addItem(stage.give);
-      sfx.jingle();
-      this.showBanner(`Got: ${ITEMS[stage.give].name}!`);
-    }
-    if (stage.take) removeItem(stage.take);
+if (stage.give) {
+  addItem(stage.give);
+  sfx.jingle();
+  this.showBanner(`Got: ${ITEMS[stage.give].name}!`);
+}
+if (stage.take) removeItem(stage.take);
 ```
 
 (import `ITEMS` from `../data/items.js`, `addItem`/`removeItem`/`itemCount` from GameState). Note `stage.objective` also calls `showBanner` — when both fire, let the objective banner win by keeping the `give` banner **before** the objective block.
@@ -215,6 +219,7 @@ describe('item-aware stages', () => {
 ### Task 4: Zone pickups — render + walk-over collection
 
 **Files:**
+
 - Modify: `src/data/types.js`, `src/scenes/WorldScene.js`
 - Test: `tests/zones.test.js` (integrity rules), browser QA
 
@@ -260,35 +265,38 @@ This passes vacuously now (no pickups exist) — that's fine; it's the contract 
 - [ ] **Step 3: Implement in WorldScene.** In `create()` after the NPC block:
 
 ```js
-    /* ── pickups ─────────────────────────────────────── */
-    this.pickups = [];
-    for (const def of zone.pickups ?? []) {
-      if (isCollected(def.id)) continue;
-      if (def.when && !def.when(gameState.flags)) continue;
-      const spr = this.add.image(def.x * TILE_SIZE + 8, def.y * TILE_SIZE + 8, 'items',
-        ITEM_KEYS.indexOf(def.item));
-      spr.setDepth(def.y * TILE_SIZE); // under characters standing below
-      this.pickups.push({ def, spr });
-    }
+/* ── pickups ─────────────────────────────────────── */
+this.pickups = [];
+for (const def of zone.pickups ?? []) {
+  if (isCollected(def.id)) continue;
+  if (def.when && !def.when(gameState.flags)) continue;
+  const spr = this.add.image(
+    def.x * TILE_SIZE + 8,
+    def.y * TILE_SIZE + 8,
+    'items',
+    ITEM_KEYS.indexOf(def.item),
+  );
+  spr.setDepth(def.y * TILE_SIZE); // under characters standing below
+  this.pickups.push({ def, spr });
+}
 ```
 
 In `update()` right after the movement block (player position is settled, not during dialogue/inputLocked):
 
 ```js
-    /* ── pickup collection (walk-over) ───────────────── */
-    for (let i = this.pickups.length - 1; i >= 0; i--) {
-      const { def, spr } = this.pickups[i];
-      if (Phaser.Math.Distance.Between(this.player.x, this.player.y + 8, spr.x, spr.y) > 10)
-        continue;
-      this.pickups.splice(i, 1);
-      spr.destroy();
-      collect(def.id);
-      addItem(def.item);
-      sfx.jingle();
-      const n = itemCount(def.item);
-      this.showBanner(`Got: ${ITEMS[def.item].name}${n > 1 ? ` (${n})` : ''}!`);
-      if (def.onCollect) this.startDialogue(def.onCollect);
-    }
+/* ── pickup collection (walk-over) ───────────────── */
+for (let i = this.pickups.length - 1; i >= 0; i--) {
+  const { def, spr } = this.pickups[i];
+  if (Phaser.Math.Distance.Between(this.player.x, this.player.y + 8, spr.x, spr.y) > 10) continue;
+  this.pickups.splice(i, 1);
+  spr.destroy();
+  collect(def.id);
+  addItem(def.item);
+  sfx.jingle();
+  const n = itemCount(def.item);
+  this.showBanner(`Got: ${ITEMS[def.item].name}${n > 1 ? ` (${n})` : ''}!`);
+  if (def.onCollect) this.startDialogue(def.onCollect);
+}
 ```
 
 Imports: `collect`, `isCollected` from GameState; `ITEM_KEYS` from items data.
@@ -307,7 +315,7 @@ Extract the pickup-spawn loop body into a method so it can run twice (create + r
   }
 ```
 
-**Mid-scene refresh (critical):** NPC and pickup `when` predicates are only evaluated in `create()`, but several flags flip *mid-scene* through dialogue (`cratesAsked` in Task 10, `dogsAsked` in Task 16). Add a refresh method and call it at the **end of `closeDialogue()`** (after all stage effects have applied):
+**Mid-scene refresh (critical):** NPC and pickup `when` predicates are only evaluated in `create()`, but several flags flip _mid-scene_ through dialogue (`cratesAsked` in Task 10, `dogsAsked` in Task 16). Add a refresh method and call it at the **end of `closeDialogue()`** (after all stage effects have applied):
 
 ```js
   refreshSpawns() {
@@ -321,7 +329,7 @@ Extract the pickup-spawn loop body into a method so it can run twice (create + r
   }
 ```
 
-Additive only — it never despawns (despawning stays with events/`join` as today). Flags set by *events* rather than dialogue (e.g. `escapedRider`) still need imperative `spawnNpc` calls in the event itself — Task 13 handles the elves that way.
+Additive only — it never despawns (despawning stays with events/`join` as today). Flags set by _events_ rather than dialogue (e.g. `escapedRider`) still need imperative `spawnNpc` calls in the event itself — Task 13 handles the elves that way.
 
 - [ ] **Step 4: Browser QA.** Temporarily add to `shire.js`: `pickups: [{ id: 'qa_test', x: 21, y: 8, item: 'mushroom' }]`. Run `npm run dev`, start the game (preset `window.__state.flags.prologueDone = true` on the title screen per CLAUDE.md), walk over it: icon visible → jingle → "Got: Mushroom!" banner → gone; leave and re-enter the zone → still gone. **Remove the QA pickup.**
 - [ ] **Step 5:** `npm test && npm run typecheck && npm run lint` — green.
@@ -330,38 +338,39 @@ Additive only — it never despawns (despawning stays with events/`join` as toda
 ### Task 5: Examines — coordinate-first sign lookup
 
 **Files:**
+
 - Modify: `src/scenes/WorldScene.js:400-407`, `tests/zones.test.js:117-131`
 
 - [ ] **Step 1: Update the integrity rule first** (it will now express the new contract). In `tests/zones.test.js`, replace the "every sign sits on a SIGN tile" test body:
 
 ```js
-  it('every sign/examine sits on a SIGN or solid tile and has a dialogue entry', () => {
-    for (const zone of zones) {
-      for (const sign of zone.signs) {
-        const tile = zone.map[sign.y][sign.x];
-        expect(
-          tile === T.SIGN || solid.has(tile),
-          `${zone.key} sign (${sign.x},${sign.y}) on walkable non-sign tile — unreachable`,
-        ).toBe(true);
-        expect(
-          DIALOGUES[sign.dialogue],
-          `${zone.key} sign references unknown dialogue ${sign.dialogue}`,
-        ).toBeTruthy();
-      }
+it('every sign/examine sits on a SIGN or solid tile and has a dialogue entry', () => {
+  for (const zone of zones) {
+    for (const sign of zone.signs) {
+      const tile = zone.map[sign.y][sign.x];
+      expect(
+        tile === T.SIGN || solid.has(tile),
+        `${zone.key} sign (${sign.x},${sign.y}) on walkable non-sign tile — unreachable`,
+      ).toBe(true);
+      expect(
+        DIALOGUES[sign.dialogue],
+        `${zone.key} sign references unknown dialogue ${sign.dialogue}`,
+      ).toBeTruthy();
     }
-  });
+  }
+});
 ```
 
 - [ ] **Step 2: Engine change** in `checkTileInteraction()` — replace the `if (tile === T.SIGN)` block with a lookup that works on any solid tile (doors keep priority above it):
 
 ```js
-      if (tile === T.SIGN || COLLISION_TILES.includes(tile)) {
-        const sign = this.zone.signs.find((s) => s.x === tx && s.y === ty);
-        if (sign) {
-          this.startDialogue(sign.dialogue);
-          return;
-        }
-      }
+if (tile === T.SIGN || COLLISION_TILES.includes(tile)) {
+  const sign = this.zone.signs.find((s) => s.x === tx && s.y === ty);
+  if (sign) {
+    this.startDialogue(sign.dialogue);
+    return;
+  }
+}
 ```
 
 - [ ] **Step 3: QA** — in the running game, face the Bag End sign and the Bywater sign: both still talk. Face a fence: nothing happens (no entry). `npm test` green.
@@ -370,6 +379,7 @@ Additive only — it never despawns (despawning stays with events/`join` as toda
 ### Task 6: Quests registry + overlay panel (I key)
 
 **Files:**
+
 - Create: `src/data/quests.js`
 - Modify: `src/data/types.js`, `src/scenes/WorldScene.js`
 - Test: `tests/quests.test.js`
@@ -447,16 +457,26 @@ export const QUESTS = [
 - [ ] **Step 4: Overlay in WorldScene.** In `create()` (after the banner block) build a hidden panel; on `keydown-I` toggle it. Content is rebuilt on every open. No pause — the world keeps running behind it.
 
 ```js
-    /* ── inventory/errand overlay (I) ────────────────── */
-    this.overlayVisible = false;
-    this.overlayBg = this.add.rectangle(160, 120, 260, 168, 0x000000, 0.92)
-      .setScrollFactor(0).setDepth(1100).setVisible(false)
-      .setStrokeStyle(1, 0xc8a84e);
-    this.overlayText = this.add.text(40, 46, '', {
-      fontFamily: '"Press Start 2P"', fontSize: '6px', color: '#f0ead6', lineSpacing: 6,
-    }).setScrollFactor(0).setDepth(1101).setVisible(false);
-    this.overlayIcons = [];
-    this.input.keyboard.on('keydown-I', () => this.toggleOverlay());
+/* ── inventory/errand overlay (I) ────────────────── */
+this.overlayVisible = false;
+this.overlayBg = this.add
+  .rectangle(160, 120, 260, 168, 0x000000, 0.92)
+  .setScrollFactor(0)
+  .setDepth(1100)
+  .setVisible(false)
+  .setStrokeStyle(1, 0xc8a84e);
+this.overlayText = this.add
+  .text(40, 46, '', {
+    fontFamily: '"Press Start 2P"',
+    fontSize: '6px',
+    color: '#f0ead6',
+    lineSpacing: 6,
+  })
+  .setScrollFactor(0)
+  .setDepth(1101)
+  .setVisible(false);
+this.overlayIcons = [];
+this.input.keyboard.on('keydown-I', () => this.toggleOverlay());
 ```
 
 New methods (bottom of the class):
@@ -528,6 +548,7 @@ Also: opening dialogue while the overlay is up should close it — first line of
 ### Task 7: Map utils + Shire growth to 48×44
 
 **Files:**
+
 - Create: `src/data/zones/mapUtils.js`
 - Modify: `src/data/zones/shire.js`, `tests/zones.test.js`
 - Test: `tests/mapUtils.test.js`
@@ -540,8 +561,18 @@ import { extendMap, stamp } from '../src/data/zones/mapUtils.js';
 
 describe('extendMap', () => {
   it('appends east columns and south rows with the fill tile', () => {
-    const m = extendMap([[1, 1], [1, 1]], { east: 2, south: 1, fill: 0 });
-    expect(m).toEqual([[1, 1, 0, 0], [1, 1, 0, 0], [0, 0, 0, 0]]);
+    const m = extendMap(
+      [
+        [1, 1],
+        [1, 1],
+      ],
+      { east: 2, south: 1, fill: 0 },
+    );
+    expect(m).toEqual([
+      [1, 1, 0, 0],
+      [1, 1, 0, 0],
+      [0, 0, 0, 0],
+    ]);
   });
   it('does not mutate the source map', () => {
     const src = [[1]];
@@ -552,9 +583,18 @@ describe('extendMap', () => {
 
 describe('stamp', () => {
   it('writes non-null cells at the offset, skips nulls', () => {
-    const m = [[0, 0, 0], [0, 0, 0]];
-    stamp(m, 1, 0, [[7, null], [8, 9]]);
-    expect(m).toEqual([[0, 7, 0], [0, 8, 9]]);
+    const m = [
+      [0, 0, 0],
+      [0, 0, 0],
+    ];
+    stamp(m, 1, 0, [
+      [7, null],
+      [8, 9],
+    ]);
+    expect(m).toEqual([
+      [0, 7, 0],
+      [0, 8, 9],
+    ]);
   });
 });
 ```
@@ -642,7 +682,12 @@ function buildMap() {
   for (const y of [28, 30, 32]) {
     for (let x = 33; x <= 45; x += 3) map[y][x] = T.TREE2;
   }
-  for (const [x, y] of [[35, 29], [40, 31], [44, 29]]) map[y][x] = f;
+  for (const [x, y] of [
+    [35, 29],
+    [40, 31],
+    [44, 29],
+  ])
+    map[y][x] = f;
 
   return map;
 }
@@ -655,11 +700,11 @@ Zone updates in the same file: `map: buildMap()`, exits → `{ x: 47, y: 19, ...
 - [ ] **Step 4: Update `tests/zones.test.js`** — the East Road test: columns 30..47 and exits `['47,19', '47,20']`. Add assertions for the new landmarks:
 
 ```js
-  it('the mill and the Ivy Bush stand where the doors say', () => {
-    expect(shire.map[39][5]).toBe(T.DOOR); // mill door
-    expect(shire.map[23][42]).toBe(T.DOOR); // Ivy Bush door
-    expect(shire.map[24][40]).toBe(T.SIGN);
-  });
+it('the mill and the Ivy Bush stand where the doors say', () => {
+  expect(shire.map[39][5]).toBe(T.DOOR); // mill door
+  expect(shire.map[23][42]).toBe(T.DOOR); // Ivy Bush door
+  expect(shire.map[24][40]).toBe(T.SIGN);
+});
 ```
 
 - [ ] **Step 5:** `npm test` — the Party Field tests (tree at 4–5×21–23, spur row 27, NPC staging) must still pass untouched; only the East Road test changes. `npm run build`.
@@ -669,6 +714,7 @@ Zone updates in the same file: `map: buildMap()`, exits → `{ x: 47, y: 19, ...
 ### Task 8: Seven new tiles
 
 **Files:**
+
 - Modify: `src/data/tileTypes.js`, `src/art/tiles.js`, `src/data/zones/shire.js` (swap wheel placeholder)
 
 - [ ] **Step 1:** Append to `T` (order matters): `WHEEL: 44, CRATE: 45, WELL: 46, BARN: 47, FEAST: 48, DITCH: 49, WAGGON: 50`. All seven are solid → append to `COLLISION_TILES`.
@@ -687,13 +733,14 @@ Zone updates in the same file: `map: buildMap()`, exits → `{ x: 47, y: 19, ...
 ### Task 9: New Hobbiton NPCs — Sandyman, Old Noakes, Daddy Twofoot
 
 **Files:**
+
 - Modify: `src/art/characters.js` (3 palettes), `src/data/dialogues.js`, `src/data/zones/shire.js`, `src/data/zones/greendragon.js`
 
 - [ ] **Step 1: Palettes** in `CHAR_DEFS`, all `maps: MALE`, `feet: ['#d0ac82', '#b08c62']` — copy an existing entry and change hues:
   - `sandyman`: floury pale clothes — C `#e8e4d8`/c `#c8c4b0`, dusty grey-brown hair H `#6a5a48`/h `#8a7a64`/l `#a89a84`, drab waistcoat V `#7a7460`/v `#928c74`/G `#5a5648`, P `#4a4438`/p `#322e24`.
   - `noakes`: aged — white hair like gaffer's (H `#909090`/h `#b8b8b8`/l `#d8d8d8`), russet waistcoat V `#8a5a2a`/v `#a87038`/G `#66421e`, C `#d8ccb0`/c `#b8ac90`, P `#3a3428`/p `#282418`.
   - `twofoot`: round and cheerful — mustard V `#a08030`/v `#c0a040`/G `#786020`, C `#e0d4c0`/c `#c0b4a0`, brown hair H `#4a3520`/h `#6a4e2c`/l `#8a6a3c`, P `#5a4030`/p `#3e2c20`.
-  Include `o: OUTLINE, ...HOBBIT_SKIN` in each `pal` like the other hobbits.
+    Include `o: OUTLINE, ...HOBBIT_SKIN` in each `pal` like the other hobbits.
 - [ ] **Step 2: Dialogues** (book-anchored gossip; staged pre/post time skip):
   - `sandyman` (name `Sandyman the Miller`): pre-skip: grumbles about the party crowd wanting flour for seed-cakes; post-skip: "Queer folk you and your\nuncle draw to Hobbiton,\nMr. Baggins." + a line echoing Ted's scorn of Hal's tales.
   - `noakes` (name `Old Noakes`): pre-skip (outside the Ivy Bush): "A very nice well-spoken\ngentlehobbit, Mr. Bilbo --\nbut queer, mark you." post-skip (Green Dragon): "They fool about with boats\non that big river -- and\nthat isn't natural!"
@@ -708,12 +755,13 @@ Zone updates in the same file: `map: buildMap()`, exits → `{ x: 47, y: 19, ...
 ### Task 10: Mathoms, Bag End examines, and the three Hobbiton errands
 
 **Files:**
+
 - Modify: `src/data/zones/shire.js`, `src/data/zones/bagend.js`, `src/data/zones/greendragon.js`, `src/data/dialogues.js`, `tests/dialogues.test.js`, `src/events/partyEvent.js` (no change expected — verify only)
 
 - [ ] **Step 1: Mathom pickups (6)** — add `pickups` arrays:
   - `shire.js`: `shire_mathom_1` (5,30 — under the Party Tree's field, among the tents), `shire_mathom_2` (36,31 — orchard), `shire_mathom_3` (2,16 — behind Bagshot Row), `shire_mathom_4` (10,41 — mill lane), `shire_mathom_5` (45,21 — behind the Ivy Bush).
   - `bagend.js`: `bagend_mathom_1` (15,10 — the far corner of the smial).
-  All `item: 'mathom'`, no `when`. Adjust any coordinate that lands on a solid tile — the integrity test will catch it.
+    All `item: 'mathom'`, no `when`. Adjust any coordinate that lands on a solid tile — the integrity test will catch it.
 - [ ] **Step 2: Bag End examines** — `bagend.js` signs array (these sit on solid interior tiles; the Task 5 engine change makes them interactive):
 
 ```js
@@ -725,7 +773,8 @@ Zone updates in the same file: `map: buildMap()`, exits → `{ x: 47, y: 19, ...
   ],
 ```
 
-Dialogues: `examine_desk` (name `Bilbo's Desk`): the unfinished *There and Back Again* manuscript, ink long dry; `examine_books` (name `Bookshelf`): maps of the Wilderland with Bilbo's marginal notes, "not all those who wander are lost" flavor kept verbatim-safe (use: 'Maps of distant lands,\nannotated in a thin,\nspidery hand.'); `examine_fireplace` (name `Hearth`): 'This is where the letters\nof fire were revealed.\nThe grate is cold now.'
+Dialogues: `examine_desk` (name `Bilbo's Desk`): the unfinished _There and Back Again_ manuscript, ink long dry; `examine_books` (name `Bookshelf`): maps of the Wilderland with Bilbo's marginal notes, "not all those who wander are lost" flavor kept verbatim-safe (use: 'Maps of distant lands,\nannotated in a thin,\nspidery hand.'); `examine_fireplace` (name `Hearth`): 'This is where the letters\nof fire were revealed.\nThe grate is cold now.'
+
 - [ ] **Step 3: Errand — Lobelia's spoons.** `examine_chest` (name `Old Chest`), staged:
 
 ```js
@@ -747,6 +796,7 @@ Dialogues: `examine_desk` (name `Bilbo's Desk`): the unfinished *There and Back 
 ```
 
 Lobelia gains a stage **above** her current lines: `when: (f) => f.foundSpoons && !f.gaveSpoons` → she snatches them ('Well! At least SOMEONE\nin this family knows\nwhat is owed to me.'), `set: 'gaveSpoons'`, `take: 'silver_spoons'`. Convert her static `lines` entry to `stages` form (existing lines become the fallback stage).
+
 - [ ] **Step 4: Errand — the Gaffer's half-pint.** Rosie gains a stage after her prologue stage, before her others: `when: (f) => f.prologueDone && !f.halfPintTaken` → her current "Good morning" lines plus: "Would you run a half-pint\ndown to the Gaffer? He's\ntoo proud to ask." — `set: 'halfPintTaken'`, `give: 'ale_mug'`. The Gaffer gains a stage above his post-skip lines: `when: (f) => f.halfPintTaken && !f.halfPintDelivered` → "Ah! Rosie Cotton's a\ntreasure. Mind you tell\nher I said so." — `set: 'halfPintDelivered'`, `take: 'ale_mug'`.
 - [ ] **Step 5: Errand — Gandalf's crates (prologue).** Gandalf's prologue stage gains `set: 'cratesAsked'` and one extra line: 'But see here -- three of\nmy crates went astray in\nthe field. Fetch them, eh?'. Three pickups in `shire.js`: `party_crate_1` (2,31), `party_crate_2` (6,26), `party_crate_3` (3,34), all `item: 'firework_crate'`, `when: (f) => f.cratesAsked && !f.prologueDone`. As with the mathoms, nudge any coordinate the integrity test rejects (tents and lanterns are solid). The Task 4 `refreshSpawns()` call in `closeDialogue` makes the crates appear the moment Gandalf's dialogue closes — no zone re-entry needed. Gandalf gains a prologue thanks stage **above** the crates ask: `when: (f, count) => !f.prologueDone && count('firework_crate') >= 3` → 'Every squib and cracker\naccounted for! This will\nbe a night to remember.'
 
@@ -764,6 +814,7 @@ Lobelia gains a stage **above** her current lines: `when: (f) => f.foundSpoons &
 ### Task 11: The long road — 64×28, tree-tunnel, fir hollow
 
 **Files:**
+
 - Modify: `src/data/zones/woodyend.js`, `src/events/riderEvent.js`, `tests/riderEvent.test.js`, `tests/zones.test.js`
 
 - [ ] **Step 1: De-hardcode the rider event.** In `woodyend.js` export the tuning the event needs; in `riderEvent.js` import them (delete the local literals):
@@ -778,6 +829,7 @@ if (dx > 110 || r.x > RIDER_EXIT_X * TILE_SIZE) { ... scene.spawnNpc({ key: 'gil
 ```
 
 Check `tests/riderEvent.test.js` for coordinate assumptions: the existing give-up test relies on `dx > 110` (no 34-tile literal), so it passes unchanged — **add** a new test that a rider past `RIDER_EXIT_X * TILE_SIZE` gives up even at small dx. A stale "ROAD_Y[13] is 14"-style comment in that file can be corrected in passing.
+
 - [ ] **Step 2: Regenerate the map.** New `ROAD_Y` (still exported, length 64): `x<8→13, x<18→15, x<30→11, x<40→14, x<52→10, else→12`. In `generateMap()`:
   - Tree-tunnel: after the grove-thickening pass, for `x` in 40..48 force `map[ROAD_Y[x]-1][x] = T.TREE` and `map[ROAD_Y[x]+2][x] = T.TREE` (canopy closes right up to the verge; skip any cell the road bend carved to PATH).
   - Fir hollow: a cleared pocket south of the road — for y 20..24, x 20..26 set GRASS, ring it with TREE except a 2-tile gap at (23,20)-(24,20); centre gets 4 FERN tiles. Export `HOLLOW = { x0: 20, y0: 20, x1: 26, y1: 24 }`.
@@ -787,12 +839,12 @@ Check `tests/riderEvent.test.js` for coordinate assumptions: the existing give-u
 - [ ] **Step 4: Tests.** `tests/zones.test.js` Woody End suite: the fern-brake loop bound `x0 < 32` → `x0 < 56`; the exit assertion `exit.x === 39` → `63`. Add:
 
 ```js
-  it('the tree-tunnel closes over the road mid-forest', () => {
-    for (let x = 41; x <= 47; x++) {
-      expect(map[ROAD_Y[x] - 1][x]).toBe(T.TREE);
-      expect(map[ROAD_Y[x] + 2][x]).toBe(T.TREE);
-    }
-  });
+it('the tree-tunnel closes over the road mid-forest', () => {
+  for (let x = 41; x <= 47; x++) {
+    expect(map[ROAD_Y[x] - 1][x]).toBe(T.TREE);
+    expect(map[ROAD_Y[x] + 2][x]).toBe(T.TREE);
+  }
+});
 ```
 
 - [ ] **Step 5:** `npm test` (rider suite green with imports), browser QA: walk the full road west→east; the rider set piece triggers and is escapable in the first stretch; the tunnel section reads dark and close; the hollow is enterable. `npm run test:e2e` — the marish e2e enters from woodyend and must still pass.
@@ -801,6 +853,7 @@ Check `tests/riderEvent.test.js` for coordinate assumptions: the existing give-u
 ### Task 12: Walking song + the fox
 
 **Files:**
+
 - Create: `src/events/foxEvent.js`
 - Modify: `src/art/characters.js` (fox sheet + `noFeet` support), `src/data/dialogues.js`, `src/data/zones/woodyend.js`
 - Test: `tests/foxEvent.test.js`
@@ -816,6 +869,7 @@ Check `tests/riderEvent.test.js` for coordinate assumptions: the existing give-u
 ```
 
 `woodyend.js` gains `onCreate`: if `!hasFlag('walkingSong')`, `scene.time.delayedCall(900, () => { setFlag('walkingSong'); scene.startDialogue('walking_song'); })` (import from GameState). One-time across the whole game because the flag persists.
+
 - [ ] **Step 4: Fox event.** `src/events/foxEvent.js`, same shape as the other event modules:
 
 ```js
@@ -842,14 +896,16 @@ export function foxEventUpdate(scene) {
     tweens: [
       { x: (HOLLOW.x0 + 3) * TILE_SIZE, duration: 1400 },
       {
-        x: fox.x, duration: 900, // pause: stop and look
+        x: fox.x,
+        duration: 900, // pause: stop and look
         onStart: () => {
           fox.anims.play('fox-idle-right');
           scene.startDialogue('fox_thought');
         },
       },
       {
-        x: (HOLLOW.x1 + 1) * TILE_SIZE + 8, duration: 1400,
+        x: (HOLLOW.x1 + 1) * TILE_SIZE + 8,
+        duration: 1400,
         onStart: () => fox.anims.play('fox-walk-right'),
         onComplete: () => fox.destroy(),
       },
@@ -861,6 +917,7 @@ export function foxEventUpdate(scene) {
 Dialogue `fox_thought` (name `A Fox`): "'Hobbits!' he thought.\n'Well, what next? I have\nheard of strange doings...'", "'...but I have seldom heard\nof a hobbit sleeping out of\ndoors under a tree.'", "'There is something mighty\nqueer behind this.' He was\nquite right, but he never\nfound out any more about it." — split that last one into two boxes to respect the 3-line limit.
 
 Compose in `woodyend.js`: `onUpdate: (scene, delta) => { riderEventUpdate(scene, delta); foxEventUpdate(scene); }`.
+
 - [ ] **Step 5: Unit test** `tests/foxEvent.test.js` in the style of `tests/riderEvent.test.js` (fake scene with `add.sprite`, `tweens.chain`, `startDialogue` recorders): entering the hollow sets `foxSeen`, spawns one sprite, and does nothing on subsequent frames; standing outside the hollow does nothing.
 - [ ] **Step 6:** `npm test`, browser QA: enter the zone (song plays once), walk into the hollow (fox crosses, pauses, thinks, trots off). Re-enter zone: neither repeats.
 - [ ] **Step 7: Commit** — `feat: the walking song and the fox of the Woody End`
@@ -868,6 +925,7 @@ Compose in `woodyend.js`: `onUpdate: (scene, delta) => { riderEventUpdate(scene,
 ### Task 13: The hall of trees — Gildor's company, the feast, the elf-song
 
 **Files:**
+
 - Modify: `src/art/characters.js` (3 elf recolors), `src/data/dialogues.js`, `src/data/zones/woodyend.js`, `src/audio/sound.js`
 
 - [ ] **Step 1: Elf company palettes** — `elf_a`, `elf_b`, `elf_c` in `CHAR_DEFS`, `maps: ELF`, copying gildor's pal with shifted robe hues (a: silver-blue V `#b8c8d8`/v `#d8e4ee`, b: pale gold V `#d8cca0`/v `#ece4c0`, c: twilight grey V `#a8a8bc`/v `#c4c4d4`; hair: a+c dark `#3a3a4a`-based, b golden like gildor).
@@ -921,14 +979,14 @@ The zone `npcs` entries (same coords, `when: escapedRider`) cover re-entry after
 Trigger in `woodyend.js` `onUpdate` (session-scoped, replays per visit — the elves are still singing):
 
 ```js
-  if (hasFlag('escapedRider') && !scene._elfsongPlayed) {
-    const tx = Math.floor(scene.player.x / TILE_SIZE);
-    if (tx >= 48) {
-      scene._elfsongPlayed = true;
-      sfx.elfsong();
-      scene.showBanner('Singing drifts through\nthe trees ahead...');
-    }
+if (hasFlag('escapedRider') && !scene._elfsongPlayed) {
+  const tx = Math.floor(scene.player.x / TILE_SIZE);
+  if (tx >= 48) {
+    scene._elfsongPlayed = true;
+    sfx.elfsong();
+    scene.showBanner('Singing drifts through\nthe trees ahead...');
   }
+}
 ```
 
 (`woodyend.js` will need `sfx` and `hasFlag`/`setFlag` imports for the onCreate/onUpdate additions — `TILE_SIZE` too.)
@@ -943,6 +1001,7 @@ Trigger in `woodyend.js` `onUpdate` (session-scoped, replays per visit — the e
 ### Task 14: Wider Marish + de-hardcoded ferry event
 
 **Files:**
+
 - Modify: `src/data/zones/marish.js`, `src/events/ferryEvent.js`, `tests/ferryEvent.test.js`, `tests/zones.test.js`, `e2e/smoke.spec.js`
 
 - [ ] **Step 1: Export the geometry from `marish.js`** and resize: `WIDTH 56, HEIGHT 30`; `LANE_Y: x<8→14, x<29→10, else→15`; `RIVER_X = 46`, `BANK_X = 52`; `FARM = { x0: 14, x1: 29, y0: 14, y1: 24, gateX: 24 }`. Export for the event and tests:
@@ -958,6 +1017,7 @@ export const RIDER_START_X = RIVER_X - 18;
 - [ ] **Step 2: `ferryEvent.js`** — delete its local `PIER_X/LANE_ROW/RAFT_X/BANK_LAND_X` and the rider start literal `28`; import the five exports from `../data/zones/marish.js`. Merry's spawn/repositioning x-coords (32, 40, 12-row) become derived: landing merry at `{ x: PIER_X - 2, y: LANE_ROW - 1 }`, far-bank merry at `{ x: BANK_LAND_X, y: LANE_ROW - 1 }`. Update `marish.js` npcs/spawns/signs to the same derived spots (landing spawn `{ x: PIER_X - 4, y: LANE_ROW }`, ferry sign at `(PIER_X - 1, LANE_ROW - 1)`, buckland sign at `(BANK_X + 1, LANE_ROW - 1)`).
 
 **Two more coordinate sets move with the resize:**
+
 - The **west edge**: `LANE_Y[0]` is now 14, so the exits to woodyend become `(0,14)` and `(0,15)` and the `west` spawn `{ x: 1, y: 14, dir: 'right' }` — the old row-12/13 spots would land on border trees.
 - **Farmer Maggot** stands at the gate, now `gateX = 24`: his npc entry becomes `{ key: 'maggot', x: 24, y: 16, dir: 'up', when: (f) => !f.rodeWaggon }`. The e2e teleports the player to `(24,15)`; at `(24,16)` Maggot is 14px away — inside `INTERACT_DIST` (20). Update the staging test expectation `maggot@23` → `maggot@24` and the merry positions to the derived values.
 - [ ] **Step 3: Causeway.** In `generateMap()`, after carving the lane: for x 34..45, set `map[LANE_Y[x] + 2][x] = T.DITCH` and `map[LANE_Y[x] - 1][x] = T.DITCH` where the cell isn't already PATH (raised causeway between dikes, book Ch. 4). Ensure the farm gate stub (gateX 24) is west of 34 — untouched.
@@ -968,6 +1028,7 @@ export const RIDER_START_X = RIVER_X - 18;
 ### Task 15: Bamfurlong depth — barn, well, waggon, Mrs. Maggot
 
 **Files:**
+
 - Modify: `src/data/zones/marish.js`, `src/art/characters.js`, `src/data/dialogues.js`
 
 - [ ] **Step 1: Farm dressing** in `generateMap()` **after the garden-row loop** (so dressing wins where they overlap): barn (`stamp` rows `[[T.ROOF_L, T.ROOF, T.ROOF_R],[T.BARN, T.BARN, T.BARN]]` at **(26,16)** — 3 wide, clear of the gate columns 24–25 so the farm entrance stays open), well at (21,17), waggon at (27,20) (`T.WAGGON`). Signs: `{ x: 27, y: 20, dialogue: 'examine_waggon' }` ('Maggot's waggon, packed\nfor the Ferry road.'), `{ x: 21, y: 17, dialogue: 'examine_well' }`, barn examine on a BARN tile ('Hay, harness, and the\nsmell of good earth.'). Stock signpost: SIGN tile at (10,16) + `sign_stock` ('STOCK ½ mile\n~ mind the dikes ~'). Brandy Hall examine on the far bank: signs entry on a border TREE at `(BANK_X + 2, LANE_ROW - 3)` = (54,12) — column `BANK_X + 1` is walkable shore, trees start at `BANK_X + 2` → `examine_brandyhall` ('Across the water, lights\nglimmer on the hill:\nBrandy Hall, Buckland.').
@@ -1002,12 +1063,14 @@ export const RIDER_START_X = RIVER_X - 18;
 ```
 
 Note: the `dogsAsked` stage must not steal the objective from the main story mid-critical-path — it's fine: `Q` recalls whichever objective is current, and the ferry objective is reasserted by Maggot/Merry stages.
+
 - [ ] **Step 3:** `npm test`, browser QA, screenshot the farm.
 - [ ] **Step 4: Commit** — `feat: Bamfurlong grows — barn, well, waggon, Mrs. Maggot`
 
 ### Task 16: Grip, Fang and Wolf
 
 **Files:**
+
 - Create: `src/events/dogsEvent.js`
 - Modify: `src/art/characters.js`, `src/data/dialogues.js`, `src/data/zones/marish.js`
 - Test: `tests/dogsEvent.test.js`
@@ -1024,6 +1087,7 @@ Note: the `dogsAsked` stage must not steal the objective from the main story mid
 ```
 
 Convert to staged form with `set: 'dogGrip'` on the single stage (fang → `dogFang`, wolf → `dogWolf`).
+
 - [ ] **Step 3: The run home.** `src/events/dogsEvent.js`: watch for each flag; when set and the NPC sprite still exists, tween it to the farm gate and remove it (instead of it just vanishing on zone re-entry):
 
 ```js
@@ -1052,6 +1116,7 @@ export function dogsEventUpdate(scene) {
 ```
 
 Compose into `marish.js`: `onUpdate: (scene, delta) => { ferryEventUpdate(scene, delta); dogsEventUpdate(scene); }`.
+
 - [ ] **Step 4: Unit test** `tests/dogsEvent.test.js` (fake scene à la riderEvent tests): flag set → tween added once toward the farm gate and `removeNpc` called on complete; no flag → untouched; already-running dog not double-tweened.
 - [ ] **Step 5:** `npm test`, browser QA: full loop — Mrs. Maggot ask → find all three (each barks, runs home) → basket + tick in the overlay.
 - [ ] **Step 6: Commit** — `feat: Grip, Fang and Wolf — the dogs errand`
@@ -1059,6 +1124,7 @@ Compose into `marish.js`: `onUpdate: (scene, delta) => { ferryEventUpdate(scene,
 ### Task 17: Mushrooms everywhere + the trespass scold
 
 **Files:**
+
 - Modify: `src/data/zones/woodyend.js`, `src/data/zones/marish.js`, `src/data/dialogues.js`
 
 - [ ] **Step 1: Woody End (4)** — pickups off-road: `woody_mush_1` (44,6), `woody_mush_2` (49,18), `woody_mush_3` (57,20), `woody_mush_4` (60,7). Nudge any coordinate the integrity test rejects (generated trees) — prefer moving the pickup, never carving the forest.
@@ -1087,6 +1153,7 @@ Compose into `marish.js`: `onUpdate: (scene, delta) => { ferryEventUpdate(scene,
 ### Task 18: The 100% nod + exploration e2e + final sweep
 
 **Files:**
+
 - Modify: `src/data/dialogues.js` (merry), `docs/PRD.md` or `CLAUDE.md` current-state note, `e2e/smoke.spec.js`
 
 - [ ] **Step 1: Merry's completion stage** — insert into `merry.stages` ABOVE his fallback, AFTER the `!merryMet` stage:
@@ -1106,6 +1173,7 @@ Compose into `marish.js`: `onUpdate: (scene, delta) => { ferryEventUpdate(scene,
 ```
 
 (Uses possession counts; mathoms are never spent so `count` works. The crates errand is intentionally absent — missable by design per the spec.)
+
 - [ ] **Step 2: Exploration e2e** — append to `e2e/smoke.spec.js`:
 
 ```js
@@ -1131,6 +1199,7 @@ test('exploration: pickups collect and the overlay tallies them', async ({ page 
 ```
 
 (Teleport position must match the final `shire_mathom_3` coordinates from Task 10 — adjust to whatever landed.)
+
 - [ ] **Step 3: Docs.** Update the "Current State" paragraph in `CLAUDE.md`: mention the exploration layer (items/errands/overlay), the enlarged zones, and strike the "real pickup/inventory treatment for the mushrooms" wishlist line.
 - [ ] **Step 4: Full sweep** — `npm test && npm run typecheck && npm run lint && npm run format && npm run build && npm run test:e2e`. Fix anything that surfaces. Browser QA: one full playthrough, prologue to Buckland, collecting everything; confirm Merry's nod fires.
 - [ ] **Step 5: Commit** — `feat: completion nod from Merry, exploration e2e, docs`

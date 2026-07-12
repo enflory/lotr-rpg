@@ -112,14 +112,14 @@ away). Finding all six earns one new Gandalf dialogue line.
    pickup; deliver to Lobelia for a sour staged response.
 2. **The Gaffer's half-pint** — Rosie at the Green Dragon asks Frodo to
    run a mug down to the Gaffer at Bagshot Row.
-3. **Gandalf's firework crates** *(prologue)* — fetch three crates
+3. **Gandalf's firework crates** _(prologue)_ — fetch three crates
    misplaced around the Party Field, labelled with firework names from
    the text (squibs, crackers, backarappers).
 
 ### Interiors (same footprints, denser)
 
 - **Bag End**: examines on existing furniture plus a few new prop
-  tiles — Bilbo's writing desk with the *There and Back Again*
+  tiles — Bilbo's writing desk with the _There and Back Again_
   manuscript, framed maps of the Wilderland, the fireplace where the
   Ring's letters were revealed, a pantry shelf, the spoons chest.
 - **Green Dragon**: ale-cask and hearth examines; Old Noakes and Daddy
@@ -144,12 +144,12 @@ resize.
    answers. Sets a flag.
 2. **The fox** — a fir-tree hollow off-road to the south (the book's
    first campsite). Approaching triggers a fox (new 16×16 two-frame
-   sprite) trotting past with the book's narration: *"Hobbits! Well,
-   what next? … There's something mighty queer behind this."* One-time.
+   sprite) trotting past with the book's narration: _"Hobbits! Well,
+   what next? … There's something mighty queer behind this."_ One-time.
 3. **The hall of trees** — Gildor's clearing becomes the Woodhall
    feast: wider greensward, three additional elves (ELF-template
    recolors, one shared staged dialogue about the Exiles), a laid feast
-   (new tile). A soft *elf-song* audio motif plays near the clearing.
+   (new tile). A soft _elf-song_ audio motif plays near the clearing.
    Examining the feast after talking to Gildor grants **elven
    provisions** (the book: Gildor's folk leave bread and fruit), which
    Sam comments on in the Marish.
@@ -209,7 +209,7 @@ not gate the nod. No mechanical gate anywhere.
   Sandyman palettes; 3 elf recolors; ~7 new tiles (mill wall/wheel,
   causeway, feast, crate, barn, well, ditch). Mathoms are item icons in
   `src/art/items.js`, not tiles.
-- **Audio**: one short *elf-song* motif (stretch — cut if fiddly).
+- **Audio**: one short _elf-song_ motif (stretch — cut if fiddly).
 - **Code**: `src/data/items.js`, `src/data/quests.js`,
   `src/art/items.js`, pickup/overlay handling in WorldScene, fox/dog
   behavior modules.

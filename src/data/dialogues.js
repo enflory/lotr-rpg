@@ -553,6 +553,20 @@ export const DIALOGUES = {
         set: 'merryMet',
         objective: 'Board the ferry raft',
       },
+      {
+        when: (f, count) =>
+          f.crossedFerry &&
+          f.gaveSpoons &&
+          f.halfPintDelivered &&
+          f.gotBasket &&
+          count('mathom') >= 6 &&
+          count('mushroom') >= 12,
+        lines: [
+          'Spoons for Lobelia, ale for\nthe Gaffer, and every dog\nat Bamfurlong fed?',
+          "You've seen more of the\nShire in a week than most\nhobbits see in a lifetime.",
+          'Whatever road we take from\nhere -- I could ask for no\nbetter company.',
+        ],
+      },
       { lines: ['Step aboard! Buckland is\njust across the water.'] },
     ],
   },
