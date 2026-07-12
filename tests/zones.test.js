@@ -3,7 +3,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { ZONES } from '../src/data/zones/index.js';
-import { ROAD_Y, woodyend } from '../src/data/zones/woodyend.js';
+import { ROAD_Y, HOLLOW, woodyend } from '../src/data/zones/woodyend.js';
 import { LANE_Y, FARM, PIER_X, marish } from '../src/data/zones/marish.js';
 import { DIALOGUES } from '../src/data/dialogues.js';
 import { CHAR_DEFS } from '../src/art/characters.js';
@@ -31,6 +31,39 @@ const inBounds = (zone, x, y) =>
   x < zone.map[0].length;
 
 const walkable = (zone, x, y) => !solid.has(zone.map[y][x]);
+
+// 4-connected flood of walkable tiles from every spawn — the region the
+// player can actually reach on foot. Catches hand-carved pockets the
+// procedural forest seals off (boxed-in pickups, an unreachable vignette).
+const reachable = (zone) => {
+  const H = zone.map.length,
+    W = zone.map[0].length;
+  const seen = Array.from({ length: H }, () => Array(W).fill(false));
+  const stack = [];
+  for (const s of Object.values(zone.spawns)) {
+    if (walkable(zone, s.x, s.y) && !seen[s.y][s.x]) {
+      seen[s.y][s.x] = true;
+      stack.push([s.x, s.y]);
+    }
+  }
+  while (stack.length) {
+    const [x, y] = stack.pop();
+    for (const [dx, dy] of [
+      [0, -1],
+      [0, 1],
+      [-1, 0],
+      [1, 0],
+    ]) {
+      const nx = x + dx,
+        ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= W || ny >= H || seen[ny][nx]) continue;
+      if (!walkable(zone, nx, ny)) continue;
+      seen[ny][nx] = true;
+      stack.push([nx, ny]);
+    }
+  }
+  return seen;
+};
 
 describe('zone maps', () => {
   it('every zone has key, label, music, and a rectangular map', () => {
@@ -257,6 +290,19 @@ describe('the Woody End (generated map)', () => {
       expect(map[ROAD_Y[x] + 2][x]).toBe(T.TREE);
     }
   });
+
+  it('the fox hollow is reachable, so the vignette can trigger', () => {
+    // foxEventUpdate fires when the player stands inside the HOLLOW box;
+    // if the forest seals it off the fox can never appear.
+    const seen = reachable(woodyend);
+    let anyReachable = false;
+    for (let y = HOLLOW.y0; y <= HOLLOW.y1; y++) {
+      for (let x = HOLLOW.x0; x <= HOLLOW.x1; x++) {
+        if (seen[y][x]) anyReachable = true;
+      }
+    }
+    expect(anyReachable, 'fox hollow is walled off — no way to trigger the fox').toBe(true);
+  });
 });
 
 describe('the Marish (generated map)', () => {
@@ -335,36 +381,9 @@ describe('pickups', () => {
 
   it('every pickup is actually reachable on foot from a spawn', () => {
     // A pickup on a walkable tile can still be walled in by trees/fences.
-    // Flood-fill the walkable tiles (4-connected, as the player navigates)
-    // from every spawn and require each pickup to land in that region.
     for (const zone of zones) {
       if (!zone.pickups?.length) continue;
-      const H = zone.map.length,
-        W = zone.map[0].length;
-      const seen = Array.from({ length: H }, () => Array(W).fill(false));
-      const stack = [];
-      for (const s of Object.values(zone.spawns)) {
-        if (walkable(zone, s.x, s.y) && !seen[s.y][s.x]) {
-          seen[s.y][s.x] = true;
-          stack.push([s.x, s.y]);
-        }
-      }
-      while (stack.length) {
-        const [x, y] = stack.pop();
-        for (const [dx, dy] of [
-          [0, -1],
-          [0, 1],
-          [-1, 0],
-          [1, 0],
-        ]) {
-          const nx = x + dx,
-            ny = y + dy;
-          if (nx < 0 || ny < 0 || nx >= W || ny >= H || seen[ny][nx]) continue;
-          if (!walkable(zone, nx, ny)) continue;
-          seen[ny][nx] = true;
-          stack.push([nx, ny]);
-        }
-      }
+      const seen = reachable(zone);
       for (const p of zone.pickups) {
         expect(seen[p.y][p.x], `${p.id} at (${p.x},${p.y}) is boxed in — no walkable path`).toBe(
           true,

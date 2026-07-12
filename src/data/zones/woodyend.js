@@ -106,14 +106,20 @@ function generateMap() {
     if (map[below][x] !== T.PATH) map[below][x] = T.TREE;
   }
 
-  // Fir hollow — a cleared campsite pocket south of the road.
+  // Fir hollow — a fox-haunted glade south of the road: a wildflower
+  // carpet ringed by firs, reached by one fern-lined trail down from
+  // the road. The break in the tree wall is the cue to wander off-path.
   for (let y = 20; y <= 24; y++)
-    for (let x = 20; x <= 26; x++) map[y][x] = T.GRASS;
+    for (let x = 20; x <= 26; x++) map[y][x] = T.FLOWERS; // flower carpet
   for (let x = 20; x <= 26; x++) { map[20][x] = T.TREE; map[24][x] = T.TREE; }
   for (let y = 20; y <= 24; y++) { map[y][20] = T.TREE; map[y][26] = T.TREE; }
-  map[20][23] = T.GRASS; map[20][24] = T.GRASS; // north entrance gap
-  map[22][23] = T.FERN; map[22][24] = T.FERN;
-  map[23][23] = T.FERN; map[23][24] = T.FERN;
+  map[20][23] = T.FLOWERS; // the single north entrance
+  // Fern-lined trail from the road down to the entrance
+  for (let y = 13; y <= 19; y++) {
+    map[y][23] = y === 19 ? T.FLOWERS : T.GRASS; // petals spill at the mouth
+    map[y][22] = T.FERN;
+    map[y][24] = T.FERN;
+  }
 
   // Border trees, with road gaps on the west and east edges
   for (let x = 0; x < WIDTH; x++) {
