@@ -170,6 +170,34 @@ export const shire = {
     { x: 8, y: 39, dialogue: 'sign_mill' },
     { x: 40, y: 24, dialogue: 'sign_ivybush' },
   ],
+  pickups: [
+    { id: 'shire_mathom_1', x: 5, y: 30, item: 'mathom' },
+    { id: 'shire_mathom_2', x: 36, y: 31, item: 'mathom' },
+    { id: 'shire_mathom_3', x: 2, y: 16, item: 'mathom' },
+    { id: 'shire_mathom_4', x: 10, y: 41, item: 'mathom' },
+    { id: 'shire_mathom_5', x: 45, y: 21, item: 'mathom' },
+    {
+      id: 'party_crate_1',
+      x: 2,
+      y: 31,
+      item: 'firework_crate',
+      when: (f) => f.cratesAsked && !f.prologueDone,
+    },
+    {
+      id: 'party_crate_2',
+      x: 6,
+      y: 26,
+      item: 'firework_crate',
+      when: (f) => f.cratesAsked && !f.prologueDone,
+    },
+    {
+      id: 'party_crate_3',
+      x: 3,
+      y: 34,
+      item: 'firework_crate',
+      when: (f) => f.cratesAsked && !f.prologueDone,
+    },
+  ],
   exits: [
     {
       x: 47, y: 19, zone: 'woodyend', entry: 'west',

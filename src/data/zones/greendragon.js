@@ -40,7 +40,10 @@ export const greendragon = {
     { key: 'twofoot', x: 14, y: 8, dir: 'right', when: (f) => f.prologueDone },
   ],
   doors: [],
-  signs: [],
+  signs: [
+    { x: 4, y: 4, dialogue: 'examine_casks' },
+    { x: 16, y: 3, dialogue: 'examine_shelf_gd' },
+  ],
   exits: [
     { x: 9, y: 14, zone: 'shire', entry: 'fromGreenDragon' },
     { x: 10, y: 14, zone: 'shire', entry: 'fromGreenDragon' },

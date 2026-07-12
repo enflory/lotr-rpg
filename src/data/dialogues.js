@@ -35,11 +35,17 @@ export const DIALOGUES = {
     name: 'Gandalf',
     stages: [
       {
+        when: (f, count) => !f.prologueDone && count('firework_crate') >= 3,
+        lines: ['Every squib and cracker\naccounted for! This will\nbe a night to remember.'],
+      },
+      {
         when: (f) => !f.prologueDone,
         lines: [
           'Ah, Frodo my boy! A fine\nnight for fireworks, and\nfiner ones you never saw.',
           'Keep an eye on your uncle\nat his speech. I fancy he\nhas a surprise in store.',
+          'But see here -- three of\nmy crates went astray in\nthe field. Fetch them, eh?',
         ],
+        set: 'cratesAsked',
       },
       {
         when: (f) => !f.metGandalf,
@@ -57,6 +63,13 @@ export const DIALOGUES = {
       {
         when: (f) => !f.samJoined,
         lines: ['Samwise is in the garden --\nor under the window, more\nlike. Go and fetch him.'],
+      },
+      {
+        when: (f, count) => count('mathom') >= 6 && !f.mathomsPraised,
+        lines: [
+          "Six of Bilbo's old mathoms!\nThe museum at Michel Delving\nnever held a finer haul.",
+        ],
+        set: 'mathomsPraised',
       },
       {
         lines: [
@@ -108,6 +121,15 @@ export const DIALOGUES = {
         ],
       },
       {
+        when: (f) => f.halfPintTaken && !f.halfPintDelivered,
+        lines: [
+          "Ah! Rosie Cotton's a\ntreasure. Mind you tell\nher I said so.",
+          "A drop of the Dragon's\nbest. That'll see the\ngarden dug, that will.",
+        ],
+        set: 'halfPintDelivered',
+        take: 'ale_mug',
+      },
+      {
         when: (f) => !f.samJoined,
         lines: [
           'Elves and Dragons! Cabbages\nand potatoes are better for\nme and you.',
@@ -126,10 +148,23 @@ export const DIALOGUES = {
 
   lobelia: {
     name: 'Lobelia',
-    lines: [
-      'Frodo Baggins! I suppose\nyou think you own\nBag End now?',
-      "Bilbo should never have\nleft it to you. It's\na Sackville-Baggins home!",
-      'I shall be watching you,\nFrodo Baggins. Mark my\nwords!',
+    stages: [
+      {
+        when: (f) => f.foundSpoons && !f.gaveSpoons,
+        lines: [
+          'My spoons! I KNEW Bilbo\nhad them. Well -- at least\nsomeone remembers what is owed.',
+          "Hand them over, then.\nDon't dawdle, Frodo Baggins.",
+        ],
+        set: 'gaveSpoons',
+        take: 'silver_spoons',
+      },
+      {
+        lines: [
+          'Frodo Baggins! I suppose\nyou think you own\nBag End now?',
+          "Bilbo should never have\nleft it to you. It's\na Sackville-Baggins home!",
+          'I shall be watching you,\nFrodo Baggins. Mark my\nwords!',
+        ],
+      },
     ],
   },
 
@@ -142,6 +177,15 @@ export const DIALOGUES = {
           "Isn't it grand? Songs and\ndancing and fireworks\nover the Party Tree!",
           'A hundred and eleven years\nold, and still the best\nparties in the Shire.',
         ],
+      },
+      {
+        when: (f) => f.prologueDone && !f.halfPintTaken,
+        lines: [
+          'Good morning, Mr. Frodo!\nThe ale is fresh from the cask.',
+          "Would you run a half-pint\ndown to the Gaffer? He's\ntoo proud to come ask.",
+        ],
+        set: 'halfPintTaken',
+        give: 'ale_mug',
       },
       {
         when: (f) => !f.samJoined,
@@ -209,9 +253,7 @@ export const DIALOGUES = {
         ],
       },
       {
-        lines: [
-          'They fool about with boats\non that big river -- and\nthat isn\'t natural!',
-        ],
+        lines: ["They fool about with boats\non that big river -- and\nthat isn't natural!"],
       },
     ],
   },
@@ -227,9 +269,7 @@ export const DIALOGUES = {
         ],
       },
       {
-        lines: [
-          "Walking trees, giants beyond\nthe North Moors -- queer\nfolk, this Baggins lot.",
-        ],
+        lines: ['Walking trees, giants beyond\nthe North Moors -- queer\nfolk, this Baggins lot.'],
       },
     ],
   },
@@ -260,9 +300,50 @@ export const DIALOGUES = {
     lines: ['THE GREEN DRAGON INN\n~ Fine Ales & Good Company ~'],
   },
 
+  examine_casks: {
+    name: 'Ale Casks',
+    lines: ['Rows of casks from the\nCotton farm. The Dragon\nnever runs dry.'],
+  },
+
+  examine_shelf_gd: {
+    name: 'Shelf',
+    lines: ['Pewter tankards, and a\ndusty fiddle nobody has\nplayed since last Yule.'],
+  },
+
   sign_bagend: {
     name: 'Sign',
     lines: ['BAG END\n~ No Admittance\n  Except on Party Business ~'],
+  },
+
+  examine_desk: {
+    name: "Bilbo's Desk",
+    lines: ['On the desk, the unfinished\npages of THERE AND BACK\nAGAIN. The ink is long dry.'],
+  },
+
+  examine_books: {
+    name: 'Bookshelf',
+    lines: ['Maps of distant lands,\nannotated in a thin,\nspidery hand.'],
+  },
+
+  examine_fireplace: {
+    name: 'Hearth',
+    lines: ['This is where the letters\nof fire were revealed.\nThe grate is cold now.'],
+  },
+
+  examine_chest: {
+    name: 'Old Chest',
+    stages: [
+      {
+        when: (f) => f.metGandalf && !f.foundSpoons,
+        lines: [
+          'Under old party invitations:\na case of silver spoons.',
+          "The label reads: 'For\nLOBELIA, as a PRESENT.'\nBilbo's little joke.",
+        ],
+        set: 'foundSpoons',
+        give: 'silver_spoons',
+      },
+      { lines: ['Old invitations, older\nmothballs. Nothing else\nof note.'] },
+    ],
   },
 
   sign_bywater: {

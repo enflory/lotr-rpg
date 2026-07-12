@@ -25,7 +25,12 @@ describe('resolveDialogue staging', () => {
   it('party guests talk about the party until the time skip', () => {
     for (const key of ['gandalf', 'gaffer', 'rosie', 'ted']) {
       const party = resolveDialogue(key, {});
-      expect(party.set, `${key} party stage must not set flags`).toBeUndefined();
+      if (key === 'gandalf') {
+        // Gandalf's prologue-ask stage also sends Frodo after his crates.
+        expect(party.set, 'gandalf party stage sets cratesAsked').toBe('cratesAsked');
+      } else {
+        expect(party.set, `${key} party stage must not set flags`).toBeUndefined();
+      }
       const later = resolveDialogue(key, { prologueDone: true });
       expect(later.lines, `${key} must change after the prologue`).not.toEqual(party.lines);
     }
