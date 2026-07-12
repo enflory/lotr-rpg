@@ -416,6 +416,25 @@ export const DIALOGUES = {
       { lines: ['Step aboard! Buckland is\njust across the water.'] },
     ],
   },
+
+  walking_song: {
+    name: 'Frodo',
+    lines: [
+      'The Road goes ever on\nand on, down from the door\nwhere it began...',
+      'Now far ahead the Road\nhas gone, and I must\nfollow, if I can.',
+      'Bilbo made that one up,\nwalking this very road.\nIt feels different today.',
+    ],
+  },
+
+  fox_thought: {
+    name: 'A Fox',
+    lines: [
+      "'Hobbits!' he thought.\n'Well, what next? I have\nheard of strange doings...'",
+      "'...but I have seldom heard\nof a hobbit sleeping out\nof doors under a tree.'",
+      "'There is something mighty\nqueer behind this,' he\nthought. He was quite right,",
+      'but he never found out\nany more about it.',
+    ],
+  },
 };
 
 /**

@@ -291,6 +291,49 @@ const EL_LEFT = validateRows('EL_LEFT', [
 
 const EL_RIGHT = mirrorRows(EL_LEFT);
 
+/* ── Fox template (10-row body, no feet — legs are drawn via `extra`) ── */
+
+const FOX_DOWN = validateRows('FOX_DOWN', [
+  '.....o....o.....',
+  '....oF....Fo....',
+  '....oFFFFFFo....',
+  '....oFFooFFo....',
+  '...oFFFoFFFFo...',
+  '...oFFFFFFFFo...',
+  '...oFFWWWWFFo...',
+  '...oFFffffFFo...',
+  '....oFFFFFFo....',
+  '.....oFFFFo.....',
+]);
+
+const FOX_UP = validateRows('FOX_UP', [
+  '.....o....o.....',
+  '....oF....Fo....',
+  '....oFFFFFFo....',
+  '....oFFFFFFo....',
+  '...oFFFFFFFFo...',
+  '...oFFFFFFFFo...',
+  '...oFFFFFFFFo...',
+  '...oFFFFFFFFo...',
+  '....oFFFFFFo....',
+  '.....oFFFFo.....',
+]);
+
+const FOX_LEFT = validateRows('FOX_LEFT', [
+  '..o..o..........',
+  '.oF.Fo..........',
+  'oFFoFFo.........',
+  'oFFFFFFo........',
+  'fFFFFFFFo.......',
+  '.FFFFFFFFFo.....',
+  '..WWWFFFFFFo....',
+  '...fffFFFFFoo...',
+  '.....ffffFFFFoo.',
+  '.........oooFFWW',
+]);
+
+const FOX_RIGHT = mirrorRows(FOX_LEFT);
+
 /* ── palettes ───────────────────────────────────────────── */
 // Shared slots: o outline · H/h/l hair dark/mid/light · S/s skin/shade ·
 // E eye · W eye-white · N mouth · C/c collar/vest · V/v/G shirt or dress
@@ -302,6 +345,7 @@ const OUTLINE = '#181008';
 const MALE = { down: M_DOWN, left: M_LEFT, right: M_RIGHT, up: M_UP };
 const FEMALE = { down: F_DOWN, left: F_LEFT, right: F_RIGHT, up: F_UP };
 const WIZARD = { down: GD_DOWN, left: GD_LEFT, right: GD_RIGHT, up: GD_UP };
+const FOX = { down: FOX_DOWN, left: FOX_LEFT, right: FOX_RIGHT, up: FOX_UP };
 const ELF = { down: EL_DOWN, left: EL_LEFT, right: EL_RIGHT, up: EL_UP };
 
 export const CHAR_DEFS = {
@@ -507,6 +551,27 @@ export const CHAR_DEFS = {
       px(c, sx, y + 5, '#f8e880');
     },
   },
+
+  fox: {
+    maps: FOX,
+    pal: { o: '#14141a', F: '#c06a28', f: '#d88a4a', W: '#e8e4d8' },
+    noFeet: true,
+    // Four thin legs under the low-slung body, with the walk shuffle.
+    extra(c, x, y, dir, frame) {
+      const legY = y + 10; // just under the 10-row body
+      const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
+      const legColor = '#8a4a1e';
+      if (dir === 'left' || dir === 'right') {
+        for (const lx of [3 + legOff, 10 - legOff]) {
+          rc(c, x + lx, legY, 1, 3, legColor);
+        }
+      } else {
+        for (const lx of [4 + legOff, 7 - legOff, 8 + legOff, 11 - legOff]) {
+          rc(c, x + lx, legY, 1, 3, legColor);
+        }
+      }
+    },
+  },
 };
 
 export const CHAR_NAMES = Object.keys(CHAR_DEFS);
@@ -604,16 +669,18 @@ export function makeCharSheet(name) {
       drawPixelMap(c, fx, fy + bodyTop, body, def.pal);
 
       // Feet (bare hobbit feet or boots) with simple shuffle animation.
-      const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
-      const footY = fy + bodyTop + body.length;
-      const [fc, fs] = def.feet;
-      for (const bx of [3 + legOff, 8 - legOff]) {
-        px(c, fx + bx, footY, ol);
-        rc(c, fx + bx + 1, footY, 3, 1, fc);
-        px(c, fx + bx + 4, footY, ol);
-        px(c, fx + bx, footY + 1, ol);
-        rc(c, fx + bx + 1, footY + 1, 3, 1, fs);
-        px(c, fx + bx + 4, footY + 1, ol);
+      if (!def.noFeet) {
+        const legOff = frame === 0 ? 0 : frame === 1 ? -1 : 1;
+        const footY = fy + bodyTop + body.length;
+        const [fc, fs] = def.feet;
+        for (const bx of [3 + legOff, 8 - legOff]) {
+          px(c, fx + bx, footY, ol);
+          rc(c, fx + bx + 1, footY, 3, 1, fc);
+          px(c, fx + bx + 4, footY, ol);
+          px(c, fx + bx, footY + 1, ol);
+          rc(c, fx + bx + 1, footY + 1, 3, 1, fs);
+          px(c, fx + bx + 4, footY + 1, ol);
+        }
       }
 
       if (def.extra) def.extra(c, fx, fy + bodyTop, dir, frame);

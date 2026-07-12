@@ -5,6 +5,8 @@
 
 import { T } from '../tileTypes.js';
 import { riderEventUpdate } from '../../events/riderEvent.js';
+import { foxEventUpdate } from '../../events/foxEvent.js';
+import { hasFlag, setFlag } from '../../state/GameState.js';
 
 export const WIDTH = 64, HEIGHT = 28;
 export const RIDER_EXIT_X = 50; // he gives up before the elf clearing
@@ -157,5 +159,16 @@ export const woodyend = {
       denied: "I should hear the Elf's\ncounsel first.",
     },
   ],
-  onUpdate: riderEventUpdate,
+  onCreate: (scene) => {
+    if (!hasFlag('walkingSong')) {
+      scene.time.delayedCall(900, () => {
+        setFlag('walkingSong');
+        scene.startDialogue('walking_song');
+      });
+    }
+  },
+  onUpdate: (scene, delta) => {
+    riderEventUpdate(scene, delta);
+    foxEventUpdate(scene);
+  },
 };
