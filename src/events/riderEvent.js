@@ -7,7 +7,7 @@
 
 import { T, TILE_SIZE } from '../data/tileTypes.js';
 import { setFlag, hasFlag, setObjective } from '../state/GameState.js';
-import { ROAD_Y } from '../data/zones/woodyend.js';
+import { ROAD_Y, RIDER_EXIT_X, GILDOR_SPOT, ELF_SPOTS } from '../data/zones/woodyend.js';
 import { sfx } from '../audio/sound.js';
 
 const RIDER_SPEED = 88; // px/sec — faster than the player's 72
@@ -90,7 +90,7 @@ export function riderEventUpdate(scene, delta) {
 
     // Safely past — he gives up the scent and gallops on
     // (vanishing into the trees before the riverbank)
-    if (dx > 110 || r.x > 34 * TILE_SIZE) {
+    if (dx > 110 || r.x > RIDER_EXIT_X * TILE_SIZE) {
       r.destroy();
       ev.rider = null;
       ev.phase = 'done';
@@ -99,7 +99,8 @@ export function riderEventUpdate(scene, delta) {
       sfx.jingle();
       scene.showBanner('The hoofbeats fade away...');
       // Gildor's company arrives, as in the book — Elves drive off the Rider
-      scene.spawnNpc({ key: 'gildor', x: 33, y: 15, dir: 'down' });
+      scene.spawnNpc({ key: 'gildor', ...GILDOR_SPOT, dir: 'down' });
+      for (const spot of ELF_SPOTS) scene.spawnNpc(spot);
     }
     return;
   }

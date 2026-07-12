@@ -1,12 +1,15 @@
 // NPC dialogues — drawn from or closely paraphrasing The Lord of the Rings.
 //
 // Each entry is either { name, lines } (always the same) or
-// { name, stages: [...] } where the FIRST stage whose `when(flags)` is
-// true (or that has no `when`) is shown. A stage may carry effects that
+// { name, stages: [...] } where the FIRST stage whose `when(flags, count)` is
+// true (or that has no `when`) is shown. `count(itemKey)` reports how many
+// of an item the player is carrying. A stage may carry effects that
 // fire when its dialogue finishes:
 //   set:       flag name (or array) to set
 //   objective: new objective banner text
 //   join:      character key that becomes the player's follower
+//   give:      item key granted to the player
+//   take:      item key removed from the player
 
 /** @type {Record<string, import('./types.js').Dialogue>} */
 export const DIALOGUES = {
@@ -32,11 +35,17 @@ export const DIALOGUES = {
     name: 'Gandalf',
     stages: [
       {
+        when: (f, count) => !f.prologueDone && count('firework_crate') >= 3,
+        lines: ['Every squib and cracker\naccounted for! This will\nbe a night to remember.'],
+      },
+      {
         when: (f) => !f.prologueDone,
         lines: [
           'Ah, Frodo my boy! A fine\nnight for fireworks, and\nfiner ones you never saw.',
           'Keep an eye on your uncle\nat his speech. I fancy he\nhas a surprise in store.',
+          'But see here -- three of\nmy crates went astray in\nthe field. Fetch them, eh?',
         ],
+        set: 'cratesAsked',
       },
       {
         when: (f) => !f.metGandalf,
@@ -54,6 +63,13 @@ export const DIALOGUES = {
       {
         when: (f) => !f.samJoined,
         lines: ['Samwise is in the garden --\nor under the window, more\nlike. Go and fetch him.'],
+      },
+      {
+        when: (f, count) => count('mathom') >= 6 && !f.mathomsPraised,
+        lines: [
+          "Six of Bilbo's old mathoms!\nThe museum at Michel Delving\nnever held a finer haul.",
+        ],
+        set: 'mathomsPraised',
       },
       {
         lines: [
@@ -105,6 +121,15 @@ export const DIALOGUES = {
         ],
       },
       {
+        when: (f) => f.halfPintTaken && !f.halfPintDelivered,
+        lines: [
+          "Ah! Rosie Cotton's a\ntreasure. Mind you tell\nher I said so.",
+          "A drop of the Dragon's\nbest. That'll see the\ngarden dug, that will.",
+        ],
+        set: 'halfPintDelivered',
+        take: 'ale_mug',
+      },
+      {
         when: (f) => !f.samJoined,
         lines: [
           'Elves and Dragons! Cabbages\nand potatoes are better for\nme and you.',
@@ -123,10 +148,23 @@ export const DIALOGUES = {
 
   lobelia: {
     name: 'Lobelia',
-    lines: [
-      'Frodo Baggins! I suppose\nyou think you own\nBag End now?',
-      "Bilbo should never have\nleft it to you. It's\na Sackville-Baggins home!",
-      'I shall be watching you,\nFrodo Baggins. Mark my\nwords!',
+    stages: [
+      {
+        when: (f) => f.foundSpoons && !f.gaveSpoons,
+        lines: [
+          'My spoons! I KNEW Bilbo\nhad them. Well -- at least\nsomeone remembers what is owed.',
+          "Hand them over, then.\nDon't dawdle, Frodo Baggins.",
+        ],
+        set: 'gaveSpoons',
+        take: 'silver_spoons',
+      },
+      {
+        lines: [
+          'Frodo Baggins! I suppose\nyou think you own\nBag End now?',
+          "Bilbo should never have\nleft it to you. It's\na Sackville-Baggins home!",
+          'I shall be watching you,\nFrodo Baggins. Mark my\nwords!',
+        ],
+      },
     ],
   },
 
@@ -139,6 +177,15 @@ export const DIALOGUES = {
           "Isn't it grand? Songs and\ndancing and fireworks\nover the Party Tree!",
           'A hundred and eleven years\nold, and still the best\nparties in the Shire.',
         ],
+      },
+      {
+        when: (f) => f.prologueDone && !f.halfPintTaken,
+        lines: [
+          'Good morning, Mr. Frodo!\nThe ale is fresh from the cask.',
+          "Would you run a half-pint\ndown to the Gaffer? He's\ntoo proud to come ask.",
+        ],
+        set: 'halfPintTaken',
+        give: 'ale_mug',
       },
       {
         when: (f) => !f.samJoined,
@@ -176,6 +223,57 @@ export const DIALOGUES = {
     ],
   },
 
+  sandyman: {
+    name: 'Sandyman the Miller',
+    stages: [
+      {
+        when: (f) => !f.prologueDone,
+        lines: [
+          'All this party crowd\nwanting flour for seed-cakes\nand honey-cakes besides!',
+          "I'll be grinding till\nmidnight, mark my words.",
+        ],
+      },
+      {
+        lines: [
+          'Queer folk you and your\nuncle draw to Hobbiton,\nMr. Baggins.',
+          "Walking trees now, is it?\nSounds like your cousin\nHal's tall tales to me.",
+        ],
+      },
+    ],
+  },
+
+  noakes: {
+    name: 'Old Noakes',
+    stages: [
+      {
+        when: (f) => !f.prologueDone,
+        lines: [
+          'A very nice well-spoken\ngentlehobbit, Mr. Bilbo --\nbut queer, mark you.',
+          "All that Baggins gold is\nburied in tunnels up at\nBag End, I'll be bound.",
+        ],
+      },
+      {
+        lines: ["They fool about with boats\non that big river -- and\nthat isn't natural!"],
+      },
+    ],
+  },
+
+  twofoot: {
+    name: 'Daddy Twofoot',
+    stages: [
+      {
+        when: (f) => !f.prologueDone,
+        lines: [
+          "I'm his next-door neighbour,\nyou know, so I ought to know.",
+          'The Gaffer and I have been\nsaying it for years:\nstrange doings at Bag End.',
+        ],
+      },
+      {
+        lines: ['Walking trees, giants beyond\nthe North Moors -- queer\nfolk, this Baggins lot.'],
+      },
+    ],
+  },
+
   gildor: {
     name: 'Gildor',
     stages: [
@@ -197,9 +295,59 @@ export const DIALOGUES = {
     ],
   },
 
+  elf_a: {
+    name: "Elf of Gildor's Company",
+    lines: [
+      'We are Exiles. Most of our\nkindred departed long ago,\nand we too tarry but a while.',
+      'West, ever west, our hearts\ncall us -- to the Havens,\nand the Sea beyond.',
+    ],
+  },
+
+  elf_b: {
+    name: "Elf of Gildor's Company",
+    lines: [
+      'Snow-white! Snow-white!\nO Lady clear! O Queen\nbeyond the Western Seas!',
+      'We sing to Elbereth\nGilthoniel, who kindled\nthe stars. Be at peace.',
+    ],
+  },
+
+  elf_c: {
+    name: "Elf of Gildor's Company",
+    lines: [
+      'Eat, and be merry! Even the\nwandering Companies of the\nEldar keep a good table.',
+      'You walk in luck tonight,\nMaster Baggins. Few mortals\nsup with the Fair Folk.',
+    ],
+  },
+
+  elf_feast: {
+    name: 'The Feast',
+    stages: [
+      {
+        when: (f) => f.metGildor && !f.tookProvisions,
+        lines: [
+          'Bread surpassing white\nloaves, fruits sweet as\nwildberries -- laid for guests.',
+          "Gildor's folk have set\naside a share for your\nroad tomorrow.",
+        ],
+        set: 'tookProvisions',
+        give: 'elven_provisions',
+      },
+      { lines: ['A hall of living trees,\nand a table set\nunder the stars.'] },
+    ],
+  },
+
   sign_greendragon: {
     name: 'Sign',
     lines: ['THE GREEN DRAGON INN\n~ Fine Ales & Good Company ~'],
+  },
+
+  examine_casks: {
+    name: 'Ale Casks',
+    lines: ['Rows of casks from the\nCotton farm. The Dragon\nnever runs dry.'],
+  },
+
+  examine_shelf_gd: {
+    name: 'Shelf',
+    lines: ['Pewter tankards, and a\ndusty fiddle nobody has\nplayed since last Yule.'],
   },
 
   sign_bagend: {
@@ -207,9 +355,65 @@ export const DIALOGUES = {
     lines: ['BAG END\n~ No Admittance\n  Except on Party Business ~'],
   },
 
+  examine_desk: {
+    name: "Bilbo's Desk",
+    stages: [
+      {
+        // A nudge toward Lobelia's spoons, once the errand is live
+        when: (f) => f.metGandalf && !f.foundSpoons,
+        lines: [
+          "There and Back Again lies\nopen. Tucked in the pages,\na note in Bilbo's hand:",
+          "'The silver spoons Lobelia\ncovets are in the old\nchest, by the window --",
+          "do give them back to her,\nthere's a good hobbit.'",
+        ],
+      },
+      {
+        lines: [
+          'On the desk, the unfinished\npages of THERE AND BACK\nAGAIN. The ink is long dry.',
+        ],
+      },
+    ],
+  },
+
+  examine_books: {
+    name: 'Bookshelf',
+    lines: ['Maps of distant lands,\nannotated in a thin,\nspidery hand.'],
+  },
+
+  examine_fireplace: {
+    name: 'Hearth',
+    lines: ['This is where the letters\nof fire were revealed.\nThe grate is cold now.'],
+  },
+
+  examine_chest: {
+    name: 'Old Chest',
+    stages: [
+      {
+        when: (f) => f.metGandalf && !f.foundSpoons,
+        lines: [
+          'Under old party invitations:\na case of silver spoons.',
+          "The label reads: 'For\nLOBELIA, as a PRESENT.'\nBilbo's little joke.",
+        ],
+        set: 'foundSpoons',
+        give: 'silver_spoons',
+      },
+      { lines: ['Old invitations, older\nmothballs. Nothing else\nof note.'] },
+    ],
+  },
+
   sign_bywater: {
     name: 'Sign',
     lines: ['BYWATER\nHobbiton 1 mile north'],
+  },
+
+  sign_mill: {
+    name: 'Sign',
+    lines: ["SANDYMAN'S MILL\n~ Bywater ~"],
+  },
+
+  sign_ivybush: {
+    name: 'Sign',
+    lines: ['THE IVY BUSH\n~ on the Bywater Road ~'],
   },
 
   door_locked: {
@@ -229,6 +433,27 @@ export const DIALOGUES = {
       'You have crossed the\nBrandywine. Chapter Two\nlies ahead.',
       'TO BE CONTINUED...',
     ],
+  },
+
+  examine_waggon: {
+    name: "Maggot's Waggon",
+    lines: ['Piled with baskets and\nsacking, packed for the\nFerry road.'],
+  },
+  examine_well: {
+    name: 'The Well',
+    lines: ['Cold, clear water. A tin\ncup hangs from the\nwindlass on a chain.'],
+  },
+  examine_barn: {
+    name: 'The Barn',
+    lines: ['Hay, harness, and the good\nsmell of earth. Something\nrustles in the loft.'],
+  },
+  sign_stock: {
+    name: 'Signpost',
+    lines: ['STOCK  1/2 mile\n~ mind the dikes on\n  the causeway ~'],
+  },
+  examine_brandyhall: {
+    name: 'The Far Shore',
+    lines: ['Across the water, lights\nglimmer on the hill:\nBrandy Hall, in Buckland.'],
   },
 
   maggot: {
@@ -251,6 +476,85 @@ export const DIALOGUES = {
     ],
   },
 
+  mrsmaggot: {
+    name: 'Mrs. Maggot',
+    stages: [
+      {
+        when: (f) => !f.dogsAsked,
+        lines: [
+          "Welcome, dears! Any friend\nof Maggot's is welcome\nhere at Bamfurlong.",
+          'Only -- our dogs! Grip,\nFang and Wolf bolted when\nthat black rider came.',
+          'Still out hiding in the\nmarsh, poor things. Send\nthem home if you find them?',
+        ],
+        set: 'dogsAsked',
+        objective: 'Find Grip, Fang and Wolf in the marsh',
+      },
+      {
+        when: (f) => f.dogGrip && f.dogFang && f.dogWolf && !f.gotBasket,
+        lines: [
+          "All three home and fed!\nYou have a farmer's way\nwith beasts, Mr. Baggins.",
+          'Take this -- mushrooms,\npacked proper, from our\nown beds. Bless you.',
+        ],
+        set: 'gotBasket',
+        give: 'maggot_basket',
+      },
+      { lines: ['Mind the dikes on the\ncauseway, dears.'] },
+    ],
+  },
+
+  maggot_scold: {
+    name: 'Farmer Maggot',
+    stages: [
+      {
+        when: (f) => !f.rodeWaggon,
+        lines: [
+          '"OI! Out of my crop, you\nyoung rascal, or I\'ll set\nthe dogs on you!"',
+          'Some things about the\nMarish never change.',
+        ],
+      },
+      { lines: ['You pick a fine fat one.\nThe farmer would only\nlaugh at you now.'] },
+    ],
+  },
+
+  grip: {
+    name: 'Grip',
+    stages: [
+      {
+        lines: [
+          '*A low growl -- then a\nwhine. He knows you for\na friend of the farm.*',
+          '*Grip turns and streaks\noff home across the\nfields.*',
+        ],
+        set: 'dogGrip',
+      },
+    ],
+  },
+
+  fang: {
+    name: 'Fang',
+    stages: [
+      {
+        lines: [
+          '*Fang backs away, hackles\nup -- then catches your\nscent and relaxes.*',
+          '*He barks once and lopes\noff toward Bamfurlong.*',
+        ],
+        set: 'dogFang',
+      },
+    ],
+  },
+
+  wolf: {
+    name: 'Wolf',
+    stages: [
+      {
+        lines: [
+          '*Wolf crouches low in the\nreeds, trembling -- then\nyour voice steadies him.*',
+          '*Tail up now, he trots\noff for home at a run.*',
+        ],
+        set: 'dogWolf',
+      },
+    ],
+  },
+
   merry: {
     name: 'Merry',
     stages: [
@@ -264,7 +568,40 @@ export const DIALOGUES = {
         set: 'merryMet',
         objective: 'Board the ferry raft',
       },
+      {
+        when: (f, count) =>
+          f.crossedFerry &&
+          f.gaveSpoons &&
+          f.halfPintDelivered &&
+          f.gotBasket &&
+          count('mathom') >= 6 &&
+          count('mushroom') >= 12,
+        lines: [
+          'Spoons for Lobelia, ale for\nthe Gaffer, and every dog\nat Bamfurlong fed?',
+          "You've seen more of the\nShire in a week than most\nhobbits see in a lifetime.",
+          'Whatever road we take from\nhere -- I could ask for no\nbetter company.',
+        ],
+      },
       { lines: ['Step aboard! Buckland is\njust across the water.'] },
+    ],
+  },
+
+  walking_song: {
+    name: 'Frodo',
+    lines: [
+      'The Road goes ever on\nand on, down from the door\nwhere it began...',
+      'Now far ahead the Road\nhas gone, and I must\nfollow, if I can.',
+      'Bilbo made that one up,\nwalking this very road.\nIt feels different today.',
+    ],
+  },
+
+  fox_thought: {
+    name: 'A Fox',
+    lines: [
+      "'Hobbits!' he thought.\n'Well, what next? I have\nheard of strange doings...'",
+      "'...but I have seldom heard\nof a hobbit sleeping out\nof doors under a tree.'",
+      "'There is something mighty\nqueer behind this,' he\nthought. He was quite right,",
+      'but he never found out\nany more about it.',
     ],
   },
 };
@@ -273,13 +610,14 @@ export const DIALOGUES = {
  * Resolve which stage of a dialogue applies for the current flags.
  * @param {string} key
  * @param {Record<string, boolean>} flags
+ * @param {(item: string) => number} [count] item-count lookup, for item-aware predicates
  * @returns {({ name: string } & import('./types.js').DialogueStage) | null}
  */
-export function resolveDialogue(key, flags) {
+export function resolveDialogue(key, flags, count = () => 0) {
   const dlg = DIALOGUES[key];
   if (!dlg) return null;
   if (dlg.lines) return { name: dlg.name, lines: dlg.lines };
-  const stage = dlg.stages.find((s) => !s.when || s.when(flags));
+  const stage = dlg.stages.find((s) => !s.when || s.when(flags, count));
   if (!stage) return null;
   return { name: dlg.name, ...stage };
 }

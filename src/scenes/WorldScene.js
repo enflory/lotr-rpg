@@ -2,7 +2,19 @@ import Phaser from 'phaser';
 import { T, TILE_SIZE, COLLISION_TILES } from '../data/tileTypes.js';
 import { ZONES } from '../data/zones/index.js';
 import { resolveDialogue } from '../data/dialogues.js';
-import { gameState, setFlag, hasFlag, setObjective } from '../state/GameState.js';
+import {
+  gameState,
+  setFlag,
+  hasFlag,
+  setObjective,
+  addItem,
+  removeItem,
+  itemCount,
+  collect,
+  isCollected,
+} from '../state/GameState.js';
+import { ITEMS, ITEM_KEYS } from '../data/items.js';
+import { QUESTS } from '../data/quests.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
 
 const SPEED = 72;
@@ -71,6 +83,10 @@ export class WorldScene extends Phaser.Scene {
       if (def.when && !def.when(gameState.flags)) continue;
       this.spawnNpc(def);
     }
+
+    /* ── pickups ─────────────────────────────────────── */
+    this.pickups = [];
+    for (const def of zone.pickups ?? []) this.spawnPickup(def);
 
     /* ── interaction hint icon ───────────────────────── */
     this.hintIcon = this.add.image(0, 0, 'hint').setVisible(false).setDepth(900);
@@ -149,6 +165,27 @@ export class WorldScene extends Phaser.Scene {
       .setAlpha(0);
     this.bannerTween = null;
 
+    /* ── inventory/errand overlay (I) ─────────────────── */
+    this.overlayVisible = false;
+    this.overlayBg = this.add
+      .rectangle(160, 120, 260, 168, 0x000000, 0.92)
+      .setScrollFactor(0)
+      .setDepth(1100)
+      .setVisible(false)
+      .setStrokeStyle(1, 0xc8a84e);
+    this.overlayText = this.add
+      .text(40, 46, '', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '6px',
+        color: '#f0ead6',
+        lineSpacing: 6,
+      })
+      .setScrollFactor(0)
+      .setDepth(1101)
+      .setVisible(false);
+    this.overlayIcons = [];
+    this.input.keyboard.on('keydown-I', () => this.toggleOverlay());
+
     /* ── camera ──────────────────────────────────────── */
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     this.cameras.main.setBounds(0, 0, this.mapWidth * TILE_SIZE, this.mapHeight * TILE_SIZE);
@@ -208,6 +245,21 @@ export class WorldScene extends Phaser.Scene {
       this.npcs[i].destroy();
       this.npcs.splice(i, 1);
     }
+  }
+
+  /* ── pickups ───────────────────────────────────────── */
+  spawnPickup(def) {
+    if (isCollected(def.id)) return;
+    if (def.when && !def.when(gameState.flags)) return;
+    if (this.pickups.some((p) => p.def.id === def.id)) return;
+    const spr = this.add.image(
+      def.x * TILE_SIZE + 8,
+      def.y * TILE_SIZE + 8,
+      'items',
+      ITEM_KEYS.indexOf(def.item),
+    );
+    spr.setDepth(def.y * TILE_SIZE);
+    this.pickups.push({ def, spr });
   }
 
   /* ── follower ──────────────────────────────────────── */
@@ -311,6 +363,21 @@ export class WorldScene extends Phaser.Scene {
     this.player.setDepth(this.player.y);
     this.updateFollower(moving);
 
+    /* ── pickup collection (walk-over) ───────────────── */
+    for (let i = this.pickups.length - 1; i >= 0; i--) {
+      const { def, spr } = this.pickups[i];
+      if (Phaser.Math.Distance.Between(this.player.x, this.player.y + 8, spr.x, spr.y) > 10)
+        continue;
+      this.pickups.splice(i, 1);
+      spr.destroy();
+      collect(def.id);
+      addItem(def.item);
+      sfx.jingle();
+      const n = itemCount(def.item);
+      this.showBanner(`Got: ${ITEMS[def.item].name}${n > 1 ? ` (${n})` : ''}!`);
+      if (def.onCollect) this.startDialogue(def.onCollect);
+    }
+
     /* ── NPC proximity + hint ────────────────────────── */
     let closestNpc = null;
     let closestDist = Infinity;
@@ -397,7 +464,7 @@ export class WorldScene extends Phaser.Scene {
         return;
       }
 
-      if (tile === T.SIGN) {
+      if (tile === T.SIGN || COLLISION_TILES.includes(tile)) {
         const sign = this.zone.signs.find((s) => s.x === tx && s.y === ty);
         if (sign) {
           this.startDialogue(sign.dialogue);
@@ -440,7 +507,8 @@ export class WorldScene extends Phaser.Scene {
 
   /* ── dialogue system ───────────────────────────────── */
   startDialogue(key) {
-    const dlg = resolveDialogue(key, gameState.flags);
+    if (this.overlayVisible) this.toggleOverlay();
+    const dlg = resolveDialogue(key, gameState.flags, itemCount);
     if (!dlg) return;
 
     this.dialogActive = true;
@@ -516,6 +584,12 @@ export class WorldScene extends Phaser.Scene {
     if (stage.set) {
       for (const flag of [].concat(stage.set)) setFlag(flag);
     }
+    if (stage.give) {
+      addItem(stage.give);
+      sfx.jingle();
+      this.showBanner(`Got: ${ITEMS[stage.give].name}!`);
+    }
+    if (stage.take) removeItem(stage.take);
     if (stage.join && !gameState.follower) {
       gameState.follower = stage.join;
       this.removeNpc(stage.join);
@@ -526,6 +600,19 @@ export class WorldScene extends Phaser.Scene {
       setObjective(stage.objective);
       sfx.jingle();
       this.showBanner(`~ ${stage.objective} ~`);
+    }
+
+    this.refreshSpawns();
+  }
+
+  /* ── spawn refresh (flags flip mid-scene via dialogue) ─ */
+  refreshSpawns() {
+    for (const def of this.zone.pickups ?? []) this.spawnPickup(def);
+    for (const def of this.zone.npcs) {
+      if (def.when && !def.when(gameState.flags)) continue;
+      if (this.npcs.some((n) => n.getData('key') === def.key)) continue;
+      if (this.follower && this.follower.getData('key') === def.key) continue;
+      this.spawnNpc(def);
     }
   }
 
@@ -565,5 +652,58 @@ export class WorldScene extends Phaser.Scene {
       yoyo: true,
       onComplete: () => label.destroy(),
     });
+  }
+
+  /* ── inventory/errand overlay ─────────────────────────── */
+  toggleOverlay() {
+    this.overlayVisible = !this.overlayVisible;
+    this.overlayBg.setVisible(this.overlayVisible);
+    this.overlayText.setVisible(this.overlayVisible);
+    for (const icon of this.overlayIcons) icon.destroy();
+    this.overlayIcons = [];
+    if (!this.overlayVisible) return;
+    sfx.confirm();
+
+    const lines = [];
+    let row = 0;
+    for (const key of ITEM_KEYS) {
+      const n = itemCount(key);
+      if (!n) continue;
+      const icon = this.add
+        .image(48, 58 + row * 14, 'items', ITEM_KEYS.indexOf(key))
+        .setScrollFactor(0)
+        .setDepth(1101);
+      this.overlayIcons.push(icon);
+      lines.push(`   ${ITEMS[key].name}${n > 1 ? ` x${n}` : ''}`);
+      row++;
+    }
+    if (!lines.length) lines.push('(nothing carried)');
+
+    lines.push('');
+    const count = itemCount;
+    for (const q of QUESTS) {
+      if (!q.active(gameState.flags, count) && !q.done(gameState.flags, count)) continue;
+      lines.push(`${q.done(gameState.flags, count) ? '[x]' : '[ ]'} ${q.title}`);
+    }
+
+    lines.push('');
+    lines.push(this.tallyLine());
+    this.overlayText.setText(lines.join('\n'));
+  }
+
+  tallyLine() {
+    const totals = {};
+    const found = {};
+    for (const z of Object.values(ZONES)) {
+      for (const p of z.pickups ?? []) {
+        totals[p.item] = (totals[p.item] || 0) + 1;
+        if (isCollected(p.id)) found[p.item] = (found[p.item] || 0) + 1;
+      }
+    }
+    const parts = [];
+    for (const key of ['mathom', 'mushroom']) {
+      if (totals[key]) parts.push(`${ITEMS[key].name}s ${found[key] || 0}/${totals[key]}`);
+    }
+    return parts.join(' · ');
   }
 }

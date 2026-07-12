@@ -631,6 +631,93 @@ function drawReeds(c, ox) {
   }
 }
 
+/* ── Hobbiton village dressing ─────────────────────────────── */
+
+function drawWheel(c, ox) {
+  // Mill wheel over the Water — water base under a spoked brown ring
+  rc(c, ox, 0, 16, 16, '#3b7dd8');
+  circle(c, ox + 8, 8, 7, '#5a3a1c');
+  circle(c, ox + 8, 8, 5, '#3b7dd8');
+  rc(c, ox + 7, 1, 2, 14, '#8a6b3d');
+  rc(c, ox + 1, 7, 14, 2, '#8a6b3d');
+  circle(c, ox + 8, 8, 2, '#8a6b3d');
+  circle(c, ox + 8, 8, 1, '#5a3a1c');
+  for (const [dx, dy] of [[8,1],[15,8],[8,15],[1,8],[3,3],[13,3],[3,13],[13,13]])
+    px(c, ox + dx, dy, '#e8f0f4');
+}
+
+function drawCrate(c, ox) {
+  // Firework crate: planked box with rocket tips poking from the open top
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox + 2, 5, 12, 10, '#a5823c');
+  rc(c, ox + 2, 5, 12, 1, '#6e5228');
+  rc(c, ox + 2, 9, 12, 1, '#6e5228');
+  rc(c, ox + 2, 10, 12, 3, '#3a2a18');
+  rc(c, ox + 4, 1, 2, 5, '#e04040');
+  rc(c, ox + 10, 0, 2, 6, '#e04040');
+  px(c, ox + 4, 0, '#e8d070'); px(c, ox + 11, 0, '#e8d070');
+}
+
+function drawWell(c, ox) {
+  // Village well: stone ring with a dark hole, timber posts and crossbar
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  circle(c, ox + 8, 10, 6, '#7a7a88');
+  circle(c, ox + 8, 10, 4, '#14141a');
+  rc(c, ox + 1, 1, 2, 10, '#8a6b3d');
+  rc(c, ox + 13, 1, 2, 10, '#8a6b3d');
+  rc(c, ox + 1, 0, 14, 2, '#8a6b3d');
+  rc(c, ox + 7, 2, 2, 6, '#5a3a1c');
+}
+
+function drawBarn(c, ox) {
+  // Timber wall face (analogous to drawStone, but planked with a cross-brace)
+  rc(c, ox, 0, 16, 16, '#7a5530');
+  for (let y = 4; y < 16; y += 4) rc(c, ox, y, 16, 1, '#5a3a1c');
+  for (let i = 0; i < 16; i++) {
+    px(c, ox + i, i, '#5a3a1c');
+    px(c, ox + 15 - i, i, '#5a3a1c');
+  }
+  rc(c, ox + 1, 1, 4, 2, '#8a6540');
+  rc(c, ox + 10, 6, 4, 2, '#8a6540');
+  rc(c, ox + 3, 11, 4, 2, '#8a6540');
+}
+
+function drawFeast(c, ox) {
+  // Feast table cloth with bread and fruit dabs
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox + 1, 3, 14, 11, '#f0ece4');
+  rc(c, ox + 1, 3, 14, 1, '#d8d4c8');
+  for (const [dx, dy, col] of [
+    [3,6,'#e8d070'],[7,5,'#c04060'],[11,7,'#e8d070'],
+    [5,10,'#f0e6c8'],[9,10,'#c04060'],[13,9,'#e8d070'],[3,10,'#c04060'],
+  ])
+    rc(c, ox + dx, dy, 2, 2, col);
+}
+
+function drawDitch(c, ox) {
+  // Sunken drainage ditch: grass banks above and below a dark water line
+  rc(c, ox, 0, 16, 5, '#4a6a2c');
+  rc(c, ox, 11, 16, 5, '#4a6a2c');
+  rc(c, ox, 5, 16, 6, '#3e6070');
+  rc(c, ox, 5, 16, 1, '#2a4a54');
+  rc(c, ox, 10, 16, 1, '#2a4a54');
+  px(c, ox + 3, 7, '#2a4a54'); px(c, ox + 10, 8, '#2a4a54');
+  px(c, ox + 13, 6, '#6b98b8'); px(c, ox + 6, 9, '#6b98b8');
+}
+
+function drawWaggon(c, ox) {
+  // Side-on cart: bed, two wheels, and a hay load on top
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox + 1, 5, 14, 6, '#8a6b3d');
+  rc(c, ox + 1, 5, 14, 1, '#a5823c');
+  rc(c, ox + 2, 0, 11, 5, '#e8d070');
+  px(c, ox + 3, 1, '#c8b060'); px(c, ox + 9, 1, '#c8b060');
+  circle(c, ox + 4, 12, 3, '#5a3a1c');
+  circle(c, ox + 4, 12, 1, '#3a2410');
+  circle(c, ox + 12, 12, 3, '#5a3a1c');
+  circle(c, ox + 12, 12, 1, '#3a2410');
+}
+
 export const TILE_FNS = [
   drawGrass, drawGrass2, drawPath, drawWater, drawTree,
   drawHill, drawHillTop, drawDoor, drawBridge, drawFence,
@@ -641,6 +728,7 @@ export const TILE_FNS = [
   drawFern, drawTree2, drawSign, drawVoid, drawDock, drawDockS,
   drawPartyTL, drawPartyTR, drawPartyBL, drawPartyBR, drawTent, drawLantern,
   drawPartyNL, drawPartyNR, drawBog, drawReeds,
+  drawWheel, drawCrate, drawWell, drawBarn, drawFeast, drawDitch, drawWaggon,
 ];
 
 export function makeTilesetDataURL() {

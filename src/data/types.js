@@ -44,6 +44,16 @@
  */
 
 /**
+ * @typedef {Object} PickupDef
+ * @property {string} id globally unique (prefix with zone key)
+ * @property {number} x tile column
+ * @property {number} y tile row
+ * @property {string} item key in ITEMS
+ * @property {(flags: Record<string, boolean>) => boolean} [when] spawn condition
+ * @property {string} [onCollect] dialogue key auto-started after collection
+ */
+
+/**
  * @typedef {Object} Zone
  * @property {string} key registry key
  * @property {string} label shown as the zone title card
@@ -54,6 +64,7 @@
  * @property {DoorDef[]} doors
  * @property {SignDef[]} signs
  * @property {ExitDef[]} exits
+ * @property {PickupDef[]} [pickups]
  * @property {(scene: any) => void} [onCreate] one-time scripting when the zone builds
  * @property {(scene: any, delta: number) => void} [onUpdate] per-frame scripting
  */
@@ -61,10 +72,12 @@
 /**
  * @typedef {Object} DialogueStage
  * @property {string[]} lines
- * @property {(flags: Record<string, boolean>) => boolean} [when] first matching stage wins
+ * @property {(flags: Record<string, boolean>, count: (item: string) => number) => boolean} [when] first matching stage wins
  * @property {string|string[]} [set] flag(s) set when the dialogue closes
  * @property {string} [objective] new objective banner text
  * @property {string} [join] character key that becomes the follower
+ * @property {string} [give] item key granted when the dialogue closes
+ * @property {string} [take] item key removed when the dialogue closes
  */
 
 /**
@@ -72,6 +85,15 @@
  * @property {string} name speaker name
  * @property {string[]} [lines] static form
  * @property {DialogueStage[]} [stages] staged form
+ */
+
+/**
+ * @typedef {Object} QuestDef
+ * @property {string} key registry key
+ * @property {string} title shown in the errand overlay
+ * @property {string} hint one-line nudge toward the next step
+ * @property {(flags: Record<string, boolean>, count: (item: string) => number) => boolean} active
+ * @property {(flags: Record<string, boolean>, count: (item: string) => number) => boolean} done
  */
 
 export {};

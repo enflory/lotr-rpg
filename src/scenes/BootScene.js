@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { makeTilesetDataURL } from '../art/tiles.js';
 import { CHAR_NAMES, makeCharSheet, makeRiderSheet, CH } from '../art/characters.js';
 import { makeHintSprite } from '../art/ui.js';
+import { makeItemIconsDataURL } from '../art/items.js';
 
 const TS = 16;
 
@@ -32,6 +33,11 @@ export class BootScene extends Phaser.Scene {
     });
 
     this.load.image('hint', makeHintSprite());
+
+    this.load.spritesheet('items', makeItemIconsDataURL(), {
+      frameWidth: 12,
+      frameHeight: 12,
+    });
   }
 
   create() {

@@ -49,6 +49,14 @@ export const T = {
   // The Marish
   BOG: 42, // squelchy wet ground (walkable)
   REEDS: 43, // marsh rushes (solid)
+  // Hobbiton village dressing
+  WHEEL: 44, // mill wheel over water
+  CRATE: 45, // firework crate
+  WELL: 46, // village well
+  BARN: 47, // timber barn wall
+  FEAST: 48, // feast table cloth
+  DITCH: 49, // drainage ditch
+  WAGGON: 50, // waggon (Maggot's cart)
 };
 
 export const COLLISION_TILES = [
@@ -81,6 +89,13 @@ export const COLLISION_TILES = [
   T.PARTY_NL,
   T.PARTY_NR,
   T.REEDS,
+  T.WHEEL,
+  T.CRATE,
+  T.WELL,
+  T.BARN,
+  T.FEAST,
+  T.DITCH,
+  T.WAGGON,
 ];
 
 export const TILE_SIZE = 16;

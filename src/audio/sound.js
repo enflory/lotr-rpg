@@ -189,4 +189,10 @@ export const sfx = {
     tone(37, t + 0.5, 0.9, 'sawtooth', 0.28, master);
     tone(43, t + 0.5, 0.9, 'sawtooth', 0.24, master);
   },
+  elfsong() {
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    [[0, 76], [0.3, 80], [0.6, 83], [0.9, 88], [1.4, 83], [1.9, 88]].forEach(([dt, m]) =>
+      tone(m, t + dt, 0.7, 'triangle', 0.22, master));
+  },
 };

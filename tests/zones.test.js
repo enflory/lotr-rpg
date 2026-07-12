@@ -3,11 +3,12 @@
 
 import { describe, it, expect } from 'vitest';
 import { ZONES } from '../src/data/zones/index.js';
-import { ROAD_Y, woodyend } from '../src/data/zones/woodyend.js';
-import { LANE_Y, FARM, marish } from '../src/data/zones/marish.js';
+import { ROAD_Y, HOLLOW, woodyend } from '../src/data/zones/woodyend.js';
+import { LANE_Y, FARM, PIER_X, marish } from '../src/data/zones/marish.js';
 import { DIALOGUES } from '../src/data/dialogues.js';
 import { CHAR_DEFS } from '../src/art/characters.js';
 import { T, COLLISION_TILES } from '../src/data/tileTypes.js';
+import { ITEMS } from '../src/data/items.js';
 
 const zones = Object.values(ZONES);
 const validTiles = new Set(Object.values(T));
@@ -30,6 +31,39 @@ const inBounds = (zone, x, y) =>
   x < zone.map[0].length;
 
 const walkable = (zone, x, y) => !solid.has(zone.map[y][x]);
+
+// 4-connected flood of walkable tiles from every spawn — the region the
+// player can actually reach on foot. Catches hand-carved pockets the
+// procedural forest seals off (boxed-in pickups, an unreachable vignette).
+const reachable = (zone) => {
+  const H = zone.map.length,
+    W = zone.map[0].length;
+  const seen = Array.from({ length: H }, () => Array(W).fill(false));
+  const stack = [];
+  for (const s of Object.values(zone.spawns)) {
+    if (walkable(zone, s.x, s.y) && !seen[s.y][s.x]) {
+      seen[s.y][s.x] = true;
+      stack.push([s.x, s.y]);
+    }
+  }
+  while (stack.length) {
+    const [x, y] = stack.pop();
+    for (const [dx, dy] of [
+      [0, -1],
+      [0, 1],
+      [-1, 0],
+      [1, 0],
+    ]) {
+      const nx = x + dx,
+        ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= W || ny >= H || seen[ny][nx]) continue;
+      if (!walkable(zone, nx, ny)) continue;
+      seen[ny][nx] = true;
+      stack.push([nx, ny]);
+    }
+  }
+  return seen;
+};
 
 describe('zone maps', () => {
   it('every zone has key, label, music, and a rectangular map', () => {
@@ -115,13 +149,14 @@ describe('doors and exits', () => {
 });
 
 describe('signs and NPCs', () => {
-  it('every sign sits on a SIGN tile and has a dialogue entry', () => {
+  it('every sign/examine sits on a SIGN or solid tile and has a dialogue entry', () => {
     for (const zone of zones) {
       for (const sign of zone.signs) {
+        const tile = zone.map[sign.y][sign.x];
         expect(
-          zone.map[sign.y][sign.x],
-          `${zone.key} sign (${sign.x},${sign.y}) not on SIGN tile`,
-        ).toBe(T.SIGN);
+          tile === T.SIGN || solid.has(tile),
+          `${zone.key} sign (${sign.x},${sign.y}) on walkable non-sign tile — unreachable`,
+        ).toBe(true);
         expect(
           DIALOGUES[sign.dialogue],
           `${zone.key} sign references unknown dialogue ${sign.dialogue}`,
@@ -155,12 +190,18 @@ describe('the Party Field (western Shire)', () => {
   });
 
   it('the East Road leaves Hobbiton two tiles tall', () => {
-    for (let x = 30; x <= 39; x++) {
+    for (let x = 30; x <= 47; x++) {
       expect(shire.map[19][x], `road missing at (${x},19)`).toBe(T.PATH);
       expect(shire.map[20][x], `road missing at (${x},20)`).toBe(T.PATH);
     }
     const east = shire.exits.filter((e) => e.zone === 'woodyend');
-    expect(east.map((e) => `${e.x},${e.y}`).sort()).toEqual(['39,19', '39,20']);
+    expect(east.map((e) => `${e.x},${e.y}`).sort()).toEqual(['47,19', '47,20']);
+  });
+
+  it('the mill and the Ivy Bush stand where the doors say', () => {
+    expect(shire.map[39][5]).toBe(T.DOOR); // mill door
+    expect(shire.map[23][42]).toBe(T.DOOR); // Ivy Bush door
+    expect(shire.map[24][40]).toBe(T.SIGN);
   });
 
   it('the field spur connects the party spawn to the north-south road', () => {
@@ -175,9 +216,14 @@ describe('the Party Field (western Shire)', () => {
         .filter((n) => !n.when || n.when(flags))
         .map((n) => n.key)
         .sort();
-    expect(at({})).toEqual(['bilbo', 'gaffer', 'gandalf', 'rosie', 'ted']);
-    expect(at({ prologueDone: true })).toEqual(['gaffer', 'gandalf', 'lobelia', 'sam']);
-    expect(at({ prologueDone: true, samJoined: true })).toEqual(['gaffer', 'gandalf', 'lobelia']);
+    expect(at({})).toEqual(['bilbo', 'gaffer', 'gandalf', 'noakes', 'rosie', 'ted', 'twofoot']);
+    expect(at({ prologueDone: true })).toEqual(['gaffer', 'gandalf', 'lobelia', 'sam', 'sandyman']);
+    expect(at({ prologueDone: true, samJoined: true })).toEqual([
+      'gaffer',
+      'gandalf',
+      'lobelia',
+      'sandyman',
+    ]);
   });
 
   it('no NPC key is duplicated for any flag state', () => {
@@ -206,7 +252,7 @@ describe('the Woody End (generated map)', () => {
 
   it('has fern hiding spots adjacent to the road along the whole stretch', () => {
     // The Black Rider set piece is unwinnable without ferns to hide in.
-    for (let x0 = 4; x0 < 32; x0 += 8) {
+    for (let x0 = 4; x0 < 56; x0 += 8) {
       let ferns = 0;
       for (let x = x0; x < x0 + 8; x++) {
         if (map[ROAD_Y[x] - 1][x] === T.FERN) ferns++;
@@ -220,7 +266,7 @@ describe('the Woody End (generated map)', () => {
     const east = woodyend.exits.filter((e) => e.zone === 'marish');
     expect(east.length).toBe(2);
     for (const exit of east) {
-      expect(exit.x).toBe(39);
+      expect(exit.x).toBe(63);
       expect(exit.requires).toBe('metGildor');
     }
     // No river remains in the Woody End — the Brandywine moved to the Marish
@@ -237,6 +283,26 @@ describe('the Woody End (generated map)', () => {
     expect(gildor.when({})).toBeFalsy();
     expect(gildor.when({ escapedRider: true })).toBeTruthy();
   });
+
+  it('the tree-tunnel closes over the road mid-forest', () => {
+    for (let x = 41; x <= 47; x++) {
+      expect(map[ROAD_Y[x] - 1][x]).toBe(T.TREE);
+      expect(map[ROAD_Y[x] + 2][x]).toBe(T.TREE);
+    }
+  });
+
+  it('the fox hollow is reachable, so the vignette can trigger', () => {
+    // foxEventUpdate fires when the player stands inside the HOLLOW box;
+    // if the forest seals it off the fox can never appear.
+    const seen = reachable(woodyend);
+    let anyReachable = false;
+    for (let y = HOLLOW.y0; y <= HOLLOW.y1; y++) {
+      for (let x = HOLLOW.x0; x <= HOLLOW.x1; x++) {
+        if (seen[y][x]) anyReachable = true;
+      }
+    }
+    expect(anyReachable, 'fox hollow is walled off — no way to trigger the fox').toBe(true);
+  });
 });
 
 describe('the Marish (generated map)', () => {
@@ -249,7 +315,7 @@ describe('the Marish (generated map)', () => {
   });
 
   it('the lane is carved two tiles tall up to the river', () => {
-    for (let x = 0; x < 34; x++) {
+    for (let x = 0; x < PIER_X; x++) {
       expect(map[LANE_Y[x]][x], `lane missing at (${x},${LANE_Y[x]})`).toBe(T.PATH);
       expect(map[LANE_Y[x] + 1][x], `lane missing at (${x},${LANE_Y[x] + 1})`).toBe(T.PATH);
     }
@@ -275,26 +341,54 @@ describe('the Marish (generated map)', () => {
   });
 
   it('the pier stands at lane height with six tiles of open water beyond', () => {
-    expect(map[13][34]).toBe(T.DOCK);
-    expect(map[14][34]).toBe(T.DOCK_S);
-    for (const y of [13, 14]) {
-      for (let x = 35; x <= 39; x++) {
+    expect(map[15][46]).toBe(T.DOCK);
+    expect(map[16][46]).toBe(T.DOCK_S);
+    for (const y of [15, 16]) {
+      for (let x = 47; x <= 51; x++) {
         expect(map[y][x], `raft channel at (${x},${y})`).toBe(T.WATER);
       }
     }
   });
 
   it('the Buckland shore is walkable where the raft lands', () => {
-    for (const y of [12, 13, 14]) {
-      expect(solid.has(map[y][40]), `far bank blocked at (40,${y})`).toBe(false);
+    for (const y of [14, 15, 16]) {
+      expect(solid.has(map[y][52]), `far bank blocked at (52,${y})`).toBe(false);
     }
   });
 
   it('maggot and merry come and go with the story flags', () => {
     const at = (flags) =>
       marish.npcs.filter((n) => !n.when || n.when(flags)).map((n) => `${n.key}@${n.x}`);
-    expect(at({})).toEqual(['maggot@23']);
-    expect(at({ rodeWaggon: true })).toEqual(['merry@32']);
-    expect(at({ rodeWaggon: true, crossedFerry: true })).toEqual(['merry@40']);
+    expect(at({})).toEqual(['maggot@24', 'mrsmaggot@20']);
+    expect(at({ rodeWaggon: true })).toEqual(['mrsmaggot@20', 'merry@44']);
+    expect(at({ rodeWaggon: true, crossedFerry: true })).toEqual(['mrsmaggot@20', 'merry@52']);
+  });
+});
+
+describe('pickups', () => {
+  const all = zones.flatMap((z) => (z.pickups ?? []).map((p) => ({ zone: z, p })));
+
+  it('every pickup has a unique id, a real item, and a walkable in-bounds tile', () => {
+    const ids = all.map(({ p }) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const { zone, p } of all) {
+      expect(ITEMS[p.item], `${p.id} references unknown item ${p.item}`).toBeTruthy();
+      expect(inBounds(zone, p.x, p.y), `${p.id} out of bounds`).toBe(true);
+      expect(walkable(zone, p.x, p.y), `${p.id} on solid tile`).toBe(true);
+      if (p.onCollect) expect(DIALOGUES[p.onCollect], `${p.id} onCollect`).toBeTruthy();
+    }
+  });
+
+  it('every pickup is actually reachable on foot from a spawn', () => {
+    // A pickup on a walkable tile can still be walled in by trees/fences.
+    for (const zone of zones) {
+      if (!zone.pickups?.length) continue;
+      const seen = reachable(zone);
+      for (const p of zone.pickups) {
+        expect(seen[p.y][p.x], `${p.id} at (${p.x},${p.y}) is boxed in — no walkable path`).toBe(
+          true,
+        );
+      }
+    }
   });
 });
