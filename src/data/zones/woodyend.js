@@ -133,6 +133,10 @@ function generateMap() {
       if (map[y][x] !== T.PATH) map[y][x] = T.GRASS;
   map[17][55] = T.FEAST; map[17][56] = T.FEAST;
 
+  // Open a spur north from the road so the mushroom at (61,7) is
+  // reachable — the procedural woods otherwise seal it in a pocket.
+  map[9][61] = T.GRASS;
+
   return map;
 }
 

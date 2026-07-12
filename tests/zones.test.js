@@ -332,4 +332,44 @@ describe('pickups', () => {
       if (p.onCollect) expect(DIALOGUES[p.onCollect], `${p.id} onCollect`).toBeTruthy();
     }
   });
+
+  it('every pickup is actually reachable on foot from a spawn', () => {
+    // A pickup on a walkable tile can still be walled in by trees/fences.
+    // Flood-fill the walkable tiles (4-connected, as the player navigates)
+    // from every spawn and require each pickup to land in that region.
+    for (const zone of zones) {
+      if (!zone.pickups?.length) continue;
+      const H = zone.map.length,
+        W = zone.map[0].length;
+      const seen = Array.from({ length: H }, () => Array(W).fill(false));
+      const stack = [];
+      for (const s of Object.values(zone.spawns)) {
+        if (walkable(zone, s.x, s.y) && !seen[s.y][s.x]) {
+          seen[s.y][s.x] = true;
+          stack.push([s.x, s.y]);
+        }
+      }
+      while (stack.length) {
+        const [x, y] = stack.pop();
+        for (const [dx, dy] of [
+          [0, -1],
+          [0, 1],
+          [-1, 0],
+          [1, 0],
+        ]) {
+          const nx = x + dx,
+            ny = y + dy;
+          if (nx < 0 || ny < 0 || nx >= W || ny >= H || seen[ny][nx]) continue;
+          if (!walkable(zone, nx, ny)) continue;
+          seen[ny][nx] = true;
+          stack.push([nx, ny]);
+        }
+      }
+      for (const p of zone.pickups) {
+        expect(seen[p.y][p.x], `${p.id} at (${p.x},${p.y}) is boxed in — no walkable path`).toBe(
+          true,
+        );
+      }
+    }
+  });
 });
