@@ -6,6 +6,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { ferryEventUpdate, ferryZoneCreate } from '../src/events/ferryEvent.js';
 import { gameState } from '../src/state/GameState.js';
 import { TILE_SIZE } from '../src/data/tileTypes.js';
+import { PIER_X, LANE_ROW, RAFT_X, BANK_LAND_X } from '../src/data/zones/marish.js';
 
 function makeSprite(key, x = 0, y = 0) {
   return {
@@ -36,8 +37,11 @@ function makeScene() {
   const scene = {
     ferryEvent: null,
     inputLocked: false,
-    zone: { spawns: { landing: { x: 30, y: 13 } } },
-    player: { ...makeSprite('frodo', 30 * TILE_SIZE, 13 * TILE_SIZE), body: { enable: true } },
+    zone: { spawns: { landing: { x: PIER_X - 4, y: LANE_ROW } } },
+    player: {
+      ...makeSprite('frodo', (PIER_X - 4) * TILE_SIZE, LANE_ROW * TILE_SIZE),
+      body: { enable: true },
+    },
     follower: makeSprite('sam'),
     npcs: [],
     banners: [],
@@ -123,7 +127,7 @@ describe('the waggon ride', () => {
     expect(gameState.flags.rodeWaggon).toBe(true);
     expect(scene.removed).toEqual(['maggot']);
     expect(scene.spawned).toEqual(['merry']);
-    expect(scene.player.x).toBe(30 * TILE_SIZE + 8);
+    expect(scene.player.x).toBe((PIER_X - 4) * TILE_SIZE + 8);
     expect(scene.ferryEvent.phase).toBe('armed');
     expect(scene.inputLocked).toBe(false);
 
@@ -146,12 +150,12 @@ describe('the moored raft', () => {
     const scene = makeScene();
     ferryZoneCreate(scene);
     expect(scene.images.length).toBe(4); // 2×2 raft, present before Merry
-    expect(scene.images[0].x).toBe(35 * TILE_SIZE + 8);
+    expect(scene.images[0].x).toBe(RAFT_X * TILE_SIZE + 8);
 
     const after = makeScene();
     gameState.flags.crossedFerry = true;
     ferryZoneCreate(after);
-    expect(after.images[0].x).toBe(38 * TILE_SIZE + 8); // eastern shallows
+    expect(after.images[0].x).toBe((RAFT_X + 3) * TILE_SIZE + 8); // eastern shallows
   });
 });
 
@@ -163,8 +167,8 @@ describe('the ferry crossing', () => {
     gameState.flags.merryMet = true;
     ferryZoneCreate(scene);
     ferryEventUpdate(scene, 16); // idle → armed
-    scene.npcs.push(makeSprite('merry', 32 * TILE_SIZE, 12 * TILE_SIZE));
-    scene.player.x = 34 * TILE_SIZE + 8; // step onto the pier
+    scene.npcs.push(makeSprite('merry', (PIER_X - 2) * TILE_SIZE, (LANE_ROW - 1) * TILE_SIZE));
+    scene.player.x = PIER_X * TILE_SIZE + 8; // step onto the pier
     return scene;
   }
 
@@ -190,7 +194,7 @@ describe('the ferry crossing', () => {
     ferryEventUpdate(scene, 60_000); // run the tween to its end
     // Raft columns 38-39 at journey's end — the bank starts at 40
     const rightmost = Math.max(...scene.images.map((i) => i.x));
-    expect(rightmost).toBeLessThan(40 * TILE_SIZE);
+    expect(rightmost).toBeLessThan(BANK_LAND_X * TILE_SIZE);
   });
 
   it('summons the Rider midstream and halts him at the bank', () => {
@@ -214,7 +218,7 @@ describe('the ferry crossing', () => {
     expect(gameState.flags.crossedFerry).toBe(true);
     expect(gameState.objective).toMatch(/Chapter Two/);
     expect(scene.player.body.enable).toBe(true);
-    expect(scene.player.x).toBe(40 * TILE_SIZE + 8);
+    expect(scene.player.x).toBe(BANK_LAND_X * TILE_SIZE + 8);
     expect(scene.inputLocked).toBe(false);
 
     ferryEventUpdate(scene, 16); // machine is now inert

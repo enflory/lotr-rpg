@@ -7,7 +7,7 @@
 import { T } from '../tileTypes.js';
 import { ferryEventUpdate, ferryZoneCreate } from '../../events/ferryEvent.js';
 
-const WIDTH = 44, HEIGHT = 26;
+const WIDTH = 56, HEIGHT = 30;
 
 // Deterministic PRNG so the marsh is the same every visit
 function lcg(seed) {
@@ -20,15 +20,21 @@ function lcg(seed) {
 export const LANE_Y = [];
 for (let x = 0; x < WIDTH; x++) {
   // Bends sit clear of the farm plot so the joins never cross its fence
-  LANE_Y[x] = x < 8 ? 12 : x < 29 ? 9 : 13;
+  LANE_Y[x] = x < 8 ? 14 : x < 30 ? 10 : 15;
 }
 
 // Farm plot bounds (fence perimeter), gate on the north side east of
 // the farmhouse
-export const FARM = { x0: 14, x1: 27, y0: 13, y1: 21, gateX: 23 };
+export const FARM = { x0: 14, x1: 29, y0: 14, y1: 24, gateX: 24 };
 
-const RIVER_X = 34; // water from here east
-const BANK_X = 40; // far (Buckland) shore — six tiles of open water between
+const RIVER_X = 46; // water from here east
+const BANK_X = 52; // far (Buckland) shore — six tiles of open water between
+
+export const PIER_X = RIVER_X; // 46
+export const LANE_ROW = LANE_Y[RIVER_X - 1]; // 15
+export const RAFT_X = RIVER_X + 1; // 47
+export const BANK_LAND_X = BANK_X; // 52
+export const RIDER_START_X = RIVER_X - 18; // 28
 
 function generateMap() {
   const rnd = lcg(0xba9);
@@ -83,6 +89,13 @@ function generateMap() {
         const pool = x >= px0 && x <= px0 + 1 && y >= py0 && y <= py0 + 1;
         map[y][x] = pool ? T.WATER : T.REEDS;
       }
+  }
+
+  // The causeway to the Ferry — raised lane between two dikes.
+  for (let x = 34; x <= 43; x++) {
+    const north = LANE_Y[x] - 1, south = LANE_Y[x] + 2;
+    if (map[north][x] !== T.PATH) map[north][x] = T.DITCH;
+    if (map[south][x] !== T.PATH) map[south][x] = T.DITCH;
   }
 
   // ── Bamfurlong, Farmer Maggot's farm ────────────────
@@ -161,24 +174,24 @@ export const marish = {
   music: 'forest',
   map: generateMap(),
   spawns: {
-    west: { x: 1, y: 12, dir: 'right' },
-    landing: { x: 30, y: 13, dir: 'right' },
+    west: { x: 1, y: 14, dir: 'right' },
+    landing: { x: 42, y: 15, dir: 'right' },
   },
   npcs: [
     // At his gate until the waggon ride; Merry waits at the lamplit
     // landing after it; after the crossing Merry stands on the far bank.
-    { key: 'maggot', x: 23, y: 16, dir: 'up', when: (f) => !f.rodeWaggon },
-    { key: 'merry', x: 32, y: 12, dir: 'down', when: (f) => f.rodeWaggon && !f.crossedFerry },
-    { key: 'merry', x: 40, y: 12, dir: 'down', when: (f) => f.crossedFerry },
+    { key: 'maggot', x: 24, y: 16, dir: 'up', when: (f) => !f.rodeWaggon },
+    { key: 'merry', x: 44, y: 14, dir: 'down', when: (f) => f.rodeWaggon && !f.crossedFerry },
+    { key: 'merry', x: 52, y: 14, dir: 'down', when: (f) => f.crossedFerry },
   ],
   doors: [],
   signs: [
-    { x: 33, y: 12, dialogue: 'sign_ferry' },
-    { x: 41, y: 12, dialogue: 'sign_buckland' },
+    { x: 45, y: 14, dialogue: 'sign_ferry' },
+    { x: 53, y: 14, dialogue: 'sign_buckland' },
   ],
   exits: [
-    { x: 0, y: 12, zone: 'woodyend', entry: 'east' },
-    { x: 0, y: 13, zone: 'woodyend', entry: 'east' },
+    { x: 0, y: 14, zone: 'woodyend', entry: 'east' },
+    { x: 0, y: 15, zone: 'woodyend', entry: 'east' },
   ],
   onCreate: ferryZoneCreate,
   onUpdate: ferryEventUpdate,

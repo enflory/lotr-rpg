@@ -10,14 +10,11 @@
 import { T, TILE_SIZE } from '../data/tileTypes.js';
 import { hasFlag, setFlag, setObjective } from '../state/GameState.js';
 import { sfx } from '../audio/sound.js';
+import { PIER_X, LANE_ROW, RAFT_X, BANK_LAND_X, RIDER_START_X } from '../data/zones/marish.js';
 
-const PIER_X = 34; // stepping onto the pier boards the raft
-const LANE_ROW = 13; // lane/pier top row at the river
-const RAFT_X = 35; // raft moors just off the pier end
 const CROSS_MS = 6000;
 const CROSS_PX = 3 * TILE_SIZE; // raft travel — it stops in the shallows,
 // never overlapping the grass bank (the deck art has water edges)
-const BANK_LAND_X = 40; // where the crew steps ashore
 const RIDER_SPEED = 96; // px/sec, hard gallop down the lane
 
 // zone.onCreate — moor the raft: west of the river before the
@@ -69,7 +66,7 @@ export function ferryEventUpdate(scene, delta) {
         const s = scene.zone.spawns.landing;
         scene.player.setPosition(s.x * TILE_SIZE + 8, s.y * TILE_SIZE + 8);
         scene.snapFollower();
-        scene.spawnNpc({ key: 'merry', x: 32, y: 12, dir: 'down' });
+        scene.spawnNpc({ key: 'merry', x: PIER_X - 2, y: LANE_ROW - 1, dir: 'down' });
         scene.inputLocked = false;
         scene.cameras.main.fadeIn(700, 0, 0, 0);
         scene.showBanner("Maggot's waggon rattles on\nthrough the dusk...");
@@ -124,7 +121,7 @@ export function ferryEventUpdate(scene, delta) {
     // Midstream, hoofbeats: a Rider sweeps down to the landing and
     // halts at the water's edge
     if (!ev.rider && p > 0.35) {
-      ev.rider = scene.add.sprite(28 * TILE_SIZE, LANE_ROW * TILE_SIZE + 8, 'rider');
+      ev.rider = scene.add.sprite(RIDER_START_X * TILE_SIZE, LANE_ROW * TILE_SIZE + 8, 'rider');
       ev.rider.play('rider-gallop');
       ev.rider.setDepth(ev.rider.y + 8);
       sfx.sting();
@@ -148,7 +145,7 @@ export function ferryEventUpdate(scene, delta) {
       scene.player.body.enable = true;
       scene.snapFollower();
       const merry = scene.npcs.find((n) => n.getData('key') === 'merry');
-      if (merry) merry.setPosition(BANK_LAND_X * TILE_SIZE + 8, 12 * TILE_SIZE + 6);
+      if (merry) merry.setPosition(BANK_LAND_X * TILE_SIZE + 8, (LANE_ROW - 1) * TILE_SIZE + 6);
       scene.inputLocked = false;
       setFlag('crossedFerry');
       setObjective('To be continued in Chapter Two...');

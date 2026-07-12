@@ -116,7 +116,7 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
   // Talk to Maggot at his gate → waggon offer (sets maggotRide)
   await page.evaluate(() => {
     const scene = window.__game.scene.getScene('WorldScene');
-    scene.player.setPosition(23 * 16 + 8, 15 * 16 + 8); // in the gateway above him
+    scene.player.setPosition(24 * 16 + 8, 15 * 16 + 8); // in the gateway above him (Maggot now at (24,16))
   });
   await press(page, ' ');
   await expect
@@ -139,12 +139,12 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
         return Math.floor(scene.player.x / 16);
       }),
     )
-    .toBe(30);
+    .toBe(42); // PIER_X-4
 
-  // Talk to Merry (32,12) → raft ready (sets merryMet)
+  // Talk to Merry (44,14) → raft ready (sets merryMet)
   await page.evaluate(() => {
     const scene = window.__game.scene.getScene('WorldScene');
-    scene.player.setPosition(32 * 16 + 8, 13 * 16 + 8);
+    scene.player.setPosition(44 * 16 + 8, 15 * 16 + 8); // Merry at (44,14)
   });
   await press(page, ' ');
   await expect
@@ -163,7 +163,7 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
   await page.waitForFunction(
     () => {
       const scene = window.__game.scene.getScene('WorldScene');
-      return Math.floor(scene.player.x / 16) >= 34 || scene.inputLocked;
+      return Math.floor(scene.player.x / 16) >= 46 || scene.inputLocked; // PIER_X
     },
     null,
     { timeout: 10_000 },
@@ -180,7 +180,7 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
     };
   });
   expect(end.objective).toMatch(/Chapter Two/);
-  expect(end.tileX).toBeGreaterThanOrEqual(40); // the Buckland shore
+  expect(end.tileX).toBeGreaterThanOrEqual(52); // the Buckland shore BANK_LAND_X
   expect(end.bodyEnabled).toBe(true);
 });
 

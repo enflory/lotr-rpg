@@ -4,7 +4,7 @@
 import { describe, it, expect } from 'vitest';
 import { ZONES } from '../src/data/zones/index.js';
 import { ROAD_Y, woodyend } from '../src/data/zones/woodyend.js';
-import { LANE_Y, FARM, marish } from '../src/data/zones/marish.js';
+import { LANE_Y, FARM, PIER_X, marish } from '../src/data/zones/marish.js';
 import { DIALOGUES } from '../src/data/dialogues.js';
 import { CHAR_DEFS } from '../src/art/characters.js';
 import { T, COLLISION_TILES } from '../src/data/tileTypes.js';
@@ -269,7 +269,7 @@ describe('the Marish (generated map)', () => {
   });
 
   it('the lane is carved two tiles tall up to the river', () => {
-    for (let x = 0; x < 34; x++) {
+    for (let x = 0; x < PIER_X; x++) {
       expect(map[LANE_Y[x]][x], `lane missing at (${x},${LANE_Y[x]})`).toBe(T.PATH);
       expect(map[LANE_Y[x] + 1][x], `lane missing at (${x},${LANE_Y[x] + 1})`).toBe(T.PATH);
     }
@@ -295,27 +295,27 @@ describe('the Marish (generated map)', () => {
   });
 
   it('the pier stands at lane height with six tiles of open water beyond', () => {
-    expect(map[13][34]).toBe(T.DOCK);
-    expect(map[14][34]).toBe(T.DOCK_S);
-    for (const y of [13, 14]) {
-      for (let x = 35; x <= 39; x++) {
+    expect(map[15][46]).toBe(T.DOCK);
+    expect(map[16][46]).toBe(T.DOCK_S);
+    for (const y of [15, 16]) {
+      for (let x = 47; x <= 51; x++) {
         expect(map[y][x], `raft channel at (${x},${y})`).toBe(T.WATER);
       }
     }
   });
 
   it('the Buckland shore is walkable where the raft lands', () => {
-    for (const y of [12, 13, 14]) {
-      expect(solid.has(map[y][40]), `far bank blocked at (40,${y})`).toBe(false);
+    for (const y of [14, 15, 16]) {
+      expect(solid.has(map[y][52]), `far bank blocked at (52,${y})`).toBe(false);
     }
   });
 
   it('maggot and merry come and go with the story flags', () => {
     const at = (flags) =>
       marish.npcs.filter((n) => !n.when || n.when(flags)).map((n) => `${n.key}@${n.x}`);
-    expect(at({})).toEqual(['maggot@23']);
-    expect(at({ rodeWaggon: true })).toEqual(['merry@32']);
-    expect(at({ rodeWaggon: true, crossedFerry: true })).toEqual(['merry@40']);
+    expect(at({})).toEqual(['maggot@24']);
+    expect(at({ rodeWaggon: true })).toEqual(['merry@44']);
+    expect(at({ rodeWaggon: true, crossedFerry: true })).toEqual(['merry@52']);
   });
 });
 
