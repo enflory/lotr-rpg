@@ -3,6 +3,7 @@
 
 import { T } from '../tileTypes.js';
 import { partyEventUpdate, partyZoneCreate } from '../../events/partyEvent.js';
+import { extendMap, stamp } from './mapUtils.js';
 
 // Shorthand
 const G = T.GRASS, P = T.PATH, W = T.WATER, R = T.TREE;
@@ -14,7 +15,7 @@ const q = T.PARTY_NL, u = T.PARTY_NR;
 const E = T.TENT, M = T.LANTERN;
 
 // 40 wide × 40 tall
-const MAP = [
+const BASE = [
 //  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
 
   // ── The Hill (Bag End at the top) ──────────────────
@@ -74,17 +75,70 @@ const MAP = [
   [R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R], // 39
 ];
 
+function buildMap() {
+  // 40×40 hand-authored core → 48×44
+  const map = extendMap(BASE, { east: 8, south: 4, fill: G });
+
+  // Open the old east and south tree borders (now interior) —
+  // x/y bounds include 39 so the old corner tree goes too
+  for (let y = 1; y < 39; y++) if (map[y][39] === R) map[y][39] = G;
+  for (let x = 1; x < 40; x++) if (map[39][x] === R) map[39][x] = G;
+
+  // The Water flows on east; the East Road runs to the new edge
+  for (const y of [36, 37]) for (let x = 40; x < 48; x++) map[y][x] = W;
+  for (const y of [19, 20]) for (let x = 39; x < 48; x++) map[y][x] = P;
+
+  // New borders (gap where the road leaves; the river hits the edge solid)
+  for (let x = 0; x < 48; x++) {
+    map[0][x] = R;
+    map[43][x] = R;
+  }
+  for (let y = 0; y < 44; y++) {
+    if (!(y === 19 || y === 20 || y === 36 || y === 37)) map[y][47] = R;
+  }
+
+  // ── Sandyman's Mill on the south bank ─────────────
+  // Wheel in the river beside the building; lane west from the bridge
+  map[37][2] = S; // T.WHEEL in Task 8
+  map[38][2] = S; // T.WHEEL in Task 8
+  stamp(map, 3, 38, [
+    [S, K, O, N, S],
+    [S, L, D, J, S],
+  ]);
+  map[39][8] = X; // mill sign
+  for (let x = 4; x <= 17; x++) map[40][x] = P; // mill lane
+  map[39][18] = P; // joins the bridge path at (18,38)
+  map[40][18] = P;
+
+  // ── The Ivy Bush, on the Bywater road ─────────────
+  stamp(map, 40, 22, [
+    [S, K, O, O, O, N, S],
+    [S, L, D, D, D, J, S],
+  ]);
+  map[24][40] = X; // inn sign
+  map[24][46] = M; // lantern by the benches
+  for (const x of [42, 43]) map[24][x] = P; // doorstep
+
+  // ── Orchard rows in the south-east ────────────────
+  for (const y of [28, 30, 32]) {
+    for (let x = 33; x <= 45; x += 3) map[y][x] = T.TREE2;
+  }
+  for (const [x, y] of [[35, 29], [40, 31], [44, 29]]) map[y][x] = f;
+
+  return map;
+}
+
 /** @type {import('../types.js').Zone} */
 export const shire = {
   key: 'shire',
   label: 'The Shire',
   music: 'shire',
-  map: MAP,
+  map: buildMap(),
   spawns: {
     default:         { x: 20, y: 7, dir: 'down' },
     fromBagEnd:      { x: 20, y: 5, dir: 'down' },
     fromGreenDragon: { x: 26, y: 24, dir: 'down' },
-    fromWoodyEnd:    { x: 38, y: 19, dir: 'left' },
+    fromWoodyEnd:    { x: 46, y: 19, dir: 'left' },
     party:           { x: 6, y: 27, dir: 'left' },
   },
   npcs: [
@@ -113,12 +167,12 @@ export const shire = {
   ],
   exits: [
     {
-      x: 39, y: 19, zone: 'woodyend', entry: 'west',
+      x: 47, y: 19, zone: 'woodyend', entry: 'west',
       requires: 'samJoined',
       denied: "I shouldn't set out\nwithout Sam.",
     },
     {
-      x: 39, y: 20, zone: 'woodyend', entry: 'west',
+      x: 47, y: 20, zone: 'woodyend', entry: 'west',
       requires: 'samJoined',
       denied: "I shouldn't set out\nwithout Sam.",
     },

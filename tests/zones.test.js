@@ -157,12 +157,18 @@ describe('the Party Field (western Shire)', () => {
   });
 
   it('the East Road leaves Hobbiton two tiles tall', () => {
-    for (let x = 30; x <= 39; x++) {
+    for (let x = 30; x <= 47; x++) {
       expect(shire.map[19][x], `road missing at (${x},19)`).toBe(T.PATH);
       expect(shire.map[20][x], `road missing at (${x},20)`).toBe(T.PATH);
     }
     const east = shire.exits.filter((e) => e.zone === 'woodyend');
-    expect(east.map((e) => `${e.x},${e.y}`).sort()).toEqual(['39,19', '39,20']);
+    expect(east.map((e) => `${e.x},${e.y}`).sort()).toEqual(['47,19', '47,20']);
+  });
+
+  it('the mill and the Ivy Bush stand where the doors say', () => {
+    expect(shire.map[39][5]).toBe(T.DOOR); // mill door
+    expect(shire.map[23][42]).toBe(T.DOOR); // Ivy Bush door
+    expect(shire.map[24][40]).toBe(T.SIGN);
   });
 
   it('the field spur connects the party spawn to the north-south road', () => {
