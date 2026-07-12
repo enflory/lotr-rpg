@@ -210,6 +210,20 @@ export const marish = {
     { x: 10, y: 16, dialogue: 'sign_stock' },
     { x: 54, y: 12, dialogue: 'examine_brandyhall' },
   ],
+  pickups: [
+    // Easy, by the lane
+    { id: 'marish_mush_1', x: 10, y: 12, item: 'mushroom' },
+    { id: 'marish_mush_2', x: 32, y: 8, item: 'mushroom' }, // nudged off REEDS at (31,8)
+    // Behind the west pool
+    { id: 'marish_mush_3', x: 4, y: 22, item: 'mushroom' },
+    { id: 'marish_mush_4', x: 7, y: 24, item: 'mushroom' },
+    // Deep bog pockets
+    { id: 'marish_mush_5', x: 34, y: 25, item: 'mushroom' },
+    { id: 'marish_mush_6', x: 42, y: 4, item: 'mushroom' }, // nudged off REEDS at (41,4)
+    // Inside Maggot's fence — picking them earns a scolding
+    { id: 'marish_mush_7', x: 17, y: 20, item: 'mushroom', onCollect: 'maggot_scold' },
+    { id: 'marish_mush_8', x: 26, y: 22, item: 'mushroom', onCollect: 'maggot_scold' },
+  ],
   exits: [
     { x: 0, y: 14, zone: 'woodyend', entry: 'east' },
     { x: 0, y: 15, zone: 'woodyend', entry: 'east' },

@@ -487,6 +487,20 @@ export const DIALOGUES = {
     ],
   },
 
+  maggot_scold: {
+    name: 'Farmer Maggot',
+    stages: [
+      {
+        when: (f) => !f.rodeWaggon,
+        lines: [
+          '"OI! Out of my crop, you\nyoung rascal, or I\'ll set\nthe dogs on you!"',
+          'Some things about the\nMarish never change.',
+        ],
+      },
+      { lines: ['You pick a fine fat one.\nThe farmer would only\nlaugh at you now.'] },
+    ],
+  },
+
   grip: {
     name: 'Grip',
     stages: [

@@ -157,6 +157,12 @@ export const woodyend = {
     { x: 55, y: 17, dialogue: 'elf_feast' },
     { x: 56, y: 17, dialogue: 'elf_feast' },
   ],
+  pickups: [
+    { id: 'woody_mush_1', x: 44, y: 6, item: 'mushroom' },
+    { id: 'woody_mush_2', x: 48, y: 18, item: 'mushroom' }, // nudged off TREE2 at (49,18)
+    { id: 'woody_mush_3', x: 57, y: 20, item: 'mushroom' },
+    { id: 'woody_mush_4', x: 61, y: 7, item: 'mushroom' }, // nudged off TREE at (60,7)
+  ],
   exits: [
     { x: 0, y: 13, zone: 'shire', entry: 'fromWoodyEnd' },
     { x: 0, y: 14, zone: 'shire', entry: 'fromWoodyEnd' },
