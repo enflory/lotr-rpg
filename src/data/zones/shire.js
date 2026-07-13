@@ -12,7 +12,7 @@ const S = T.STONE, f = T.FLOWERS, d = T.GARDEN, O = T.ROOF;
 const L = T.DOOR_L, J = T.DOOR_R, K = T.ROOF_L, N = T.ROOF_R, X = T.SIGN;
 const Q = T.PARTY_TL, U = T.PARTY_TR, V = T.PARTY_BL, Y = T.PARTY_BR;
 const q = T.PARTY_NL, u = T.PARTY_NR;
-const E = T.TENT, M = T.LANTERN;
+const E = T.PARTY_TABLE, M = T.LANTERN;
 
 // 40 wide × 40 tall
 const BASE = [
@@ -21,7 +21,7 @@ const BASE = [
   // ── The Hill (Bag End at the top) ──────────────────
   [R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R], // 0
   [R, R, G, G, R, G, f, G, R, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, R, G, f, G, R, G, G, R, R], // 1
-  [R, G, G, f, G, G, G, R, H, H, K, O, O, O, N, h, h, h, K, O, O, O, N, h, h, K, O, O, O, N, H, H, R, G, G, G, G, G, G, R], // 2  ← roof mounds
+  [R, G, G, f, G, G, G, R, H, H, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, H, H, R, G, G, G, G, G, G, R], // 2  ← grassy crown above the smials
   [R, G, G, G, G, G, R, H, H, h, K, O, O, O, N, h, d, h, K, O, O, O, N, h, d, K, O, O, O, N, h, H, H, G, G, G, G, G, G, R], // 3
   [R, G, G, G, G, R, H, H, h, h, h, L, D, J, h, h, d, h, h, L, D, J, h, h, d, h, L, D, J, h, h, h, H, H, G, G, G, f, G, R], // 4  ← 3-wide doors
   [R, G, G, G, R, H, H, h, h, h, h, P, P, P, h, h, h, h, h, P, P, P, X, h, h, h, P, P, P, h, h, h, h, H, G, G, G, G, G, R], // 5  ← Bag End sign
@@ -118,6 +118,13 @@ function buildMap() {
   map[24][40] = X; // inn sign
   map[24][46] = M; // lantern by the benches
   for (const x of [42, 43]) map[24][x] = P; // doorstep
+
+  // ── The specially large pavilion in the Party Field ──
+  // 2×2 marquee south of the Party Tree (replaces the lone cone tent)
+  stamp(map, 2, 29, [
+    [T.PAV_TL, T.PAV_TR],
+    [T.PAV_BL, T.PAV_BR],
+  ]);
 
   // ── Orchard rows in the south-east ────────────────
   for (const y of [28, 30, 32]) {

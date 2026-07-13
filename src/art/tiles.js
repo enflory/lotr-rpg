@@ -80,9 +80,11 @@ function drawHillTop(c, ox) {
 }
 
 function drawDoor(c, ox) {
-  rc(c, ox, 0, 16, 3, '#3d7a2a');
-  rc(c, ox, 3, 16, 13, '#8a6b3d');
-  rc(c, ox, 3, 16, 1, '#5a4020');
+  // Bare earth face top to bottom — the mound curve lives in the
+  // ROOF_L/ROOF/ROOF_R row above, so this row must not restart it
+  rc(c, ox, 0, 16, 16, '#8a6b3d');
+  px(c, ox + 2, 2, '#7a5d30');
+  px(c, ox + 13, 1, '#9a7b4d');
   circle(c, ox + 8, 9, 6, '#2d5a1e');
   circle(c, ox + 8, 9, 5, '#3d7a2a');
   circle(c, ox + 8, 9, 4, '#4a8630');
@@ -172,31 +174,50 @@ function drawGarden(c, ox) {
   }
 }
 
-function drawRoof(c, ox) {
+// The smial facades tile K O…O N: ROOF_L and ROOF_R carry the mound's
+// rounded shoulders down to the grass, ROOF fills the crest between them,
+// so any span reads as ONE smooth grass-topped mound (not a bump per tile).
+function drawEarthFace(c, ox) {
   rc(c, ox, 0, 16, 16, '#8a6b3d');
-  for (let x = 0; x < 16; x++) {
-    const h = Math.round(10 - ((x - 8) * (x - 8)) / 8);
-    if (h > 0) rc(c, ox + x, 0, 1, h, '#3d7a2a');
-  }
-  for (const [dx, dy] of [[3,2],[6,1],[10,1],[13,2],[5,3],[9,2]])
-    px(c, ox + dx, dy, '#4e8e35');
-  for (let x = 1; x < 15; x++) {
-    const h = Math.round(10 - ((x - 8) * (x - 8)) / 8);
-    if (h > 0) px(c, ox + x, h, '#5a4020');
-  }
-  for (const [dx, dy] of [[3,12],[10,11],[7,14],[12,13]])
+  for (const [dx, dy] of [[2,7],[6,9],[11,7],[14,10],[4,12],[9,13],[13,14],[1,14],[7,6],[12,11]])
     px(c, ox + dx, dy, '#7a5d30');
-  circle(c, ox + 8, 12, 2, '#4a3015');
-  px(c, ox + 8, 12, '#6b8cc0');
-  rc(c, ox + 12, 0, 2, 5, '#6b4423');
-  px(c, ox + 12, 0, '#c0c0c0');
-  px(c, ox + 13, 0, '#d0d0d0');
+  for (const [dx, dy] of [[5,7],[10,10],[3,10],[8,15],[14,7]])
+    px(c, ox + dx, dy, '#9a7b4d');
+}
+
+function drawRoof(c, ox) {
+  // Crest of the mound: a level grass cap over the earth face
+  drawEarthFace(c, ox);
+  rc(c, ox, 0, 16, 3, '#3d7a2a');
+  rc(c, ox, 3, 16, 1, '#5a4020');
+  for (const [dx, dy, col] of [[3,1,'#2d5a1e'],[11,0,'#4e8e35'],[7,2,'#4e8e35'],[13,1,'#2d5a1e']])
+    px(c, ox + dx, dy, col);
+  // Round attic window under the crest
+  circle(c, ox + 8, 10, 2, '#4a3015');
+  px(c, ox + 8, 10, '#6b8cc0');
+}
+
+// Green depth per column of the left shoulder — a quarter-dome falling
+// from the crest cap (3px, matching drawRoof) to the grass at the edge.
+const SHOULDER = [15, 13, 12, 11, 9, 8, 7, 6, 6, 5, 4, 4, 3, 3, 3, 3];
+
+function drawShoulder(c, ox, flip) {
+  rc(c, ox, 0, 16, 16, '#3d7a2a');
+  for (const [dx, dy, col] of [[2,2,'#2d5a1e'],[5,4,'#4e8e35'],[1,8,'#4e8e35'],[3,12,'#2d5a1e']])
+    px(c, ox + (flip ? 15 - dx : dx), dy, col);
+  for (let x = 0; x < 16; x++) {
+    const top = SHOULDER[flip ? 15 - x : x];
+    px(c, ox + x, top, '#5a4020');
+    if (top < 15) rc(c, ox + x, top + 1, 1, 15 - top, '#8a6b3d');
+  }
+  for (const [dx, dy] of [[13,7],[10,9],[14,12],[8,13],[11,14],[5,14]])
+    if (SHOULDER[dx] < dy) px(c, ox + (flip ? 15 - dx : dx), dy, '#7a5d30');
 }
 
 function drawDoorL(c, ox) {
-  rc(c, ox, 0, 16, 3, '#3d7a2a');
-  rc(c, ox, 3, 16, 13, '#8a6b3d');
-  rc(c, ox, 3, 16, 1, '#5a4020');
+  rc(c, ox, 0, 16, 16, '#8a6b3d');
+  px(c, ox + 3, 2, '#7a5d30');
+  px(c, ox + 9, 1, '#9a7b4d');
   rc(c, ox + 13, 4, 3, 12, '#6b5a3d');
   rc(c, ox + 14, 3, 2, 2, '#6b5a3d');
   rc(c, ox + 15, 2, 1, 1, '#6b5a3d');
@@ -208,9 +229,9 @@ function drawDoorL(c, ox) {
 }
 
 function drawDoorR(c, ox) {
-  rc(c, ox, 0, 16, 3, '#3d7a2a');
-  rc(c, ox, 3, 16, 13, '#8a6b3d');
-  rc(c, ox, 3, 16, 1, '#5a4020');
+  rc(c, ox, 0, 16, 16, '#8a6b3d');
+  px(c, ox + 12, 2, '#7a5d30');
+  px(c, ox + 6, 1, '#9a7b4d');
   rc(c, ox, 4, 3, 12, '#6b5a3d');
   rc(c, ox, 3, 2, 2, '#6b5a3d');
   px(c, ox, 2, '#6b5a3d');
@@ -222,37 +243,15 @@ function drawDoorR(c, ox) {
 }
 
 function drawRoofL(c, ox) {
-  rc(c, ox, 0, 16, 16, '#8a6b3d');
-  for (let x = 0; x < 16; x++) {
-    const h = Math.round(2 + (x * x) / 20);
-    if (h > 0) rc(c, ox + x, 0, 1, Math.min(h, 16), '#3d7a2a');
-  }
-  for (const [dx, dy] of [[10,2],[13,1],[8,3],[14,3],[6,4]])
-    px(c, ox + dx, dy, '#4e8e35');
-  for (let x = 3; x < 16; x++) {
-    const h = Math.round(2 + (x * x) / 20);
-    if (h > 0 && h < 16) px(c, ox + x, h, '#5a4020');
-  }
-  for (const [dx, dy] of [[2,10],[4,13],[1,7]])
-    px(c, ox + dx, dy, '#7a5d30');
+  drawShoulder(c, ox, false);
 }
 
 function drawRoofR(c, ox) {
-  rc(c, ox, 0, 16, 16, '#8a6b3d');
-  for (let x = 0; x < 16; x++) {
-    const rx = 15 - x;
-    const h = Math.round(2 + (rx * rx) / 20);
-    if (h > 0) rc(c, ox + x, 0, 1, Math.min(h, 16), '#3d7a2a');
-  }
-  for (const [dx, dy] of [[2,1],[5,2],[3,3],[7,4],[1,3]])
-    px(c, ox + dx, dy, '#4e8e35');
-  for (let x = 0; x < 13; x++) {
-    const rx = 15 - x;
-    const h = Math.round(2 + (rx * rx) / 20);
-    if (h > 0 && h < 16) px(c, ox + x, h, '#5a4020');
-  }
-  for (const [dx, dy] of [[12,8],[14,11],[10,13]])
-    px(c, ox + dx, dy, '#7a5d30');
+  drawShoulder(c, ox, true);
+  // One chimney per smial, poking through the turf on this shoulder
+  rc(c, ox + 2, 0, 2, 4, '#6b4423');
+  px(c, ox + 2, 0, '#c0c0c0');
+  px(c, ox + 3, 0, '#d0d0d0');
 }
 
 /* ── interior tiles ─────────────────────────────────────── */
@@ -563,23 +562,75 @@ function drawPartyBR(c, ox) {
   rc(c, ox + 2, 14, 10, 1, '#4a8630');
 }
 
-function drawTent(c, ox) {
+function drawPartyTable(c, ox) {
   rc(c, ox, 0, 16, 16, '#5a9e3a');
   px(c, ox + 1, 14, '#4a8630'); px(c, ox + 14, 15, '#4a8630');
-  // Peaked pavilion, cream and red stripes widening to the ground
-  for (let y = 0; y < 10; y++) {
-    const hw = 1 + Math.round((y * 6) / 9);
-    rc(c, ox + 8 - hw, 3 + y, hw * 2, 1, y % 4 < 2 ? '#e8e0c8' : '#c04848');
-  }
-  // Canvas shading down the right slope
-  for (let y = 3; y < 13; y++) px(c, ox + 8 + Math.round(((y - 3) * 6) / 9), y, '#b0a888');
-  // Ground skirt + entrance flap
-  rc(c, ox + 1, 12, 14, 1, '#c04848');
-  rc(c, ox + 6, 9, 4, 4, '#3a2618');
-  px(c, ox + 7, 9, '#241608'); px(c, ox + 8, 10, '#241608');
-  // Pole pennant
-  px(c, ox + 8, 1, '#e8c840'); px(c, ox + 9, 2, '#e05050'); px(c, ox + 8, 2, '#e05050');
+  // Trestle table with a cream cloth
+  rc(c, ox + 1, 5, 14, 5, '#a0703c');
+  rc(c, ox + 1, 5, 14, 2, '#f0e6d0');
+  rc(c, ox + 1, 7, 14, 1, '#d8c8a8');
+  rc(c, ox + 1, 9, 14, 1, '#6b4423');
+  // Legs and their shadow on the grass
+  rc(c, ox + 2, 10, 2, 3, '#6b4423');
+  rc(c, ox + 12, 10, 2, 3, '#6b4423');
+  rc(c, ox + 2, 13, 12, 1, '#4a8630');
+  // Party fare: two mugs of beer, a loaf, apples
+  rc(c, ox + 2, 3, 2, 2, '#c08030');
+  px(c, ox + 2, 2, '#f8f4e8'); px(c, ox + 3, 2, '#f8f4e8');
+  px(c, ox + 4, 4, '#8a5a20');
+  rc(c, ox + 12, 3, 2, 2, '#c08030');
+  px(c, ox + 12, 2, '#f8f4e8'); px(c, ox + 13, 2, '#f8f4e8');
+  px(c, ox + 11, 4, '#8a5a20');
+  rc(c, ox + 6, 3, 4, 2, '#c89858');
+  px(c, ox + 7, 3, '#e0b878'); px(c, ox + 8, 3, '#e0b878');
+  px(c, ox + 5, 4, '#c03028');
+  px(c, ox + 10, 4, '#c03028');
 }
+
+/* The specially large pavilion — a 2×2 (32×32) striped marquee, so big
+   "that the tree that grew in the field was right inside it". One pixel
+   function keeps the quadrant tiles in sync; x mirrors around the seam. */
+function pavilionPixel(gx, gy) {
+  const mx = gx < 16 ? gx : 31 - gx; // mirrored column; 15 = centre seam
+  // Gold pennant above the peak
+  if (gy === 0 && mx === 15) return '#e8c840';
+  if (gy === 1 && mx >= 14) return '#c04038';
+  // Canopy: peak at the seam, spreading to full width at the hem
+  if (gy >= 2 && gy <= 18) {
+    const edge = 15 - Math.round(((gy - 2) * 15) / 16);
+    if (mx < edge) return null;
+    if (mx === edge) return '#3a2418'; // slope outline
+    if (gy === 18) return '#8a2828'; // hem shadow
+    return Math.floor((15 - mx) / 3) % 2 ? '#c04038' : '#f0e6d0';
+  }
+  // Scalloped hem
+  if (gy === 19) return mx % 4 === 1 ? null : '#8a2828';
+  // Walls, with the entrance opening on the centre seam
+  if (gy >= 20 && gy <= 28) {
+    if (mx < 2) return null;
+    if (mx === 2) return '#3a2418'; // wall edge
+    if (mx >= 12 && gy >= 21) return mx === 12 ? '#3a2418' : '#241608'; // entrance
+    return (15 - mx) % 6 < 2 ? '#c04038' : '#f0e6d0';
+  }
+  // Ground line
+  if (gy === 29 && mx >= 2) return '#3a2418';
+  return null;
+}
+
+function drawPavQuad(c, ox, qx, qy) {
+  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  px(c, ox + 2, 13, '#4a8630'); px(c, ox + 13, 14, '#4a8630');
+  for (let y = 0; y < 16; y++)
+    for (let x = 0; x < 16; x++) {
+      const col = pavilionPixel(qx * 16 + x, qy * 16 + y);
+      if (col) px(c, ox + x, y, col);
+    }
+}
+
+function drawPavTL(c, ox) { drawPavQuad(c, ox, 0, 0); }
+function drawPavTR(c, ox) { drawPavQuad(c, ox, 1, 0); }
+function drawPavBL(c, ox) { drawPavQuad(c, ox, 0, 1); }
+function drawPavBR(c, ox) { drawPavQuad(c, ox, 1, 1); }
 
 function drawLantern(c, ox) {
   rc(c, ox, 0, 16, 16, '#5a9e3a');
@@ -726,9 +777,10 @@ export const TILE_FNS = [
   drawFloor, drawWall, drawRug, drawTable, drawFireplace,
   drawShelf, drawCounter, drawBed, drawWindowInt,
   drawFern, drawTree2, drawSign, drawVoid, drawDock, drawDockS,
-  drawPartyTL, drawPartyTR, drawPartyBL, drawPartyBR, drawTent, drawLantern,
+  drawPartyTL, drawPartyTR, drawPartyBL, drawPartyBR, drawPartyTable, drawLantern,
   drawPartyNL, drawPartyNR, drawBog, drawReeds,
   drawWheel, drawCrate, drawWell, drawBarn, drawFeast, drawDitch, drawWaggon,
+  drawPavTL, drawPavTR, drawPavBL, drawPavBR,
 ];
 
 export function makeTilesetDataURL() {
