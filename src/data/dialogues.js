@@ -363,7 +363,7 @@ export const DIALOGUES = {
         when: (f) => f.metGandalf && !f.foundSpoons,
         lines: [
           "There and Back Again lies\nopen. Tucked in the pages,\na note in Bilbo's hand:",
-          "'The silver spoons Lobelia\ncovets are in the old\nchest, by the window --",
+          "'The silver spoons Lobelia\ncovets are on the bookcase\nby the window --",
           "do give them back to her,\nthere's a good hobbit.'",
         ],
       },
@@ -385,19 +385,19 @@ export const DIALOGUES = {
     lines: ['This is where the letters\nof fire were revealed.\nThe grate is cold now.'],
   },
 
-  examine_chest: {
-    name: 'Old Chest',
+  examine_bookcase: {
+    name: 'Bookcase',
     stages: [
       {
         when: (f) => f.metGandalf && !f.foundSpoons,
         lines: [
-          'Under old party invitations:\na case of silver spoons.',
+          'Tucked behind a row of\nold books: a case of\nsilver spoons.',
           "The label reads: 'For\nLOBELIA, as a PRESENT.'\nBilbo's little joke.",
         ],
         set: 'foundSpoons',
         give: 'silver_spoons',
       },
-      { lines: ['Old invitations, older\nmothballs. Nothing else\nof note.'] },
+      { lines: ['Old books, older dust.\nNothing else tucked\nbehind them.'] },
     ],
   },
 
@@ -580,6 +580,13 @@ export const DIALOGUES = {
           'Spoons for Lobelia, ale for\nthe Gaffer, and every dog\nat Bamfurlong fed?',
           "You've seen more of the\nShire in a week than most\nhobbits see in a lifetime.",
           'Whatever road we take from\nhere -- I could ask for no\nbetter company.',
+        ],
+      },
+      {
+        when: (f) => f.crossedFerry,
+        lines: [
+          'There -- the Brandywine is\nbehind us. Welcome to\nBuckland, Frodo.',
+          'Crickhollow lies a few\nmiles on yet. But that is\na tale for another chapter.',
         ],
       },
       { lines: ['Step aboard! Buckland is\njust across the water.'] },

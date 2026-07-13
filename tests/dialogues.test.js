@@ -99,7 +99,7 @@ describe('resolveDialogue staging', () => {
     // After Gandalf, before the spoons are found: the note names the chest.
     const clue = resolveDialogue('examine_desk', { metGandalf: true });
     expect(clue.lines.join(' ')).toMatch(/spoons/i);
-    expect(clue.lines.join(' ')).toMatch(/old\s+chest/i);
+    expect(clue.lines.join(' ')).toMatch(/bookcase/i);
 
     // Once found, the desk reverts to its plain description.
     const after = resolveDialogue('examine_desk', { metGandalf: true, foundSpoons: true });

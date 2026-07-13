@@ -158,6 +158,7 @@ export class WorldScene extends Phaser.Scene {
         stroke: '#1a1208',
         strokeThickness: 3,
         lineSpacing: 4,
+        wordWrap: { width: 300 },
       })
       .setOrigin(0.5)
       .setScrollFactor(0)

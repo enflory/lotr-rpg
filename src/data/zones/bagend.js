@@ -39,7 +39,7 @@ export const bagend = {
     { x: 13, y: 6, dialogue: 'examine_desk' },
     { x: 3, y: 3, dialogue: 'examine_books' },
     { x: 7, y: 3, dialogue: 'examine_fireplace' },
-    { x: 12, y: 3, dialogue: 'examine_chest' },
+    { x: 12, y: 3, dialogue: 'examine_bookcase' },
   ],
   pickups: [{ id: 'bagend_mathom_1', x: 15, y: 10, item: 'mathom' }],
   exits: [
