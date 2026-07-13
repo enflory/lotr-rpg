@@ -17,6 +17,12 @@ import { ITEMS, ITEM_KEYS } from '../data/items.js';
 import { QUESTS } from '../data/quests.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
 
+// The canvas is 960×720 with a 3× camera zoom (a classic 320×240 view).
+// Screen-fixed UI (scrollFactor 0) scales around the CANVAS centre, so its
+// 320×240-era coordinates are shifted by (UI_OX, UI_OY) to stay centred.
+const UI_OX = 320; // (960 - 320) / 2
+const UI_OY = 240; // (720 - 240) / 2
+
 const SPEED = 72;
 const INTERACT_DIST = 20;
 const FOLLOW_DELAY = 14; // frames of lag behind the player
@@ -97,19 +103,19 @@ export class WorldScene extends Phaser.Scene {
 
     /* ── dialogue UI (fixed to camera) ───────────────── */
     this.dialogBg = this.add
-      .rectangle(160, 210, 304, 52, 0x000000, 0.88)
+      .rectangle(160 + UI_OX, 210 + UI_OY, 304, 52, 0x000000, 0.88)
       .setScrollFactor(0)
       .setDepth(1000)
       .setVisible(false);
     this.dialogBorder = this.add
-      .rectangle(160, 210, 304, 52)
+      .rectangle(160 + UI_OX, 210 + UI_OY, 304, 52)
       .setScrollFactor(0)
       .setDepth(1000)
       .setVisible(false)
       .setStrokeStyle(1, 0xc8a84e);
 
     this.dialogNameText = this.add
-      .text(14, 188, '', {
+      .text(14 + UI_OX, 188 + UI_OY, '', {
         fontFamily: '"Press Start 2P"',
         fontSize: '7px',
         color: '#c8a84e',
@@ -119,7 +125,7 @@ export class WorldScene extends Phaser.Scene {
       .setVisible(false);
 
     this.dialogBodyText = this.add
-      .text(14, 200, '', {
+      .text(14 + UI_OX, 200 + UI_OY, '', {
         fontFamily: '"Press Start 2P"',
         fontSize: '6px',
         color: '#f0ead6',
@@ -131,7 +137,7 @@ export class WorldScene extends Phaser.Scene {
       .setVisible(false);
 
     this.dialogArrow = this.add
-      .text(296, 228, '▼', {
+      .text(296 + UI_OX, 228 + UI_OY, '▼', {
         fontFamily: '"Press Start 2P"',
         fontSize: '6px',
         color: '#c8a84e',
@@ -150,7 +156,7 @@ export class WorldScene extends Phaser.Scene {
 
     /* ── event/objective banner ──────────────────────── */
     this.banner = this.add
-      .text(160, 44, '', {
+      .text(160 + UI_OX, 44 + UI_OY, '', {
         fontFamily: '"Press Start 2P"',
         fontSize: '8px',
         color: '#ffd75e',
@@ -169,13 +175,13 @@ export class WorldScene extends Phaser.Scene {
     /* ── inventory/errand overlay (I) ─────────────────── */
     this.overlayVisible = false;
     this.overlayBg = this.add
-      .rectangle(160, 120, 260, 168, 0x000000, 0.92)
+      .rectangle(160 + UI_OX, 120 + UI_OY, 260, 168, 0x000000, 0.92)
       .setScrollFactor(0)
       .setDepth(1100)
       .setVisible(false)
       .setStrokeStyle(1, 0xc8a84e);
     this.overlayText = this.add
-      .text(40, 46, '', {
+      .text(40 + UI_OX, 46 + UI_OY, '', {
         fontFamily: '"Press Start 2P"',
         fontSize: '6px',
         color: '#f0ead6',
@@ -188,6 +194,8 @@ export class WorldScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-I', () => this.toggleOverlay());
 
     /* ── camera ──────────────────────────────────────── */
+    // Canvas is 960×720; zoom 3 keeps the classic 320×240 view.
+    this.cameras.main.setZoom(3);
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     this.cameras.main.setBounds(0, 0, this.mapWidth * TILE_SIZE, this.mapHeight * TILE_SIZE);
 
@@ -633,7 +641,7 @@ export class WorldScene extends Phaser.Scene {
 
   showLocationLabel(name) {
     const label = this.add
-      .text(160, 26, name, {
+      .text(160 + UI_OX, 26 + UI_OY, name, {
         fontFamily: '"Press Start 2P"',
         fontSize: '10px',
         color: '#f0ead6',
@@ -671,7 +679,7 @@ export class WorldScene extends Phaser.Scene {
       const n = itemCount(key);
       if (!n) continue;
       const icon = this.add
-        .image(48, 58 + row * 14, 'items', ITEM_KEYS.indexOf(key))
+        .image(48 + UI_OX, 58 + UI_OY + row * 14, 'items', ITEM_KEYS.indexOf(key))
         .setScrollFactor(0)
         .setDepth(1101);
       this.overlayIcons.push(icon);

@@ -14,22 +14,25 @@ export class TitleScene extends Phaser.Scene {
     // Dark background
     this.cameras.main.setBackgroundColor('#0a0a12');
 
+    // The title screen lays out at the full 960×720 canvas resolution
+    // (WorldScene zooms 3×; here text stays native so it renders crisp).
+
     // Title
     this.add
-      .text(cx, cy - 60, 'THE LORD\nOF THE RINGS', {
+      .text(cx, cy - 180, 'THE LORD\nOF THE RINGS', {
         fontFamily: '"Press Start 2P"',
-        fontSize: '14px',
+        fontSize: '40px',
         color: '#c8a84e',
         align: 'center',
-        lineSpacing: 6,
+        lineSpacing: 18,
       })
       .setOrigin(0.5);
 
     // Subtitle
     this.add
-      .text(cx, cy - 10, 'Chapter One ~ Three is Company', {
+      .text(cx, cy - 30, 'Chapter One ~ Three is Company', {
         fontFamily: '"Press Start 2P"',
-        fontSize: '7px',
+        fontSize: '24px',
         color: '#8a8a8a',
         align: 'center',
       })
@@ -37,16 +40,16 @@ export class TitleScene extends Phaser.Scene {
 
     // Ring symbol — a simple circle
     const ring = this.add.graphics();
-    ring.lineStyle(2, 0xc8a84e, 1);
-    ring.strokeCircle(cx, cy + 30, 12);
-    ring.lineStyle(1, 0xe8c840, 0.5);
-    ring.strokeCircle(cx, cy + 30, 10);
+    ring.lineStyle(6, 0xc8a84e, 1);
+    ring.strokeCircle(cx, cy + 90, 36);
+    ring.lineStyle(3, 0xe8c840, 0.5);
+    ring.strokeCircle(cx, cy + 90, 30);
 
     // Prompt
     const prompt = this.add
-      .text(cx, cy + 75, 'PRESS ENTER', {
+      .text(cx, cy + 225, 'PRESS ENTER', {
         fontFamily: '"Press Start 2P"',
-        fontSize: '7px',
+        fontSize: '24px',
         color: '#f0ead6',
         align: 'center',
       })
@@ -63,16 +66,16 @@ export class TitleScene extends Phaser.Scene {
 
     // Controls + version
     this.add
-      .text(cx, 218, 'ARROWS move   SPACE talk   Q objective   M sound', {
+      .text(cx, 654, 'ARROWS move   SPACE talk   Q objective   M sound', {
         fontFamily: '"Press Start 2P"',
-        fontSize: '5px',
+        fontSize: '16px',
         color: '#6a6a6a',
       })
       .setOrigin(0.5);
     this.add
-      .text(cx, 230, 'PROTOTYPE v0.2', {
+      .text(cx, 690, 'PROTOTYPE v0.2', {
         fontFamily: '"Press Start 2P"',
-        fontSize: '5px',
+        fontSize: '16px',
         color: '#4a4a4a',
       })
       .setOrigin(0.5);
