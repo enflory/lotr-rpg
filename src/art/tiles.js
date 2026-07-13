@@ -85,16 +85,19 @@ function drawDoor(c, ox) {
   rc(c, ox, 0, 16, 16, '#8a6b3d');
   px(c, ox + 2, 2, '#7a5d30');
   px(c, ox + 13, 1, '#9a7b4d');
-  circle(c, ox + 8, 9, 6, '#2d5a1e');
-  circle(c, ox + 8, 9, 5, '#3d7a2a');
-  circle(c, ox + 8, 9, 4, '#4a8630');
-  rc(c, ox + 4, 7, 8, 1, '#3d7a2a');
-  rc(c, ox + 4, 11, 8, 1, '#3d7a2a');
-  rc(c, ox + 8, 5, 1, 9, '#3d7a2a');
-  rc(c, ox + 10, 8, 2, 2, '#e8c840');
-  px(c, ox + 10, 9, '#ffd700');
-  px(c, ox + 6, 6, '#5a9e3a');
-  px(c, ox + 7, 6, '#5a9e3a');
+  // Round wooden frame set into the earth, then the big green door —
+  // flat panels with plank seams so it doesn't read as a bush
+  circle(c, ox + 8, 9, 7, '#4a3015');
+  circle(c, ox + 8, 9, 6, '#6b4423');
+  circle(c, ox + 8, 9, 5, '#2d5a1e');
+  circle(c, ox + 8, 9, 4, '#3d7a2a');
+  rc(c, ox + 6, 5, 1, 9, '#2d5a1e');
+  rc(c, ox + 10, 6, 1, 7, '#2d5a1e');
+  // Brass knob in the exact middle, as is proper
+  rc(c, ox + 7, 8, 2, 2, '#e8c840');
+  px(c, ox + 8, 8, '#ffd700');
+  // Stone step at the threshold
+  rc(c, ox + 5, 15, 6, 1, '#a09080');
 }
 
 function drawBridge(c, ox) {
@@ -252,6 +255,78 @@ function drawRoofR(c, ox) {
   rc(c, ox + 2, 0, 2, 4, '#6b4423');
   px(c, ox + 2, 0, '#c0c0c0');
   px(c, ox + 3, 0, '#d0d0d0');
+}
+
+// Two-row smial dome. One quarter-ellipse gives the earth-top y per
+// column over the full 32px facade height, so MOUND_* (upper row) and
+// BASE_* (lower row) join into a single smooth grass-to-grass curve —
+// no eaves, no wall jutting out below the shoulder.
+const DOME = [31, 21, 17, 14, 12, 10, 9, 7, 6, 5, 5, 4, 4, 3, 3, 3];
+
+function drawMoundUpper(c, ox, flip) {
+  rc(c, ox, 0, 16, 16, '#3d7a2a');
+  for (const [dx, dy, col] of [[2,2,'#2d5a1e'],[5,4,'#4e8e35'],[1,8,'#4e8e35'],[3,12,'#2d5a1e']])
+    px(c, ox + (flip ? 15 - dx : dx), dy, col);
+  for (let x = 0; x < 16; x++) {
+    const top = DOME[flip ? 15 - x : x];
+    if (top > 15) continue; // curve passes through the BASE row here
+    px(c, ox + x, top, '#5a4020');
+    if (top < 15) rc(c, ox + x, top + 1, 1, 15 - top, '#8a6b3d');
+  }
+  for (const [dx, dy] of [[13, 7], [10, 9], [14, 12], [8, 13], [11, 14], [6, 12]])
+    if (DOME[dx] < dy) px(c, ox + (flip ? 15 - dx : dx), dy, '#7a5d30');
+}
+
+function drawBaseCorner(c, ox, flip) {
+  rc(c, ox, 0, 16, 16, '#3d7a2a'); // grass outside the dome's foot
+  for (const [dx, dy, col] of [[1, 3, '#2d5a1e'], [2, 12, '#4e8e35']])
+    px(c, ox + (flip ? 15 - dx : dx), dy, col);
+  for (let x = 0; x < 16; x++) {
+    const top = DOME[flip ? 15 - x : x] - 16; // continue the upper curve
+    if (top >= 0 && top <= 15) px(c, ox + x, top, '#5a4020');
+    const from = top < 0 ? 0 : top + 1;
+    if (from <= 15) rc(c, ox + x, from, 1, 16 - from, '#8a6b3d');
+  }
+  for (const [dx, dy] of [[6, 6], [11, 9], [8, 12], [13, 4], [4, 13], [10, 14]])
+    if (DOME[dx] - 16 < dy) px(c, ox + (flip ? 15 - dx : dx), dy, '#7a5d30');
+  for (const [dx, dy] of [[9, 7], [5, 10], [12, 13]])
+    if (DOME[dx] - 16 < dy) px(c, ox + (flip ? 15 - dx : dx), dy, '#9a7b4d');
+}
+
+function drawMoundL(c, ox) {
+  drawMoundUpper(c, ox, false);
+}
+
+function drawMoundR(c, ox) {
+  drawMoundUpper(c, ox, true);
+  // The smial's chimney pokes through the turf near the crest
+  rc(c, ox + 2, 0, 2, 4, '#6b4423');
+  px(c, ox + 2, 0, '#c0c0c0');
+  px(c, ox + 3, 0, '#d0d0d0');
+}
+
+function drawBaseL(c, ox) {
+  drawBaseCorner(c, ox, false);
+}
+
+function drawBaseR(c, ox) {
+  drawBaseCorner(c, ox, true);
+}
+
+function drawWindowF(c, ox) {
+  // Exterior earth face with a round window — fills facade width now
+  // that each dwelling keeps a single green door
+  rc(c, ox, 0, 16, 16, '#8a6b3d');
+  px(c, ox + 3, 2, '#7a5d30');
+  px(c, ox + 12, 1, '#9a7b4d');
+  px(c, ox + 2, 13, '#9a7b4d');
+  circle(c, ox + 8, 9, 4, '#4a3015');
+  circle(c, ox + 8, 9, 3, '#6b8cc0');
+  rc(c, ox + 8, 6, 1, 7, '#4a3015');
+  rc(c, ox + 5, 9, 7, 1, '#4a3015');
+  px(c, ox + 6, 7, '#9ab8d8');
+  // Window sill
+  rc(c, ox + 5, 13, 7, 1, '#5a4020');
 }
 
 /* ── interior tiles ─────────────────────────────────────── */
@@ -781,6 +856,7 @@ export const TILE_FNS = [
   drawPartyNL, drawPartyNR, drawBog, drawReeds,
   drawWheel, drawCrate, drawWell, drawBarn, drawFeast, drawDitch, drawWaggon,
   drawPavTL, drawPavTR, drawPavBL, drawPavBR,
+  drawMoundL, drawMoundR, drawBaseL, drawBaseR, drawWindowF,
 ];
 
 export function makeTilesetDataURL() {

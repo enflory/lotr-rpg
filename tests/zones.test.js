@@ -200,8 +200,26 @@ describe('the Party Field (western Shire)', () => {
 
   it('the mill and the Ivy Bush stand where the doors say', () => {
     expect(shire.map[39][5]).toBe(T.DOOR); // mill door
-    expect(shire.map[23][42]).toBe(T.DOOR); // Ivy Bush door
+    expect(shire.map[23][43]).toBe(T.DOOR); // Ivy Bush door
     expect(shire.map[24][40]).toBe(T.SIGN);
+  });
+
+  it('every dwelling facade has exactly one green door', () => {
+    // Count runs of DOOR tiles per row — no facade should render two
+    // round green doors side by side
+    for (const row of shire.map) {
+      for (let x = 1; x < row.length; x++) {
+        expect(row[x] === T.DOOR && row[x - 1] === T.DOOR, 'adjacent DOOR tiles').toBe(false);
+      }
+    }
+  });
+
+  it('each Bagshot Row hole has a fence gap leading to its door', () => {
+    for (const doorX of [6, 16, 26]) {
+      expect(shire.map[15][doorX], `door at (${doorX},15)`).toBe(T.DOOR);
+      expect(shire.map[16][doorX], `doorstep at (${doorX},16)`).toBe(T.PATH);
+      expect(shire.map[17][doorX], `fence gap at (${doorX},17)`).toBe(T.PATH);
+    }
   });
 
   it('the field spur connects the party spawn to the north-south road', () => {
@@ -331,7 +349,13 @@ describe('the Marish (generated map)', () => {
       expect(map[FARM.y1][x], `south fence broken at (${x},${FARM.y1})`).toBe(T.FENCE);
     }
     for (let y = FARM.y0; y <= FARM.y1; y++) {
-      expect(map[y][FARM.x0], `west fence broken at (${FARM.x0},${y})`).toBe(T.FENCE);
+      if (y === 20 || y === 21) {
+        // Deliberate gap: slip in from the marsh side for mushrooms
+        // without walking past Maggot at the gate
+        expect(map[y][FARM.x0], `west gap blocked at (${FARM.x0},${y})`).toBe(T.GRASS);
+      } else {
+        expect(map[y][FARM.x0], `west fence broken at (${FARM.x0},${y})`).toBe(T.FENCE);
+      }
       expect(map[y][FARM.x1], `east fence broken at (${FARM.x1},${y})`).toBe(T.FENCE);
     }
     // Path stub connects the gate up to the lane's bottom row
