@@ -12,6 +12,7 @@ function makeScene() {
   const scene = {
     zone: {},
     player: { x: 0, y: 0 },
+    dialogActive: false,
     spritesAdded: [],
     add: {
       sprite(x, y, key, frame) {
@@ -38,20 +39,16 @@ function makeScene() {
         return sprite;
       },
     },
-    tweenChains: [],
+    tweensAdded: [],
     tweens: {
-      chain(cfg) {
-        scene.tweenChains.push(cfg);
-      },
-    },
-    time: {
-      delayedCall(ms, cb) {
-        scene._delayedCb = cb;
+      add(cfg) {
+        scene.tweensAdded.push(cfg);
       },
     },
     dialogues: [],
     startDialogue(key) {
       this.dialogues.push(key);
+      this.dialogActive = true;
     },
   };
   return scene;
@@ -87,8 +84,8 @@ describe('foxEventUpdate', () => {
     expect(scene.spritesAdded).toHaveLength(1);
     expect(scene.spritesAdded[0].key).toBe('fox');
     expect(scene.spritesAdded[0].frame).toBe(7);
-    expect(scene.foxEvent).toBe(scene.spritesAdded[0]);
-    expect(scene.tweenChains).toHaveLength(1);
+    expect(scene.foxEvent.fox).toBe(scene.spritesAdded[0]);
+    expect(scene.tweensAdded).toHaveLength(1);
   });
 
   it('does not spawn a second fox on subsequent updates', () => {
@@ -99,7 +96,7 @@ describe('foxEventUpdate', () => {
     foxEventUpdate(scene);
 
     expect(scene.spritesAdded).toHaveLength(1);
-    expect(scene.tweenChains).toHaveLength(1);
+    expect(scene.tweensAdded).toHaveLength(1);
   });
 
   it('does not re-trigger once foxSeen is already set, even outside a live event', () => {
@@ -108,5 +105,49 @@ describe('foxEventUpdate', () => {
     placePlayer(scene, HOLLOW.x0 + 2, HOLLOW.y0 + 2);
     foxEventUpdate(scene);
     expect(scene.spritesAdded).toHaveLength(0);
+  });
+
+  it('holds its thought until the walk-in finishes, then starts the dialogue', () => {
+    const scene = makeScene();
+    placePlayer(scene, HOLLOW.x0 + 2, HOLLOW.y0 + 2);
+    foxEventUpdate(scene);
+
+    // Still walking in — no dialogue yet.
+    foxEventUpdate(scene);
+    expect(scene.dialogues).toHaveLength(0);
+
+    scene.tweensAdded[0].onComplete(); // walk-in arrives
+    const fox = scene.foxEvent.fox;
+    expect(fox.anims.plays).toContain('fox-idle-right');
+
+    foxEventUpdate(scene);
+    expect(scene.dialogues).toEqual(['fox_thought']);
+  });
+
+  it('stays put through the dialogue and only walks away once it closes', () => {
+    const scene = makeScene();
+    placePlayer(scene, HOLLOW.x0 + 2, HOLLOW.y0 + 2);
+    foxEventUpdate(scene);
+    scene.tweensAdded[0].onComplete();
+    foxEventUpdate(scene); // starts fox_thought, dialogActive = true
+
+    // Dialogue open — no exit tween appears.
+    expect(scene.tweensAdded).toHaveLength(1);
+
+    scene.dialogActive = false; // player spaced through the last line
+    foxEventUpdate(scene);
+    expect(scene.tweensAdded).toHaveLength(2);
+    const exit = scene.tweensAdded[1];
+    expect(exit.x).toBe((HOLLOW.x1 + 1) * TILE_SIZE + 8);
+
+    const fox = scene.foxEvent.fox;
+    expect(fox.anims.plays.at(-1)).toBe('fox-walk-right');
+    exit.onComplete();
+    expect(fox.destroyed).toBe(true);
+
+    // Event is spent — further updates change nothing.
+    foxEventUpdate(scene);
+    expect(scene.tweensAdded).toHaveLength(2);
+    expect(scene.dialogues).toHaveLength(1);
   });
 });

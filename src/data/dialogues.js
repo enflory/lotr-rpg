@@ -359,8 +359,8 @@ export const DIALOGUES = {
     name: "Bilbo's Desk",
     stages: [
       {
-        // A nudge toward Lobelia's spoons, once the errand is live
-        when: (f) => f.metGandalf && !f.foundSpoons,
+        // A nudge toward Lobelia's spoons, until they turn up
+        when: (f) => !f.foundSpoons,
         lines: [
           "There and Back Again lies\nopen. Tucked in the pages,\na note in Bilbo's hand:",
           "'The silver spoons Lobelia\ncovets are on the bookcase\nby the window --",
@@ -389,7 +389,7 @@ export const DIALOGUES = {
     name: 'Bookcase',
     stages: [
       {
-        when: (f) => f.metGandalf && !f.foundSpoons,
+        when: (f) => !f.foundSpoons,
         lines: [
           'Tucked behind a row of\nold books: a case of\nsilver spoons.',
           "The label reads: 'For\nLOBELIA, as a PRESENT.'\nBilbo's little joke.",
