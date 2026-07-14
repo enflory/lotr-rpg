@@ -115,6 +115,10 @@ function generateMap() {
   }
   map[FARM.y0][FARM.gateX] = T.PATH;
   map[FARM.y0][FARM.gateX + 1] = T.PATH;
+  // Gap in the west fence — sneak in for mushrooms without passing
+  // Maggot at the north gate
+  map[20][FARM.x0] = T.GRASS;
+  map[21][FARM.x0] = T.GRASS;
   // Path stub from the lane down to the gate
   for (let y = LANE_Y[FARM.gateX] + 2; y < FARM.y0; y++) {
     map[y][FARM.gateX] = T.PATH;
@@ -124,7 +128,7 @@ function generateMap() {
   // Farmhouse (stone, like the Green Dragon) along the top of the yard
   const HX = 15, HY = FARM.y0 + 1;
   const houseTop = [T.STONE, T.ROOF_L, T.ROOF, T.ROOF, T.ROOF, T.ROOF_R, T.STONE];
-  const houseDoor = [T.STONE, T.DOOR_L, T.DOOR, T.DOOR, T.DOOR, T.DOOR_R, T.STONE];
+  const houseDoor = [T.STONE, T.WINDOW_F, T.DOOR_L, T.DOOR, T.DOOR_R, T.WINDOW_F, T.STONE];
   houseTop.forEach((t, i) => (map[HY][HX + i] = t));
   houseDoor.forEach((t, i) => (map[HY + 1][HX + i] = t));
 

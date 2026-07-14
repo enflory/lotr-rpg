@@ -62,6 +62,13 @@ export const T = {
   PAV_TR: 52,
   PAV_BL: 53,
   PAV_BR: 54,
+  // Two-row smial dome: upper shoulders + lower base corners share one
+  // 32px-tall curve so the whole facade reads as a single round mound
+  MOUND_L: 55,
+  MOUND_R: 56,
+  BASE_L: 57,
+  BASE_R: 58,
+  WINDOW_F: 59, // exterior earth face with a round window
 };
 
 export const COLLISION_TILES = [
@@ -105,6 +112,11 @@ export const COLLISION_TILES = [
   T.PAV_TR,
   T.PAV_BL,
   T.PAV_BR,
+  T.MOUND_L,
+  T.MOUND_R,
+  T.BASE_L,
+  T.BASE_R,
+  T.WINDOW_F,
 ];
 
 export const TILE_SIZE = 16;
