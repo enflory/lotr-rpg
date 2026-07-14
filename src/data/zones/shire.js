@@ -24,7 +24,7 @@ const BASE = [
   [R, R, G, G, R, G, f, G, R, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, H, R, G, f, G, R, G, G, R, R], // 1
   [R, G, G, f, G, G, G, R, H, H, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, h, H, H, R, G, G, G, G, G, G, R], // 2  ← grassy crown above the smials
   [R, G, G, G, G, G, R, H, H, h, A, O, O, O, Z, h, h, h, A, O, O, O, Z, h, h, A, O, O, O, Z, h, H, H, G, G, G, G, G, G, R], // 3
-  [R, G, G, G, G, R, H, H, h, h, b, L, D, J, e, h, d, h, b, L, D, J, e, h, d, b, L, D, J, e, h, h, H, H, G, G, G, f, G, R], // 4  ← smial domes, one door each
+  [R, G, G, G, G, R, H, H, h, h, b, w, D, w, e, h, d, h, b, w, D, w, e, h, d, b, w, D, w, e, h, h, H, H, G, G, G, f, G, R], // 4  ← smial domes: big window each side of the door
   [R, G, G, G, R, H, H, h, h, h, h, P, P, P, h, h, h, h, h, P, P, P, X, h, h, h, P, P, P, h, h, h, h, H, G, G, G, G, G, R], // 5  ← Bag End sign
   [R, G, f, G, R, H, h, h, h, h, P, P, h, P, P, h, h, h, P, P, h, P, P, h, h, P, P, h, P, P, h, h, h, H, R, G, G, G, G, R], // 6
   [R, G, G, G, G, H, H, h, h, P, P, h, h, h, P, P, P, P, P, h, h, h, P, P, P, P, h, h, h, P, P, h, H, H, G, G, G, G, G, R], // 7
