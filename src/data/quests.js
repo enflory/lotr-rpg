@@ -14,7 +14,7 @@ export const QUESTS = [
     key: 'spoons',
     title: "Lobelia's spoons",
     hint: 'Bilbo left Lobelia a labelled gift. Find it in Bag End.',
-    active: (f) => !!f.prologueDone && !!f.metGandalf,
+    active: (f) => !!f.prologueDone || !!f.foundSpoons,
     done: (f) => !!f.gaveSpoons,
   },
   {
