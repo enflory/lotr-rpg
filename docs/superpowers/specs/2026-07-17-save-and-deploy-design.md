@@ -78,15 +78,15 @@ Exactly one call site: the top of `WorldScene.create()`, after the zone is resol
 `save(this.zoneKey, this.entryKey)`. Every zone transition already restarts the scene,
 so every zone entry checkpoints automatically.
 
-The party prologue's time skip is believed to restart the scene (which would checkpoint
-`prologueDone` without special-casing). **Verify during implementation**; if the time
-skip does not restart WorldScene, add one explicit `save()` where `prologueDone` is set.
+The party prologue's time skip restarts the scene after setting `prologueDone`
+(verified: `src/events/partyEvent.js` calls `scene.restart` right after the flag is
+set), so the post-prologue state is checkpointed without special-casing.
 
 ### Restore flow (TitleScene)
 
 - No save present → exactly today's behavior (ENTER/SPACE starts a new game).
 - Save present → two options rendered on the title screen:
-  - **ENTER — Continue**: assign the saved `flags`/`follower`/`objective`/`items`/
+  - **ENTER — Continue** (SPACE mirrors ENTER, matching today's start behavior): assign the saved `flags`/`follower`/`objective`/`items`/
     `collected` onto `gameState`, then `scene.start('WorldScene', { zone, entry })`.
     State is restored *before* WorldScene boots, so NPC `when` conditions, the Sam
     follower, and gated exits all resolve correctly with zero changes to WorldScene.
@@ -114,6 +114,8 @@ Append a `deploy` job to the existing `.github/workflows/ci.yml`:
   push events (PRs still get checks only).
 - Steps: build (`npm run build`), `actions/configure-pages`,
   `actions/upload-pages-artifact` with `dist/`, `actions/deploy-pages`.
+- The job needs `permissions: { pages: write, id-token: write }` and
+  `environment: github-pages`, or `deploy-pages` fails.
 - Repo Pages setting: "GitHub Actions" as the source. Repo is already public.
 
 `vite.config.js` already sets `base: './'`, so the build works both on the
@@ -124,7 +126,8 @@ Append a `deploy` job to the existing `.github/workflows/ci.yml`:
 - Proposed subdomain: **`lotr.lonelymtnlabs.com`** (alternative flavor:
   `shire.lonelymtnlabs.com` — user's call at review).
 - One-time manual steps (user):
-  1. DNS: add a CNAME record `lotr` → `enflory.github.io` at the DNS provider.
+  1. DNS: add a CNAME record `lotr` → `enflory.github.io` in Squarespace
+     (which hosts DNS for lonelymtnlabs.com per the website repo's CLAUDE.md).
   2. GitHub: set the custom domain in the lotr-rpg repo's Pages settings and enable
      "Enforce HTTPS" once the cert provisions.
 - The deploy artifact needs a `CNAME` file containing the subdomain (place it in
@@ -133,23 +136,27 @@ Append a `deploy` job to the existing `.github/workflows/ci.yml`:
 - This does not affect the main website: subdomain Pages sites coexist with the
   apex-domain site under the same account.
 
-### Website tile (open item)
+### Website tile (recommended: small follow-on in the website repo)
 
-Add one project tile to the lonelymtnlabs.com homepage: a 960×720 gameplay screenshot
-(from `assets/screenshots/`), title, one-line description, link to the subdomain.
+The website repo is `~/Documents/Projects/lonely_mountain_labs`
+(github.com/enflory/lonely-mountain-labs), a React/Vite/Tailwind site deployed by
+building and copying `dist/public/` into `docs/` on `main`. Project cards live in a
+data array in `client/src/components/sections/Projects.tsx` (`title`, `description`,
+`link`), and each card renders an animated mini-visual from `ProjectVisuals.tsx`.
 
-The website repo could not be located during design (shell access was temporarily
-unavailable and the live site could not be fetched). The implementation plan must
-begin by locating the repo and reading the existing tile markup, then match its
-pattern. If tile visuals turn out to be a real design decision, handle it as a small
-follow-on using the repo-saved-preview workflow.
+Adding the tile is therefore one array entry, a link to the game subdomain, and a
+small pixel-art-flavored mini-visual to match the other cards — a self-contained
+change in the other repo with its own build/deploy step. Recommendation: keep this
+push's implementation plan scoped to the lotr-rpg repo and do the tile as an
+immediate follow-on, using the repo-saved-preview workflow if the mini-visual
+warrants design iteration.
 
 ## Error handling summary
 
 | Failure | Behavior |
 | --- | --- |
-| Corrupt/failed-parse save | Key cleared; title screen behaves as fresh install |
-| Save from newer version | Ignored, not destroyed |
+| Failed-parse save | Key cleared; title screen behaves as fresh install |
+| Parseable but invalid shape / newer version | Ignored, not destroyed; behaves as fresh install |
 | Saved zone/entry no longer exists (content renamed) | Fall back to zone default spawn, else fresh start |
 | localStorage unavailable | Save system silently no-ops; game plays as today |
 | Deploy fails | Pages keeps serving the previous deployment; CI shows red |
@@ -165,5 +172,5 @@ follow-on using the repo-saved-preview workflow.
 
 1. Subdomain name: `lotr.` (default) or `shire.` or other?
 2. Single autosave slot confirmed? (Named slots deliberately deferred.)
-3. Where does the website repo live locally, and is adding the tile in scope for
-   this push or a follow-on?
+3. Website tile as an immediate follow-on in the website repo (recommended), or
+   in scope for this push's plan?
