@@ -78,7 +78,7 @@ export class TitleScene extends Phaser.Scene {
 
     // Disclaimer
     this.add
-      .text(cx, 600, 'An unaffiliated, non-commercial fan project', {
+      .text(cx, 672, 'An unaffiliated, non-commercial fan project', {
         fontFamily: '"Press Start 2P"',
         fontSize: '12px',
         color: '#4a4a4a',
