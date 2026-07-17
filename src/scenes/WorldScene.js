@@ -16,6 +16,7 @@ import {
 import { ITEMS, ITEM_KEYS } from '../data/items.js';
 import { QUESTS } from '../data/quests.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
+import { save } from '../state/saveGame.js';
 
 // The canvas is 960×720 with a 3× camera zoom (a classic 320×240 view).
 // Screen-fixed UI (scrollFactor 0) scales around the CANVAS centre, so its
@@ -41,6 +42,7 @@ export class WorldScene extends Phaser.Scene {
   create() {
     const zone = ZONES[this.zoneKey];
     this.zone = zone;
+    save(this.zoneKey, this.entryKey); // checkpoint: every zone entry
     this.riderEvent = null;
     this.partyEvent = null; // scene.restart reuses the instance
     this.ferryEvent = null;
