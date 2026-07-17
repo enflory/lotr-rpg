@@ -395,12 +395,13 @@ if (saved) {
 }
 ```
 
-Add the disclaimer above the controls line (y=600 — clear of the N-hint line, whose
-14px text at cy+265 spans ~618–632; controls sit at 654, version at 690):
+Add the disclaimer between the controls line and the version line (y=672 — the only
+clean 12px slot in the bottom block: prompt spans ~571–599, N-hint ~618–632,
+controls ~646–662, version ~682–698):
 
 ```js
 this.add
-  .text(cx, 600, 'An unaffiliated, non-commercial fan project', {
+  .text(cx, 672, 'An unaffiliated, non-commercial fan project', {
     fontFamily: '"Press Start 2P"',
     fontSize: '12px',
     color: '#4a4a4a',
