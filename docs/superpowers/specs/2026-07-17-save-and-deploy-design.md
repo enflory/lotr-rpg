@@ -88,7 +88,7 @@ set), so the post-prologue state is checkpointed without special-casing.
 - Save present → two options rendered on the title screen:
   - **ENTER — Continue** (SPACE mirrors ENTER, matching today's start behavior): assign the saved `flags`/`follower`/`objective`/`items`/
     `collected` onto `gameState`, then `scene.start('WorldScene', { zone, entry })`.
-    State is restored *before* WorldScene boots, so NPC `when` conditions, the Sam
+    State is restored _before_ WorldScene boots, so NPC `when` conditions, the Sam
     follower, and gated exits all resolve correctly with zero changes to WorldScene.
   - **N — New Game**: `clearSave()`, then today's fresh-start path (prologue included).
 - Restoring always spawns at the saved zone's entry spawn — never mid-event, so the
@@ -157,13 +157,13 @@ warrants design iteration.
 
 ## Error handling summary
 
-| Failure | Behavior |
-| --- | --- |
-| Failed-parse save | Key cleared; title screen behaves as fresh install |
-| Parseable but invalid shape / newer version | Ignored, not destroyed; behaves as fresh install |
-| Saved zone/entry no longer exists (content renamed) | Fall back to zone default spawn, else fresh start |
-| localStorage unavailable | Save system silently no-ops; game plays as today |
-| Deploy fails | Pages keeps serving the previous deployment; CI shows red |
+| Failure                                             | Behavior                                                  |
+| --------------------------------------------------- | --------------------------------------------------------- |
+| Failed-parse save                                   | Key cleared; title screen behaves as fresh install        |
+| Parseable but invalid shape / newer version         | Ignored, not destroyed; behaves as fresh install          |
+| Saved zone/entry no longer exists (content renamed) | Fall back to zone default spawn, else fresh start         |
+| localStorage unavailable                            | Save system silently no-ops; game plays as today          |
+| Deploy fails                                        | Pages keeps serving the previous deployment; CI shows red |
 
 ## Testing summary
 

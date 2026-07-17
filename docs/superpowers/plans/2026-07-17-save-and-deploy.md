@@ -4,7 +4,7 @@
 
 **Goal:** Autosave-at-zone-entry with a Continue/New Game title screen, and public hosting at lotr.lonelymtnlabs.com via GitHub Pages.
 
-**Architecture:** A three-function checkpoint module (`saveGame.js`) writes one versioned localStorage key at every `WorldScene.create()`; `TitleScene` restores the singleton `gameState` *before* starting `WorldScene`, so no scene code changes for restore. Deployment is a `deploy` job appended to the existing CI workflow, publishing `dist/` to GitHub Pages on green main.
+**Architecture:** A three-function checkpoint module (`saveGame.js`) writes one versioned localStorage key at every `WorldScene.create()`; `TitleScene` restores the singleton `gameState` _before_ starting `WorldScene`, so no scene code changes for restore. Deployment is a `deploy` job appended to the existing CI workflow, publishing `dist/` to GitHub Pages on green main.
 
 **Tech Stack:** Vanilla JS (JSDoc-typechecked), Phaser 3, Vitest, Playwright, GitHub Actions + Pages.
 
@@ -14,18 +14,19 @@
 
 ## File Structure
 
-| File | Action | Responsibility |
-| --- | --- | --- |
-| `src/state/saveGame.js` | Create | `save`/`load`/`clearSave`/`applySave` — all localStorage logic lives here, nothing else touches storage |
-| `tests/saveGame.test.js` | Create | Serializer round-trip + every validation branch (fake localStorage; Node env) |
-| `src/scenes/WorldScene.js` | Modify | One `save()` call at the top of `create()` |
-| `src/scenes/TitleScene.js` | Modify | Continue/New Game prompts, restore flow, fan-project disclaimer line |
-| `e2e/save.spec.js` | Create | Reload→Continue and New Game flows in the real game |
-| `.github/workflows/ci.yml` | Modify | Append `deploy` job (main-push only, needs test+e2e) |
-| `public/CNAME` | Create | Custom-domain file copied into `dist/` by Vite |
-| `CLAUDE.md`, `README.md` | Modify | Record the save system and the live URL |
+| File                       | Action | Responsibility                                                                                          |
+| -------------------------- | ------ | ------------------------------------------------------------------------------------------------------- |
+| `src/state/saveGame.js`    | Create | `save`/`load`/`clearSave`/`applySave` — all localStorage logic lives here, nothing else touches storage |
+| `tests/saveGame.test.js`   | Create | Serializer round-trip + every validation branch (fake localStorage; Node env)                           |
+| `src/scenes/WorldScene.js` | Modify | One `save()` call at the top of `create()`                                                              |
+| `src/scenes/TitleScene.js` | Modify | Continue/New Game prompts, restore flow, fan-project disclaimer line                                    |
+| `e2e/save.spec.js`         | Create | Reload→Continue and New Game flows in the real game                                                     |
+| `.github/workflows/ci.yml` | Modify | Append `deploy` job (main-push only, needs test+e2e)                                                    |
+| `public/CNAME`             | Create | Custom-domain file copied into `dist/` by Vite                                                          |
+| `CLAUDE.md`, `README.md`   | Modify | Record the save system and the live URL                                                                 |
 
 Notes for the implementer:
+
 - `src/state/` is covered by `npm run typecheck` (JSDoc) — keep the `@type`/`@param` annotations shown below. `src/scenes/` is not typechecked.
 - Vitest runs in Node env with no `localStorage`; the module must tolerate its absence (that's also the private-browsing fallback), and tests install a fake on `globalThis`.
 - Prettier formats these files (only zone maps/pixel art are exempt) — run `npm run format` before each commit.
@@ -41,6 +42,7 @@ Notes for the implementer:
 ### Task 1: saveGame module (TDD)
 
 **Files:**
+
 - Create: `tests/saveGame.test.js`
 - Create: `src/state/saveGame.js`
 
@@ -325,6 +327,7 @@ git commit -m "feat: checkpoint save module (localStorage, versioned key)"
 ### Task 2: Autosave at zone entry
 
 **Files:**
+
 - Modify: `src/scenes/WorldScene.js` (imports ~line 15; `create()` ~line 43)
 
 - [ ] **Step 2.1: Add the single save call**
@@ -362,6 +365,7 @@ git commit -m "feat: autosave at every zone entry"
 ### Task 3: Title screen — Continue / New Game + disclaimer
 
 **Files:**
+
 - Modify: `src/scenes/TitleScene.js`
 
 - [ ] **Step 3.1: Rework the prompt block and start handlers**
@@ -470,6 +474,7 @@ git commit -m "feat: continue/new-game title flow and fan-project disclaimer"
 ### Task 4: e2e coverage for the reload→continue loop
 
 **Files:**
+
 - Create: `e2e/save.spec.js`
 
 - [ ] **Step 4.1: Write the spec**
@@ -570,6 +575,7 @@ git commit -m "test: e2e coverage for autosave, continue, and new game"
 ### Task 5: GitHub Pages deployment
 
 **Files:**
+
 - Modify: `.github/workflows/ci.yml`
 - Create: `public/CNAME`
 
@@ -591,30 +597,30 @@ Expected: `lotr.lonelymtnlabs.com`
 - [ ] **Step 5.3: Append the deploy job to ci.yml**
 
 ```yaml
-  deploy:
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [test, e2e]
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run build
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
-        with:
-          path: dist
-      - id: deployment
-        uses: actions/deploy-pages@v4
+deploy:
+  if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  needs: [test, e2e]
+  runs-on: ubuntu-latest
+  permissions:
+    pages: write
+    id-token: write
+  environment:
+    name: github-pages
+    url: ${{ steps.deployment.outputs.page_url }}
+  steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: npm
+    - run: npm ci
+    - run: npm run build
+    - uses: actions/configure-pages@v5
+    - uses: actions/upload-pages-artifact@v4
+      with:
+        path: dist
+    - id: deployment
+      uses: actions/deploy-pages@v4
 ```
 
 PRs still run only `test` and `e2e`; the deploy fires on pushes to main (i.e., PR merges).
@@ -627,6 +633,7 @@ git commit -m "ci: deploy to GitHub Pages at lotr.lonelymtnlabs.com on green mai
 ```
 
 **Manual steps for the user (before merging this branch):**
+
 1. Repo Settings → Pages → Source: **GitHub Actions**. Without this the deploy job fails.
 2. Squarespace DNS (lonelymtnlabs.com): add a CNAME record, host `lotr`, value `enflory.github.io`.
 3. After the first successful deploy: Settings → Pages → Custom domain → `lotr.lonelymtnlabs.com`, then enable **Enforce HTTPS** once the certificate provisions (can take a few minutes after DNS propagates).
@@ -636,6 +643,7 @@ git commit -m "ci: deploy to GitHub Pages at lotr.lonelymtnlabs.com on green mai
 ### Task 6: Docs + final verification
 
 **Files:**
+
 - Modify: `CLAUDE.md` (Current State section)
 - Modify: `README.md`
 
