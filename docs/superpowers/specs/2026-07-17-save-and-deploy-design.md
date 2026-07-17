@@ -1,7 +1,7 @@
 # Save System + Public Deployment — Design
 
 **Date:** 2026-07-17
-**Status:** Draft — pending user review
+**Status:** Approved (user review 2026-07-17; reviewer subagent approved)
 **Scope:** Two features shipped as one push: (1) an autosave/continue system backed by
 localStorage, (2) public hosting on GitHub Pages under a lonelymtnlabs.com subdomain,
 plus a project tile on the lonelymtnlabs.com homepage.
@@ -123,8 +123,12 @@ Append a `deploy` job to the existing `.github/workflows/ci.yml`:
 
 ### Custom domain
 
-- Proposed subdomain: **`lotr.lonelymtnlabs.com`** (alternative flavor:
-  `shire.lonelymtnlabs.com` — user's call at review).
+- Subdomain (user-confirmed): **`lotr.lonelymtnlabs.com`**.
+- IP posture (user asked; not legal advice): a non-monetized fan project has no
+  legal safe harbor, but realistic worst case is a takedown request to comply with.
+  Keep the profile low: never monetize, and show a short "unaffiliated fan project"
+  disclaimer line on the title screen (add to this push — one text object in
+  TitleScene).
 - One-time manual steps (user):
   1. DNS: add a CNAME record `lotr` → `enflory.github.io` in Squarespace
      (which hosts DNS for lonelymtnlabs.com per the website repo's CLAUDE.md).
@@ -168,9 +172,12 @@ warrants design iteration.
 - Manual: full playthrough on the live URL after first deploy; confirm HTTPS,
   audio init on first keypress, and Continue across a browser restart.
 
-## Open questions for user review
+## Decisions (user review, 2026-07-17)
 
-1. Subdomain name: `lotr.` (default) or `shire.` or other?
-2. Single autosave slot confirmed? (Named slots deliberately deferred.)
-3. Website tile as an immediate follow-on in the website repo (recommended), or
-   in scope for this push's plan?
+1. Subdomain: **`lotr.lonelymtnlabs.com`** (user-chosen; noted that `shire.` would
+   use the mark marginally less prominently).
+2. Save model: **single autosave slot per browser** (defaulted to the
+   recommendation after options were explained; named slots remain an additive
+   later change — revisit if shared-device play becomes real).
+3. Website tile: **separate follow-on effort in the website repo** (user-confirmed).
+4. Added at review: title-screen "unaffiliated fan project" disclaimer line.
