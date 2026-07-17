@@ -395,11 +395,12 @@ if (saved) {
 }
 ```
 
-Add the disclaimer above the controls line (y=618; controls sit at 654, version at 690):
+Add the disclaimer above the controls line (y=600 — clear of the N-hint line, whose
+14px text at cy+265 spans ~618–632; controls sit at 654, version at 690):
 
 ```js
 this.add
-  .text(cx, 618, 'An unaffiliated, non-commercial fan project', {
+  .text(cx, 600, 'An unaffiliated, non-commercial fan project', {
     fontFamily: '"Press Start 2P"',
     fontSize: '12px',
     color: '#4a4a4a',
