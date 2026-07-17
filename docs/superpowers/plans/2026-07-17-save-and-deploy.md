@@ -138,6 +138,16 @@ describe('load validation', () => {
     expect(load()?.entry).toBe('default');
   });
 
+  it('returns null for an unknown entry in a zone with no default spawn', () => {
+    // woodyend has only west/east spawns — no fallback exists, so the save
+    // must be rejected rather than booting WorldScene into undefined
+    save('woodyend', 'west');
+    const raw = JSON.parse(globalThis.localStorage.getItem(SAVE_KEY));
+    raw.entry = 'trapdoor';
+    globalThis.localStorage.setItem(SAVE_KEY, JSON.stringify(raw));
+    expect(load()).toBeNull();
+  });
+
   it('returns null when flags/items/collected are not objects', () => {
     save('shire', 'default');
     const raw = JSON.parse(globalThis.localStorage.getItem(SAVE_KEY));
@@ -262,7 +272,12 @@ export function load() {
   }
   if (typeof data.objective !== 'string') return null;
   if (data.follower != null && typeof data.follower !== 'string') return null;
-  if (!zone.spawns[data.entry]) data.entry = 'default';
+  if (!zone.spawns[data.entry]) {
+    // Not every zone has a 'default' spawn (woodyend/marish don't) — with no
+    // safe landing spot, reject the save rather than boot into undefined
+    if (!zone.spawns.default) return null;
+    data.entry = 'default';
+  }
   return data;
 }
 
@@ -376,7 +391,7 @@ if (saved) {
 }
 ```
 
-Below the existing version text, add the disclaimer:
+Add the disclaimer above the controls line (y=618; controls sit at 654, version at 690):
 
 ```js
 this.add
