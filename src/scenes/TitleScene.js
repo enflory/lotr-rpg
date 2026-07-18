@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { initAudio } from '../audio/sound.js';
 import { hasFlag, setObjective } from '../state/GameState.js';
+import { load, clearSave, applySave } from '../state/saveGame.js';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -46,14 +47,25 @@ export class TitleScene extends Phaser.Scene {
     ring.strokeCircle(cx, cy + 90, 30);
 
     // Prompt
+    const saved = load();
     const prompt = this.add
-      .text(cx, cy + 225, 'PRESS ENTER', {
+      .text(cx, cy + 225, saved ? 'ENTER ~ CONTINUE' : 'PRESS ENTER', {
         fontFamily: '"Press Start 2P"',
         fontSize: '24px',
         color: '#f0ead6',
         align: 'center',
       })
       .setOrigin(0.5);
+    if (saved) {
+      this.add
+        .text(cx, cy + 265, 'N ~ NEW GAME', {
+          fontFamily: '"Press Start 2P"',
+          fontSize: '14px',
+          color: '#8a8a8a',
+          align: 'center',
+        })
+        .setOrigin(0.5);
+    }
 
     // Blink the prompt
     this.tweens.add({
@@ -63,6 +75,15 @@ export class TitleScene extends Phaser.Scene {
       yoyo: true,
       repeat: -1,
     });
+
+    // Disclaimer
+    this.add
+      .text(cx, 672, 'An unaffiliated, non-commercial fan project', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '12px',
+        color: '#4a4a4a',
+      })
+      .setOrigin(0.5);
 
     // Controls + version
     this.add
@@ -80,12 +101,19 @@ export class TitleScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // Start on ENTER or SPACE
-    this.input.keyboard.once('keydown-ENTER', () => this.startGame());
-    this.input.keyboard.once('keydown-SPACE', () => this.startGame());
+    // ENTER/SPACE continue a saved game if one exists; N always starts fresh.
+    this.starting = false;
+    const begin = saved ? () => this.continueGame(saved) : () => this.startGame();
+    this.input.keyboard.on('keydown-ENTER', begin);
+    this.input.keyboard.on('keydown-SPACE', begin);
+    if (saved) this.input.keyboard.on('keydown-N', () => this.startGame(true));
   }
 
-  startGame() {
+  /** @param {boolean} [fresh] true when N wipes an existing save */
+  startGame(fresh = false) {
+    if (this.starting) return;
+    this.starting = true;
+    if (fresh) clearSave();
     initAudio(); // must happen inside a user-gesture handler
     // A fresh game opens at Bilbo's farewell party; presetting
     // `prologueDone` (QA hooks) boots straight into the main story.
@@ -94,6 +122,18 @@ export class TitleScene extends Phaser.Scene {
     this.cameras.main.fadeOut(800, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.start('WorldScene', { zone: 'shire', entry: prologue ? 'party' : 'default' });
+    });
+  }
+
+  /** @param {import('../state/saveGame.js').SavePayload} saved */
+  continueGame(saved) {
+    if (this.starting) return;
+    this.starting = true;
+    initAudio();
+    applySave(saved); // restore state BEFORE WorldScene boots
+    this.cameras.main.fadeOut(800, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start('WorldScene', { zone: saved.zone, entry: saved.entry });
     });
   }
 }
