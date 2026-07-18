@@ -34,6 +34,7 @@ test('autosave at zone entry survives a reload and Continue restores it', async 
   await page.waitForFunction(
     () => window.__game.scene.getScene('WorldScene').zone?.key === 'woodyend',
   );
+  const objectiveBefore = await page.evaluate(() => window.__state.objective);
 
   // Reload: module state is wiped, localStorage survives
   await page.reload();
@@ -50,6 +51,7 @@ test('autosave at zone entry survives a reload and Continue restores it', async 
   expect(state.zone).toBe('woodyend');
   expect(state.samJoined).toBe(true);
   expect(state.follower).toBe('sam');
+  expect(state.objective).toBe(objectiveBefore);
 });
 
 test('N starts a new game, discarding the save', async ({ page }) => {
@@ -73,4 +75,11 @@ test('N starts a new game, discarding the save', async ({ page }) => {
   // Fresh start: back at Bilbo's party, saved flags gone
   expect(state.prologueDone).toBe(false);
   expect(state.objective).toMatch(/Bilbo/);
+
+  // The old save was genuinely replaced by the fresh-prologue checkpoint
+  const checkpoint = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('lotr-rpg.save.v1')),
+  );
+  expect(checkpoint.entry).toBe('party');
+  expect(!!checkpoint.flags.prologueDone).toBe(false);
 });

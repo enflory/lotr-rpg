@@ -116,6 +116,23 @@ describe('without localStorage (private-browsing fallback)', () => {
   });
 });
 
+describe('with throwing storage (quota/privacy failures)', () => {
+  it('save and clearSave swallow storage exceptions', () => {
+    globalThis.localStorage = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error('QuotaExceededError');
+      },
+      removeItem: () => {
+        throw new Error('SecurityError');
+      },
+    };
+    expect(() => save('shire', 'default')).not.toThrow();
+    expect(() => clearSave()).not.toThrow();
+    expect(load()).toBeNull();
+  });
+});
+
 describe('applySave', () => {
   it('assigns the payload onto the gameState singleton', () => {
     gameState.flags = { prologueDone: true };
