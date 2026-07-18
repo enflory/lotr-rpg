@@ -603,7 +603,11 @@ deploy:
   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
   needs: [test, e2e]
   runs-on: ubuntu-latest
+  concurrency:
+    group: pages
+    cancel-in-progress: false
   permissions:
+    contents: read
     pages: write
     id-token: write
   environment:
