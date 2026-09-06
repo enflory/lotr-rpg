@@ -89,7 +89,7 @@ export function ferryEventUpdate(scene, delta) {
 
     const rx = RAFT_X * TILE_SIZE;
     const ry = LANE_ROW * TILE_SIZE;
-    // Crew aboard: Frodo, Sam behind, Merry at the pole
+    // Crew aboard: Frodo, Sam and Pippin behind, Merry at the pole
     ev.crew = [];
     const aboard = (sprite, ox, oy) => {
       if (!sprite) return;
@@ -97,7 +97,8 @@ export function ferryEventUpdate(scene, delta) {
       ev.crew.push({ sprite, ox, oy });
     };
     aboard(scene.player, 8, 6);
-    aboard(scene.follower, 22, 14);
+    const companions = scene.followers ?? [scene.follower].filter(Boolean);
+    companions.forEach((sprite, i) => aboard(sprite, i === 0 ? 22 : 8, 20));
     const merry = scene.npcs.find((n) => n.getData('key') === 'merry');
     aboard(merry, 24, 2);
     sfx.door(); // creak of the raft pushing off

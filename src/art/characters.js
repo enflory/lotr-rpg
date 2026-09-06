@@ -437,6 +437,19 @@ export const CHAR_DEFS = {
     feet: ['#d8b080', '#b89060'],
   },
 
+  pippin: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#8a4928', h: '#b66a38', l: '#d99455',
+      C: '#e0d4b0', c: '#baac88',
+      V: '#356e98', v: '#5596bd', G: '#214c73',
+      B: '#301810', b: '#c09030',
+      P: '#70462e', p: '#503020',
+    },
+    feet: ['#d8b080', '#b89060'],
+  },
+
   bilbo: {
     maps: MALE,
     pal: {

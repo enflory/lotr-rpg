@@ -4,7 +4,7 @@
 export const gameState = {
   /** @type {Record<string, boolean>} story event flags, e.g. metGandalf, samJoined */
   flags: {},
-  /** @type {string|null} character key trailing the player (e.g. 'sam') */
+  /** @type {string|null} primary companion key (Sam); WorldScene also restores Pippin when Sam is present */
   follower: null,
   objective: 'Speak with Gandalf outside Bag End',
   /** @type {Record<string, number>} item key → count carried */

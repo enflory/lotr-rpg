@@ -232,3 +232,42 @@ describe('sniffing', () => {
     expect(scene.riderEvent.phase).toBe('riding');
   });
 });
+
+describe('three hobbits hiding', () => {
+  it('catches an exposed companion even when Frodo is hidden', () => {
+    const scene = makeScene({ fernAt: [[13, 14]] });
+    placePlayer(scene, 13, 14);
+    scene.followers = [
+      { x: 11 * 16 + 8, y: 15 * 16 + 4 },
+      { x: 12 * 16 + 8, y: 15 * 16 + 4 },
+    ];
+    riderEventUpdate(scene, 0);
+    scene.riderEvent.rider.x = scene.followers[0].x - 10;
+    scene.riderEvent.rider.y = scene.followers[0].y;
+    riderEventUpdate(scene, 0);
+    expect(scene.riderEvent.phase).toBe('caught');
+  });
+
+  it('lets all three survive together on separate fern tiles', () => {
+    const scene = makeScene({
+      fernAt: [
+        [11, 14],
+        [12, 14],
+        [13, 14],
+      ],
+    });
+    placePlayer(scene, 13, 14);
+    scene.followers = [
+      { x: 12 * 16 + 8, y: 14 * 16 + 4 },
+      { x: 11 * 16 + 8, y: 14 * 16 + 4 },
+    ];
+    riderEventUpdate(scene, 0);
+    scene.riderEvent.rider.x = scene.player.x - 2;
+    riderEventUpdate(scene, 0);
+    expect(scene.riderEvent.phase).toBe('sniffing');
+    riderEventUpdate(scene, 1700);
+    scene.riderEvent.rider.x = scene.player.x + 120;
+    riderEventUpdate(scene, 0);
+    expect(gameState.flags.escapedRider).toBe(true);
+  });
+});

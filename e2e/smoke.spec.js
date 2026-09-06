@@ -92,7 +92,7 @@ test("prologue: Bilbo's farewell party opens the game", async ({ page }) => {
 test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ page }) => {
   await page.goto('/');
   await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
-  // Jump the story to "just met Gildor", with Sam following
+  // An older Sam-only checkpoint should now restore both Sam and Pippin.
   await page.evaluate(() => {
     Object.assign(window.__state.flags, {
       prologueDone: true,
@@ -169,6 +169,25 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
     { timeout: 10_000 },
   );
   await page.keyboard.up('ArrowRight');
+  await page.waitForFunction(
+    () => window.__game.scene.getScene('WorldScene').ferryEvent?.phase === 'crossing',
+  );
+  expect(
+    await page.evaluate(() => {
+      const s = window.__game.scene.getScene('WorldScene');
+      return s.ferryEvent.crew.map(({ sprite }) =>
+        sprite === s.player ? 'frodo' : sprite.getData('key'),
+      );
+    }),
+  ).toEqual(['frodo', 'sam', 'pippin', 'merry']);
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const s = window.__game.scene.getScene('WorldScene');
+        return s.followers.every((p) => p.anims.currentAnim.key.includes('-idle-'));
+      }),
+    )
+    .toBe(true);
   await page.waitForFunction(() => window.__state.flags.crossedFerry, null, { timeout: 15_000 });
 
   const end = await page.evaluate(() => {
@@ -182,6 +201,21 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
   expect(end.objective).toMatch(/Chapter Two/);
   expect(end.tileX).toBeGreaterThanOrEqual(52); // the Buckland shore BANK_LAND_X
   expect(end.bodyEnabled).toBe(true);
+  expect(
+    await page.evaluate(async () => {
+      const { COLLISION_TILES } = await import('/src/data/tileTypes.js');
+      const s = window.__game.scene.getScene('WorldScene');
+      return s.followers.map((p) => ({
+        key: p.getData('key'),
+        onLand:
+          p.x >= 52 * 16 &&
+          !COLLISION_TILES.includes(s.zone.map[Math.floor((p.y + 8) / 16)]?.[Math.floor(p.x / 16)]),
+      }));
+    }),
+  ).toEqual([
+    { key: 'sam', onLand: true },
+    { key: 'pippin', onLand: true },
+  ]);
 });
 
 test('talking to Gandalf reveals the Ring and sets the story flag', async ({ page }) => {
