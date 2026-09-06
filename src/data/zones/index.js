@@ -7,7 +7,11 @@ import { greendragon } from './greendragon.js';
 import { woodyend } from './woodyend.js';
 import { marish } from './marish.js';
 
-export const ZONES = { shire, bagend, greendragon, woodyend, marish };
+import { crickhollow, hedgetunnel, tomclearing, tomhouse } from './beyondHedge.js';
+import { forestgate, forestheart, withywindle } from './oldforest.js';
+import { downs, barrow, barrowhill, eastroad } from './barrowdowns.js';
+
+export const ZONES = { shire, bagend, greendragon, woodyend, marish, crickhollow, hedgetunnel, forestgate, forestheart, withywindle, tomclearing, tomhouse, downs, barrow, barrowhill, eastroad };
 
 // Guard against ragged hand-authored maps
 for (const zone of Object.values(ZONES)) {

@@ -10,6 +10,14 @@ export const ITEMS = {
   firework_crate: { name: 'Firework Crate', desc: "Gandalf's — SQUIBS, handle with care." },
   elven_provisions: { name: 'Elven Provisions', desc: "Bread and fruit left by Gildor's folk." },
   maggot_basket: { name: "Mrs. Maggot's Basket", desc: 'Mushrooms, packed in straw.' },
+  barrow_blades: {
+    name: 'Barrow-blades',
+    desc: 'Four leaf-shaped blades, damasked in red and gold. One for each hobbit.',
+  },
+  tom_song: {
+    name: 'Tom’s Song',
+    desc: 'Remembered words to call Tom in need. A song, not a carried object.',
+  },
 };
 
 export const ITEM_KEYS = Object.keys(ITEMS);

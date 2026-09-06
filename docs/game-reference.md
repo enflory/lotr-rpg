@@ -25,10 +25,10 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 
 ### Chapter 2: Into the Wild
 
-**Places**: Farmer Maggot's Bamfurlong, the Marish, Bucklebury Ferry, Crickhollow, Old Forest, Tom Bombadil's house
-**Key characters**: Farmer Maggot (+ dogs Grip, Fang, Wolf), Tom Bombadil, Goldberry
-**Story beats**: Mushroom theft/Maggot encounter, Black Rider at the Ferry crossing, the Conspiracy revealed at Crickhollow, Old Man Willow traps Merry & Pippin, Tom's rescue, rest at Tom's house
-**Signature mechanics**: Old Forest path-shifting (trees redirect you toward the Withywindle — the player fights against environmental misdirection), Old Man Willow boss encounter, Tom's house as safe haven (full heal, lore dump, dream sequences)
+**Places**: Crickhollow, High Hay tunnel, Bonfire Glade, Old Forest knoll and hollows, Withywindle, Old Man Willow, Tom Bombadil's house
+**Key characters**: Merry (joins the travelling party), Fredegar Bolger, Tom Bombadil, Goldberry
+**Story beats**: Dawn farewell after the conspiracy, tunnel under the hedge, forest march, Old Man Willow traps Merry and Pippin, Sam rescues Frodo, failed fire, Tom's rescue, two nights and a rainy day at Tom's house, Ring demonstration
+**Signature mechanics**: Fixed winding paths and northern dead ends lead toward the Withywindle; interactive Willow rescue; Tom's house as a safe haven with ordered supper, dreams, stories, and farewell. No randomized maze, conventional boss fight, or health system.
 **Visual palette**: Boggy farmland (Marish) → dark hostile forest (dense canopy, gnarled roots, slimy moss) → sudden warmth (Tom's house: firelight, golden meadow, water-lilies)
 
 ### Chapter 3: Ancient Terrors
@@ -36,7 +36,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Places**: Barrow-downs, road to Bree
 **Key characters**: Barrow-wight, Tom Bombadil (rescue)
 **Story beats**: Crossing the downs, fog rolls in, separation from companions, wight captures the hobbits, Frodo's courage (singing for Tom), Tom breaks the spell, ancient blades given to each hobbit
-**Signature mechanics**: Fog/visibility system (shrinking sight radius), companion separation (you lose Merry/Pippin/Sam and must navigate alone), barrow dungeon (gothic interior with corpse-light puzzle), item acquisition (the four Barrow-blades — first real weapons)
+**Signature mechanics**: Fog/visibility system (shrinking sight radius), companion separation (you lose Merry/Pippin/Sam and must navigate alone), barrow interior (corpse-light, defence of companions, remembered summoning verse), item acquisition (the four Barrow-blades — first real weapons)
 **Visual palette**: Treeless green hills with standing stones → grey fog → pale greenish corpse-light inside barrow → sudden daylight on rescue
 
 ### Chapter 4: The Prancing Pony

@@ -46,6 +46,7 @@ export class WorldScene extends Phaser.Scene {
     // Older checkpoints with Sam also gain Pippin, without replaying his entrance.
     if (gameState.follower === 'sam') setFlag('pippinJoined');
     save(this.zoneKey, this.entryKey); // checkpoint: every zone entry
+    this.journey = null;
     this.riderEvent = null;
     this.partyEvent = null; // scene.restart reuses the instance
     this.ferryEvent = null;
@@ -90,6 +91,7 @@ export class WorldScene extends Phaser.Scene {
     this.trail = [];
     if (gameState.follower) this.createFollower(gameState.follower);
     if (gameState.follower === 'sam') this.createFollower('pippin');
+    if (hasFlag('merryJoined')) this.createFollower('merry');
     this.snapFollower();
 
     /* ── NPCs ────────────────────────────────────────── */
@@ -105,6 +107,18 @@ export class WorldScene extends Phaser.Scene {
 
     /* ── interaction hint icon ───────────────────────── */
     this.hintIcon = this.add.image(0, 0, 'hint').setVisible(false).setDepth(900);
+    this.actionHint = this.add
+      .text(480, 466, '', {
+        fontFamily: '"Press Start 2P"',
+        fontSize: '6px',
+        color: '#f0ead6',
+        backgroundColor: '#101810dd',
+        padding: { x: 5, y: 4 },
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(990)
+      .setVisible(false);
 
     /* ── fern-cover overlays (tall-grass hiding effect) ─ */
     this.playerFernOverlay = this.add.image(0, 0, 'tileset', T.FERN).setVisible(false);
@@ -300,7 +314,7 @@ export class WorldScene extends Phaser.Scene {
     const path = findWalkablePath(
       this.zone.map,
       this.player,
-      (x, y) => Math.abs(x - tx) + Math.abs(y - ty) >= 3,
+      (x, y) => Math.abs(x - tx) + Math.abs(y - ty) >= this.followers.length + 1,
       [behind, [-1, 0], [0, 1], [1, 0], [0, -1]],
     );
     this.trail = [{ x: this.player.x, y: this.player.y }, ...path];
@@ -399,12 +413,14 @@ export class WorldScene extends Phaser.Scene {
       }
     }
     this.followers.forEach((sprite, i) => {
+      if (sprite.getData('held')) return;
       this.moveCompanion(sprite, trailPosition(this.trail, FOLLOW_DISTANCE * (i + 1)));
     });
   }
 
   /* ── main loop ─────────────────────────────────────── */
   update(time, delta) {
+    this.actionHint.setVisible(false);
     const interactPressed = this.interactQueued;
     this.interactQueued = false;
 
@@ -433,6 +449,12 @@ export class WorldScene extends Phaser.Scene {
       this.updateFollower(delta);
       this.hintIcon.setVisible(false); // no interactions during set pieces
       if (this.zone.onUpdate && !this.transitioning) this.zone.onUpdate(this, delta);
+      return;
+    }
+
+    if (this.overlayVisible) {
+      this.player.setVelocity(0);
+      this.player.anims.play(`frodo-idle-${this.lastDir}`, true);
       return;
     }
 
@@ -500,9 +522,29 @@ export class WorldScene extends Phaser.Scene {
     this.hintIcon.setVisible(!!closestNpc);
     if (closestNpc) this.hintIcon.setPosition(closestNpc.x, closestNpc.y - 18);
 
+    const action = (this.zone.interactions ?? [])
+      .filter(
+        (p) =>
+          (!p.when || p.when(gameState.flags)) &&
+          Math.hypot(this.player.x - (p.x * TILE_SIZE + 8), this.player.y - p.y * TILE_SIZE) < 25,
+      )
+      .sort(
+        (a, b) =>
+          Math.hypot(this.player.x - a.x * TILE_SIZE - 8, this.player.y - a.y * TILE_SIZE) -
+          Math.hypot(this.player.x - b.x * TILE_SIZE - 8, this.player.y - b.y * TILE_SIZE),
+      )[0];
+    if (action) {
+      this.hintIcon
+        .setVisible(true)
+        .setPosition(action.x * TILE_SIZE + 8, action.y * TILE_SIZE - 16);
+      this.actionHint.setText(`SPACE · ${action.label}`).setVisible(true);
+    }
+
     /* ── interact ────────────────────────────────────── */
     if (interactPressed) {
-      if (closestNpc) {
+      if (action) {
+        this.startDialogue(action.dialogue);
+      } else if (closestNpc) {
         this.faceNpcToPlayer(closestNpc);
         this.startDialogue(closestNpc.getData('key'));
       } else {
@@ -528,7 +570,7 @@ export class WorldScene extends Phaser.Scene {
 
   /* ── fern-cover hiding effect ──────────────────────── */
   updateFernCover(sprite, overlay) {
-    if (!sprite) {
+    if (!sprite || !sprite.visible || sprite.getData('held')) {
       overlay.setVisible(false);
       return;
     }
@@ -539,9 +581,9 @@ export class WorldScene extends Phaser.Scene {
     overlay.setVisible(covered);
     if (covered) {
       overlay.setPosition(tx * TILE_SIZE + 8, ty * TILE_SIZE + 8).setDepth(sprite.y + 1);
-      sprite.setAlpha(0.68);
+      sprite.setAlpha(0.68 * (sprite.getData('cinematicAlpha') ?? 1));
     } else {
-      sprite.setAlpha(1);
+      sprite.setAlpha(sprite.getData('cinematicAlpha') ?? 1);
     }
   }
 
@@ -586,11 +628,11 @@ export class WorldScene extends Phaser.Scene {
   /* ── zone exits/transitions ────────────────────────── */
   checkExits() {
     const tileX = Math.floor(this.player.x / TILE_SIZE);
-    const tileY = Math.floor(this.player.y / TILE_SIZE);
+    const tileY = Math.floor((this.player.y + 8) / TILE_SIZE);
     const exit = this.zone.exits.find((e) => e.x === tileX && e.y === tileY);
     if (!exit) return;
 
-    if (exit.requires && !hasFlag(exit.requires)) {
+    if ((exit.requires && !hasFlag(exit.requires)) || exit.blockedWhen?.(gameState.flags)) {
       // Nudge back toward the map interior and explain
       const px = tileX === 0 ? 12 : tileX === this.mapWidth - 1 ? -12 : 0;
       const py = tileY === 0 ? 12 : tileY === this.mapHeight - 1 ? -12 : 0;
@@ -620,6 +662,7 @@ export class WorldScene extends Phaser.Scene {
     const dlg = resolveDialogue(key, gameState.flags, itemCount);
     if (!dlg) return;
 
+    this.dialogKey = key;
     this.dialogActive = true;
     this.dialogStage = dlg;
     this.dialogLines = dlg.lines;
@@ -636,6 +679,7 @@ export class WorldScene extends Phaser.Scene {
 
   showLine() {
     const line = this.dialogLines[this.dialogIndex];
+    this.zone.onDialogueLine?.(this);
     this.fullText = line;
     this.dialogBodyText.setText('');
     this.typing = true;
@@ -712,7 +756,21 @@ export class WorldScene extends Phaser.Scene {
       if (!this.pippinArrival) this.showBanner(`~ ${stage.objective} ~`);
     }
 
+    if (hasFlag('merryJoined') && !this.followers.some((p) => p.getData('key') === 'merry')) {
+      this.removeNpc('merry');
+      this.createFollower('merry');
+      this.snapFollower();
+    }
     this.refreshSpawns();
+    // Rebuild encounter presentation before saving: Continue always reconstructs
+    // the same stable flag state, never an animation half-way through.
+    if (this.zone.onUpdate) this.zone.onUpdate(this, 0);
+    this.checkpoint();
+  }
+
+  checkpoint(entry = this.entryKey) {
+    this.entryKey = entry;
+    save(this.zoneKey, entry);
   }
 
   /* ── spawn refresh (flags flip mid-scene via dialogue) ─ */

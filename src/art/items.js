@@ -95,6 +95,23 @@ function drawBasket(c, ox) {
   rc(c, ox + 8, 4, 1, 1, '#a5523c');
 }
 
+function drawBarrowBlades(c,ox) {
+  for(const x of [1,4,7,10]) {
+    rc(c,ox+x,2,1,6,'#cfdbcd');
+    px(c,ox+x,1,'#f4f0ce');
+    rc(c,ox+x-1,7,3,1,'#c9a64f');
+    rc(c,ox+x,8,1,3,'#9d5038');
+  }
+}
+function drawTomSong(c,ox) {
+  // A blue musical note with a gold echo; a memory token.
+  rc(c,ox+4,2,1,7,'#68b4d8');
+  rc(c,ox+4,2,6,2,'#68b4d8');
+  rc(c,ox+9,3,1,5,'#68b4d8');
+  rc(c,ox+2,8,3,2,'#edcf66');
+  rc(c,ox+7,7,3,2,'#edcf66');
+}
+
 export const ICON_FNS = [
   drawMushroom,
   drawMathom,
@@ -103,6 +120,8 @@ export const ICON_FNS = [
   drawCrate,
   drawProvisions,
   drawBasket,
+  drawBarrowBlades,
+  drawTomSong,
 ];
 
 export function makeItemIconsDataURL() {

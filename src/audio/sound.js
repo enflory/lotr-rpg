@@ -53,6 +53,35 @@ function tone(midi, t, dur, type, vol, dest) {
 // A song is { bpm, beats, tracks: [{ type, vol, notes: [[beat, midi, lenBeats], ...] }] }
 
 const SONGS = {
+  // Original chapter motifs: damp unease, a dancing refuge, wind, cold stone.
+  oldforest: {
+    bpm: 76, beats: 16,
+    tracks: [
+      { type: 'triangle', vol: 0.48, notes: [[0,57,2],[3,60,1],[5,59,3],[9,53,2],[12,57,2],[15,56,1]] },
+      { type: 'sine', vol: 0.34, notes: [[0,33,7],[8,40,3],[12,38,4]] },
+    ],
+  },
+  bombadil: {
+    bpm: 138, beats: 12,
+    tracks: [
+      { type: 'triangle', vol: 0.7, notes: [[0,74,0.5],[0.5,69,0.5],[1,71,1],[2,78,1],[3,76,1.5],[4.5,71,0.5],[5,69,1],[6,66,1],[7,74,0.5],[7.5,76,0.5],[8,71,1],[9,69,1],[10,74,2]] },
+      { type: 'sine', vol: 0.45, notes: [[0,50,1],[1,57,2],[3,47,1],[4,54,2],[6,43,1],[7,50,2],[9,50,3]] },
+    ],
+  },
+  downs: {
+    bpm: 64, beats: 16,
+    tracks: [
+      { type: 'sine', vol: 0.6, notes: [[0,74,3],[4,69,2],[7,72,2],[11,65,3],[15,67,1]] },
+      { type: 'triangle', vol: 0.2, notes: [[0,38,6],[8,41,6]] },
+    ],
+  },
+  barrow: {
+    bpm: 54, beats: 16,
+    tracks: [
+      { type: 'sine', vol: 0.48, notes: [[0,31,7],[8,30,7]] },
+      { type: 'triangle', vol: 0.22, notes: [[1,55,3],[6,56,2],[10,50,3],[14,49,2]] },
+    ],
+  },
   // Pastoral, lilting 3/4 — G major pentatonic
   shire: {
     bpm: 152, beats: 24,

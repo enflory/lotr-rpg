@@ -69,9 +69,30 @@ export const T = {
   BASE_L: 57,
   BASE_R: 58,
   WINDOW_F: 59, // exterior earth face with a round window
+  // Beyond the High Hay
+  FOREST_FLOOR: 60,
+  OLD_TREE: 61,
+  ROOTS: 62,
+  DEAD_TREE: 63,
+  DARK_WATER: 64,
+  LILIES: 65,
+  DOWN_GRASS: 66,
+  STANDING_STONE: 67,
+  BARROW_WALL: 68,
+  BARROW_FLOOR: 69,
+  CHALK: 70,
+  HEDGE: 71,
 };
 
 export const COLLISION_TILES = [
+  T.OLD_TREE,
+  T.DEAD_TREE,
+  T.DARK_WATER,
+  T.LILIES,
+  T.STANDING_STONE,
+  T.BARROW_WALL,
+  T.HEDGE,
+
   T.WATER,
   T.TREE,
   T.HILL,

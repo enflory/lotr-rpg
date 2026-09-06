@@ -149,7 +149,8 @@ export function ferryEventUpdate(scene, delta) {
       if (merry) merry.setPosition(BANK_LAND_X * TILE_SIZE + 8, (LANE_ROW - 1) * TILE_SIZE + 6);
       scene.inputLocked = false;
       setFlag('crossedFerry');
-      setObjective('To be continued in Chapter Two...');
+      setObjective('Follow Merry east to Crickhollow');
+      scene.checkpoint?.('buckland');
       sfx.jingle();
       scene.showBanner('You have crossed\nthe Brandywine.');
     }
