@@ -22,6 +22,29 @@ async function holdPad(page, dx, dy) {
   await page.mouse.move(cx + dx, cy + dy, { steps: 4 });
 }
 
+/** Plant a checkpoint so the title screen offers CONTINUE / NEW GAME. */
+async function seedSave(page) {
+  await page.evaluate(() =>
+    localStorage.setItem(
+      'lotr-rpg.save.v1',
+      JSON.stringify({
+        version: 1,
+        savedAt: Date.now(),
+        zone: 'marish',
+        entry: 'west',
+        flags: { prologueDone: true, timeskipShown: true, metGandalf: true, samJoined: true },
+        follower: 'sam',
+        objective: 'Reach the Ferry',
+        items: {},
+        collected: {},
+      }),
+    ),
+  );
+  await page.reload();
+  await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
+  await page.waitForTimeout(250);
+}
+
 async function bootToWorld(page) {
   await page.goto('/');
   await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
@@ -190,6 +213,64 @@ test.describe('on a phone', () => {
     expect(walking.dir).toBe('left');
     expect(walking.anim).toBe('frodo-walk-left');
   });
+
+  test('canvas pointer mapping is correct immediately after a layout shift', async ({ page }) => {
+    // Showing/hiding the pad re-aligns the canvas with CSS, which fires neither
+    // resize nor scroll. Phaser's ScaleManager re-polls its bounds only every
+    // ~500ms, so without an explicit nudge every tap in that window maps to the
+    // wrong world position — long enough to swallow a real tap. Assert with no
+    // settling time, which is the state a user actually taps into.
+    await page.goto('/');
+    await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
+    const m = await page.evaluate(() => {
+      const c = document.querySelector('canvas').getBoundingClientRect();
+      const b = window.__game.scale.canvasBounds;
+      return {
+        real: [Math.round(c.x), Math.round(c.y), Math.round(c.width), Math.round(c.height)],
+        cached: [Math.round(b.x), Math.round(b.y), Math.round(b.width), Math.round(b.height)],
+      };
+    });
+    expect(m.cached).toEqual(m.real);
+  });
+
+  test('the NEW GAME target hugs its label and clears the save', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
+    await seedSave(page);
+
+    // The zone WIPES THE SAVE, so it must not reach any neighbouring line —
+    // a stray tap has to land on "continue", never on "discard".
+    const layout = await page.evaluate(() => {
+      const s = window.__game.scene.getScene('TitleScene');
+      const zone = s.newGameArea;
+      const others = s.children.list
+        .filter((o) => o.type === 'Text')
+        .map((o) => {
+          const b = o.getBounds();
+          return { text: o.text.split('\n')[0], top: b.top, bottom: b.bottom };
+        });
+      return { zone: { top: zone.y, bottom: zone.y + zone.height }, others };
+    });
+    const label = layout.others.find((o) => o.text.includes('NEW GAME'));
+    expect(label).toBeTruthy();
+    for (const o of layout.others) {
+      if (o === label) continue;
+      const overlaps = o.bottom > layout.zone.top && o.top < layout.zone.bottom;
+      expect(overlaps, `"${o.text}" must not fall inside the NEW GAME target`).toBe(false);
+    }
+
+    // The label itself still starts a fresh game (canvas text, so tap by
+    // coordinate — the DOM knows nothing about it).
+    const box = await page.locator('canvas').boundingBox();
+    const scale = box.width / 960;
+    await page.touchscreen.tap(
+      box.x + box.width / 2,
+      box.y + ((label.top + label.bottom) / 2) * scale,
+    );
+    await page.waitForFunction(() => window.__game?.scene.isActive('WorldScene'));
+    const after = await page.evaluate(() => localStorage.getItem('lotr-rpg.save.v1'));
+    expect(after ?? '').not.toContain('"zone":"marish"');
+  });
 });
 
 test.describe('on a desktop browser', () => {
@@ -201,5 +282,45 @@ test.describe('on a desktop browser', () => {
     await page.waitForTimeout(300);
     await expect(page.locator('#touch-pad')).toHaveCount(0);
     await expect(page.locator('body')).not.toHaveClass(/has-touch-controls/);
+  });
+
+  test('clicking the CONTINUE prompt continues — it never wipes the save', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
+    await seedSave(page);
+
+    // Click the very bottom edge of "ENTER ~ CONTINUE" — the pixels closest to
+    // the NEW GAME label, and the ones a too-generous hit target would steal.
+    const box = await page.locator('canvas').boundingBox();
+    const scale = box.width / 960;
+    const y = await page.evaluate(() => {
+      const s = window.__game.scene.getScene('TitleScene');
+      const t = s.children.list.find((o) => o.type === 'Text' && o.text.includes('CONTINUE'));
+      return t.getBounds().bottom - 2;
+    });
+    await page.mouse.click(box.x + box.width / 2, box.y + y * scale);
+
+    await page.waitForFunction(() => window.__game?.scene.isActive('WorldScene'));
+    // Continued into the saved zone, and the save is intact
+    expect(await page.evaluate(() => window.__game.scene.getScene('WorldScene').zoneKey)).toBe(
+      'marish',
+    );
+    expect(await page.evaluate(() => localStorage.getItem('lotr-rpg.save.v1'))).toContain(
+      '"zone":"marish"',
+    );
+  });
+
+  test('the desktop title screen shows no touch wording', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
+    const labels = await page.evaluate(() =>
+      window.__game.scene
+        .getScene('TitleScene')
+        .children.list.filter((o) => o.type === 'Text')
+        .map((o) => o.text),
+    );
+    expect(labels).toContain('PRESS ENTER');
+    expect(labels).toContain('ARROWS move   SPACE talk   Q objective   M sound');
+    expect(labels.join(' ')).not.toMatch(/TAP|PAD move/);
   });
 });

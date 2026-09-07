@@ -122,18 +122,28 @@ export class TitleScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-SPACE', begin);
     if (saved) this.input.keyboard.on('keydown-N', () => this.startGame(true));
 
-    // Pointer/touch equivalents: a generous zone around NEW GAME wipes the
-    // save, a tap anywhere else does what ENTER does. Phaser hands the
-    // handler everything under the pointer, so the zone wins its own taps.
-    if (newGameText) {
-      this.add
-        .zone(cx, newGameText.y, 480, 72)
-        .setOrigin(0.5)
-        .setInteractive({ useHandCursor: true })
-        .on('pointerdown', () => this.startGame(true));
-    }
-    this.input.on('pointerdown', (_pointer, currentlyOver) => {
-      if (!currentlyOver.length) begin();
+    // Pointer/touch equivalents: a tap anywhere does what ENTER does, and on
+    // touch (where there is no N key) the NEW GAME label gets its own target.
+    // That target WIPES THE SAVE, so it hugs the label — a stray tap must land
+    // on "continue", never on "discard"; e2e asserts it clears every
+    // neighbouring line.
+    //
+    // The rectangle is tested by hand rather than through setInteractive():
+    // Phaser's `currentlyOver` list is filled by the hit-test pass, which has
+    // not run yet for the first touch of a tap, so a display-list hit area
+    // would silently lose the race and continue instead.
+    this.newGameArea =
+      newGameText && touch
+        ? new Phaser.Geom.Rectangle(
+            cx - 240,
+            newGameText.getBounds().centerY - (newGameText.getBounds().height + 16) / 2,
+            480,
+            newGameText.getBounds().height + 16,
+          )
+        : null;
+    this.input.on('pointerdown', (pointer) => {
+      if (this.newGameArea?.contains(pointer.worldX, pointer.worldY)) this.startGame(true);
+      else begin();
     });
     // On a portrait phone the canvas only covers a band of the page, so
     // taps on the letterbox count too — Phaser only sees the canvas.

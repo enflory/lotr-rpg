@@ -44,7 +44,12 @@ call the same handlers the keys do — no synthetic key events, so the two input
 modes can never disagree. `setTouchControlsVisible()` hides the pad on the title
 screen and toggles the `has-touch-controls` body class that top-aligns the canvas
 in portrait (styles live in `index.html`; Phaser uses `NO_CENTER` so flexbox owns
-placement). `WorldScene.actionVerb()` reads `touchControlsActive()` so prompts say
+placement — `CENTER_BOTH` margins stack on top of the flex centring and push the
+canvas off-centre). **Gotcha:** moving the canvas with CSS fires neither `resize`
+nor `scroll`, and the ScaleManager only re-polls `canvasBounds` every ~500ms, so
+every canvas pointer maps to the wrong world position in that window;
+`setTouchControlsVisible` dispatches a synthetic `resize` whenever the class
+actually changes. Anything else that repositions the canvas must do the same. `WorldScene.actionVerb()` reads `touchControlsActive()` so prompts say
 `TAP A` instead of `SPACE`. Playwright covers the layer in `e2e/touch.spec.js`
 under `devices['iPhone 13']`; the pad's direction maths is unit-tested in
 `tests/touchControls.test.js`.

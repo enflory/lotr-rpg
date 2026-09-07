@@ -257,8 +257,15 @@ export class WorldScene extends Phaser.Scene {
       else if (button === 'objective') this.recallObjective();
       else if (button === 'mute') this.toggleMute();
     });
-    this.events.once('shutdown', offTouch);
-    this.events.once('destroy', offTouch);
+    // shutdown fires on every zone change; destroy is the belt-and-braces
+    // path. Unhooking both keeps zone transitions from piling up listeners.
+    const releaseTouch = () => {
+      offTouch();
+      this.events.off('shutdown', releaseTouch);
+      this.events.off('destroy', releaseTouch);
+    };
+    this.events.once('shutdown', releaseTouch);
+    this.events.once('destroy', releaseTouch);
 
     /* ── dialogue state ──────────────────────────────── */
     this.dialogActive = false;
@@ -492,27 +499,26 @@ export class WorldScene extends Phaser.Scene {
 
     /* ── movement ────────────────────────────────────── */
     const { left, right, up, down } = this.cursors;
+    // The on-screen pad is a second set of "keys"; either source counts.
     const pad = touchDirection();
-    const held = {
-      left: left.isDown || pad.left,
-      right: right.isDown || pad.right,
-      up: up.isDown || pad.up,
-      down: down.isDown || pad.down,
-    };
+    const goLeft = left.isDown || pad.left;
+    const goRight = right.isDown || pad.right;
+    const goUp = up.isDown || pad.up;
+    const goDown = down.isDown || pad.down;
     let vx = 0,
       vy = 0;
 
-    if (held.left) {
+    if (goLeft) {
       vx = -SPEED;
       this.lastDir = 'left';
-    } else if (held.right) {
+    } else if (goRight) {
       vx = SPEED;
       this.lastDir = 'right';
     }
-    if (held.up) {
+    if (goUp) {
       vy = -SPEED;
       this.lastDir = 'up';
-    } else if (held.down) {
+    } else if (goDown) {
       vy = SPEED;
       this.lastDir = 'down';
     }

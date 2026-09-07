@@ -87,7 +87,15 @@ export function setTouchControlsVisible(on) {
   if (root) root.style.display = showing ? 'block' : 'none';
   // The page uses this class to top-align the canvas so the pad gets the
   // lower letterbox band; menus (no controls) stay centred.
-  globalThis.document?.body?.classList.toggle('has-touch-controls', showing);
+  const body = globalThis.document?.body;
+  if (!body) return;
+  const was = body.classList.contains('has-touch-controls');
+  body.classList.toggle('has-touch-controls', showing);
+  // Moving the canvas with CSS fires neither resize nor scroll, so Phaser's
+  // ScaleManager would keep stale canvas bounds and map every pointer to the
+  // wrong world position. A resize is exactly the "layout changed" signal it
+  // listens for. No-ops on desktop, where the class is never applied.
+  if (was !== showing) globalThis.dispatchEvent?.(new Event('resize'));
 }
 
 /**
