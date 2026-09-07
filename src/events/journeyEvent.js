@@ -1,6 +1,7 @@
 // Completed chapter beats are persisted as flags. Continue rebuilds their
 // presentation and retries any unfinished animation from the last checkpoint.
-import { gameState, hasFlag, setObjective } from '../state/GameState.js';
+import { gameState, hasFlag } from '../state/GameState.js';
+import { createCrickhollow, updateCrickhollow, crickhollowDialogue } from './crickhollowEvent.js';
 import { createWillow, updateWillow, willowDialogue } from './willowEvent.js';
 import { drawHouseScenery, drawDownsRelief } from '../art/houseScenery.js';
 import { drawJourneyScenery } from '../art/journeyScenery.js';
@@ -105,15 +106,7 @@ export function journeyCreate(scene) {
   drawHouseScenery(scene);
   drawDownsRelief(scene);
   atmosphere(scene);
-  if (key === 'crickhollow') {
-    j.merry = actor(scene, 'merry', 13, 13).setVisible(!hasFlag('chapter2'));
-    for (let i = 0; i < 5; i++)
-      pony(scene, 24 + i * 2.5, 18, [0x79533a, 0x9b805b, 0x66544a, 0x8a6550, 0x756454][i]);
-    if (!hasFlag('chapter2')) {
-      setObjective('Say farewell at Crickhollow, then take the hedge tunnel east');
-      scene.showBanner('Dawn at Crickhollow.\nYour friends are coming with you.');
-    }
-  }
+  if (key === 'crickhollow' || key === 'crickhollowhouse') createCrickhollow(scene);
   if (key === 'hedgetunnel') {
     j.gate = scene.add.graphics().setDepth(700);
     j.gateBlock = scene.add.zone(28 * 16 + 4, 9 * 16 + 8, 8, 48);
@@ -203,7 +196,7 @@ export function journeyUpdate(scene, _delta) {
   const tx = scene.player.x / 16,
     ty = scene.player.y / 16;
   for (const { p, dot } of j.markers) dot.setVisible(!p.when || p.when(f));
-  if (key === 'crickhollow') j.merry.setVisible(!f.chapter2);
+  if (key === 'crickhollow' || key === 'crickhollowhouse') updateCrickhollow(scene);
   if (key === 'hedgetunnel') {
     j.gate.setVisible(!f.hedgeEntered);
     j.gateBlock.body.enable = !f.hedgeEntered;
@@ -272,6 +265,7 @@ export function journeyDialogue(scene) {
   const key = scene.dialogKey,
     page = scene.dialogIndex;
   if (scene.zoneKey === 'withywindle') willowDialogue(scene);
+  if (scene.zoneKey === 'crickhollowhouse') crickhollowDialogue(scene);
   if (key === 'house_ring' && hasFlag('houseStories') && !hasFlag('houseRing')) {
     j.ring.setVisible(true);
     scene.player.setData('cinematicAlpha', page === 1 ? 0.25 : 1).setAlpha(page === 1 ? 0.25 : 1);

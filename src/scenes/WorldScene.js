@@ -449,6 +449,12 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
 
+    if (this.storyBeat) {
+      this.player.setVelocity(0);
+      this.hintIcon.setVisible(false);
+      return;
+    }
+
     if (this.inputLocked || this.transitioning) {
       this.player.setVelocity(0);
       this.player.anims.play(`frodo-idle-${this.lastDir}`, true);
@@ -839,6 +845,7 @@ export class WorldScene extends Phaser.Scene {
 
   /* ── inventory/errand overlay ─────────────────────────── */
   toggleOverlay() {
+    if (this.storyBeat) return;
     this.overlayVisible = !this.overlayVisible;
     this.overlayBg.setVisible(this.overlayVisible);
     this.overlayText.setVisible(this.overlayVisible);

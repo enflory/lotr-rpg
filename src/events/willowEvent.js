@@ -1,43 +1,13 @@
 // The Willow uses the actual party sprites throughout. Only completed dialogue
 // beats are saved; reloading an unfinished beat replays it from its checkpoint.
 import { gameState } from '../state/GameState.js';
-import { findWalkablePath } from '../state/partyMovement.js';
+import { tween, move, walk } from './storyMotion.js';
 import { drawWillow } from '../art/willowScenery.js';
 import { playMusic, sfx } from '../audio/sound.js';
 
 const at = (x, y) => ({ x: x * 16 + 8, y: y * 16 });
 const friend = (s, key) => s.followers.find((p) => p.getData('key') === key);
 const keyOf = (p) => p.getData('key') || p.texture.key;
-const tween = (s, targets, props, duration = 650) =>
-  new Promise((resolve) => {
-    s.tweens.add({ targets, ...props, duration, ease: 'Sine.easeInOut', onComplete: resolve });
-  });
-
-async function move(s, p, dest, speed = 72) {
-  const dx = dest.x - p.x,
-    dy = dest.y - p.y;
-  const dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : dy < 0 ? 'up' : 'down';
-  p.play(`${keyOf(p)}-walk-${dir}`, true);
-  await tween(
-    s,
-    p,
-    { ...dest, onUpdate: () => p.setDepth(p.y + 20) },
-    Math.max(100, (Math.hypot(dx, dy) / speed) * 1000),
-  );
-  p.play(`${keyOf(p)}-idle-${dir}`, true);
-}
-async function walk(s, p, x, y, speed = 85) {
-  const route = findWalkablePath(s.zone.map, p, (tx, ty) => tx === x && ty === y);
-  // Collapse straight tile runs, preserving every corner and the starting pose.
-  const stops = route.filter(
-    (p, i) =>
-      i === route.length - 1 ||
-      (i > 0 &&
-        (p.x - route[i - 1].x !== route[i + 1].x - p.x ||
-          p.y - route[i - 1].y !== route[i + 1].y - p.y)),
-  );
-  for (const stop of stops) await move(s, p, stop, speed);
-}
 function ripple(s, x, y, color = 0xb8cec2) {
   const r = s.add.ellipse(x, y, 10, 3).setStrokeStyle(1, color, 0.7).setDepth(405);
   s.tweens.add({

@@ -10,7 +10,7 @@ async function dialogue(page) {
     await page.waitForFunction(
       () => !window.__game.scene.getScene('WorldScene').storyBeat?.busy,
       null,
-      { timeout: 20000 },
+      { timeout: 30000 },
     );
     if (!(await page.evaluate(() => window.__game.scene.getScene('WorldScene').dialogActive)))
       return;
@@ -235,10 +235,17 @@ test('the Buckland checkpoint continues naturally into Crickhollow', async ({ pa
 test('walk the complete forest, two-night refuge and barrow journey with Continue', async ({
   page,
 }) => {
-  test.setTimeout(420000);
+  test.setTimeout(600000);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await checkpoint(page);
+  await act(page, 'crickhollow_departure');
+  await walk(page, 13, 10);
+  await press(page);
+  await zone(page, 'crickhollowhouse');
+  await act(page, 'crickhollow_supper');
+  await page.waitForFunction(() => window.__state.flags.crickhollowReady, null, { timeout: 35000 });
+  await zone(page, 'crickhollow');
   await act(page, 'crickhollow_departure');
   await flag(page, 'merryJoined');
   expect(

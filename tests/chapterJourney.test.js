@@ -5,6 +5,7 @@ import { COLLISION_TILES } from '../src/data/tileTypes.js';
 
 const journey = [
   'crickhollow',
+  'crickhollowhouse',
   'hedgetunnel',
   'forestgate',
   'forestheart',

@@ -18,6 +18,10 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 | ![The four hobbits in Tom and Goldberry’s house](assets/screenshots/tomhouse.png) | ![Fog gathers around the standing stones](assets/screenshots/downs.png) |
 |                             Tom and Goldberry’s house                             |                            The Barrow-downs                             |
 
+| ![Crickhollow's cottage, lawn and kitchen garden](assets/screenshots/crickhollow.png) | ![All five hobbits sharing supper](assets/screenshots/crickhollow-supper.png) |
+| :-----------------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
+|                               The garden at Crickhollow                               |                        Supper and the friends' secret                         |
+
 ## Running Locally
 
 ```bash
@@ -39,9 +43,9 @@ Open the URL shown in your terminal.
 
 **Chapters 1–3** are playable from Bilbo's farewell party to the East Road beyond the Barrow-downs. The published site updates when changes reach `main`.
 
-Chapter 1 follows the Shire, the Black Rider, Gildor, Maggot, and the Brandywine ferry. Chapter 2 begins at Crickhollow: Merry joins the travelling party, the tunnel opens beneath the High Hay, and the journey winds through the Bonfire Glade, a grassy knoll, misleading northern paths, deep hollows, and the Withywindle. Old Man Willow's capture and rescue use continuous character animation, moving tree cracks, and player actions to help Sam, extinguish the fire, and reach for the prisoners. Tom's rescue leads to two nights with Tom and Goldberry, including the rainy day and the Ring demonstration.
+Chapter 1 follows the Shire, the Black Rider, Gildor, Maggot, and the Brandywine ferry. Chapter 2 begins with an evening at Crickhollow: a secluded garden, hot baths, supper with all five hobbits, and the friends revealing their preparations. A night-to-morning cutscene brings the party back outside; Merry joins the travelling party, the tunnel opens beneath the High Hay, and the journey winds through the Bonfire Glade, a grassy knoll, misleading northern paths, deep hollows, and the Withywindle. Old Man Willow's capture and rescue use continuous character animation, moving tree cracks, and player actions to help Sam, extinguish the fire, and reach for the prisoners. Tom's rescue leads to two nights with Tom and Goldberry, including the rainy day and the Ring demonstration.
 
-Chapter 3 crosses the open downs into fog, separation, and the barrow. Frodo defends his friends and calls Tom; the four blades and recovered ponies carry the party to the East Road. Bree is the next destination and is not yet playable. Eleven new zones bring the total to sixteen.
+Chapter 3 crosses the open downs into fog, separation, and the barrow. Frodo defends his friends and calls Tom; the four blades and recovered ponies carry the party to the East Road. Bree is the next destination and is not yet playable. Twelve new zones bring the total to seventeen.
 
 The new chapters use original paraphrased dialogue and procedural art/music. [Adaptation notes](docs/lore/old-forest-adaptation.md) distinguish book chronology from gameplay compression. Ponies appear at departure and rest stops; the four hobbits use the existing walking controls. Forest paths are deliberately winding and fixed, with optional places to inspect. Gold glints mark interactions; nearby prompts name the action.
 

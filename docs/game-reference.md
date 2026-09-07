@@ -25,9 +25,9 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 
 ### Chapter 2: Into the Wild
 
-**Places**: Crickhollow, High Hay tunnel, Bonfire Glade, Old Forest knoll and hollows, Withywindle, Old Man Willow, Tom Bombadil's house
+**Places**: Crickhollow garden and supper room, High Hay tunnel, Bonfire Glade, Old Forest knoll and hollows, Withywindle, Old Man Willow, Tom Bombadil's house
 **Key characters**: Merry (joins the travelling party), Fredegar Bolger, Tom Bombadil, Goldberry
-**Story beats**: Dawn farewell after the conspiracy, tunnel under the hedge, forest march, Old Man Willow traps Merry and Pippin, Sam rescues Frodo, failed fire, Tom's rescue, two nights and a rainy day at Tom's house, Ring demonstration
+**Story beats**: Supper and the conspiracy with all five hobbits, overnight rest and a morning walk outside, dawn farewell, tunnel under the hedge, forest march, Old Man Willow traps Merry and Pippin, Sam rescues Frodo, failed fire, Tom's rescue, two nights and a rainy day at Tom's house, Ring demonstration
 **Signature mechanics**: Fixed winding paths and northern dead ends lead toward the Withywindle; interactive Willow rescue; Tom's house as a safe haven with ordered supper, dreams, stories, and farewell. No randomized maze, conventional boss fight, or health system.
 **Visual palette**: Boggy farmland (Marish) → dark hostile forest (dense canopy, gnarled roots, slimy moss) → sudden warmth (Tom's house: firelight, golden meadow, water-lilies)
 

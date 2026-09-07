@@ -7,17 +7,80 @@ export const CHAPTER_DIALOGUES = {
     name: 'Merry',
     stages: [
       {
-        when: (f) => !f.chapter2,
+        when: (f) => f.chapter2,
+        lines: ['All ready. Take the eastern path\nto the tunnel under the hedge.'],
+      },
+      {
+        when: (f) => !f.crickhollowReady,
         lines: [
-          'We guessed you meant to leave.\nSam helped us piece it together.\nYou need not carry this alone.',
-          'Fatty will keep the house looking\nlived in. The ponies are saddled;\nI am coming with you three.',
-          'The road is watched. Our way lies\nunder the High Hay, through\nthe tunnel east of here.',
+          'There is supper waiting indoors.\nGo through the round door.\nWe have a good deal to talk about.',
+        ],
+      },
+      {
+        lines: [
+          'The air is cool and the grass wet.\nThe ponies are ready; Fatty will\nkeep the house looking lived in.',
+          'We settled it together last night.\nOur way lies under the High Hay,\nthrough the tunnel east of here.',
         ],
         set: ['chapter2', 'merryJoined'],
         join: 'merry',
         objective: 'Find the tunnel under the High Hay',
       },
-      { lines: ['All ready. Take the eastern path\nto the tunnel under the hedge.'] },
+    ],
+  },
+  crickhollow_supper: {
+    name: 'At the Supper Table',
+    stages: [
+      {
+        when: (f) => f.crickhollowSupper || f.chapter2,
+        lines: [
+          'The dishes have been cleared.\nThe warmth of that evening\nlingers in the quiet room.',
+        ],
+      },
+      {
+        lines: [
+          "Steam rises from the dishes.\nMrs. Maggot's mushrooms are here,\nand there is room for everyone.",
+          'A bath, dry clothes, and supper!\nFor a little while, the ferry\nand the dark road seem far away.',
+          'You mean to leave the Shire, Frodo.\nWe have been fitting the clues\ntogether for quite some time.',
+          'I meant to slip away quietly.\nHow could I ask you to share\nsomething so dangerous?',
+          'Sam has been helping us.\nWe know more than you supposed,\nand our own packs are ready.',
+          'I could not let you go alone, sir.\nNot even if you told me to.\nI hope you can forgive the secret.',
+          'I will stay and keep the lamps lit.\nIf Gandalf comes, I can tell him\nwhere you have gone.',
+          'The road may be watched.\nWe can pass under the High Hay\nand enter the forest at dawn.',
+          'Then we shall go together.\nFor the first time tonight,\nthe road feels less lonely.',
+        ],
+        set: 'crickhollowSupper',
+        objective: 'Rest at Crickhollow before the morning departure',
+      },
+    ],
+  },
+  crickhollow_baths: {
+    name: 'Hot Water and Dry Towels',
+    lines: [
+      'Steam curls above the waiting tubs.\nAfter the road and the river,\neven the soap smells welcoming.',
+    ],
+  },
+  crickhollow_belongings: {
+    name: 'A Little of Bag End',
+    lines: [
+      'Familiar cups and well-used books\nhave travelled ahead of you.\nFor a moment, this feels like home.',
+    ],
+  },
+  crickhollow_hearth: {
+    name: 'The Hearth',
+    lines: [
+      'The fire settles with a soft crack.\nCrockery clinks behind you;\nsomeone is laying another place.',
+    ],
+  },
+  crickhollow_garden: {
+    name: 'The Kitchen Garden',
+    lines: [
+      'Neat beds lie inside the low hedge.\nHerbs brush the path, and late\nflowers lean toward the cottage.',
+    ],
+  },
+  crickhollow_hedge: {
+    name: 'A Sheltered Lawn',
+    lines: [
+      'The house sits quietly among grass\nand a few trees. Beyond the hedge,\nBuckland grows still for the night.',
     ],
   },
   fatty: {

@@ -3,17 +3,46 @@ import { field, cottage, trail, point, edge } from './journeyMap.js';
 import { journeyCreate, journeyUpdate, journeyDialogue } from '../../events/journeyEvent.js';
 
 const home = field(40,28,T.GRASS,T.HEDGE);
+for(let y=1;y<27;y++) for(let x=1;x<39;x++) {
+  if(((x-20)/19)**2+((y-14)/13)**2>1) home[y][x]=T.HEDGE;
+  else if((x*7+y*13)%11===0) home[y][x]=T.GRASS2;
+}
+for(const [x,y] of [[4,8],[26,5],[34,11],[7,23],[31,23]]) home[y][x]=T.TREE;
+for(let y=8;y<=12;y++) for(let x=23;x<=28;x++) home[y][x]=(x+y)%3?T.GARDEN:T.FLOWERS;
+for(const [x,y] of [[8,11],[10,11],[16,11],[18,11],[10,16],[16,16],[30,15]]) home[y][x]=T.FLOWERS;
+trail(home,[[0,20],[13,20],[13,10]],0,T.PATH);
+trail(home,[[13,20],[39,20]],0,T.PATH);
+trail(home,[[21,20],[21,10],[23,10]],0,T.PATH);
+for(let y=5;y<=8;y++) for(let x=7;x<=19;x++) home[y][x]=T.ROOF;
 cottage(home,7,8,13);
-trail(home,[[0,20],[13,20],[13,11]],1,T.PATH);
-trail(home,[[13,20],[39,20]],1,T.PATH);
-for (const [x,y] of [[8,12],[10,12],[17,12],[19,12]]) home[y][x]=T.FLOWERS;
+for(const x of [18,19]) home[13][x]=T.COUNTER;
+for(const x of [5,8]) home[13][x]=T.FENCE;
 /** @type {import('../types.js').Zone} */
 export const crickhollow = {
-  key:'crickhollow',label:'Chapter 2 • Beyond the Hedge',music:'shire',map:home,
-  spawns:{default:{x:12,y:15,dir:'down'},west:{x:2,y:20,dir:'right'},east:{x:37,y:20,dir:'left'}},
-  npcs:[{key:'fatty',x:17,y:14,dir:'left'}],doors:[],signs:[],
-  interactions:[point(13,14,'crickhollow_departure','Leave Crickhollow'),point(24,20,'crickhollow_ponies','The waiting ponies')],
-  exits:[edge(39,20,'hedgetunnel','west','chapter2','Say farewell at the house before leaving.')],
+  key:'crickhollow',label:'Chapter 2 • Crickhollow',music:'shire',map:home,
+  spawns:{default:{x:12,y:15,dir:'down'},west:{x:2,y:20,dir:'right'},east:{x:37,y:20,dir:'left'},house:{x:13,y:10,dir:'down'},morning:{x:13,y:10,dir:'down'}},
+  npcs:[{key:'fatty',x:17,y:14,dir:'left',when:f=>f.crickhollowMorning||f.chapter2}],
+  doors:[{x:13,y:9,zone:'crickhollowhouse',entry:'default'}],signs:[],
+  interactions:[point(13,14,'crickhollow_departure','Merry'),point(24,20,'crickhollow_ponies','The waiting ponies',f=>f.crickhollowMorning||f.chapter2),point(22,10,'crickhollow_garden','The kitchen garden'),point(8,20,'crickhollow_hedge','The quiet lane')],
+  exits:[edge(39,20,'hedgetunnel','west','chapter2','Speak with Merry at the cottage before departing.')],
+  onCreate:journeyCreate,onUpdate:journeyUpdate,onDialogueLine:journeyDialogue,
+};
+const supperRoom=field(28,23,T.VOID,T.VOID);
+for(let y=3;y<=19;y++) for(let x=3;x<=24;x++) supperRoom[y][x]=x===3||x===24||y===3||y===19?T.WALL:T.FLOOR;
+for(let x=10;x<=15;x++) for(let y=9;y<=10;y++) supperRoom[y][x]=T.TABLE;
+for(const x of [7,20]) supperRoom[3][x]=T.WINDOW_I;
+supperRoom[7][3]=T.FIREPLACE;
+for(const x of [5,6,7]) supperRoom[5][x]=T.WATER;
+for(const x of [18,19,20,21]) supperRoom[5][x]=T.SHELF;
+for(const x of [6,9,12,15,18]) supperRoom[16][x]=T.BED;
+for(let y=19;y<=22;y++) supperRoom[y][20]=T.FLOOR;
+/** @type {import('../types.js').Zone} */
+export const crickhollowhouse = {
+  key:'crickhollowhouse',label:'Supper at Crickhollow',music:'interior',map:supperRoom,
+  spawns:{default:{x:20,y:18,dir:'up'}},
+  npcs:[],doors:[],signs:[],
+  interactions:[point(12,12,'crickhollow_supper','Sit down to supper'),point(6,6,'crickhollow_baths','The steaming baths'),point(20,6,'crickhollow_belongings','Familiar things from Bag End'),point(5,10,'crickhollow_hearth','The warm hearth')],
+  exits:[edge(20,22,'crickhollow','house')],
   onCreate:journeyCreate,onUpdate:journeyUpdate,onDialogueLine:journeyDialogue,
 };
 const tunnel = field(36,18,T.HEDGE,T.HEDGE);
