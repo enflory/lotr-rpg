@@ -85,5 +85,12 @@ export function drawWillow(scene) {
       if (step % 6 === 0) rect(crown, dx + drift - 1, top + step + 1, 3, 2, n % 3 ? 0x6d7e49 : 0x89925a);
     }
   }
-  return { ground, trunk, crown };
+  // Animated dark openings widen beneath the hobbits, then narrow back to
+  // fissures. Their positions match the two cracks drawn into the trunk.
+  const mouths = [-8, 24].map(dx => {
+    const mouth = scene.add.graphics().setPosition(x + dx, y).setDepth(y + 16);
+    mouth.fillStyle(0x111f19).fillRect(-8, -25, 16, 36);
+    return mouth.setScale(0.2, 1);
+  });
+  return { ground, trunk, crown, mouths };
 }

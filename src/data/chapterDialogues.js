@@ -170,7 +170,7 @@ export const CHAPTER_DIALOGUES = {
         when: (f) => !f.willowTrapped,
         lines: [
           'The leaves whisper of cool water.\nYour eyelids sink. Frodo slips\nforward into the river.',
-          'Sam hauls him clear of a root.\nBehind them the trunk has closed\naround Merry and Pippin!',
+          'Sam catches Frodo by the jacket.\nHelp him pull against the root!',
           'Their voices come through the bark.\nExamine the split in the trunk.',
         ],
         set: 'willowTrapped',
@@ -197,8 +197,8 @@ export const CHAPTER_DIALOGUES = {
       {
         when: (f) => !f.willowFireFailed,
         lines: [
-          'Sam and Frodo kindle fallen twigs\nagainst the bark. Smoke curls up;\nMerry cries out from inside.',
-          'The tree is squeezing him!\nYou stamp out the fire and\nthrow water on the embers.',
+          'Fallen twigs lie against the bark.\nPerhaps fire will open the cracks.',
+          'Merry cries out: the tree tightens!\nPut out the fire before it hurts him.',
           'Strength and fire have failed.\nRun west along the river\nand call for help.',
         ],
         set: 'willowFireFailed',
@@ -219,7 +219,7 @@ export const CHAPTER_DIALOGUES = {
       {
         when: (f) => !f.tomArrived,
         lines: [
-          'Frodo runs shouting into the trees.\nAn answering voice bounces\nthrough the reeds in song.',
+          'The reeds rustle beside the path.\nCall out for anyone who can help!',
           'A blue-coated man comes striding\nwith yellow boots and an armful\nof lilies for Goldberry.',
           'Tom hears you out, then hurries\ntoward the willow. Follow him\nback to the trunk.',
         ],
@@ -240,7 +240,7 @@ export const CHAPTER_DIALOGUES = {
         when: (f) => !f.willowFreed,
         lines: [
           'Tom lays a hand against the bark.\nHis song turns stern; each word\nfalls clear through the rustling.',
-          'The crack opens. Merry tumbles out;\nPippin follows, shaken but alive.\nSam catches hold of them both.',
+          "The cracks open at Tom's command.\nMerry and Pippin are within reach!",
           'Tom gathers his lilies again.\nFollow the river east: a warm\nhouse waits beyond the trees.',
         ],
         set: 'willowFreed',

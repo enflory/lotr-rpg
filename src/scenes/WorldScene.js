@@ -47,6 +47,7 @@ export class WorldScene extends Phaser.Scene {
     if (gameState.follower === 'sam') setFlag('pippinJoined');
     save(this.zoneKey, this.entryKey); // checkpoint: every zone entry
     this.journey = null;
+    this.storyBeat = null;
     this.riderEvent = null;
     this.partyEvent = null; // scene.restart reuses the instance
     this.ferryEvent = null;
@@ -117,7 +118,7 @@ export class WorldScene extends Phaser.Scene {
       })
       .setOrigin(0.5)
       .setScrollFactor(0)
-      .setDepth(990)
+      .setDepth(1002)
       .setVisible(false);
 
     /* ── fern-cover overlays (tall-grass hiding effect) ─ */
@@ -437,8 +438,13 @@ export class WorldScene extends Phaser.Scene {
     /* ── dialogue mode ───────────────────────────────── */
     if (this.dialogActive) {
       this.player.setVelocity(0);
-      this.player.anims.play(`frodo-idle-${this.lastDir}`, true);
-      this.updateFollower(delta);
+      if (!this.storyBeat) {
+        this.player.anims.play(`frodo-idle-${this.lastDir}`, true);
+        this.updateFollower(delta);
+      }
+      if (this.storyBeat?.prompt && !this.typing) {
+        this.actionHint.setText(`SPACE · ${this.storyBeat.prompt}`).setVisible(true);
+      }
       if (interactPressed) this.advanceDialogue();
       return;
     }
@@ -703,6 +709,8 @@ export class WorldScene extends Phaser.Scene {
   }
 
   advanceDialogue() {
+    // Repeated presses cannot skip an action that is still in motion.
+    if (this.storyBeat?.busy) return;
     sfx.confirm();
     if (this.typing) {
       if (this.typeTimer) this.typeTimer.remove();
@@ -712,6 +720,13 @@ export class WorldScene extends Phaser.Scene {
       return;
     }
 
+    if (this.storyBeat?.action) {
+      const action = this.storyBeat.action;
+      this.storyBeat.action = null;
+      action();
+      return;
+    }
+    this.storyBeat = null;
     this.dialogIndex++;
     if (this.dialogIndex >= this.dialogLines.length) {
       this.closeDialogue();

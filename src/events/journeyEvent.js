@@ -1,7 +1,7 @@
-// Chapter presentation follows persisted story flags. No encounter relies on a
-// timer or an input lock to finish; Continue rebuilds the current playable beat.
+// Completed chapter beats are persisted as flags. Continue rebuilds their
+// presentation and retries any unfinished animation from the last checkpoint.
 import { gameState, hasFlag, setObjective } from '../state/GameState.js';
-import { drawWillow } from '../art/willowScenery.js';
+import { createWillow, updateWillow, willowDialogue } from './willowEvent.js';
 import { drawHouseScenery, drawDownsRelief } from '../art/houseScenery.js';
 import { drawJourneyScenery } from '../art/journeyScenery.js';
 import { playMusic } from '../audio/sound.js';
@@ -124,16 +124,7 @@ export function journeyCreate(scene) {
     for (let i = 0; i < 4; i++)
       j.gate.lineBetween(28 * 16 + i * 3, 8 * 16, 28 * 16 + i * 3, 11 * 16);
   }
-  if (key === 'withywindle') {
-    drawWillow(scene);
-    j.tom = actor(scene, 'tom', 46, 21, 1.15).setVisible(false);
-    // Trapped hobbits appear in the two cracks rather than following invisibly.
-    j.merry = actor(scene, 'merry', 48, 19).setDepth(330).setVisible(false);
-    j.pippin = actor(scene, 'pippin', 50, 19).setDepth(330).setVisible(false);
-    j.fire = scene.add.graphics().setDepth(400).setVisible(false);
-    j.fire.fillStyle(0x34261f).fillRect(46 * 16, 21 * 16, 12, 4);
-    j.fire.fillStyle(0x806948).fillRect(46 * 16 + 2, 21 * 16 - 2, 6, 3);
-  }
+  if (key === 'withywindle') createWillow(scene);
   if (key === 'tomclearing') for (let i = 0; i < 5; i++) pony(scene, 8 + i * 3, 17);
   if (key === 'tomhouse') {
     actor(scene, 'goldberry', 21, 7, 1.15);
@@ -224,41 +215,7 @@ export function journeyUpdate(scene, _delta) {
     else if (!f.hollowSeen && Math.hypot(tx - 47, ty - 37) < 4)
       scene.startDialogue('forest_hollow');
   }
-  if (key === 'withywindle') {
-    scene.player.setVisible(true);
-    j.sleepingFrodo?.setVisible(false);
-    j.flame?.setVisible(false);
-    if (f.tomArrived && !j.tomWalking && j.tom.x < 45 * 16) {
-      j.tomWalking = true;
-      j.tom.play('tom-walk-right');
-      scene.tweens.add({
-        targets: j.tom,
-        x: 46 * 16 + 8,
-        duration: 2600,
-        onComplete: () => j.tom.play('tom-idle-down'),
-      });
-    }
-    if (!f.willowTrapped && !f.willowFreed && tx > 40 && tx < 56 && ty > 19 && ty < 26) {
-      scene.startDialogue('willow_sleep');
-      return;
-    }
-    const trapped = !!f.willowTrapped && !f.willowFreed;
-    if (trapped && j.state !== 'trapped') {
-      j.state = 'trapped';
-      scene.checkpoint('willow');
-    }
-    holdFollowers(scene, trapped ? ['merry', 'pippin'] : []);
-    j.merry.setVisible(trapped).setCrop(0, 12, 16, 12).setAngle(-90);
-    j.pippin.setVisible(false);
-    j.tom.setVisible(!!f.tomArrived);
-    j.fire.setVisible(!!f.willowFireFailed && !f.willowFreed);
-    if (f.willowFreed && j.state !== 'free') {
-      scene.snapFollower();
-      j.state = 'free';
-      playMusic('bombadil');
-      scene.showBanner('The willow opens.\nFollow the river east.');
-    }
-  }
+  if (key === 'withywindle') updateWillow(scene);
   if (key === 'tomhouse') {
     const state = f.houseRested
       ? 'morning'
@@ -314,38 +271,7 @@ export function journeyDialogue(scene) {
   if (!j) return;
   const key = scene.dialogKey,
     page = scene.dialogIndex;
-  if (key === 'willow_sleep' && !hasFlag('willowTrapped') && !hasFlag('willowFreed')) {
-    if (!j.sleepingFrodo) j.sleepingFrodo = actor(scene, 'frodo', 43, 26);
-    j.sleepingFrodo
-      .setVisible(true)
-      .setAngle(page === 0 ? 90 : 0)
-      .setTint(page === 0 ? 0x78949c : 0xffffff);
-    scene.player.setVisible(false);
-    j.merry.setVisible(true);
-    j.pippin.setVisible(page === 0);
-    holdFollowers(scene, ['merry', 'pippin']);
-    if (page > 0) j.sleepingFrodo.setPosition(43 * 16 + 8, 24 * 16);
-  }
-  if (key === 'willow_trunk' && hasFlag('willowTrapped') && !hasFlag('willowFireFailed')) {
-    if (!j.flame) {
-      j.flame = scene.add.graphics().setDepth(410);
-      j.flame.fillStyle(0xcb693a).fillRect(46 * 16 + 1, 21 * 16 - 5, 9, 10);
-      j.flame.fillStyle(0xf2c76a).fillRect(46 * 16 + 4, 21 * 16 - 9, 3, 11);
-    }
-    j.flame.setVisible(page === 0);
-    j.fire.setVisible(true);
-  }
-  if (key === 'willow_help' && hasFlag('willowFireFailed')) {
-    j.tom.setVisible(true).setPosition(32 * 16, 20 * 16);
-  }
-  if (key === 'willow_tom' && hasFlag('tomArrived') && page > 0) {
-    j.merry
-      .setCrop()
-      .setAngle(0)
-      .setVisible(true)
-      .setPosition(47 * 16, 22 * 16);
-    j.pippin.setVisible(true).setPosition(49 * 16, 22 * 16);
-  }
+  if (scene.zoneKey === 'withywindle') willowDialogue(scene);
   if (key === 'house_ring' && hasFlag('houseStories') && !hasFlag('houseRing')) {
     j.ring.setVisible(true);
     scene.player.setData('cinematicAlpha', page === 1 ? 0.25 : 1).setAlpha(page === 1 ? 0.25 : 1);

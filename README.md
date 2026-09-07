@@ -39,7 +39,7 @@ Open the URL shown in your terminal.
 
 **Chapters 1–3** are playable from Bilbo's farewell party to the East Road beyond the Barrow-downs. The published site updates when changes reach `main`.
 
-Chapter 1 follows the Shire, the Black Rider, Gildor, Maggot, and the Brandywine ferry. Chapter 2 begins at Crickhollow: Merry joins the travelling party, the tunnel opens beneath the High Hay, and the journey winds through the Bonfire Glade, a grassy knoll, misleading northern paths, deep hollows, and the Withywindle. Old Man Willow's captivity and Tom's rescue lead to two nights with Tom and Goldberry, including the rainy day and the Ring demonstration.
+Chapter 1 follows the Shire, the Black Rider, Gildor, Maggot, and the Brandywine ferry. Chapter 2 begins at Crickhollow: Merry joins the travelling party, the tunnel opens beneath the High Hay, and the journey winds through the Bonfire Glade, a grassy knoll, misleading northern paths, deep hollows, and the Withywindle. Old Man Willow's capture and rescue use continuous character animation, moving tree cracks, and player actions to help Sam, extinguish the fire, and reach for the prisoners. Tom's rescue leads to two nights with Tom and Goldberry, including the rainy day and the Ring demonstration.
 
 Chapter 3 crosses the open downs into fog, separation, and the barrow. Frodo defends his friends and calls Tom; the four blades and recovered ponies carry the party to the East Road. Bree is the next destination and is not yet playable. Eleven new zones bring the total to sixteen.
 

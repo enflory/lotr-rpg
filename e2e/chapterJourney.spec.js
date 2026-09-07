@@ -7,6 +7,11 @@ async function press(page, key = 'Space') {
 }
 async function dialogue(page) {
   for (let n = 0; n < 30; n++) {
+    await page.waitForFunction(
+      () => !window.__game.scene.getScene('WorldScene').storyBeat?.busy,
+      null,
+      { timeout: 20000 },
+    );
     if (!(await page.evaluate(() => window.__game.scene.getScene('WorldScene').dialogActive)))
       return;
     await press(page);
@@ -262,7 +267,7 @@ test('walk the complete forest, two-night refuge and barrow journey with Continu
     await page.evaluate(() =>
       window.__game.scene
         .getScene('WorldScene')
-        .followers.filter((p) => p.visible)
+        .followers.filter((p) => p.visible && !p.getData('held'))
         .map((p) => p.getData('key')),
     ),
   ).toEqual(['sam']);
@@ -360,7 +365,7 @@ test('Willow captivity blocks both departures and survives Continue', async ({ p
     await page.evaluate(() =>
       window.__game.scene
         .getScene('WorldScene')
-        .followers.filter((p) => p.visible)
+        .followers.filter((p) => p.visible && !p.getData('held'))
         .map((p) => p.getData('key')),
     ),
   ).toEqual(['sam']);
