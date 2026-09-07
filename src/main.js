@@ -3,6 +3,7 @@ import { gameState } from './state/GameState.js';
 import { BootScene } from './scenes/BootScene.js';
 import { TitleScene } from './scenes/TitleScene.js';
 import { WorldScene } from './scenes/WorldScene.js';
+import { initTouchControls } from './input/touchControls.js';
 
 // The game plays in a 320×240 view, but the canvas is 3× that so text
 // can render crisply. WorldScene zooms its camera 3× to keep the chunky
@@ -19,7 +20,10 @@ const config = {
   scene: [BootScene, TitleScene, WorldScene],
   scale: {
     mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
+    // The page centres the canvas with flexbox; on a portrait phone it
+    // top-aligns instead so the touch pad gets the whole lower band
+    // (see index.html). Phaser margins would fight that.
+    autoCenter: Phaser.Scale.NO_CENTER,
   },
 };
 
@@ -34,6 +38,7 @@ const fontReady = document.fonts
   : Promise.resolve();
 
 fontReady.then(() => {
+  initTouchControls();
   const game = new Phaser.Game(config);
   // Exposed for dev tooling / automated QA (see art-test.html, Playwright)
   window.__game = game;

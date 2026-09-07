@@ -18,6 +18,12 @@ import { QUESTS } from '../data/quests.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
 import { save } from '../state/saveGame.js';
 import { findWalkablePath, trailPosition } from '../state/partyMovement.js';
+import {
+  touchDirection,
+  onTouchButton,
+  setTouchControlsVisible,
+  touchControlsActive,
+} from '../input/touchControls.js';
 
 // The canvas is 960×720 with a 3× camera zoom (a classic 320×240 view).
 // Screen-fixed UI (scrollFactor 0) scales around the CANVAS centre, so its
@@ -233,12 +239,33 @@ export class WorldScene extends Phaser.Scene {
     };
     this.input.keyboard.on('keydown-SPACE', queueInteract);
     this.input.keyboard.on('keydown-ENTER', queueInteract);
-    this.input.keyboard.on('keydown-Q', () => {
+    this.recallObjective = () => {
       if (gameState.objective) this.showBanner(`~ ${gameState.objective} ~`);
-    });
-    this.input.keyboard.on('keydown-M', () => {
+    };
+    this.toggleMute = () => {
       this.showBanner(toggleMute() ? 'Sound off' : 'Sound on');
+    };
+    this.input.keyboard.on('keydown-Q', this.recallObjective);
+    this.input.keyboard.on('keydown-M', this.toggleMute);
+
+    // The on-screen pad feeds the same paths as the keys — no synthetic
+    // key events, so the two input modes can never disagree.
+    setTouchControlsVisible(true);
+    const offTouch = onTouchButton((button) => {
+      if (button === 'action') this.interactQueued = true;
+      else if (button === 'inventory') this.toggleOverlay();
+      else if (button === 'objective') this.recallObjective();
+      else if (button === 'mute') this.toggleMute();
     });
+    // shutdown fires on every zone change; destroy is the belt-and-braces
+    // path. Unhooking both keeps zone transitions from piling up listeners.
+    const releaseTouch = () => {
+      offTouch();
+      this.events.off('shutdown', releaseTouch);
+      this.events.off('destroy', releaseTouch);
+    };
+    this.events.once('shutdown', releaseTouch);
+    this.events.once('destroy', releaseTouch);
 
     /* ── dialogue state ──────────────────────────────── */
     this.dialogActive = false;
@@ -443,7 +470,7 @@ export class WorldScene extends Phaser.Scene {
         this.updateFollower(delta);
       }
       if (this.storyBeat?.prompt && !this.typing) {
-        this.actionHint.setText(`SPACE · ${this.storyBeat.prompt}`).setVisible(true);
+        this.actionHint.setText(`${this.actionVerb()} · ${this.storyBeat.prompt}`).setVisible(true);
       }
       if (interactPressed) this.advanceDialogue();
       return;
@@ -472,20 +499,26 @@ export class WorldScene extends Phaser.Scene {
 
     /* ── movement ────────────────────────────────────── */
     const { left, right, up, down } = this.cursors;
+    // The on-screen pad is a second set of "keys"; either source counts.
+    const pad = touchDirection();
+    const goLeft = left.isDown || pad.left;
+    const goRight = right.isDown || pad.right;
+    const goUp = up.isDown || pad.up;
+    const goDown = down.isDown || pad.down;
     let vx = 0,
       vy = 0;
 
-    if (left.isDown) {
+    if (goLeft) {
       vx = -SPEED;
       this.lastDir = 'left';
-    } else if (right.isDown) {
+    } else if (goRight) {
       vx = SPEED;
       this.lastDir = 'right';
     }
-    if (up.isDown) {
+    if (goUp) {
       vy = -SPEED;
       this.lastDir = 'up';
-    } else if (down.isDown) {
+    } else if (goDown) {
       vy = SPEED;
       this.lastDir = 'down';
     }
@@ -549,7 +582,7 @@ export class WorldScene extends Phaser.Scene {
       this.hintIcon
         .setVisible(true)
         .setPosition(action.x * TILE_SIZE + 8, action.y * TILE_SIZE - 16);
-      this.actionHint.setText(`SPACE · ${action.label}`).setVisible(true);
+      this.actionHint.setText(`${this.actionVerb()} · ${action.label}`).setVisible(true);
     }
 
     /* ── interact ────────────────────────────────────── */
@@ -569,6 +602,11 @@ export class WorldScene extends Phaser.Scene {
 
     /* ── zone-specific scripting ─────────────────────── */
     if (this.zone.onUpdate) this.zone.onUpdate(this, delta);
+  }
+
+  /** Prompts name the key or the on-screen button, whichever is in play. */
+  actionVerb() {
+    return touchControlsActive() ? 'TAP A' : 'SPACE';
   }
 
   /* ── NPC facing ────────────────────────────────────── */

@@ -6,7 +6,7 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 
 **Play it in the browser: https://lotr.lonelymtnlabs.com**
 
-> **Note:** a keyboard is required — mobile browsers aren't supported yet (the game only takes keystrokes, not touch input).
+> Plays on a desktop keyboard or on a phone/tablet: touch devices get an on-screen thumb pad and buttons. Landscape gives the biggest view.
 
 ![Frodo, Sam, and Gandalf on the lane below Bag End](assets/screenshots/hobbiton.png)
 
@@ -35,13 +35,19 @@ npm run dev
 
 Open the URL shown in your terminal.
 
-| Key           | Action                     |
-| ------------- | -------------------------- |
-| Arrow keys    | Move                       |
-| SPACE / ENTER | Talk / interact / advance  |
-| I             | Inventory & errand overlay |
-| Q             | Recall current objective   |
-| M             | Mute audio                 |
+| Key           | Touch          | Action                     |
+| ------------- | -------------- | -------------------------- |
+| Arrow keys    | Thumb pad      | Move                       |
+| SPACE / ENTER | **A** button   | Talk / interact / advance  |
+| I             | **I** button   | Inventory & errand overlay |
+| Q             | **Q** button   | Recall current objective   |
+| M             | **M** button   | Mute audio                 |
+| ENTER / N     | Tap / NEW GAME | Continue / start over      |
+
+The on-screen controls appear only on touch devices (a coarse pointer, or the
+first touch on a hybrid laptop), so the desktop presentation is unchanged. In
+portrait the game pins to the top of the screen and the pad takes the empty
+band below it; in landscape the widgets float over the side letterboxes.
 
 ## Status
 

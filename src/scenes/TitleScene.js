@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { initAudio } from '../audio/sound.js';
 import { hasFlag, setObjective } from '../state/GameState.js';
 import { load, clearSave, applySave } from '../state/saveGame.js';
+import { setTouchControlsVisible, touchControlsActive } from '../input/touchControls.js';
 
 export class TitleScene extends Phaser.Scene {
   constructor() {
@@ -11,6 +12,10 @@ export class TitleScene extends Phaser.Scene {
   create() {
     const cx = this.cameras.main.centerX;
     const cy = this.cameras.main.centerY;
+    // The pad and action buttons belong to the world, not the menu —
+    // here the whole screen is the button.
+    setTouchControlsVisible(false);
+    const touch = touchControlsActive();
 
     // Dark background
     this.cameras.main.setBackgroundColor('#0a0a12');
@@ -48,17 +53,19 @@ export class TitleScene extends Phaser.Scene {
 
     // Prompt
     const saved = load();
+    const continueLabel = touch ? 'TAP ~ CONTINUE' : 'ENTER ~ CONTINUE';
     const prompt = this.add
-      .text(cx, cy + 225, saved ? 'ENTER ~ CONTINUE' : 'PRESS ENTER', {
+      .text(cx, cy + 225, saved ? continueLabel : touch ? 'TAP TO BEGIN' : 'PRESS ENTER', {
         fontFamily: '"Press Start 2P"',
         fontSize: '24px',
         color: '#f0ead6',
         align: 'center',
       })
       .setOrigin(0.5);
+    let newGameText = null;
     if (saved) {
-      this.add
-        .text(cx, cy + 265, 'N ~ NEW GAME', {
+      newGameText = this.add
+        .text(cx, cy + 265, touch ? 'NEW GAME' : 'N ~ NEW GAME', {
           fontFamily: '"Press Start 2P"',
           fontSize: '14px',
           color: '#8a8a8a',
@@ -87,11 +94,18 @@ export class TitleScene extends Phaser.Scene {
 
     // Controls + version
     this.add
-      .text(cx, 654, 'ARROWS move   SPACE talk   Q objective   M sound', {
-        fontFamily: '"Press Start 2P"',
-        fontSize: '16px',
-        color: '#6a6a6a',
-      })
+      .text(
+        cx,
+        654,
+        touch
+          ? 'PAD move   A talk   Q objective   M sound'
+          : 'ARROWS move   SPACE talk   Q objective   M sound',
+        {
+          fontFamily: '"Press Start 2P"',
+          fontSize: '16px',
+          color: '#6a6a6a',
+        },
+      )
       .setOrigin(0.5);
     this.add
       .text(cx, 690, 'PROTOTYPE v0.2', {
@@ -107,6 +121,37 @@ export class TitleScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-ENTER', begin);
     this.input.keyboard.on('keydown-SPACE', begin);
     if (saved) this.input.keyboard.on('keydown-N', () => this.startGame(true));
+
+    // Pointer/touch equivalents: a tap anywhere does what ENTER does, and on
+    // touch (where there is no N key) the NEW GAME label gets its own target.
+    // That target WIPES THE SAVE, so it hugs the label — a stray tap must land
+    // on "continue", never on "discard"; e2e asserts it clears every
+    // neighbouring line.
+    //
+    // The rectangle is tested by hand rather than through setInteractive():
+    // Phaser's `currentlyOver` list is filled by the hit-test pass, which has
+    // not run yet for the first touch of a tap, so a display-list hit area
+    // would silently lose the race and continue instead.
+    this.newGameArea =
+      newGameText && touch
+        ? new Phaser.Geom.Rectangle(
+            cx - 240,
+            newGameText.getBounds().centerY - (newGameText.getBounds().height + 16) / 2,
+            480,
+            newGameText.getBounds().height + 16,
+          )
+        : null;
+    this.input.on('pointerdown', (pointer) => {
+      if (this.newGameArea?.contains(pointer.worldX, pointer.worldY)) this.startGame(true);
+      else begin();
+    });
+    // On a portrait phone the canvas only covers a band of the page, so
+    // taps on the letterbox count too — Phaser only sees the canvas.
+    const pageTap = (e) => {
+      if (e.target !== this.game.canvas) begin();
+    };
+    window.addEventListener('pointerdown', pageTap);
+    this.events.once('shutdown', () => window.removeEventListener('pointerdown', pageTap));
   }
 
   /** @param {boolean} [fresh] true when N wipes an existing save */
