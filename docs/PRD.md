@@ -54,17 +54,21 @@ A top-down pixel art RPG covering The Lord of the Rings: The Fellowship of the R
 
 ### 2.3 Mobile Support
 
-> **[DECISION NEEDED]** Support mobile/touch?
+> **[DECIDED]** Desktop-first, with touch support added on top (the "add mobile later" option).
 >
-> The 320×240 resolution and simple controls (d-pad + action button) map naturally to mobile. But touch controls need explicit design (virtual d-pad? swipe? tap-to-move?).
+> The 320×240 view and the d-pad + action-button control scheme mapped onto touch
+> without changing gameplay. Touch devices get a DOM overlay — a thumb pad on the
+> left, an **A** button on the right, and small **I / Q / M** buttons — that feeds
+> the same code paths as the keys rather than synthesising keystrokes. It appears
+> only for a coarse pointer (or the first touch on a hybrid), so the desktop
+> presentation is untouched.
 >
-> Options:
+> The 4:3 canvas still scales to fit: portrait pins the game to the top of the
+> screen and gives the pad the letterbox band below it; landscape floats the
+> widgets over the side bands and is the larger view.
 >
-> - **Desktop-only** for now, add mobile later
-> - **Mobile-first** with virtual d-pad overlay
-> - **Both from the start** (responsive layout + touch controls)
->
-> If targeting audience C (casual), mobile is probably essential. If A or B, desktop-first is fine.
+> Still open: whether to ask for landscape explicitly, and whether portrait
+> deserves a taller camera aspect instead of a wide letterbox.
 
 ---
 
@@ -589,7 +593,7 @@ All decision points collected in one place for review:
 | --- | ------------------------- | ------------------------------------------------------ | ------------------------ | ------- |
 | 1   | **Target audience**       | A) Tolkien fans, B) RPG players, C) Casual             | Cascades into everything | 1.3     |
 | 2   | **Distribution platform** | Web-only, itch.io, Steam, hybrid                       | Monetization, packaging  | 2.2     |
-| 3   | **Mobile support**        | Desktop-only, mobile-first, both                       | UI design, controls      | 2.3     |
+| 3   | ~~**Mobile support**~~    | **Decided: desktop-first + touch overlay**             | UI design, controls      | 2.3     |
 | 4   | **Art pipeline**          | Procedural, sprite sheets, hybrid                      | Dev workflow, scale      | 3.6     |
 | 5   | **Save system**           | Auto-save, save points, save anywhere                  | UX, complexity           | 3.4     |
 | 6   | **Interior maps**         | None, key interiors, all buildings                     | Art/map scope            | 4.1     |

@@ -31,8 +31,23 @@ Unit tests live in `tests/` (Vitest, Node environment — no browser or canvas n
 `BootScene → TitleScene → WorldScene`
 
 - **BootScene** (`src/scenes/BootScene.js`): thin loader — builds every texture from `src/art/` and registers walk/idle/gallop animations.
-- **TitleScene**: title screen; ENTER starts the game and initializes WebAudio (must happen inside a user gesture).
+- **TitleScene**: title screen; ENTER — or a tap/click anywhere on a touch device — starts the game and initializes WebAudio (must happen inside a user gesture).
 - **WorldScene** (`src/scenes/WorldScene.js`): renders _any_ zone. Handles movement (72 px/s, feet-only physics bodies, y-sorted depth), Sam and Pippin (trail the player's walked path at 18px intervals), NPC dialogue with typewriter effect, doors/signs/exits, objective banners (Q recalls, M mutes), and per-zone scripted events via `zone.onUpdate`.
+
+### Touch Input (`src/input/touchControls.js`)
+
+A DOM overlay (not canvas objects) built only when the browser reports a coarse
+pointer, or on the first `touchstart` from a hybrid device. A thumb pad drives
+`touchDirection()`, which WorldScene ORs with the cursor keys each frame;
+`onTouchButton()` delivers `action` / `inventory` / `objective` / `mute`, which
+call the same handlers the keys do — no synthetic key events, so the two input
+modes can never disagree. `setTouchControlsVisible()` hides the pad on the title
+screen and toggles the `has-touch-controls` body class that top-aligns the canvas
+in portrait (styles live in `index.html`; Phaser uses `NO_CENTER` so flexbox owns
+placement). `WorldScene.actionVerb()` reads `touchControlsActive()` so prompts say
+`TAP A` instead of `SPACE`. Playwright covers the layer in `e2e/touch.spec.js`
+under `devices['iPhone 13']`; the pad's direction maths is unit-tested in
+`tests/touchControls.test.js`.
 
 ### Art Pipeline (`src/art/`)
 
@@ -73,7 +88,7 @@ A depth-and-exploration layer now sits on top of the main story: collectible ite
 
 Pippin uses the existing hobbit sprite template with a blue waistcoat. His initial arrival follows walkable tiles while Frodo waits briefly; both companions then follow through zones, fern cover, and the ferry. `src/state/partyMovement.js` contains the tile-route and distance-along-trail helpers. Existing checkpoints with Sam restore both companions without replaying the entrance; the save format remains v1.
 
-The game now has an autosave/continue system (`src/state/saveGame.js`): a single versioned localStorage key (`lotr-rpg.save.v1`) is written at every WorldScene zone entry, capturing flags, follower, objective, items, and collected state alongside the checkpoint zone/entry; the title screen offers Continue (loads the save) or New Game (clears it and starts the prologue fresh) and shows a fan-project disclaimer. The game is deployed to GitHub Pages at https://lotr.lonelymtnlabs.com by the `deploy` job in `ci.yml`, which runs on green pushes to `main`.
+The game now has an autosave/continue system (`src/state/saveGame.js`): a single versioned localStorage key (`lotr-rpg.save.v1`) is written at every WorldScene zone entry, capturing flags, follower, objective, items, and collected state alongside the checkpoint zone/entry; the title screen offers Continue (loads the save) or New Game (clears it and starts the prologue fresh) and shows a fan-project disclaimer. The game is deployed to GitHub Pages at https://lotr.lonelymtnlabs.com by the `deploy` job in `ci.yml`, which runs on green pushes to `main`. Mobile browsers are supported: coarse-pointer devices get the on-screen thumb pad and A/I/Q/M buttons, and the title screen starts on a tap anywhere (with a NEW GAME hit zone).
 
 ## Chapters 2 and 3
 
