@@ -58,12 +58,6 @@ export function drawCrickhollow(scene, morning) {
       for(let i=0;i<3;i++) {r(px+3+i*5,py+2,1,10,0x857345);r(px+2+i*5,py+5,3,3,(x+y)%2?0x779052:0x8d9c64);}
     }
     for(const x of [370,434]) {r(x,123,2,12,0x9b8655);r(x-3,123,8,4,0xc2b078);}
-    // Five ponies wait in the lawn east of the house, away from the path.
-    for(let i=0;i<5;i++) {
-      const x=(24+i*2.5)*16,y=18*16,c=[0x79533a,0x9b805b,0x66544a,0x8a6550,0x756454][i];
-      r(x-9,y-5,21,8,c);r(x+8,y-13,6,10,c);r(x-7,y+3,3,7,0x302c24);r(x+7,y+3,3,7,0x302c24);
-      r(x-3,y-6,10,6,0xb8a478);r(x+9,y-15,2,3,0x302c24);r(x+13,y-15,2,3,0x302c24);r(x+12,y-11,1,1,0xd5caaa);
-    }
     // A few larger trees break up the hedge rather than filling the open lawn.
     for(const [tx,ty] of [[4,8],[26,5],[34,11],[7,23],[31,23]]) {
       const t=scene.add.graphics().setDepth(ty*16+15),x=tx*16+8,y=ty*16+15;

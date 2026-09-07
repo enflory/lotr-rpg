@@ -2,6 +2,8 @@
 // presentation and retries any unfinished animation from the last checkpoint.
 import { gameState, hasFlag } from '../state/GameState.js';
 import { createCrickhollow, updateCrickhollow, crickhollowDialogue } from './crickhollowEvent.js';
+import { createPonies, updatePonies } from './ponyEvent.js';
+import { createTomHouse, updateTomHouse, tomHouseDialogue } from './tomHouseEvent.js';
 import { createWillow, updateWillow, willowDialogue } from './willowEvent.js';
 import { drawHouseScenery, drawDownsRelief } from '../art/houseScenery.js';
 import { drawJourneyScenery } from '../art/journeyScenery.js';
@@ -118,31 +120,8 @@ export function journeyCreate(scene) {
       j.gate.lineBetween(28 * 16 + i * 3, 8 * 16, 28 * 16 + i * 3, 11 * 16);
   }
   if (key === 'withywindle') createWillow(scene);
-  if (key === 'tomclearing') for (let i = 0; i < 5; i++) pony(scene, 8 + i * 3, 17);
-  if (key === 'tomhouse') {
-    actor(scene, 'goldberry', 21, 7, 1.15);
-    actor(scene, 'tom', 7, 5, 1.15);
-    j.night = scene.add
-      .rectangle(480, 360, 320, 240, 0x142340, 0.25)
-      .setScrollFactor(0)
-      .setDepth(820)
-      .setVisible(false);
-    j.rain = [];
-    for (let i = 0; i < 10; i++) {
-      const drop = scene.add
-        .rectangle(19 * 16 + 3 + ((i * 7) % 13), 3 * 16 + 3 + ((i * 3) % 10), 1, 3, 0xc5d9df, 0.7)
-        .setDepth(820)
-        .setVisible(false);
-      scene.tweens.add({ targets: drop, y: drop.y + 5, duration: 500 + i * 40, repeat: -1 });
-      j.rain.push(drop);
-    }
-    j.ring = scene.add
-      .circle(14 * 16 + 8, 6 * 16 - 6, 3)
-      .setStrokeStyle(1, 0xebcc59)
-      .setDepth(850)
-      .setVisible(false);
-    // Four beds are visible; their occupants need not be individually controlled.
-  }
+  createPonies(scene);
+  if (key === 'tomhouse') createTomHouse(scene);
   if (key === 'barrow') {
     j.dead = [];
     for (let i = 0; i < 3; i++) {
@@ -188,13 +167,14 @@ function holdFollowers(scene, keys) {
   }
 }
 
-export function journeyUpdate(scene, _delta) {
+export function journeyUpdate(scene, delta) {
   if (!scene.journey || scene.dialogActive || scene.transitioning) return;
   const j = scene.journey,
     f = gameState.flags,
     key = scene.zoneKey;
   const tx = scene.player.x / 16,
     ty = scene.player.y / 16;
+  updatePonies(scene, delta);
   for (const { p, dot } of j.markers) dot.setVisible(!p.when || p.when(f));
   if (key === 'crickhollow' || key === 'crickhollowhouse') updateCrickhollow(scene);
   if (key === 'hedgetunnel') {
@@ -209,27 +189,7 @@ export function journeyUpdate(scene, _delta) {
       scene.startDialogue('forest_hollow');
   }
   if (key === 'withywindle') updateWillow(scene);
-  if (key === 'tomhouse') {
-    const state = f.houseRested
-      ? 'morning'
-      : f.houseRing
-        ? 'night'
-        : f.houseNightOne
-          ? 'rain'
-          : f.houseSupper
-            ? 'night'
-            : 'welcome';
-    scene.player.setData('cinematicAlpha', null).setAlpha(1);
-    j.night.setVisible(state === 'night');
-    for (const drop of j.rain) drop.setVisible(state === 'rain');
-    j.ring.setVisible(!!f.houseRing && !f.houseRested);
-    if (state !== j.state) {
-      j.state = state;
-      if (state === 'rain') scene.showBanner('Rain on the windows.\nA day for Tom’s stories.');
-      if (state === 'morning')
-        scene.showBanner('A clear morning.\nThe downs lie beyond the house.');
-    }
-  }
+  if (key === 'tomhouse') updateTomHouse(scene);
   if (key === 'downs') {
     j.fog.setVisible(!!f.downsFog);
     for (const m of j.mist) m.setVisible(!!f.downsFog);
@@ -266,10 +226,7 @@ export function journeyDialogue(scene) {
     page = scene.dialogIndex;
   if (scene.zoneKey === 'withywindle') willowDialogue(scene);
   if (scene.zoneKey === 'crickhollowhouse') crickhollowDialogue(scene);
-  if (key === 'house_ring' && hasFlag('houseStories') && !hasFlag('houseRing')) {
-    j.ring.setVisible(true);
-    scene.player.setData('cinematicAlpha', page === 1 ? 0.25 : 1).setAlpha(page === 1 ? 0.25 : 1);
-  }
+  if (scene.zoneKey === 'tomhouse') tomHouseDialogue(scene);
   if (key === 'barrow_courage' && hasFlag('barrowTaken') && page >= 2) {
     j.handTween.stop();
     j.hand.setPosition(-10, 13).setAlpha(0.45);

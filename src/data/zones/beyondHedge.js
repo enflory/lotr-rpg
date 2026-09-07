@@ -1,3 +1,4 @@
+import { nextHouseBeat } from '../../state/tomHouseProgress.js';
 import { T } from '../tileTypes.js';
 import { field, cottage, trail, point, edge } from './journeyMap.js';
 import { journeyCreate, journeyUpdate, journeyDialogue } from '../../events/journeyEvent.js';
@@ -75,7 +76,7 @@ export const tomclearing = {
 };
 const room=field(28,22,T.VOID,T.VOID);
 for(let y=3;y<19;y++) for(let x=3;x<25;x++) room[y][x]=y===3||x===3||x===24||y===18 ? T.WALL : T.FLOOR;
-for(let y=7;y<=10;y++) for(let x=9;x<=16;x++) room[y][x]=y===8 ? T.TABLE : T.RUG;
+for(let y=7;y<=11;y++) for(let x=9;x<=16;x++) room[y][x]=y===8||y===9 ? T.TABLE : T.RUG;
 room[3][7]=T.FIREPLACE; room[3][19]=T.WINDOW_I;
 for(const x of [5,8,11,14]) room[15][x]=T.BED;
 room[8][20]=T.LILIES;room[8][22]=T.LILIES;
@@ -84,6 +85,6 @@ room[18][18]=T.FLOOR;room[19][18]=T.CHALK;room[20][18]=T.CHALK;room[21][18]=T.CH
 export const tomhouse = {
   key:'tomhouse',label:"In the House of Tom Bombadil",music:'bombadil',map:room,
   spawns:{default:{x:18,y:17,dir:'up'}},npcs:[],doors:[],signs:[],
-  interactions:[point(20,9,'house_welcome','Goldberry'),point(12,11,'house_supper','Supper at the table'),point(8,14,'house_bed','The hobbits’ beds'),point(7,6,'house_stories','Tom by the hearth'),point(14,6,'house_ring','Ask Tom about the Ring'),point(20,15,'house_farewell','Prepare to leave'),point(22,9,'house_lilies','The water-lilies')],
+  interactions:[point(20,9,'house_welcome','Goldberry'),point(12,12,'house_supper','Supper with your hosts'),point(8,14,'house_bed','Settle into bed'),point(7,6,'house_stories','Tales by the hearth'),point(14,6,'house_ring','Show Tom the Ring'),point(20,15,'house_farewell','Farewell counsel')].map(p=>({...p,when:f=>nextHouseBeat(f)===p.dialogue})),
   exits:[edge(18,21,'tomclearing','house')],onCreate:journeyCreate,onUpdate:journeyUpdate,onDialogueLine:journeyDialogue,
 };

@@ -13,7 +13,7 @@ The existing `lotr_fellowship_places.md` and `lotr_fellowship_characters.md` inf
 
 ## Playable compression
 
-Paths are fixed, legible routes. Their turns and inspectable landmarks suggest the forest's pressure without randomizing navigation or requiring every optional observation. The travelling group includes ponies in the prose and at rest points; walking is the control abstraction. The five named pack/riding ponies are distinguished from the four hobbits and from Tom's Fatty Lumpkin.
+Paths are fixed, legible routes. Their turns and inspectable landmarks suggest the forest's pressure without randomizing navigation or requiring every optional observation. Five ponies follow the travelling group through the forest and rest outside the house; walking is the control abstraction. The five named pack/riding ponies are distinguished from the four hobbits and from Tom's Fatty Lumpkin.
 
 Danger advances through ordinary interactions without a reflex test. Dialogue effects represent completed story beats and can be restored from saved flags. Willow proceeds through sleep, attempted fire, seeking help, then Tom's rescue. The actual party sprites walk into the shade, slip into the cracks, and emerge again. Player-paced actions help Sam pull Frodo clear, kindle and extinguish the fire, call for help, and reach for the prisoners while Tom commands the tree. These actions have no timing window or failure penalty; animation finishes before the next dialogue beat can begin. The house preserves both nights and the intervening rainy day. The barrow preserves Frodo's choice before the rescue. Neither danger is an invented combat quest.
 
@@ -22,4 +22,7 @@ The summoning verse is a memory represented by `tom_song`, not a transcription o
 Mandatory interactions use short sequences of two or three pages where possible; optional landmarks carry texture separately. Each page has at most three lines. Tom's dialogue uses energetic plain speech rather than imitating Tolkien's metrical songs. Goldberry's presence is expressed through water, light and hospitality without inventing a definite explanation of her nature.
 
 The East Road is the explicit stopping point. Bree and the Prancing Pony are a destination and advice, not a promised playable entrance in this release.
+
 Crickhollow's overnight stay and Fredegar remaining behind were cross-checked against [The Encyclopedia of Arda: Crickhollow](https://www.encyclopedia-of-arda.com/c/crickhollow.php). Book I, chapter 5 remains the narrative anchor; all game dialogue is original paraphrase. The evening conversation is compressed into one shared table scene. Baths and familiar household belongings are optional observations. Existing saves that have already departed are not forced back through supper.
+
+Tom’s house now stages the six supper guests, actual sleeping hobbits, and two short procedural dream images. Only the next required encounter has a visible cue. The tower and green country remain dream impressions rather than new explorable places. Tom’s skipping stride and his walk ahead after Willow express his characteristic energy. Travelling ponies use walkable routes; their disappearance in the downs fog and later recovery remain story milestones.

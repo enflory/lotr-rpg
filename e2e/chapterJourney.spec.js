@@ -10,7 +10,7 @@ async function dialogue(page) {
     await page.waitForFunction(
       () => !window.__game.scene.getScene('WorldScene').storyBeat?.busy,
       null,
-      { timeout: 30000 },
+      { timeout: 45000 },
     );
     if (!(await page.evaluate(() => window.__game.scene.getScene('WorldScene').dialogActive)))
       return;
@@ -295,7 +295,6 @@ test('walk the complete forest, two-night refuge and barrow journey with Continu
   await walk(page, 28, 13);
   await press(page);
   await zone(page, 'tomhouse');
-  await act(page, 'house_farewell');
   expect(await page.evaluate(() => !!window.__state.flags.learnedSong)).toBe(false);
   await act(page, 'house_welcome');
   await act(page, 'house_supper');
@@ -308,7 +307,11 @@ test('walk the complete forest, two-night refuge and barrow journey with Continu
   await flag(page, 'houseRested');
   await act(page, 'house_farewell');
   await flag(page, 'learnedSong');
-  await act(page, 'house_farewell');
+  expect(
+    await page.evaluate(() =>
+      window.__game.scene.getScene('WorldScene').journey.markers.some((m) => m.dot.visible),
+    ),
+  ).toBe(false);
   expect(await page.evaluate(() => window.__state.items.tom_song)).toBe(1);
   await walk(page, 18, 21);
   await zone(page, 'tomclearing');

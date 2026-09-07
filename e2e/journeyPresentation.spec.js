@@ -40,6 +40,11 @@ async function seed(page, zone, entry, extra = {}) {
 }
 async function close(page) {
   for (let i = 0; i < 20; i++) {
+    await page.waitForFunction(
+      () => !window.__game.scene.getScene('WorldScene').storyBeat?.busy,
+      null,
+      { timeout: 45000 },
+    );
     if (!(await page.evaluate(() => window.__game.scene.getScene('WorldScene').dialogActive)))
       return;
     await press(page);
@@ -58,14 +63,26 @@ test('Frodo remains transparent during the Ring page and returns to normal after
     window.__game.scene.getScene('WorldScene').player.setPosition(14 * 16 + 8, 6 * 16),
   );
   await press(page);
+  await page.waitForFunction(
+    () => !window.__game.scene.getScene('WorldScene').storyBeat?.busy,
+    null,
+    { timeout: 45000 },
+  );
   await press(page);
   await press(page);
   await page.waitForFunction(() => window.__game.scene.getScene('WorldScene').dialogIndex === 1);
-  await page.waitForTimeout(250);
+  await page.waitForFunction(
+    () => !window.__game.scene.getScene('WorldScene').storyBeat?.busy,
+    null,
+    { timeout: 45000 },
+  );
   expect(
     await page.evaluate(() => window.__game.scene.getScene('WorldScene').player.alpha),
   ).toBeLessThan(0.5);
   await close(page);
+  expect(
+    await page.evaluate(() => window.__game.scene.getScene('WorldScene').journey.ring.visible),
+  ).toBe(false);
   expect(await page.evaluate(() => window.__game.scene.getScene('WorldScene').player.alpha)).toBe(
     1,
   );

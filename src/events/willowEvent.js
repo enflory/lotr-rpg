@@ -110,7 +110,7 @@ export function createWillow(s) {
     .setData('key', 'tom')
     .setScale(1.15)
     .setDepth(360)
-    .setVisible(!!f.tomArrived);
+    .setVisible(!!f.tomArrived && !f.willowFreed);
   const fire = s.add.graphics().setDepth(410).setVisible(false);
   fire.fillStyle(0xcf6737).fillRect(46 * 16, 21 * 16 - 5, 9, 10);
   fire.fillStyle(0xf2cc75).fillRect(46 * 16 + 3, 21 * 16 - 8, 3, 12);
@@ -124,6 +124,11 @@ export function updateWillow(s) {
   const w = s.journey.willow,
     f = gameState.flags;
   if (w.active && !s.dialogActive) releaseControl(s);
+  if (f.willowFreed && w.tom.visible && !w.leading) {
+    w.leading = true;
+    // Control is back with the hobbits while Tom skips ahead along the river.
+    walk(s, w.tom, 79, 16, 180).then(() => w.tom.setVisible(false));
+  }
   const tx = s.player.x / 16,
     ty = s.player.y / 16;
   if (!f.willowTrapped && !f.willowFreed && tx > 40 && tx < 56 && ty > 19 && ty < 26)

@@ -400,6 +400,10 @@ export const CHAPTER_DIALOGUES = {
     name: "Tom's Stories",
     stages: [
       {
+        when: (f) => f.houseRing,
+        lines: ['The Ring is safely put away.\nThe guest beds are ready\nfor your second night.'],
+      },
+      {
         when: (f) => !f.houseNightOne,
         lines: ['There will be time for old tales.\nEat and sleep first.'],
       },

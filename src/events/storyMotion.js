@@ -12,12 +12,32 @@ export async function move(s, p, dest, speed = 72) {
     dy = dest.y - p.y;
   const dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : dy < 0 ? 'up' : 'down';
   p.play(`${keyOf(p)}-walk-${dir}`, true);
-  await tween(
-    s,
-    p,
-    { ...dest, onUpdate: () => p.setDepth(p.y + 20) },
-    Math.max(100, (Math.hypot(dx, dy) / speed) * 1000),
-  );
+  const pace = ['withywindle', 'tomhouse'].includes(s.zoneKey) ? 0.5 : 1;
+  p.anims.timeScale = pace;
+  const duration = Math.max(100, (Math.hypot(dx, dy) / (speed * pace)) * 1000);
+  // Tom skips on his own ground path; the bob never changes the route or depth.
+  if (keyOf(p) === 'tom') {
+    const ground = { x: p.x, y: p.y };
+    await tween(
+      s,
+      ground,
+      {
+        ...dest,
+        onUpdate: (t) => {
+          const phase = (t.progress * duration) / 110;
+          p.setPosition(ground.x, ground.y - Math.abs(Math.sin(phase)) * 3);
+          p.setAngle(Math.sin(phase) * 4).setDepth(ground.y + 20);
+        },
+      },
+      duration,
+    );
+    p.setPosition(dest.x, dest.y).setAngle(0);
+    p.anims.timeScale = 1;
+    p.play(`tom-idle-${dir}`, true);
+    return;
+  }
+  await tween(s, p, { ...dest, onUpdate: () => p.setDepth(p.y + 20) }, duration);
+  p.anims.timeScale = 1;
   p.play(`${keyOf(p)}-idle-${dir}`, true);
 }
 export async function walk(s, p, x, y, speed = 85) {

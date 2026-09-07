@@ -13,23 +13,20 @@ export function drawHouseScenery(scene) {
   }
   r(144, 113, 128, 2, 0xc3a76d); r(144, 173, 128, 2, 0xc3a76d);
   r(145, 112, 2, 64, 0xc3a76d); r(269, 112, 2, 64, 0xc3a76d);
-  // A continuous polished table, not eight round tables side by side.
-  r(144, 128, 128, 16, 0x84513e);
-  r(144, 129, 128, 13, 0x35251d);
-  r(145, 130, 126, 9, 0x5e3e28);
-  r(147, 130, 122, 1, 0xa47746);
-  r(147, 134, 122, 1, 0x755135);
-  r(147, 138, 122, 1, 0x271f19);
-  // Rush seats tuck under the table's existing solid edge.
-  for (let x = 151; x < 265; x += 22) {
-    r(x, 140, 8, 4, 0x4c3823); r(x + 1, 140, 6, 2, 0xab955d);
-    r(x + 3, 140, 1, 3, 0x776c43);
-    r(x + 2, 131, 5, 2, 0xd8caa2); r(x + 3, 131, 3, 1, 0xf0e2b9);
+  // Six places: four hobbits, Tom and Goldberry at one shared table.
+  r(144,128,128,32,0x35251d);r(146,130,124,27,0x765136);
+  r(148,130,120,2,0xba9260);r(148,154,120,1,0x4d3425);
+  for(const x of [168,216,264]) for(const y of [134,153]) {
+    r(x-5,y-2,10,5,0xe2d3a7);r(x-3,y-1,6,3,0xbda679);
+    r(x-9,y-1,3,4,0x887a56);r(x-8,y-2,2,1,0xd2c498);
+    r(x-5,y<140?119:171,10,4,0xb89b66);
   }
-  for (const x of [160, 202, 250]) {
-    r(x - 2, 134, 6, 2, 0xb59545); r(x, 129, 2, 6, 0xe0c574);
-    r(x, 127, 2, 2, 0xea9b37); r(x, 126, 1, 2, 0xffe6a0);
+  for(const x of [190,240]) {
+    r(x-2,147,5,2,0xac8a44);r(x,140,2,7,0xe6cf8a);r(x,138,2,2,0xffe4a0);
   }
+  r(201,142,17,6,0xcfad62);r(202,141,14,2,0xedce8c);
+  r(178,143,8,5,0xe2d3a7);r(180,144,4,3,0xf1e9ce);
+  r(226,143,6,6,0x9c773a);r(227,142,4,2,0xdfb75b);
   // The lilies float in earthen bowls; remove the blue square of river tile.
   for (const tx of [20, 22]) {
     const x = tx * 16, y = 128;
