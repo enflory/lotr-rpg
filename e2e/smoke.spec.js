@@ -198,9 +198,18 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
       bodyEnabled: scene.player.body.enable,
     };
   });
-  expect(end.objective).toMatch(/Chapter Two/);
+  expect(end.objective).toMatch(/Crickhollow/);
   expect(end.tileX).toBeGreaterThanOrEqual(52); // the Buckland shore BANK_LAND_X
   expect(end.bodyEnabled).toBe(true);
+  // A conversation after landing must preserve the eastern checkpoint.
+  await page.evaluate(() => {
+    const s = window.__game.scene.getScene('WorldScene');
+    s.startDialogue('merry');
+    s.closeDialogue();
+  });
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem('lotr-rpg.save.v1')).entry),
+  ).toBe('buckland');
   expect(
     await page.evaluate(async () => {
       const { COLLISION_TILES } = await import('/src/data/tileTypes.js');

@@ -1,3 +1,5 @@
+import { CHAPTER_DIALOGUES } from './chapterDialogues.js';
+
 // NPC dialogues — drawn from or closely paraphrasing The Lord of the Rings.
 //
 // Each entry is either { name, lines } (always the same) or
@@ -13,6 +15,19 @@
 
 /** @type {Record<string, import('./types.js').Dialogue>} */
 export const DIALOGUES = {
+  ...CHAPTER_DIALOGUES,
+  crickhollow_ponies: {
+    name: 'The Ponies',
+    lines: [
+      'Five ponies wait in the dew: four\nfor the riders, one for the baggage.\nMerry checks the straps once more.',
+    ],
+  },
+  house_threshold: {
+    name: 'Beyond the Trees',
+    lines: [
+      'The forest ends like a clipped hedge.\nA chalk path climbs to lit windows.\nEnter the round door up the path.',
+    ],
+  },
   bilbo: {
     name: 'Bilbo',
     stages: [
@@ -586,7 +601,7 @@ export const DIALOGUES = {
         when: (f) => f.crossedFerry,
         lines: [
           'There -- the Brandywine is\nbehind us. Welcome to\nBuckland, Frodo.',
-          'Crickhollow lies a few\nmiles on yet. But that is\na tale for another chapter.',
+          'Crickhollow lies a few\nmiles on yet. Follow the\npath east from the landing.',
         ],
       },
       { lines: ['Step aboard! Buckland is\njust across the water.'] },

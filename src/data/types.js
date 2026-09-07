@@ -41,6 +41,7 @@
  * @property {string} entry spawn name in the target zone
  * @property {string} [requires] flag that must be set to leave
  * @property {string} [denied] message shown when the flag is missing
+ * @property {(flags: Record<string, boolean>) => boolean} [blockedWhen] dynamic story gate
  */
 
 /**
@@ -54,6 +55,15 @@
  */
 
 /**
+ * @typedef {Object} InteractionDef
+ * @property {number} x
+ * @property {number} y
+ * @property {string} dialogue
+ * @property {string} label
+ * @property {(flags: Record<string, boolean>) => boolean} [when]
+ */
+
+/**
  * @typedef {Object} Zone
  * @property {string} key registry key
  * @property {string} label shown as the zone title card
@@ -64,7 +74,9 @@
  * @property {DoorDef[]} doors
  * @property {SignDef[]} signs
  * @property {ExitDef[]} exits
+ * @property {InteractionDef[]} [interactions]
  * @property {PickupDef[]} [pickups]
+ * @property {(scene: any) => void} [onDialogueLine] presentation for a dialogue page
  * @property {(scene: any) => void} [onCreate] one-time scripting when the zone builds
  * @property {(scene: any, delta: number) => void} [onUpdate] per-frame scripting
  */

@@ -214,7 +214,7 @@ describe('the ferry crossing', () => {
     expect(scene.cameras.main.flashes.length).toBe(1);
   });
 
-  it('lands on the Buckland shore and closes the chapter', () => {
+  it('lands on the Buckland shore and points toward Crickhollow', () => {
     const scene = boardedScene();
     ferryEventUpdate(scene, 16);
     ferryEventUpdate(scene, 2600);
@@ -222,7 +222,7 @@ describe('the ferry crossing', () => {
     ferryEventUpdate(scene, 2500); // past CROSS_MS → landed
 
     expect(gameState.flags.crossedFerry).toBe(true);
-    expect(gameState.objective).toMatch(/Chapter Two/);
+    expect(gameState.objective).toMatch(/Crickhollow/);
     expect(scene.player.body.enable).toBe(true);
     expect(scene.player.x).toBe(BANK_LAND_X * TILE_SIZE + 8);
     expect(scene.inputLocked).toBe(false);

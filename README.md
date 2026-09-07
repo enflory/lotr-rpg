@@ -14,6 +14,18 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 | :----------------------------------------------------------------------------: | :-------------------------------------------------------------: |
 |                   Gildor's company feasting in the Woody End                   |         Farmer Maggot's Bamfurlong, down in the Marish          |
 
+|     ![Winding paths beneath the Old Forest canopy](assets/screenshots/oldforest.png)     |      ![Captivity at Old Man Willow](assets/screenshots/willow.png)      |
+| :--------------------------------------------------------------------------------------: | :---------------------------------------------------------------------: |
+|                                      The Old Forest                                      |                             Old Man Willow                              |
+| ![The four hobbits in Tom and Goldberry’s house](assets/screenshots/tomhouse-supper.png) | ![Fog gathers around the standing stones](assets/screenshots/downs.png) |
+|                                Tom and Goldberry’s house                                 |                            The Barrow-downs                             |
+
+| ![Crickhollow's cottage, lawn and kitchen garden](assets/screenshots/crickhollow.png) | ![All five hobbits sharing supper](assets/screenshots/crickhollow-supper.png) |
+| :-----------------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
+|                               The garden at Crickhollow                               |                        Supper and the friends' secret                         |
+
+![The first night’s dream above the sleeping hobbits](assets/screenshots/tomhouse-dream.png)
+
 ## Running Locally
 
 ```bash
@@ -33,7 +45,15 @@ Open the URL shown in your terminal.
 
 ## Status
 
-**Chapter 1 vertical slice (v0.2)** — playable end to end, from Bilbo's farewell party in the Party Field to the raft crossing of the Brandywine. Gandalf reveals the Ring, Sam joins as a follower and Pippin walks in to accompany you; all three hobbits hide from a Black Rider in the fern brakes of the Woody End, meet Gildor's elves at their feast, and ride Farmer Maggot's waggon through the Marish to the Bucklebury Ferry. Five zones so far: the Bag End interior, Hobbiton (with the Party Field and Bagshot Row), the Green Dragon, the Woody End, and the Marish.
+**Chapters 1–3** are playable from Bilbo's farewell party to the East Road beyond the Barrow-downs. The published site updates when changes reach `main`.
+
+Chapter 1 follows the Shire, the Black Rider, Gildor, Maggot, and the Brandywine ferry. Chapter 2 begins with an evening at Crickhollow: a secluded garden, hot baths, supper with all five hobbits, and the friends revealing their preparations. A night-to-morning cutscene brings the party back outside; Merry joins the travelling party, the tunnel opens beneath the High Hay, and the journey winds through the Bonfire Glade, a grassy knoll, misleading northern paths, deep hollows, and the Withywindle. Old Man Willow's capture and rescue use measured cutscene walking and continuous character animation, moving tree cracks, and player actions to help Sam, extinguish the fire, and reach for the prisoners. Tom skips ahead along the river after the rescue. His house guides one active cue at a time through supper with all six characters seated, two nights in bed with dimmed lights and dream vignettes, rainy tales, the Ring demonstration and farewell. The Ring returns to Frodo's pocket after the demonstration.
+
+Chapter 3 crosses the open downs into fog, separation, and the barrow. Frodo defends his friends and calls Tom; the four blades and recovered ponies carry the party to the East Road. Bree is the next destination and is not yet playable. Twelve new zones bring the total to seventeen.
+
+The new chapters use original paraphrased dialogue and procedural art/music. [Adaptation notes](docs/lore/old-forest-adaptation.md) distinguish book chronology from gameplay compression. Five animated ponies follow the hobbits from Crickhollow through the forest, wait outside Tom’s house, and follow again until the fog on the downs. The four hobbits use the existing walking controls. Forest paths are deliberately winding and fixed, with optional places to inspect. Gold glints mark interactions; nearby prompts name the action.
+
+Continue checkpoints preserve completed conversations, encounters, and both nights at the house, including older v1 saves. The `I` overlay pauses walking, and `Q` recalls the current objective.
 
 On top of the main story sits an exploration layer: book-anchored side-errands (Lobelia's spoons, the Gaffer's half-pint, Gandalf's fireworks crates, Maggot's dogs) and two collectible tallies — mathoms and mushrooms — tracked in the `I`-key inventory overlay, with a soft nod from Merry for completionists who cross to Buckland with everything done.
 
@@ -56,7 +76,7 @@ npm run format      # Prettier (zone maps & pixel art are exempt)
 - **Unit tests** (`tests/`) cover dialogue staging, zone map integrity (every door, exit, sign, and NPC cross-checked against what it references), the tile registry, the procedural art helpers, and the scripted set pieces (the Black Rider, the fox of the Woody End, Maggot's dogs).
 - **Smoke tests** (`e2e/`) drive the actual game in a browser through the `window.__game` / `window.__state` QA hooks.
 - **Art QA**: the dev server serves `art-test.html`, which renders the full tileset and every character spritesheet at high zoom.
-- CI runs lint, typecheck, format check, unit tests, build, and e2e on every push and PR.
+- CI runs lint, typecheck, format check, unit tests, build, and e2e on pull requests and pushes to `main`.
 
 ## Tech
 

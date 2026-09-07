@@ -653,6 +653,55 @@ export const CHAR_DEFS = {
     feet: ['#8898a8', '#68788a'],
   },
 
+  tom: {
+    maps: WIZARD,
+    pal: {
+      o: '#232321', S: '#d89a70', s: '#bc7854', E: '#5aadd0',
+      A: '#705b38', a: '#99845c', W: '#754421', w: '#512d1d',
+      R: '#2875aa', r: '#499ac3', X: '#215478', N: '#b46c4c',
+    },
+    feet: ['#edd04e', '#b58d25'],
+    extra(c, x, y, dir) {
+      // A long blue feather and a battered, flat-topped crown.
+      rc(c,x+6,y,4,2,'#705b38');
+      const fx=dir==='left'?x+4:x+11;
+      rc(c,fx,y+1,1,5,'#50aed3');
+      px(c,fx+1,y,'#8bc6db');
+      px(c,fx+1,y+2,'#317aaf');
+      rc(c,x+5,y+16,6,1,'#527c3a');
+    },
+  },
+
+  goldberry: {
+    maps: ELF,
+    pal: {
+      o: '#26382d', S: '#f4dcc0', s: '#dcc0a0', E: '#47585b', W: '#f4efe1', N: '#c8a080',
+      h: '#d9b653', l: '#f8df84', b: '#c7a548',
+      V: '#568c58', v: '#93b98a', G: '#396b48', X: '#3d7351', B: '#e4c35d',
+    },
+    feet: ['#80a980', '#4b7655'],
+    extra(c,x,y,dir) {
+      // Hair falls well below the shoulders; silver dew catches the gown.
+      const hx=dir==='left'?x+10:x+4;
+      rc(c,hx,y+7,2,6,'#d9b653');
+      px(c,hx,y+10,'#f8df84');
+      px(c,x+7,y+15,'#c9ddd0');
+      px(c,x+10,y+17,'#c9ddd0');
+    },
+  },
+
+  fatty: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#54341e', h: '#82532e', l: '#aa7644',
+      C: '#e0d4bb', c: '#b9a988',
+      V: '#93623c', v: '#b37d49', G: '#6b472f',
+      B: '#38271d', b: '#b99c57', P: '#5d6240', p: '#42482e',
+    },
+    feet: ['#d8b080', '#b89060'],
+  },
+
   gandalf: {
     maps: WIZARD,
     pal: {

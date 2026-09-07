@@ -180,6 +180,7 @@ function generateMap() {
     for (let x = BANK_X + 2; x < WIDTH; x++) map[y][x] = T.TREE;
   }
 
+  for (const y of [15,16]) for (let x=52;x<WIDTH;x++) map[y][x]=T.PATH;
   return map;
 }
 
@@ -192,6 +193,7 @@ export const marish = {
   spawns: {
     west: { x: 1, y: 14, dir: 'right' },
     landing: { x: 42, y: 15, dir: 'right' },
+    buckland: { x: 52, y: 15, dir: 'right' },
   },
   npcs: [
     // At his gate until the waggon ride; Merry waits at the lamplit
@@ -229,6 +231,8 @@ export const marish = {
     { id: 'marish_mush_8', x: 26, y: 22, item: 'mushroom', onCollect: 'maggot_scold' },
   ],
   exits: [
+    { x: 55, y: 15, zone: 'crickhollow', entry: 'west', requires: 'crossedFerry', denied: 'Cross with Merry on the ferry.' },
+    { x: 55, y: 16, zone: 'crickhollow', entry: 'west', requires: 'crossedFerry', denied: 'Cross with Merry on the ferry.' },
     { x: 0, y: 14, zone: 'woodyend', entry: 'east' },
     { x: 0, y: 15, zone: 'woodyend', entry: 'east' },
   ],

@@ -15,7 +15,7 @@ const validTiles = new Set(Object.values(T));
 const solid = new Set(COLLISION_TILES);
 
 // Flags that gameplay can actually set (dialogue effects + the rider event)
-const settableFlags = new Set(['escapedRider']);
+const settableFlags = new Set(['escapedRider', 'crossedFerry']);
 for (const dlg of Object.values(DIALOGUES)) {
   for (const stage of dlg.stages ?? []) {
     if (stage.set) [].concat(stage.set).forEach((f) => settableFlags.add(f));
