@@ -6,6 +6,8 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 
 **Play it in the browser: https://lotr.lonelymtnlabs.com**
 
+> **Note:** a keyboard is required — mobile browsers aren't supported yet (the game only takes keystrokes, not touch input).
+
 ![Frodo, Sam, and Gandalf on the lane below Bag End](assets/screenshots/hobbiton.png)
 
 | ![Gildor's company feasting in the Woody End](assets/screenshots/woodyend.png) | ![Bamfurlong farm in the Marish](assets/screenshots/marish.png) |
