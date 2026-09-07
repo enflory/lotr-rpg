@@ -33,7 +33,7 @@ Open the URL shown in your terminal.
 
 ## Status
 
-**Chapter 1 vertical slice (v0.2)** — playable end to end, from Bilbo's farewell party in the Party Field to the raft crossing of the Brandywine. Gandalf reveals the Ring, Sam joins as a follower, you hide from a Black Rider in the fern brakes of the Woody End, meet Gildor's elves at their feast, and ride Farmer Maggot's waggon through the Marish to the Bucklebury Ferry. Five zones so far: the Bag End interior, Hobbiton (with the Party Field and Bagshot Row), the Green Dragon, the Woody End, and the Marish.
+**Chapter 1 vertical slice (v0.2)** — playable end to end, from Bilbo's farewell party in the Party Field to the raft crossing of the Brandywine. Gandalf reveals the Ring, Sam joins as a follower and Pippin walks in to accompany you; all three hobbits hide from a Black Rider in the fern brakes of the Woody End, meet Gildor's elves at their feast, and ride Farmer Maggot's waggon through the Marish to the Bucklebury Ferry. Five zones so far: the Bag End interior, Hobbiton (with the Party Field and Bagshot Row), the Green Dragon, the Woody End, and the Marish.
 
 On top of the main story sits an exploration layer: book-anchored side-errands (Lobelia's spoons, the Gaffer's half-pint, Gandalf's fireworks crates, Maggot's dogs) and two collectible tallies — mathoms and mushrooms — tracked in the `I`-key inventory overlay, with a soft nod from Merry for completionists who cross to Buckland with everything done.
 

@@ -181,11 +181,17 @@ describe('the ferry crossing', () => {
 
   it('boards from the pier: locks input, disables the body, mans the raft', () => {
     const scene = boardedScene();
+    scene.followers = [scene.follower, makeSprite('pippin')];
     ferryEventUpdate(scene, 16);
     expect(scene.ferryEvent.phase).toBe('crossing');
     expect(scene.inputLocked).toBe(true);
     expect(scene.player.body.enable).toBe(false);
-    expect(scene.ferryEvent.crew.length).toBe(3); // Frodo, Sam, Merry
+    expect(scene.ferryEvent.crew.map(({ sprite }) => sprite.getData())).toEqual([
+      'frodo',
+      'sam',
+      'pippin',
+      'merry',
+    ]);
   });
 
   it('keeps the raft over water for the whole crossing', () => {

@@ -17,6 +17,7 @@ import { ITEMS, ITEM_KEYS } from '../data/items.js';
 import { QUESTS } from '../data/quests.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
 import { save } from '../state/saveGame.js';
+import { findWalkablePath, trailPosition } from '../state/partyMovement.js';
 
 // The canvas is 960×720 with a 3× camera zoom (a classic 320×240 view).
 // Screen-fixed UI (scrollFactor 0) scales around the CANVAS centre, so its
@@ -26,7 +27,7 @@ const UI_OY = 240; // (720 - 240) / 2
 
 const SPEED = 72;
 const INTERACT_DIST = 20;
-const FOLLOW_DELAY = 14; // frames of lag behind the player
+const FOLLOW_DISTANCE = 18; // world pixels between hobbits, independent of frame rate
 
 // One scene renders every zone; transitions restart it with new data.
 export class WorldScene extends Phaser.Scene {
@@ -42,6 +43,8 @@ export class WorldScene extends Phaser.Scene {
   create() {
     const zone = ZONES[this.zoneKey];
     this.zone = zone;
+    // Older checkpoints with Sam also gain Pippin, without replaying his entrance.
+    if (gameState.follower === 'sam') setFlag('pippinJoined');
     save(this.zoneKey, this.entryKey); // checkpoint: every zone entry
     this.riderEvent = null;
     this.partyEvent = null; // scene.restart reuses the instance
@@ -80,10 +83,14 @@ export class WorldScene extends Phaser.Scene {
     this.physics.world.setBounds(0, 0, this.mapWidth * TILE_SIZE, this.mapHeight * TILE_SIZE);
     this.player.setCollideWorldBounds(true);
 
-    /* ── follower (Sam) ──────────────────────────────── */
-    this.follower = null;
+    /* ── travelling companions ──────────────────────── */
+    this.followers = [];
+    this.follower = null; // Sam alias used by existing scene hooks
+    this.pippinArrival = null;
     this.trail = [];
     if (gameState.follower) this.createFollower(gameState.follower);
+    if (gameState.follower === 'sam') this.createFollower('pippin');
+    this.snapFollower();
 
     /* ── NPCs ────────────────────────────────────────── */
     this.npcs = [];
@@ -101,7 +108,7 @@ export class WorldScene extends Phaser.Scene {
 
     /* ── fern-cover overlays (tall-grass hiding effect) ─ */
     this.playerFernOverlay = this.add.image(0, 0, 'tileset', T.FERN).setVisible(false);
-    this.followerFernOverlay = this.add.image(0, 0, 'tileset', T.FERN).setVisible(false);
+    // Each companion owns its fern overlay (created with the sprite).
 
     /* ── dialogue UI (fixed to camera) ───────────────── */
     this.dialogBg = this.add
@@ -275,36 +282,125 @@ export class WorldScene extends Phaser.Scene {
 
   /* ── follower ──────────────────────────────────────── */
   createFollower(key) {
-    this.follower = this.add.sprite(this.player.x - 10, this.player.y + 6, key, 1);
-    this.follower.setData('key', key);
-    this.followerDir = 'down';
-    this.trail = [];
+    const existing = this.followers.find((sprite) => sprite.getData('key') === key);
+    if (existing) return existing;
+    const sprite = this.add.sprite(this.player.x, this.player.y, key, 1);
+    sprite.setData('key', key);
+    sprite.setData('dir', this.lastDir);
+    sprite.setData('fernOverlay', this.add.image(0, 0, 'tileset', T.FERN).setVisible(false));
+    this.followers.push(sprite);
+    if (key === gameState.follower) this.follower = sprite;
+    return sprite;
   }
 
   snapFollower() {
-    this.trail = [];
-    if (this.follower) {
-      this.follower.setPosition(this.player.x - 10, this.player.y + 6);
-    }
+    const tx = Math.floor(this.player.x / TILE_SIZE);
+    const ty = Math.floor((this.player.y + 8) / TILE_SIZE);
+    const behind = { right: [-1, 0], left: [1, 0], up: [0, 1], down: [0, -1] }[this.lastDir];
+    const path = findWalkablePath(
+      this.zone.map,
+      this.player,
+      (x, y) => Math.abs(x - tx) + Math.abs(y - ty) >= 3,
+      [behind, [-1, 0], [0, 1], [1, 0], [0, -1]],
+    );
+    this.trail = [{ x: this.player.x, y: this.player.y }, ...path];
+    this.followers.forEach((sprite, i) => {
+      const p = trailPosition(this.trail, FOLLOW_DISTANCE * (i + 1));
+      sprite.setPosition(p.x, p.y);
+    });
   }
 
-  updateFollower(moving) {
-    if (!this.follower) return;
-    if (moving) this.trail.push({ x: this.player.x, y: this.player.y });
-    if (this.trail.length > FOLLOW_DELAY) {
-      const p = this.trail.shift();
-      const dx = p.x - this.follower.x;
-      const dy = p.y - this.follower.y;
-      if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-        this.followerDir =
-          Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
-        this.follower.anims.play(`${this.follower.getData('key')}-walk-${this.followerDir}`, true);
-      }
-      this.follower.setPosition(p.x, p.y);
-    } else if (!moving) {
-      this.follower.anims.play(`${this.follower.getData('key')}-idle-${this.followerDir}`, true);
+  startPippinArrival() {
+    const sprite = this.createFollower('pippin');
+    const target = trailPosition(this.trail, FOLLOW_DISTANCE * 2);
+    const view = this.cameras.main.worldView;
+    // Route from the party out past the camera, then walk it in reverse.
+    // The 24px margin keeps the entire sprite outside the initial view.
+    const path = findWalkablePath(this.zone.map, target, (x, y) => {
+      const px = x * TILE_SIZE + 8,
+        py = y * TILE_SIZE;
+      return (
+        px < view.left - 24 || px > view.right + 24 || py < view.top - 24 || py > view.bottom + 24
+      );
+    }).reverse();
+    if (!path.length) {
+      // A tiny interior can fit entirely on camera (e.g. a restored old save).
+      setFlag('pippinJoined');
+      this.snapFollower();
+      return;
     }
-    this.follower.setDepth(this.follower.y);
+    path.push(target);
+    sprite.setPosition(path[0].x, path[0].y);
+    this.pippinArrival = { sprite, path: path.slice(1) };
+    this.inputLocked = true;
+    this.showBanner('Pippin joins the journey.');
+  }
+
+  moveCompanion(sprite, point) {
+    const dx = point.x - sprite.x,
+      dy = point.y - sprite.y;
+    let dir = sprite.getData('dir');
+    const moving = Math.hypot(dx, dy) > 0.1;
+    if (moving)
+      dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
+    sprite.setData('dir', dir);
+    sprite.anims.play(`${sprite.getData('key')}-${moving ? 'walk' : 'idle'}-${dir}`, true);
+    sprite.setPosition(point.x, point.y).setDepth(point.y);
+  }
+
+  updateFollower(delta = 0) {
+    if (!this.followers.length) return;
+    if (this.pippinArrival) {
+      const { sprite, path } = this.pippinArrival;
+      let remaining = (100 * delta) / 1000;
+      let point = { x: sprite.x, y: sprite.y };
+      while (path.length && remaining > 0) {
+        const target = path[0];
+        const distance = Math.hypot(target.x - point.x, target.y - point.y);
+        if (distance <= remaining) {
+          point = path.shift();
+          remaining -= distance;
+        } else {
+          point = {
+            x: point.x + ((target.x - point.x) * remaining) / distance,
+            y: point.y + ((target.y - point.y) * remaining) / distance,
+          };
+          remaining = 0;
+        }
+      }
+      this.moveCompanion(sprite, point);
+      if (!path.length) {
+        setFlag('pippinJoined');
+        this.pippinArrival = null;
+        this.inputLocked = false;
+      }
+      return;
+    }
+    // Set pieces place the companions themselves while input is locked.
+    if (this.inputLocked) {
+      for (const sprite of this.followers) {
+        sprite.anims.play(`${sprite.getData('key')}-idle-${sprite.getData('dir')}`, true);
+      }
+      return;
+    }
+    const last = this.trail[0];
+    if (Math.hypot(this.player.x - last.x, this.player.y - last.y) > 0) {
+      this.trail.unshift({ x: this.player.x, y: this.player.y });
+      let length = 0;
+      for (let i = 1; i < this.trail.length; i++) {
+        length += Math.hypot(
+          this.trail[i].x - this.trail[i - 1].x,
+          this.trail[i].y - this.trail[i - 1].y,
+        );
+        if (length >= FOLLOW_DISTANCE * (this.followers.length + 1)) {
+          this.trail.length = i + 1;
+          break;
+        }
+      }
+    }
+    this.followers.forEach((sprite, i) => {
+      this.moveCompanion(sprite, trailPosition(this.trail, FOLLOW_DISTANCE * (i + 1)));
+    });
   }
 
   /* ── main loop ─────────────────────────────────────── */
@@ -318,13 +414,15 @@ export class WorldScene extends Phaser.Scene {
     // dims slightly. Runs before the early returns so teleports
     // (e.g. the Rider catch reset) can't leave a stale overlay.
     this.updateFernCover(this.player, this.playerFernOverlay);
-    this.updateFernCover(this.follower, this.followerFernOverlay);
+    for (const sprite of this.followers) {
+      this.updateFernCover(sprite, sprite.getData('fernOverlay'));
+    }
 
     /* ── dialogue mode ───────────────────────────────── */
     if (this.dialogActive) {
       this.player.setVelocity(0);
       this.player.anims.play(`frodo-idle-${this.lastDir}`, true);
-      this.updateFollower(false);
+      this.updateFollower(delta);
       if (interactPressed) this.advanceDialogue();
       return;
     }
@@ -332,7 +430,7 @@ export class WorldScene extends Phaser.Scene {
     if (this.inputLocked || this.transitioning) {
       this.player.setVelocity(0);
       this.player.anims.play(`frodo-idle-${this.lastDir}`, true);
-      this.updateFollower(false);
+      this.updateFollower(delta);
       this.hintIcon.setVisible(false); // no interactions during set pieces
       if (this.zone.onUpdate && !this.transitioning) this.zone.onUpdate(this, delta);
       return;
@@ -372,7 +470,7 @@ export class WorldScene extends Phaser.Scene {
 
     // Depth-sort by feet position so characters overlap correctly
     this.player.setDepth(this.player.y);
-    this.updateFollower(moving);
+    this.updateFollower(delta);
 
     /* ── pickup collection (walk-over) ───────────────── */
     for (let i = this.pickups.length - 1; i >= 0; i--) {
@@ -606,11 +704,12 @@ export class WorldScene extends Phaser.Scene {
       this.removeNpc(stage.join);
       this.createFollower(stage.join);
       this.snapFollower();
+      if (stage.join === 'sam') this.startPippinArrival();
     }
     if (stage.objective) {
       setObjective(stage.objective);
       sfx.jingle();
-      this.showBanner(`~ ${stage.objective} ~`);
+      if (!this.pippinArrival) this.showBanner(`~ ${stage.objective} ~`);
     }
 
     this.refreshSpawns();
@@ -622,7 +721,7 @@ export class WorldScene extends Phaser.Scene {
     for (const def of this.zone.npcs) {
       if (def.when && !def.when(gameState.flags)) continue;
       if (this.npcs.some((n) => n.getData('key') === def.key)) continue;
-      if (this.follower && this.follower.getData('key') === def.key) continue;
+      if (this.followers.some((sprite) => sprite.getData('key') === def.key)) continue;
       this.spawnNpc(def);
     }
   }

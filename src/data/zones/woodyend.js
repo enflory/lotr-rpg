@@ -99,6 +99,13 @@ function generateMap() {
     map[below][x + 3] = T.FERN;
   }
 
+  // Deep, continuous brakes beside the first Rider trigger. Three hobbits
+  // spaced 18px apart can step north or south off the road and all hide.
+  // These columns are on the straight road section (rows 15-16).
+  for (let x = 9; x <= 16; x++) {
+    for (const y of [12, 13, 14, 17, 18, 19]) map[y][x] = T.FERN;
+  }
+
   // Tree-tunnel: canopy closes right over the road mid-forest.
   for (let x = 40; x <= 48; x++) {
     const above = ROAD_Y[x] - 1, below = ROAD_Y[x] + 2;

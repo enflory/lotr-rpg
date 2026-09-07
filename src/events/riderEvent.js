@@ -19,15 +19,17 @@ function roadCenterY(x) {
   return ROAD_Y[tx] * TILE_SIZE + TILE_SIZE; // seam between the two road rows
 }
 
-function playerHidden(scene) {
-  const tx = Math.floor(scene.player.x / TILE_SIZE);
-  const ty = Math.floor((scene.player.y + 8) / TILE_SIZE); // feet
+function hidden(scene, sprite) {
+  const tx = Math.floor(sprite.x / TILE_SIZE);
+  const ty = Math.floor((sprite.y + 8) / TILE_SIZE); // feet
   const row = scene.zone.map[ty];
   return row !== undefined && row[tx] === T.FERN;
 }
 
 export function riderEventUpdate(scene, delta) {
   if (hasFlag('escapedRider')) return;
+  const party = [scene.player, ...(scene.followers ?? [])];
+  const partyHidden = () => party.every((sprite) => hidden(scene, sprite));
 
   let ev = scene.riderEvent;
   if (!ev) ev = scene.riderEvent = { phase: 'armed', rider: null, sniffed: false, sniffTimer: 0 };
@@ -58,7 +60,7 @@ export function riderEventUpdate(scene, delta) {
     const dx = r.x - scene.player.x;
 
     // Pause to sniff as he passes the player's hiding spot
-    if (!ev.sniffed && Math.abs(dx) < 6 && playerHidden(scene)) {
+    if (!ev.sniffed && Math.abs(dx) < 6 && partyHidden()) {
       ev.sniffed = true;
       ev.phase = 'sniffing';
       ev.sniffTimer = 1600;
@@ -66,7 +68,14 @@ export function riderEventUpdate(scene, delta) {
       return;
     }
 
-    if (Math.abs(dx) < CATCH_RANGE && !playerHidden(scene) && Math.abs(r.y - scene.player.y) < 40) {
+    if (
+      party.some(
+        (sprite) =>
+          !hidden(scene, sprite) &&
+          Math.abs(r.x - sprite.x) < CATCH_RANGE &&
+          Math.abs(r.y - sprite.y) < 40,
+      )
+    ) {
       ev.phase = 'caught';
       scene.cameras.main.flash(300, 120, 0, 0);
       scene.showBanner('The Black Rider saw you!');
@@ -112,7 +121,7 @@ export function riderEventUpdate(scene, delta) {
       ev.phase = 'riding';
     }
     // Creeping out of cover while he sniffs is fatal too
-    if (!playerHidden(scene)) {
+    if (!partyHidden()) {
       ev.rider.anims.resume();
       ev.phase = 'riding';
     }
