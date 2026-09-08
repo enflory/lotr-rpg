@@ -462,8 +462,11 @@ export const CHAPTER_DIALOGUES = {
       {
         when: (f) => !f.learnedSong,
         lines: [
-          'Tom teaches you a verse to recall\nif trouble finds you in his country.\nFrodo repeats it until it stays.',
-          'Keep to the open grass, he warns;\ndo not linger by standing stones.\nThe downs lead to the East Road.',
+          'Tom gives Frodo a verse to call him\nby, if trouble finds them while they\nare still inside his own country.',
+          'Ho! Tom, old Tom, Tom of the meadow!\nBy fern and fountain, by sun and\nshadow,',
+          'By the green of your door, by your\nfire, hear us and help us: our\nneed is dire!',
+          'Frodo says it over until the words\nsit easily, and Tom nods at him\nlike a man closing a gate.',
+          'Keep to the green grass, he says.\nDo not go near cold stone, and do\nnot sleep in the shadow of it.',
         ],
         set: ['learnedSong', 'chapter3'],
         give: 'tom_song',
@@ -479,36 +482,82 @@ export const CHAPTER_DIALOGUES = {
     ],
   },
   downs_farewell: {
-    name: 'Goldberry on the Hill',
+    name: 'The Way You Came',
     stages: [
       {
         when: (f) => !f.goldberryFarewell,
         lines: [
-          'Turning back, you see Goldberry\non the hill behind you. Her hand\nrises bright against the sky.',
-          'She points you toward the road.\nThen the folds of the downs\nhide the house from sight.',
+          'Turning back, you can still see the\ngreen edge of the valley, and a small\nbright figure standing above it.',
+          'Goldberry lifts her hand and points\neast along the chalk. Then a fold of\nthe hills takes the house away.',
         ],
         set: 'goldberryFarewell',
       },
-      { lines: ['The hill behind is empty now.\nSunlight runs over the grass.'] },
+      {
+        lines: [
+          'Only hills behind you now, one\nbehind another, and the track\nrunning white between them.',
+        ],
+      },
+    ],
+  },
+  downs_view: {
+    name: 'The Open Downs',
+    lines: [
+      'The turf runs bare to every skyline.\nAfter the roof of the forest you can\nsee a very long way, and it is empty.',
+      'Ridge behind ridge, going grey with\ndistance, and on the far ones the\nsmall dark teeth of standing stones.',
+    ],
+  },
+  downs_mounds: {
+    name: 'Grassy Mounds',
+    lines: [
+      'Round green mounds lie in the hollow,\neach ringed with worn kerbstones\nnearly swallowed by the turf.',
+      'Somebody was buried here, long\nenough ago that nobody remembers\nwho, or minded them being forgotten.',
+      'A bird calls once above them. The\nsilence that answers is deeper than\nthe silence before it.',
     ],
   },
   downs_stone: {
-    name: 'The Cold Standing Stone',
+    name: 'The Great Stone',
     stages: [
       {
         when: (f) => !f.downsFog,
         lines: [
-          'At midday you rest beside the stone.\nIt is cold beneath your hand,\nthough the sun is high.',
-          'You sleep. When you wake, mist\nhas filled the hollows and drawn\na roof over the hill.',
-          'The ponies stir uneasily.\nBeyond the northern stones,\nyour companions call.',
+          'The track climbs to a single stone,\ntaller and darker than the rest,\nstanding alone on the hilltop.',
+          'It is cold under your hand, though\nthe sun is high. Its shadow points\nnorth, and it is very good to sit in.',
+          'You eat, and the warmth makes you\nheavy, and one after another the\nfour of you fall asleep against it.',
+          'You wake to a roof of mist. The sun\nis gone, the ponies are gone, and\nthe cold has got into your clothes.',
+          'Somewhere out in the white your\nfriends are calling. The chalk runs\nnorth-east. Follow it.',
         ],
         set: 'downsFog',
-        objective: 'Seek your companions beyond the northern stones',
+        objective: 'Follow the chalk north-east to the two stones',
       },
       {
         lines: [
-          'The stone rises into blank mist.\nSeek your companions beyond\nthe northern stones.',
+          'The stone goes up into blank mist\nand does not end. Keep to the chalk;\nit runs north-east to two stones.',
         ],
+      },
+    ],
+  },
+  downs_gate: {
+    name: 'The Two Stones',
+    stages: [
+      {
+        when: (f) => !f.downsFog,
+        lines: [
+          'Two stones stand on the shoulder\nof the hill, leaning a little\ntoward one another.',
+          'They are set like the posts of a\ndoor with no lintel over it and\nnothing at all on the far side.',
+        ],
+      },
+      {
+        when: (f) => !f.downsSeparated,
+        lines: [
+          'The two stones show black and close\nin the mist. Beyond them the voices\nof your friends are calling.',
+          'They go by you in the white, one\nafter another, and each call comes\nfrom further off than the last.',
+          'You go through after them. The mist\nshuts behind you like a door, and\nthere is nobody there at all.',
+        ],
+        set: 'downsSeparated',
+        objective: 'Follow the voices north-east into the mist',
+      },
+      {
+        lines: ['The stones are behind you now.\nThe voices went on north-east.'],
       },
     ],
   },
@@ -516,16 +565,15 @@ export const CHAPTER_DIALOGUES = {
     name: 'Voices in the Mist',
     stages: [
       {
-        when: (f) => !f.downsFog,
-        lines: [
-          'The stones stand quiet in daylight.\nThe midday resting place\nlies back on the hill.',
-        ],
+        when: (f) => !f.downsSeparated,
+        lines: ['The hills lie quiet. Whatever you\nheard, it is not out here now.'],
       },
       {
         when: (f) => !f.barrowTaken,
         lines: [
-          'Frodo passes between the stones.\nBehind him, the hoofbeats stop.\nHe calls; the mist gives no answer.',
-          'A distant cry draws him onward.\nSomething cold catches his arm.\nThe hillside falls into darkness.',
+          'A voice calls, thin and a long way\noff. You run at it, and the ground\nrises where you did not expect it.',
+          'The mist closes. Something cold\ntakes hold of your arm, and a tall\nshape leans down over you.',
+          'The hillside goes out from under\nyour feet, and the dark comes\ntogether over your head.',
         ],
         set: 'barrowTaken',
         objective: 'Find your companions inside the barrow',
@@ -533,16 +581,21 @@ export const CHAPTER_DIALOGUES = {
       { lines: ['The voices have fallen silent.'] },
     ],
   },
-  downs_mounds: {
-    name: 'Grassy Mounds',
-    lines: [
-      'Long grass covers the old graves.\nA bird calls once above them;\nthe answering silence feels deep.',
-    ],
-  },
-  downs_view: {
-    name: 'The Open Downs',
-    lines: [
-      'Wind combs the treeless slopes.\nFor the first time since the hedge,\nyou can see a long way ahead.',
+  barrow_wake: {
+    name: 'Waking in the Dark',
+    stages: [
+      {
+        when: (f) => f.barrowTaken && !f.barrowWoke,
+        lines: [
+          'You come round flat on your back on\ncold stone, in a light that is green\nand comes from nowhere in the wall.',
+          'Sam, Merry and Pippin lie in a row\nbeside you, white-dressed and\ncircleted, with their hands folded.',
+          'A long naked sword has been laid\nacross the three of them at the neck.\nNone of them is breathing hard.',
+          'From the far end of the chamber a\nvoice begins to sing, slow and cold,\nabout dead things staying dead.',
+        ],
+        set: 'barrowWoke',
+        objective: 'Do not leave your friends where they lie',
+      },
+      { lines: ['The cold song goes on at the far\nend of the chamber.'] },
     ],
   },
   barrow_courage: {
@@ -552,34 +605,64 @@ export const CHAPTER_DIALOGUES = {
       {
         when: (f) => !f.barrowCourage,
         lines: [
-          'In a greenish glimmer, your friends\nlie pale, dressed in white. A blade\nstretches across their necks.',
-          'A hand crawls toward them. The Ring\ncould hide you; you might escape.\nBut they would still be here.',
-          "Frodo seizes a sword lying nearby\nand strikes the reaching hand.\nNow he must remember Tom's verse.",
+          'You could put on the Ring. You are\nfairly sure it would hide you, and\nthat you could find the way out.',
+          'Round the corner of the wall comes\nan arm with no body behind it,\nwalking on its fingers.',
+          'It drags itself toward the row of\nsleepers, and then past them,\ntoward you, and it is in no hurry.',
+          'There is a short sword lying loose\non the stones beside your hand.\nThe Ring stays in your pocket.',
         ],
         set: 'barrowCourage',
-        objective: "Recall Tom's verse and call for help",
+        objective: 'Sing the verse Tom taught you',
       },
-      { lines: ["You have chosen to stay with them.\nRemember Tom's verse. Call him."] },
+      {
+        lines: [
+          'The severed hand lies still where\nyou struck it. Now call Tom, in the\nwords he gave you in his house.',
+        ],
+      },
     ],
   },
-  barrow_call: {
-    name: 'The Remembered Verse',
+  barrow_hoard: {
+    name: 'The Heaped Treasure',
     stages: [
       {
         when: (f) => !f.barrowCourage,
-        lines: ['Your companions lie in danger.\nFind the courage to defend them.'],
+        lines: ['Not yet. There is something moving\nat that end of the chamber.'],
+      },
+      {
+        lines: [
+          'Gold and pale silver are heaped\nalong the far wall, with spears\nstacked against it, going to rust.',
+          'Nothing here has been touched for\na very long time, and none of it\nlooks as though it wants to be.',
+        ],
+      },
+    ],
+  },
+  barrow_call: {
+    name: 'The Verse Tom Taught',
+    stages: [
+      {
+        when: (f) => !f.barrowCourage,
+        lines: ['Your friends are lying under a\nsword. Deal with that first.'],
       },
       {
         when: (f) => !f.barrowRescued,
         lines: [
-          "Frodo recalls the verse from\nTom's house and raises his voice.\nAn answer comes through the earth.",
-          'Stone breaks. Daylight pours in.\nTom drives the darkness away,\nthen wakes your three companions.',
-          'You stumble together onto the grass.\nThe morning air feels like\nsomething given back to you.',
+          'The cold singing starts again and\nthe dark leans in. Frodo stands up\nin it and remembers a small tune.',
+          'Ho! Tom, old Tom, Tom of the meadow!\nBy fern and fountain, by sun and\nshadow,',
+          'By the green of your door, by your\nfire, hear us and help us: our\nneed is dire!',
+          'Nothing. Then, a long way off and\ncoming quickly, somebody is singing\nback through the solid earth.',
+          'The end of the chamber falls in.\nDaylight comes through the gap all\nat once, and the cold song stops.',
+          'Tom stoops in with the sun behind\nhim, and the dark goes out of the\nbarrow the way water leaves a cup.',
         ],
         set: 'barrowRescued',
         objective: 'Examine the treasures Tom brought into daylight',
       },
-      { lines: ['Daylight fills the broken doorway.\nYour companions are safe.'] },
+      { lines: ['Daylight fills the broken roof.\nYour companions are safe.'] },
+    ],
+  },
+  barrow_broken: {
+    name: 'The Broken Mound',
+    lines: [
+      'The mound stands open behind you,\nits turf roof thrown back and its\ninside quite ordinary in daylight.',
+      'It is hard to believe how big the\ndark in there felt an hour ago.\nIt is only a hole in a hill.',
     ],
   },
   barrow_treasure: {
@@ -592,8 +675,9 @@ export const CHAPTER_DIALOGUES = {
       {
         when: (f) => !f.barrowBlades,
         lines: [
-          'Tom spreads the treasure in sunlight\nand chooses four short blades,\none for each of you.',
-          'Their makers opposed a northern\nkingdom of darkness long ago.\nThe old steel is still keen.',
+          'Tom carries the hoard out and lays\nit on the grass, and leaves it there\nfor anyone or anything to take.',
+          'Out of it he picks four short blades,\nleaf-shaped, damasked in red and\ngold, one for each of you.',
+          'They were forged against a kingdom\nin the north that has been gone a\nlong time. The edges are still keen.',
         ],
         set: 'barrowBlades',
         give: 'barrow_blades',
@@ -601,7 +685,7 @@ export const CHAPTER_DIALOGUES = {
       },
       {
         lines: [
-          'Each of you has a blade already.\nThe remaining treasure lies\nopen to the daylight.',
+          'Each of you has a blade already.\nThe rest of the treasure lies open\nin the grass, and nobody takes it.',
         ],
       },
     ],
@@ -612,8 +696,9 @@ export const CHAPTER_DIALOGUES = {
       { when: (f) => !f.barrowRescued, lines: ['Merry lies still.\nHe cannot answer you yet.'] },
       {
         lines: [
-          "Merry wakes remembering a spear\nand a lost prince, as though\nsomeone else's death were his.",
-          'The memory fades in the sunlight.\nHe looks at his friends and\ndraws a long, unsteady breath.',
+          'Merry sits up talking about a spear\nin his side, and men coming out of\nthe dark, and a king who fell here.',
+          'Then it goes, the way a dream goes,\nand he cannot say a word of it back.\nHe looks at the three of you.',
+          'He draws a long unsteady breath and\nasks, quite reasonably, what any of\nyou think you were doing.',
         ],
       },
     ],
@@ -630,9 +715,9 @@ export const CHAPTER_DIALOGUES = {
       {
         when: (f) => !f.poniesRecovered,
         lines: [
-          'Tom returns with the missing ponies.\nFatty Lumpkin, his own sturdy pony,\nhas been keeping them company.',
-          'He calls them Sharp-ears, Wise-nose,\nSwish-tail, Bumpkin and White-socks.\nThey answer as if always so named.',
-          'With packs restored, you can\nfollow Tom toward the East Road.',
+          'Tom whistles once, and the ponies\ncome up over the shoulder of the\nhill with his own fat pony leading.',
+          'He calls them Sharp-ears, Wise-nose,\nSwish-tail, Bumpkin and White-socks,\nand they answer as if always so.',
+          'The packs are on them and nothing\nis missing. Tom will come as far\nas the Road, and no further.',
         ],
         set: 'poniesRecovered',
         objective: 'Follow Tom to the East Road for his farewell',

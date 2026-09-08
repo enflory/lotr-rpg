@@ -3,7 +3,7 @@
 
 import { px, rc, circle } from './helpers.js';
 
-import { drawForestFloor, drawOldTree, drawRoots, drawDeadTree, drawDarkWater, drawLilies, drawDownGrass, drawStandingStone, drawBarrowWall, drawBarrowFloor, drawChalk, drawHedge } from './forestTiles.js';
+import { drawForestFloor, drawOldTree, drawRoots, drawDeadTree, drawDarkWater, drawLilies, drawDownGrass, drawStandingStone, drawBarrowWall, drawBarrowFloor, drawChalk, drawHedge, drawDownSlope, drawGreatStone, drawDownHeather } from './forestTiles.js';
 
 const TS = 16;
 
@@ -860,6 +860,7 @@ export const TILE_FNS = [
   drawPavTL, drawPavTR, drawPavBL, drawPavBR,
   drawMoundL, drawMoundR, drawBaseL, drawBaseR, drawWindowF,
   drawForestFloor, drawOldTree, drawRoots, drawDeadTree, drawDarkWater, drawLilies, drawDownGrass, drawStandingStone, drawBarrowWall, drawBarrowFloor, drawChalk, drawHedge,
+  drawDownSlope, drawGreatStone, drawDownHeather,
 ];
 
 export function makeTilesetDataURL() {

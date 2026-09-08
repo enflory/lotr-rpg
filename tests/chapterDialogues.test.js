@@ -68,19 +68,29 @@ describe('chapter dialogue progression', () => {
   it('requires capture, courage, rescue and blades before recovering ponies', () => {
     const { flags, items, finish } = journey();
     for (const key of [
+      'barrow_wake',
       'barrow_courage',
       'barrow_call',
+      'barrow_hoard',
       'barrow_treasure',
       'barrow_ponies',
       'road_farewell',
     ]) {
       expect(finish(key).set).toBeUndefined();
     }
+    // The mist, then the gate stones, then the hollow beyond them.
+    expect(finish('downs_gate').set).toBeUndefined();
     expect(finish('downs_voices').set).toBeUndefined();
     finish('downs_stone');
+    expect(flags.downsFog).toBe(true);
+    expect(finish('downs_voices').set).toBeUndefined();
+    finish('downs_gate');
+    expect(flags.downsSeparated).toBe(true);
     finish('downs_voices');
     expect(flags.barrowTaken).toBe(true);
+    finish('barrow_wake');
     expect(finish('barrow_call').set).toBeUndefined();
+    expect(finish('barrow_hoard').set).toBeUndefined();
     finish('barrow_courage');
     expect(finish('barrow_treasure').give).toBeUndefined();
     finish('barrow_call');

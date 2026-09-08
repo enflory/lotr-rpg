@@ -1,5 +1,3 @@
-import { T } from '../data/tileTypes.js';
-
 // Static warm interior detail: every raised shape stays on existing furniture.
 export function drawHouseScenery(scene) {
   if (scene.zoneKey !== 'tomhouse') return;
@@ -51,24 +49,4 @@ export function drawHouseScenery(scene) {
   r(119, 56, 2, 5, 0xe3a446); r(120, 57, 1, 3, 0xffdf7e);
   r(116, 62, 8, 1, 0x573a22); r(113, 64, 14, 1, 0xc09355);
   r(115, 66, 10, 1, 0xb68b50); r(117, 68, 6, 1, 0xaf844b);
-}
-
-// Turf scarps replace dungeon masonry but retain exactly the same blockers.
-export function drawDownsRelief(scene) {
-  if (scene.zoneKey !== 'downs') return;
-  const g = scene.add.graphics().setDepth(3);
-  const map = scene.zone.map;
-  for (let y = 0; y < map.length; y++) for (let x = 0; x < map[y].length; x++) {
-    if (map[y][x] !== T.BARROW_WALL) continue;
-    const px = x * 16, py = y * 16;
-    const r = (dx, dy, w, h, col) => g.fillStyle(col).fillRect(px + dx, py + dy, w, h);
-    r(0, 0, 16, 16, 0x606e55); r(0, 0, 16, 5, 0x929c76);
-    r(0, 5, 16, 2, 0x7d8867); r(0, 14, 16, 2, 0x53634f);
-    for (let n = 0; n < 5; n++) {
-      const dx = (x * 7 + n * 3) % 15, dy = 6 + (x + n * 3) % 7;
-      r(dx, dy, 1, 3, 0x7f8364); r(dx, 4, 1, 2 + n % 2, 0x929c76);
-    }
-    r((x * 3) % 11, 1, 4, 1, 0xb0b58c);
-    if (x % 5 === 1) r(4, 10, 5, 2, 0xb4b298);
-  }
 }

@@ -196,8 +196,21 @@ async function walk(page, x, y) {
   );
   if (outcome === 'dialog') {
     await dialogue(page);
-    await walk(page, x, y);
+    // A story trigger can move the party to a different zone entirely (the
+    // barrow), in which case the original destination no longer exists.
+    const here = await page.evaluate(() => window.__game.scene.getScene('WorldScene').zoneKey);
+    if (here === data.zone) await walk(page, x, y);
   }
+}
+async function settled(page) {
+  await page.waitForFunction(
+    () => {
+      const s = window.__game.scene.getScene('WorldScene');
+      return !s.storyBeat && !s.dialogActive && !s.transitioning;
+    },
+    null,
+    { timeout: 60000 },
+  );
 }
 
 async function act(page, key) {
@@ -318,18 +331,46 @@ test('walk the complete forest, two-night refuge and barrow journey with Continu
   await walk(page, 43, 16);
   await zone(page, 'downs');
   await act(page, 'downs_farewell');
+  await act(page, 'downs_view');
   await act(page, 'downs_stone');
   await flag(page, 'downsFog');
+  // The mist checkpoint is the stone, not the doorway the party came in by.
   await reload(page, 'downs');
-  await walk(page, 60, 9);
-  await dialogue(page);
+  expect(await page.evaluate(() => window.__game.scene.getScene('WorldScene').entryKey)).toBe(
+    'stone',
+  );
+  // Reaching the gate stones separates the party; nobody is left visible.
+  await walk(page, 53, 14);
+  await flag(page, 'downsSeparated');
+  await settled(page);
+  expect(
+    await page.evaluate(
+      () => window.__game.scene.getScene('WorldScene').followers.filter((p) => p.visible).length,
+    ),
+  ).toBe(0);
+  await walk(page, 61, 9);
   await zone(page, 'barrow');
+  // Frodo wakes into the barrow on his own; the scene starts itself.
+  await page.waitForFunction(() => window.__game.scene.getScene('WorldScene').dialogActive, null, {
+    timeout: 15000,
+  });
+  await dialogue(page);
+  await flag(page, 'barrowWoke');
   await reload(page, 'barrow');
   await act(page, 'barrow_courage');
   await flag(page, 'barrowCourage');
+  await act(page, 'barrow_hoard');
   await reload(page, 'barrow');
   await act(page, 'barrow_call');
   await zone(page, 'barrowhill');
+  // The three of them get up out of the grass before control comes back.
+  await settled(page);
+  expect(
+    await page.evaluate(
+      () => window.__game.scene.getScene('WorldScene').followers.filter((p) => p.visible).length,
+    ),
+  ).toBe(3);
+  await act(page, 'barrow_broken');
   await act(page, 'barrow_treasure');
   await act(page, 'barrow_treasure');
   expect(await page.evaluate(() => window.__state.items.barrow_blades)).toBe(1);
