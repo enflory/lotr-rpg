@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -p jsconfig.json",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "og-image": "node scripts/make-og-image.mjs"
   },
   "keywords": [],
   "author": "",

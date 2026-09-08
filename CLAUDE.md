@@ -14,7 +14,10 @@ npm run test:e2e   # Playwright smoke tests (e2e/) — boots the real game
 npm run lint       # ESLint (flat config)
 npm run typecheck  # tsc over JSDoc annotations (src/data, src/state, src/events)
 npm run format     # Prettier — zone maps, pixel art, and songs are exempt (.prettierignore)
+npm run og-image   # re-render public/og-image.png (needs a Playwright browser)
 ```
+
+Social link previews come from the Open Graph / Twitter `<meta>` block in `index.html`. Those URLs must be absolute (`https://lotr.lonelymtnlabs.com/...`) — scrapers don't run JS and don't honour Vite's relative `base`. The 1200×630 card at `public/og-image.png` is composed by `scripts/make-og-image.mjs` from a checked-in screenshot: it crops at 1:1 rather than scaling (any non-integer scale gives the pixel art uneven columns) and fails loudly if Press Start 2P doesn't load. Regenerate and commit it when the art or wording changes; scrapers cache, so an updated image at the same URL may not appear in previews already captured.
 
 The data-layer contracts (Zone, Dialogue, etc.) are JSDoc typedefs in `src/data/types.js`, enforced by `npm run typecheck`. Annotate new zones/dialogues with `@type` so mistakes (bad `dir`, missing fields) fail the check. CI runs lint, typecheck, format check, unit tests, build, and e2e on every push/PR.
 
