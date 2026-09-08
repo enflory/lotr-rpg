@@ -197,7 +197,14 @@ async function walk(page, x, y) {
   if (outcome === 'dialog') {
     await dialogue(page);
     // A story trigger can move the party to a different zone entirely (the
-    // barrow), in which case the original destination no longer exists.
+    // barrow), in which case the original destination no longer exists. The
+    // zone key still reads as the old one for the length of the fade, so wait
+    // the transition out before asking where we are.
+    await page.waitForFunction(
+      () => !window.__game.scene.getScene('WorldScene').transitioning,
+      null,
+      { timeout: 20000 },
+    );
     const here = await page.evaluate(() => window.__game.scene.getScene('WorldScene').zoneKey);
     if (here === data.zone) await walk(page, x, y);
   }
