@@ -1,4 +1,5 @@
 import { defineConfig } from '@playwright/test';
+import { SHARDS } from './e2e/shards.js';
 
 export default defineConfig({
   testDir: 'e2e',
@@ -8,20 +9,18 @@ export default defineConfig({
   timeout: 60_000,
   retries: process.env.CI ? 1 : 0,
   // One Phaser game at a time — parallel WebGL instances against a cold
-  // dev server flake out. Wall-clock parallelism comes from splitting the
-  // projects below across CI runners instead.
+  // dev server flake out. Wall-clock parallelism comes from running the
+  // projects below on separate CI runners instead.
   workers: 1,
-  // The dot reporter hides per-test timings, which is how chapterJourney
+  // The dot reporter hides per-test timings, which is how the journey walk
   // grew to half the e2e run unnoticed. `list` prints a duration per test;
   // the HTML report is uploaded as an artifact when CI fails.
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : [['list']],
-  // `journey` is the full-route walk — one file, ~7 minutes, as long as
-  // every other spec combined. Keeping it a separate project lets CI run
-  // the two halves on their own runners.
-  projects: [
-    { name: 'journey', testMatch: /chapterJourney\.spec\.js/ },
-    { name: 'rest', testIgnore: /chapterJourney\.spec\.js/ },
-  ],
+  // Duration-balanced groups; see e2e/shards.js.
+  projects: Object.entries(SHARDS).map(([name, files]) => ({
+    name,
+    testMatch: files.map((f) => `**/${f}`),
+  })),
   use: {
     baseURL: 'http://localhost:5173',
   },

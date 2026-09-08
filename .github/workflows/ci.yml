@@ -24,12 +24,13 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     strategy:
-      # The full-route walk is as long as every other spec combined, so it
-      # gets its own runner. Don't cancel the other half on a failure —
-      # seeing both results is worth the extra minutes.
+      # Duration-balanced groups defined in e2e/shards.js, one runner each.
+      # tests/shards.test.js fails the build if a spec file is in no group.
+      # Don't cancel the others on a failure — seeing every result is worth
+      # the extra minutes.
       fail-fast: false
       matrix:
-        project: [journey, rest]
+        project: [shard1, shard2, shard3, shard4, shard5]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
