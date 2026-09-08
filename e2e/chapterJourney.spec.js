@@ -252,10 +252,10 @@ test('the Buckland checkpoint continues naturally into Crickhollow', async ({ pa
   expect(await page.evaluate(() => window.__state.flags.crossedFerry)).toBe(true);
 });
 
-test('walk the complete forest, two-night refuge and barrow journey with Continue', async ({
-  page,
-}) => {
-  test.setTimeout(600000);
+test('walk the forest and the two-night refuge, out onto the downs', async ({ page }) => {
+  // Crickhollow's supper and overnight, the forest, the Willow and two nights
+  // at Tom's. Every step runs two to three times slower on CI than locally.
+  test.setTimeout(900000);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await checkpoint(page);
@@ -335,8 +335,37 @@ test('walk the complete forest, two-night refuge and barrow journey with Continu
   expect(await page.evaluate(() => window.__state.items.tom_song)).toBe(1);
   await walk(page, 18, 21);
   await zone(page, 'tomclearing');
+  // The way onto the downs opens only once Tom has given them the verse.
   await walk(page, 43, 16);
   await zone(page, 'downs');
+  expect(errors).toEqual([]);
+});
+
+// The second half of the same route. It starts from a checkpoint rather than
+// walking the first half again: one test doing both overruns the per-test
+// budget on CI, where every step is two to three times slower than locally.
+test('cross the downs and the barrow to the East Road with Continue', async ({ page }) => {
+  test.setTimeout(600000);
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  await checkpoint(page, 'downs', 'west', {
+    chapter2: true,
+    merryJoined: true,
+    hedgeEntered: true,
+    willowTrapped: true,
+    willowFireFailed: true,
+    tomArrived: true,
+    willowFreed: true,
+    houseWelcomed: true,
+    houseSupper: true,
+    houseNightOne: true,
+    houseStories: true,
+    houseRing: true,
+    houseRested: true,
+    chapter2Complete: true,
+    learnedSong: true,
+    chapter3: true,
+  });
   await act(page, 'downs_farewell');
   await act(page, 'downs_view');
   await act(page, 'downs_stone');
