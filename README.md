@@ -77,6 +77,7 @@ npm run test:e2e    # Playwright smoke tests (boots the real game)
 npm run lint        # ESLint
 npm run typecheck   # tsc over the JSDoc data-layer contracts
 npm run format      # Prettier (zone maps & pixel art are exempt)
+npm run og-image    # re-render public/og-image.png, the link-preview card
 ```
 
 - **Unit tests** (`tests/`) cover dialogue staging, zone map integrity (every door, exit, sign, and NPC cross-checked against what it references), the tile registry, the procedural art helpers, and the scripted set pieces (the Black Rider, the fox of the Woody End, Maggot's dogs).

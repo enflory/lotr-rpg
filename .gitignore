@@ -6,4 +6,6 @@ test-results/
 playwright-report/
 *.png
 !assets/**/*.png
+# public/ is only ever files we deliberately ship at the site root
+!public/*.png
 .gstack/
