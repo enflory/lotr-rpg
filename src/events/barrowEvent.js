@@ -1,7 +1,7 @@
 // The Barrow-downs set piece: the mist on the hills, the dark under the stone
 // and the morning after. Only completed dialogue beats are saved; every
 // animation here is transient, so Continue replays it from its checkpoint.
-import { gameState } from '../state/GameState.js';
+import { gameState, setFlag } from '../state/GameState.js';
 import { T } from '../data/tileTypes.js';
 import { tween, move, walk } from './storyMotion.js';
 import {
@@ -184,28 +184,36 @@ export function updateDowns(s, delta) {
     d.gloom.setAlpha(d.gloom.alpha + (0.3 - d.gloom.alpha) * step);
     for (const band of d.mist) band.setAlpha(d.fog.alpha);
   }
-  // Checkpoints follow the story, not the doorway you came in by.
-  if (f.downsFog && !d.saved) {
-    d.saved = 'stone';
-    s.checkpoint('stone');
+  if (f.downsFog && !d.music) {
+    d.music = true;
     playMusic('barrow');
   }
-  if (f.downsSeparated && d.saved !== 'gate') {
-    d.saved = 'gate';
-    s.checkpoint('gate');
+  const tx = s.player.x / 16,
+    ty = (s.player.y + 8) / 16;
+  // Checkpoints follow the story, not the doorway you came in by, and they are
+  // taken on *reaching* a landmark: being interrupted inside the sleep or the
+  // separation should cost a step, not the whole crossing.
+  if (d.saved !== 'gate') {
+    const atStone = Math.hypot(tx - 28, ty - 22) < 4;
+    const atGate = f.downsFog && Math.hypot(tx - GATE.x, ty - GATE.y) < 5;
+    const want = f.downsSeparated || atGate ? 'gate' : f.downsFog || atStone ? 'stone' : d.saved;
+    if (want && want !== d.saved) {
+      d.saved = want;
+      s.checkpoint(want);
+    }
   }
   if (s.storyBeat || s.dialogActive) return;
 
-  const tx = s.player.x / 16,
-    ty = (s.player.y + 8) / 16;
   const goal = f.downsSeparated ? BEYOND : f.downsFog ? GATE : { x: 28, y: 22 };
   // Off the track and out of ideas: the voices drift into view ahead of you.
   const onTrack = nearTrack(s, tx, ty);
   d.stray = onTrack || !f.downsFog ? 0 : d.stray + delta;
   const show = d.stray > 4000;
   const gateDist = Math.hypot(tx - GATE.x, ty - GATE.y);
+  // Once he is through, the stones are behind him and must stop calling him
+  // back; from there the wisp and the banner are the only cues, and they agree.
   d.beacon.setAlpha(
-    f.downsFog && !f.barrowTaken
+    f.downsFog && !f.downsSeparated
       ? Math.max(0, 0.34 - gateDist / 60) * (0.7 + 0.3 * Math.sin(s.time.now / 700))
       : 0,
   );
@@ -223,11 +231,9 @@ export function updateDowns(s, delta) {
         : 'Two stones stand somewhere ahead,\nnorth-east along the chalk.',
     );
   }
-  // The gate and the hollow beyond are story doors, not walk-past scenery.
-  // Approaching the gate, or getting past its line at all, is the trigger:
-  // the separation must never be something a player can walk around.
-  if (f.downsFog && !f.downsSeparated && (gateDist < 4 || (tx > GATE.x - 3 && ty < GATE.y)))
-    s.startDialogue('downs_gate');
+  // The scarp has one gap in it, so simply being near the gate is enough:
+  // there is no route north that does not come within a tile of the stones.
+  if (f.downsFog && !f.downsSeparated && gateDist < 4.2) s.startDialogue('downs_gate');
   else if (f.downsSeparated && !f.barrowTaken && Math.hypot(tx - BEYOND.x, ty - BEYOND.y) < 3.5)
     s.startDialogue('downs_voices');
   if (f.barrowTaken) s.goToZone('barrow', 'default');
@@ -407,7 +413,9 @@ function updateHand(s, delta) {
     c.pause += delta;
     if (c.pause < 1400) return;
     if (c.pause > 2600) c.pause = 0;
-    node.x -= (dx / dist) * (delta / 30);
+    // Backing off along a zero-length vector would put NaN in the position and
+    // lose the hand for the rest of the scene.
+    if (dist > 0.01) node.x -= (dx / dist) * (delta / 30);
     return;
   }
   c.pause = 0;
@@ -431,13 +439,19 @@ export function updateBarrow(s, delta) {
 export function createBarrowhill(s) {
   const f = gameState.flags;
   const b = (s.journey.downs = /** @type {any} */ ({ active: false, hill: true }));
-  drawBarrowhillScenery(s);
-  b.tom = actor(s, 'tom', 22, 15, 1.15);
+  // The blades stand in the turf only until Tom hands them out.
+  drawBarrowhillScenery(s, !f.barrowBlades);
+  b.tom = actor(s, 'tom', 27, 17, 1.15);
+  // Tom whistles the ponies up over the shoulder of the hill during
+  // `barrow_ponies`; until he has, there are no ponies standing on this hill.
   b.ponies = [];
-  for (let i = 0; i < 6; i++)
-    b.ponies.push(pony(s, 27 + i * 2.2, 24, i === 5 ? 0x9b8261 : 0x70513d));
+  if (f.poniesRecovered)
+    for (let i = 0; i < 6; i++)
+      b.ponies.push(pony(s, 30 + i * 1.7, 20, i === 5 ? 0x9b8261 : 0x70513d));
   // Straight out of the barrow: the three of them are still lying on the turf.
-  b.rising = !f.barrowBlades && s.entryKey === 'default';
+  // Keyed off its own flag, because any checkpoint taken on this hill before
+  // the blades — examining the mound, say — would otherwise replay the waking.
+  b.rising = !f.hillRisen && s.entryKey === 'default';
   if (b.rising)
     for (const [i, key] of SLEEPERS.entries()) {
       const p = s.followers.find((q) => q.getData('key') === key);
@@ -477,6 +491,8 @@ export function updateBarrowhill(s) {
         }).filter(Boolean),
       );
       b.rising = false;
+      setFlag('hillRisen');
+      s.checkpoint();
       s.showBanner('Your companions wake in the sun.');
     });
   }
@@ -605,7 +621,7 @@ function downsBeats(s, key, page, f) {
         'Pass between the stones',
       );
   }
-  if (key === 'downs_voices' && f.downsFog && !f.barrowTaken) {
+  if (key === 'downs_voices' && f.downsSeparated && !f.barrowTaken) {
     if (page === 0)
       beat(s, async () => {
         s.cameras.main.shake(600, 0.0015);

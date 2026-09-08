@@ -59,6 +59,32 @@ describe('beyond the hedge playable routes', () => {
     }
   });
 });
+describe('the two stones are the only way north', () => {
+  // The separation fires on proximity to the gate. That is only safe while the
+  // gate is a genuine chokepoint: if any route north misses it, the party gets
+  // lost off-screen, or not at all.
+  const GATE = { x: 53, y: 12 };
+  function reachable(avoidGate) {
+    const z = ZONES.downs;
+    const seen = new Set();
+    const queue = [[z.spawns.west.x, z.spawns.west.y]];
+    for (let i = 0; i < queue.length; i++) {
+      const [x, y] = queue[i];
+      const key = `${x},${y}`;
+      if (seen.has(key) || z.map[y]?.[x] === undefined || COLLISION_TILES.includes(z.map[y][x]))
+        continue;
+      if (avoidGate && Math.hypot(x - GATE.x, y - GATE.y) < 4.2) continue;
+      seen.add(key);
+      queue.push([x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]);
+    }
+    return seen;
+  }
+  const north = (seen) => [...seen].filter((k) => Number(k.split(',')[1]) < 11);
+  it('lets the party through the gate and nowhere else', () => {
+    expect(north(reachable(false)).length).toBeGreaterThan(50);
+    expect(north(reachable(true))).toEqual([]);
+  });
+});
 describe('the downs close behind you', () => {
   it('blocks the way back to Tom once the mist is down', () => {
     const back = ZONES.downs.exits.find((e) => e.zone === 'tomclearing');

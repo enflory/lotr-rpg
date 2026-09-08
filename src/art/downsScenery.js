@@ -131,8 +131,12 @@ export function drawDownsRelief(scene) {
       hasRoad = highway.any;
     for (let py = 0; py < H; py++) {
       for (let px = 0; px < W; px++) {
-        const fx = px / 16,
-          fy = py / 16;
+        // Mask values belong at tile CENTRES: sampling at px/16 puts them at
+        // the top-left corner instead and slides the whole painted landscape
+        // half a tile up and left of the collision it is supposed to describe,
+        // which is what turns hill edges into invisible and imaginary walls.
+        const fx = px / 16 - 0.5,
+          fy = py / 16 - 0.5;
         const tile = map[py >> 4][px >> 4];
         const heather = tile === T.DOWN_HEATHER;
         // Only downland tiles are repainted. A road, a flower bed or a
@@ -537,7 +541,7 @@ export function drawBarrowInterior(scene) {
 
 /* ── The morning hill ─────────────────────────────────────────────────────
    The mound stands open behind you; the treasure lies out on the grass.     */
-export function drawBarrowhillScenery(scene) {
+export function drawBarrowhillScenery(scene, blades = true) {
   if (scene.zoneKey !== 'barrowhill') return;
   const g = scene.add.graphics().setDepth(11 * 16 + 30);
   const r = (x, y, w, h, col, a = 1) => g.fillStyle(col, a).fillRect(x, y, w, h);
@@ -590,8 +594,9 @@ export function drawBarrowhillScenery(scene) {
     t(gx - 18 + n * 18, gy - 4, 15, 4, 0x6b5c33);
     t(gx - 18 + n * 18, gy - 4, 15, 1, 0xe0c470);
   }
-  // Four blades stood point-down in the turf, waiting to be picked up.
-  for (let n = 0; n < 4; n++) {
+  // Four blades stood point-down in the turf, waiting to be picked up — and
+  // gone from the ground once each hobbit is carrying one.
+  for (let n = 0; blades && n < 4; n++) {
     const x = gx - 20 + n * 14;
     t(x - 1, gy - 28, 5, 4, 0x8b7541);
     t(x - 1, gy - 28, 5, 1, 0xd8bd61);

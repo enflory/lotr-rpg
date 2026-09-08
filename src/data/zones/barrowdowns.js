@@ -1,4 +1,4 @@
-import { T } from '../tileTypes.js';
+import { COLLISION_TILES, T } from '../tileTypes.js';
 import { field, clearing, wind, point, edge, smoothNoise } from './journeyMap.js';
 import { journeyCreate, journeyUpdate, journeyDialogue } from '../../events/journeyEvent.js';
 
@@ -38,6 +38,23 @@ function settle(map, solid = T.DOWN_SLOPE, open = T.DOWN_GRASS) {
 }
 settle(hills);
 
+// Carving, mounds and the scarp all leave new one-tile slivers behind them, and
+// a sliver is worse than useless: the relief shades it as open ground, so it
+// reads as nothing at all while still stopping the player. Demote every one of
+// them, after everything else has been placed. This only ever opens ground, so
+// it cannot seal a route.
+function trim(map) {
+  const solid = (x, y) =>
+    map[y]?.[x] === undefined || COLLISION_TILES.includes(map[y][x]) ? 1 : 0;
+  for (let pass = 0; pass < 4; pass++)
+    for (let y = 1; y < map.length - 1; y++)
+      for (let x = 1; x < map[y].length - 1; x++) {
+        if (map[y][x] !== T.DOWN_SLOPE) continue;
+        if (solid(x - 1, y) + solid(x + 1, y) + solid(x, y - 1) + solid(x, y + 1) < 2)
+          map[y][x] = T.DOWN_GRASS;
+      }
+}
+
 // Old graves: round green mounds in the southern vale, and the ring of
 // weathered uprights the road passes on its way up to the great stone.
 for (const [cx, cy, r] of [
@@ -48,6 +65,12 @@ for (const [cx, cy, r] of [
   [51, 36, 2],
 ])
   clearing(hills, cx, cy, r, Math.max(1, r - 1), T.DOWN_SLOPE);
+
+// A long scarp runs east and west across the shoulder of the downs, and the
+// two stones stand in the one gap in it. Making the gate a real chokepoint is
+// what lets the separation fire from beside the stones rather than from a
+// half-plane covering a fifth of the map: there is no other way north.
+for (let x = 1; x < W - 1; x++) for (let y = 11; y <= 12; y++) hills[y][x] = T.DOWN_SLOPE;
 
 // The main crossing. The corridor is opened first so the walk is never
 // blocked; the pale chalk is then laid one tile wide down its middle.
@@ -78,9 +101,9 @@ const NORTH = [
   [47, 14],
   [50, 14],
   [53, 13],
-  [53, 11],
-  [55, 10],
-  [58, 10],
+  [53, 9],
+  [56, 8],
+  [59, 9],
   [61, 9],
 ];
 const SOUTH = [
@@ -96,6 +119,9 @@ const SOUTH = [
 ];
 for (const route of [ROAD, NORTH, SOUTH]) wind(hills, route, 1, T.DOWN_GRASS);
 for (const route of [ROAD, NORTH]) wind(hills, route, 0, T.CHALK);
+// The carve widens as it turns; close the scarp back up so the stones really
+// are the only gap in it, and the chalk runs through the middle of that gap.
+for (let x = 1; x < W - 1; x++) if (x !== 53) hills[12][x] = T.DOWN_SLOPE;
 // Scattered uprights, then the one the track climbs to. The great stone is
 // its own tile so it reads as a landmark rather than another grey sliver.
 for (const [x, y] of [
@@ -110,6 +136,7 @@ for (const [x, y] of [
 ])
   hills[y][x] = T.STANDING_STONE;
 hills[20][28] = T.GREAT_STONE;
+trim(hills);
 
 /** @type {import('../types.js').Zone} */
 export const downs = {
@@ -209,6 +236,7 @@ for (const [x, y] of [
 wind(morning, [[18, 12], [18, 16], [26, 18], [33, 20], [41, 21]], 1, T.DOWN_GRASS);
 wind(morning, [[18, 16], [26, 18], [33, 20], [41, 21]], 0, T.CHALK);
 for (const [cx, cy] of [[12, 21], [28, 25]]) clearing(morning, cx, cy, 3, 2, T.DOWN_HEATHER);
+trim(morning);
 
 /** @type {import('../types.js').Zone} */
 export const barrowhill = {
@@ -221,10 +249,11 @@ export const barrowhill = {
   doors: [],
   signs: [],
   interactions: [
-    point(24, 16, 'barrow_treasure', 'The blades of Westernesse'),
+    point(24, 17, 'barrow_treasure', 'The blades of Westernesse'),
     point(15, 18, 'barrow_memory', 'Merry remembers'),
     point(18, 12, 'barrow_broken', 'The broken mound'),
-    point(30, 20, 'barrow_ponies', 'Tom and the ponies'),
+    // Beside Tom, who is the one you are actually talking to.
+    point(28, 18, 'barrow_ponies', 'Tom and the ponies'),
   ],
   exits: [
     edge(41, 21, 'eastroad', 'west', 'poniesRecovered', 'Wait for Tom to bring back the ponies.'),
@@ -249,6 +278,7 @@ for (const [cx, cy] of [[18, 19], [37, 17], [9, 21]]) clearing(road, cx, cy, 3, 
 // A weathered upright by the verge, not a Shire milestone: T.STONE keeps its
 // own green tile behind it and would show as a pale square on downland turf.
 road[15][26] = T.STANDING_STONE;
+trim(road);
 
 /** @type {import('../types.js').Zone} */
 export const eastroad = {
