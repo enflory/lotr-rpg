@@ -61,7 +61,13 @@ function beat(s, run = null, prompt = '') {
   const execute = async () => {
     b.busy = true;
     b.prompt = '';
-    await run();
+    try {
+      await run();
+    } catch (err) {
+      // A broken tableau must never freeze the game: drop the staging and let
+      // the page — or, outside a dialogue, the player — carry on regardless.
+      console.error('barrow beat failed', err);
+    }
     if (s.storyBeat !== b) return;
     b.busy = false;
     if (prompt) s.advanceDialogue();
@@ -133,7 +139,7 @@ function buildFog(s) {
   }
   // The lost voices: a pale drift that only shows itself when the player has
   // strayed well off the chalk, and always leans toward the next landmark.
-  d.wisp = s.add.ellipse(0, 0, 9, 5, 0xe8f0e2, 0.0).setDepth(845);
+  d.wisp = s.add.ellipse(0, 0, 9, 5, 0xe8f0e2, 0.5).setDepth(845).setAlpha(0);
   s.tweens.add({ targets: d.wisp, scaleY: 1.5, duration: 900, yoyo: true, repeat: -1 });
 }
 
@@ -206,7 +212,7 @@ export function updateDowns(s, delta) {
   const angle = Math.atan2(goal.y - ty, goal.x - tx);
   d.wisp
     .setPosition(s.player.x + Math.cos(angle) * 34, s.player.y - 6 + Math.sin(angle) * 34)
-    .setFillStyle(0xe8f0e2, show ? 0.5 : 0);
+    .setAlpha(show ? 1 : 0);
   d.nudge -= delta;
   if (f.downsFog && !f.barrowTaken && d.stray > 12000 && d.nudge <= 0) {
     d.nudge = 18000;
@@ -416,7 +422,8 @@ export function updateBarrow(s, delta) {
   if (b.active && !s.dialogActive) releaseControl(s);
   for (const p of s.followers) p.setData('held', true).setVisible(false);
   if (!s.storyBeat && !s.dialogActive) updateHand(s, delta);
-  if (!f.barrowWoke && !s.dialogActive && !s.storyBeat) s.startDialogue('barrow_wake');
+  if (f.barrowTaken && !f.barrowWoke && !f.barrowCourage && !s.dialogActive && !s.storyBeat)
+    s.startDialogue('barrow_wake');
   if (f.barrowRescued) s.goToZone('barrowhill', 'default');
 }
 
@@ -530,6 +537,8 @@ function scatterPonies(s) {
 function downsBeats(s, key, page, f) {
   const d = s.journey.downs;
   const party = [s.player, ...s.followers];
+  // Every beat below is staged against the page of prose it plays under, so
+  // the party sits down on the line that says they sit down.
   if (key === 'downs_stone' && !f.downsFog) {
     if (page === 0)
       beat(s, async () => {
@@ -538,14 +547,19 @@ function downsBeats(s, key, page, f) {
         await gather(s, 28, 22);
       });
     else if (page === 1)
+      // Out of the sun, in the shadow of the stone: they sit, and stay sitting.
+      beat(s, () =>
+        Promise.all(party.map((p, i) => tween(s, p, { y: p.y + 2, angle: i % 2 ? 8 : -8 }, 700))),
+      );
+    else if (page === 2)
       beat(s, async () => {
-        // Noon heat: they settle in the shadow of the stone and sleep.
-        d.gloom = s.add.rectangle(480, 360, 320, 240, 0x4c5f6b, 0).setScrollFactor(0).setDepth(835);
+        // Noon heat. They lie back one by one, the light goes out of the day,
+        // and somewhere in it the ponies wander off.
         await Promise.all(party.map((p, i) => lie(s, p, i % 2 ? 78 : -78)));
         await tween(s, d.gloom, { alpha: 0.42 }, 2400);
         scatterPonies(s);
       });
-    else if (page === 2)
+    else if (page === 3)
       beat(s, async () => {
         playMusic('barrow');
         await Promise.all([
@@ -553,7 +567,7 @@ function downsBeats(s, key, page, f) {
           tween(s, d.mist, { alpha: 1 }, 2600),
           tween(s, d.gloom, { alpha: 0.3 }, 2600),
         ]);
-        await Promise.all(party.map((p) => tween(s, p, { angle: 0, y: p.y - 3 }, 600)));
+        await Promise.all(party.map((p) => tween(s, p, { angle: 0, y: p.y - 5 }, 600)));
         s.cameras.main.startFollow(s.player, true, 0.08, 0.08);
       });
   }
@@ -563,7 +577,10 @@ function downsBeats(s, key, page, f) {
         s.cameras.main.stopFollow();
         s.cameras.main.pan(GATE.x * 16 + 8, GATE.y * 16, 900, 'Sine.easeInOut');
         sfx.blip();
-        // They walk on ahead and the mist takes them, one after another.
+      });
+    else if (page === 1)
+      beat(s, async () => {
+        // They go by him and on through, and the mist takes them in order.
         await Promise.all(
           s.followers.map(async (p, i) => {
             await move(s, p, at(GATE.x - 1 + i, GATE.y + 1), 58);
@@ -573,7 +590,7 @@ function downsBeats(s, key, page, f) {
           }),
         );
       });
-    else if (page === 1)
+    else if (page === 2)
       beat(
         s,
         async () => {
@@ -606,16 +623,13 @@ function downsBeats(s, key, page, f) {
         await tween(s, s.player, { x: s.player.x + 14, angle: 42 }, 700);
         await tween(s, shade, { alpha: 0.35 }, 400);
       });
-    else if (page === 2)
-      beat(s, async () => {
-        await tween(s, d.night, { alpha: 1 }, 1400);
-      });
+    else if (page === 2) beat(s, () => tween(s, d.night, { alpha: 1 }, 1400));
   }
 }
 
 function barrowBeats(s, key, page, f) {
   const b = s.journey.downs;
-  if (key === 'barrow_wake' && !f.barrowWoke) {
+  if (key === 'barrow_wake' && f.barrowTaken && !f.barrowWoke) {
     if (page === 0)
       beat(s, async () => {
         s.cameras.main.stopFollow();
@@ -625,12 +639,17 @@ function barrowBeats(s, key, page, f) {
       });
     else if (page === 1)
       beat(s, async () => {
+        // Along the row: three faces, three circlets.
         s.cameras.main.pan(15 * 16, 11 * 16, 1400, 'Sine.easeInOut');
         for (const sleeper of b.sleepers) await tween(s, sleeper.circlet, { alpha: 0.35 }, 240);
-        await tween(s, b.sword, { alpha: 0.55 }, 500);
-        await tween(s, b.sword, { alpha: 1 }, 500);
+        for (const sleeper of b.sleepers) await tween(s, sleeper.circlet, { alpha: 1 }, 160);
       });
     else if (page === 2)
+      beat(s, async () => {
+        await tween(s, b.sword, { alpha: 0.4 }, 600);
+        await tween(s, b.sword, { alpha: 1 }, 600);
+      });
+    else if (page === 3)
       beat(s, async () => {
         sfx.chant();
         await tween(s, b.wight, { alpha: 0.85 }, 1200);
@@ -648,12 +667,16 @@ function barrowBeats(s, key, page, f) {
       });
     else if (page === 1)
       beat(s, async () => {
-        // The choice is stated by the staging: the hand is close, and near it
-        // lies a sword he could reach without waking anyone.
+        // Round the corner of the wall spur, out of the dark end.
         b.crawl = b.crawl ?? { phase: 0, pause: 0 };
-        await tween(s, b.hand.container, { x: 20 * 16, y: 12 * 16 }, 1600);
+        await tween(s, b.hand.container, { x: 24 * 16, y: 13.5 * 16 }, 1500);
       });
     else if (page === 2)
+      beat(s, async () => {
+        // Past the sleepers, and on at him, in no hurry at all.
+        await tween(s, b.hand.container, { x: 19 * 16, y: 12 * 16 }, 1700);
+      });
+    else if (page === 3)
       beat(
         s,
         async () => {
@@ -668,13 +691,14 @@ function barrowBeats(s, key, page, f) {
           b.crawl = null;
           const hand = b.hand.container;
           await tween(s, hand, { angle: 146, x: hand.x + 24, y: hand.y + 14 }, 340);
+          b.hand.shadow.setRotation(-hand.rotation);
           b.hand.fingers.forEach((digit) =>
             s.tweens.add({ targets: digit, rotation: 0.6, duration: 500 }),
           );
           for (let n = 0; n < 3; n++)
             await tween(s, hand, { angle: hand.angle + (n % 2 ? 12 : -12) }, 120);
           await Promise.all([
-            tween(s, hand, { alpha: 0.65 }, 500),
+            tween(s, hand, { alpha: 0.7 }, 500),
             tween(s, b.wight, { alpha: 0.18 }, 700),
             tween(s, blade, { alpha: 0 }, 700),
           ]);
@@ -682,7 +706,7 @@ function barrowBeats(s, key, page, f) {
           sfx.chant();
           s.cameras.main.startFollow(s.player, true, 0.08, 0.08);
         },
-        'Strike the reaching hand',
+        'Take up the sword and strike',
       );
   }
   if (key === 'barrow_call' && f.barrowCourage && !f.barrowRescued) {
@@ -734,13 +758,17 @@ function barrowBeats(s, key, page, f) {
       beat(s, async () => {
         sfx.crack();
         s.cameras.main.flash(1400, 250, 246, 214);
-        const gap = s.add.rectangle(18 * 16, 6 * 16, 10, 8, 0xfff8dc).setDepth(857);
-        const tom = actor(s, 'tom', 18, 8, 1.15).setDepth(858).setAlpha(0);
+        b.gap = s.add.rectangle(18 * 16, 6 * 16, 10, 8, 0xfff8dc).setDepth(857);
         await Promise.all([
-          tween(s, gap, { scaleX: 13, scaleY: 9 }, 1300),
+          tween(s, b.gap, { scaleX: 13, scaleY: 9 }, 1300),
           tween(s, b.wight, { alpha: 0, x: 60 }, 1000),
           tween(s, b.warm, { alpha: 0.3 }, 1300),
         ]);
+      });
+    else if (page === 5)
+      beat(s, async () => {
+        // Out of the daylight in the broken roof, and down into the chamber.
+        const tom = actor(s, 'tom', 18, 8, 1.15).setDepth(858).setAlpha(0);
         await tween(s, tom, { alpha: 1 }, 600);
         await tween(s, tom, { y: tom.y + 22 }, 700);
       });

@@ -12,60 +12,72 @@ const DOWNS_ZONES = new Set(['downs', 'barrowhill', 'eastroad']);
 // landscape is shaded from. Sampling it per pixel (rather than per tile) is
 // what stops the downs reading as a terrace of squares: the silhouette of a
 // hill crosses tile boundaries wherever the smoothing and the grain put it.
+// Flat Float32Array with a row stride: this is read ~8 times per pixel over
+// nearly a million pixels, and an array of arrays is far too slow for that.
 function maskOf(map, match) {
   const rows = map.length,
     cols = map[0].length;
-  const raw = map.map((row) => row.map((t) => (match(t) ? 1 : 0)));
-  const out = raw.map((row) => row.slice());
+  const raw = new Float32Array(rows * cols);
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) raw[y * cols + x] = match(map[y][x]) ? 1 : 0;
+  const out = new Float32Array(rows * cols);
   for (let y = 0; y < rows; y++)
     for (let x = 0; x < cols; x++) {
-      let sum = 0,
-        weight = 0;
+      const here = raw[y * cols + x];
+      let sum = 0;
       for (let dy = -1; dy <= 1; dy++)
         for (let dx = -1; dx <= 1; dx++) {
-          const w = dx || dy ? 2 : 4;
-          sum += (raw[y + dy]?.[x + dx] ?? raw[y][x]) * w;
-          weight += w;
+          const nx = x + dx,
+            ny = y + dy;
+          const inside = nx >= 0 && nx < cols && ny >= 0 && ny < rows;
+          sum += (inside ? raw[ny * cols + nx] : here) * (dx || dy ? 2 : 4);
         }
-      out[y][x] = sum / weight;
+      out[y * cols + x] = sum / 20;
     }
-  return out;
+  let any = false;
+  for (let i = 0; i < out.length && !any; i++) any = out[i] > 0;
+  return { data: out, cols, rows, any };
 }
 function sample(field, fx, fy) {
-  const x = Math.max(0, Math.min(field[0].length - 1.001, fx));
-  const y = Math.max(0, Math.min(field.length - 1.001, fy));
-  const ix = Math.floor(x),
-    iy = Math.floor(y),
+  const { data, cols, rows } = field;
+  const x = fx < 0 ? 0 : fx > cols - 1.001 ? cols - 1.001 : fx;
+  const y = fy < 0 ? 0 : fy > rows - 1.001 ? rows - 1.001 : fy;
+  const ix = x | 0,
+    iy = y | 0,
     u = x - ix,
     v = y - iy;
-  const a = field[iy][ix],
-    b = field[iy][ix + 1] ?? a;
-  const c = field[iy + 1]?.[ix] ?? a,
-    d = field[iy + 1]?.[ix + 1] ?? b;
+  const i = iy * cols + ix;
+  const a = data[i],
+    b = data[i + 1],
+    c = data[i + cols],
+    d = data[i + cols + 1];
   return (a * (1 - u) + b * u) * (1 - v) + (c * (1 - u) + d * u) * v;
 }
 // Two octaves of pixel-scale grain: the fine one frays the hill foot, the
-// coarse one gives whole shoulders of turf their own bulge.
+// coarse one gives whole shoulders of turf their own bulge. Everything below
+// is hoisted to module scope and writes into shared scalars on purpose — this
+// runs a few million times per bake, and a closure or an array per call is
+// what makes the difference between a stutter and a stall.
+function hash(a, b, s) {
+  let n = Math.imul(a + s, 374761393) ^ Math.imul(b + 77, 668265263);
+  n = Math.imul(n ^ (n >>> 13), 1274126177);
+  return ((n ^ (n >>> 16)) >>> 0) / 4294967296 - 0.5;
+}
+function wobble(x, y, sx, sy, s) {
+  const fx = x / sx,
+    fy = y / sy;
+  const ix = Math.floor(fx),
+    iy = Math.floor(fy);
+  let u = fx - ix,
+    v = fy - iy;
+  u = u * u * (3 - 2 * u);
+  v = v * v * (3 - 2 * v);
+  return (
+    (hash(ix, iy, s) * (1 - u) + hash(ix + 1, iy, s) * u) * (1 - v) +
+    (hash(ix, iy + 1, s) * (1 - u) + hash(ix + 1, iy + 1, s) * u) * v
+  );
+}
 function grain(x, y) {
-  const wobble = (sx, sy, s) => {
-    const fx = x / sx,
-      fy = y / sy;
-    const ix = Math.floor(fx),
-      iy = Math.floor(fy);
-    const e = (t) => t * t * (3 - 2 * t);
-    const u = e(fx - ix),
-      v = e(fy - iy);
-    const h = (a, b) => {
-      let n = Math.imul(a + s, 374761393) ^ Math.imul(b + 77, 668265263);
-      n = Math.imul(n ^ (n >>> 13), 1274126177);
-      return ((n ^ (n >>> 16)) >>> 0) / 4294967296 - 0.5;
-    };
-    return (
-      (h(ix, iy) * (1 - u) + h(ix + 1, iy) * u) * (1 - v) +
-      (h(ix, iy + 1) * (1 - u) + h(ix + 1, iy + 1) * u) * v
-    );
-  };
-  return wobble(7, 6, 11) * 0.16 + wobble(29, 24, 3) * 0.2;
+  return wobble(x, y, 7, 6, 11) * 0.16 + wobble(x, y, 29, 24, 3) * 0.2;
 }
 
 const TURF = [
@@ -76,18 +88,25 @@ const TURF = [
   [0xa1, 0xab, 0x7f],
   [0xbe, 0xc6, 0x9c],
 ];
+// The colour the last ramp()/vale() call produced. See the note above.
+let R = 0,
+  G = 0,
+  B = 0;
 function ramp(t) {
-  const p = Math.max(0, Math.min(0.999, t)) * (TURF.length - 1);
-  const i = Math.floor(p),
+  const p = (t < 0 ? 0 : t > 0.999 ? 0.999 : t) * (TURF.length - 1);
+  const i = p | 0,
     f = p - i;
-  return [0, 1, 2].map((k) => TURF[i][k] + (TURF[i + 1][k] - TURF[i][k]) * f);
+  const lo = TURF[i],
+    hi = TURF[i + 1];
+  R = lo[0] + (hi[0] - lo[0]) * f;
+  G = lo[1] + (hi[1] - lo[1]) * f;
+  B = lo[2] + (hi[2] - lo[2]) * f;
 }
 
 // The open turf between the hills: one flat base colour, mottled, so half a
 // mile of it never shows a tile repeat.
-function vale(px, py) {
-  const n = grain(px * 2, py * 2) + grain(px * 5, py * 5) * 0.4;
-  return ramp(0.44 + n * 0.5);
+function vale(fine, coarse) {
+  ramp(0.44 + (fine + coarse * 0.4) * 0.5);
 }
 
 export function drawDownsRelief(scene) {
@@ -108,11 +127,13 @@ export function drawDownsRelief(scene) {
     // The East Road gets the same smoothed ribbon as the chalk track, in the
     // colour of beaten earth: a metalled road, not a staircase of tan squares.
     const highway = maskOf(map, (t) => t === T.PATH);
+    const hasChalk = chalk.any,
+      hasRoad = highway.any;
     for (let py = 0; py < H; py++) {
       for (let px = 0; px < W; px++) {
         const fx = px / 16,
           fy = py / 16;
-        const tile = map[Math.floor(fy)]?.[Math.floor(fx)];
+        const tile = map[py >> 4][px >> 4];
         const heather = tile === T.DOWN_HEATHER;
         // Only downland tiles are repainted. A road, a flower bed or a
         // milestone keeps its own art; the relief just casts shadow on it.
@@ -125,72 +146,97 @@ export function drawDownsRelief(scene) {
           tile === T.STANDING_STONE ||
           tile === T.GREAT_STONE;
         const g = grain(px, py);
-        const at = (dx, dy) => sample(hill, fx + dx, fy + dy) + g;
-        const m = at(0, 0);
-        // North-south gradient of the same field: which way the ground faces.
-        // Light comes from the north, so the far crest of a hill is lit and
-        // its near face falls away into shadow.
-        const slope = at(0, 0.5) - at(0, -0.5);
-        const side = at(0.5, 0) - at(-0.5, 0);
+        // The finer octaves cost as much as everything else in this loop put
+        // together, so each branch pays only for the ones it actually reads.
+        let g2 = NaN,
+          g3 = NaN;
+        const m = sample(hill, fx, fy) + g;
         const i = (py * W + px) * 4;
         let r, gr, b, a;
         let shadowed = false;
         if (m > 0.52) {
+          // Light comes from the north, so the far crest of a hill is lit and
+          // its near face falls away into shadow.
+          const slope = sample(hill, fx, fy + 0.5) - sample(hill, fx, fy - 0.5);
+          const side = sample(hill, fx + 0.5, fy) - sample(hill, fx - 0.5, fy);
           const e = Math.min(1, (m - 0.52) / 0.5);
           const band = Math.abs(((e * 4) % 1) - 0.5) < 0.07 ? -0.06 : 0;
-          let light = 0.46 + e * 0.3 + slope * 2.4 + side * 0.45 + band;
-          light += grain(px * 3, py * 3) * 0.42;
-          if (at(0, -0.17) <= 0.52) light += 0.42; // skyline rim
-          if (at(0, 0.17) <= 0.52) light -= 0.3; // the near face of the hill
-          [r, gr, b] = ramp(light);
+          g3 = grain(px * 3, py * 3);
+          let light = 0.46 + e * 0.3 + slope * 2.4 + side * 0.45 + band + g3 * 0.42;
+          if (sample(hill, fx, fy - 0.17) + g <= 0.52) light += 0.42; // skyline rim
+          if (sample(hill, fx, fy + 0.17) + g <= 0.52) light -= 0.3; // the near face
+          ramp(light);
+          r = R;
+          gr = G;
+          b = B;
           a = 255;
         } else {
-          const above = at(0, -0.75);
-          const shadow = Math.max(0, Math.min(1, (above - 0.5) / 0.3));
+          const above = sample(hill, fx, fy - 0.75) + g;
+          const shadow = above > 0.5 ? Math.min(1, (above - 0.5) / 0.3) : 0;
           if (shadow > 0.02) {
-            [r, gr, b] = [0x35, 0x3f, 0x2f];
+            // The shadow a hill throws down onto the turf in front of it.
+            r = 0x35;
+            gr = 0x3f;
+            b = 0x2f;
             a = Math.round(105 * shadow);
             shadowed = true;
           } else {
             // The vale floor is painted outright rather than tinted, so the
             // flat grass tile can never show its repeat through the mottle.
-            [r, gr, b] = vale(px, py);
-            a = 255;
+            g2 = grain(px * 2, py * 2);
+            vale(g2, grain(px * 5, py * 5));
+            r = R;
+            gr = G;
+            b = B;
             if (heather) {
-              const f = grain(px * 6, py * 6) + grain(px * 2, py * 2) * 0.6;
-              if (f > 0.17) [r, gr, b] = [0x8d, 0x76, 0x9c];
-              else if (f > 0.13) [r, gr, b] = [0x60, 0x56, 0x68];
-              else if (f < -0.2) [r, gr, b] = [0x6c, 0x71, 0x52];
+              const f = grain(px * 6, py * 6) + g2 * 0.6;
+              if (f > 0.17) (r = 0x8d), (gr = 0x76), (b = 0x9c);
+              else if (f > 0.13) (r = 0x60), (gr = 0x56), (b = 0x68);
+              else if (f < -0.2) (r = 0x6c), (gr = 0x71), (b = 0x52);
             }
+            a = 255;
           }
         }
-        // The chalk is laid over everything: a worn ribbon with a grass crown
-        // in the middle of it, drawn from its own smoothed mask so the carved
-        // tile corners never show through as steps.
-        const c = sample(chalk, fx, fy) + g * 0.12;
-        if (c > 0.3) {
-          const wear = Math.min(1, (c - 0.3) / 0.06);
-          const t = grain(px * 3, py * 3) + grain(px, py) * 0.5;
-          r = Math.min(255, 0xb2 + t * 150);
-          gr = Math.min(255, 0xb4 + t * 140);
-          b = Math.min(255, 0x96 + t * 130);
-          a = Math.round(255 * wear);
-        } else if (tile === T.CHALK) {
-          // Erase the square corners of the carved track under the ribbon.
-          [r, gr, b] = vale(px, py);
-          a = 255;
+        // The chalk track and the East Road are laid over everything, each
+        // from its own smoothed mask, so the carved tile corners never show
+        // through as steps.
+        if (hasChalk) {
+          const c = sample(chalk, fx, fy) + g * 0.12;
+          if (c > 0.3) {
+            const wear = Math.min(1, (c - 0.3) / 0.06);
+            if (Number.isNaN(g3)) g3 = grain(px * 3, py * 3);
+            const t = g3 + g * 0.5;
+            r = Math.min(255, 0xb2 + t * 150);
+            gr = Math.min(255, 0xb4 + t * 140);
+            b = Math.min(255, 0x96 + t * 130);
+            a = Math.round(255 * wear);
+          } else if (tile === T.CHALK) {
+            if (Number.isNaN(g2)) g2 = grain(px * 2, py * 2);
+            vale(g2, grain(px * 5, py * 5));
+            r = R;
+            gr = G;
+            b = B;
+            a = 255;
+          }
         }
-        const road = sample(highway, fx, fy) + g * 0.12;
-        if (road > 0.3) {
-          const wear = Math.min(1, (road - 0.3) / 0.06);
-          const t = grain(px * 3, py * 3) + grain(px, py) * 0.5;
-          r = Math.min(255, 0x9a + t * 130);
-          gr = Math.min(255, 0x8b + t * 120);
-          b = Math.min(255, 0x6c + t * 110);
-          a = Math.round(255 * wear);
-        } else if (tile === T.PATH) {
-          [r, gr, b] = vale(px, py);
-          a = 255;
+        if (hasRoad) {
+          const road = sample(highway, fx, fy) + g * 0.12;
+          if (road > 0.3) {
+            const wear = Math.min(1, (road - 0.3) / 0.06);
+            if (Number.isNaN(g3)) g3 = grain(px * 3, py * 3);
+            const t = g3 + g * 0.5;
+            r = Math.min(255, 0x9a + t * 130);
+            gr = Math.min(255, 0x8b + t * 120);
+            b = Math.min(255, 0x6c + t * 110);
+            a = Math.round(255 * wear);
+          } else if (tile === T.PATH) {
+            if (Number.isNaN(g2)) g2 = grain(px * 2, py * 2);
+            vale(g2, grain(px * 5, py * 5));
+            r = R;
+            gr = G;
+            b = B;
+            a = 255;
+          }
         }
         if (!paintable && !shadowed) a = 0;
         data[i] = r;

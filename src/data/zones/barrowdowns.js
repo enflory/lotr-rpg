@@ -133,7 +133,15 @@ export const downs = {
     point(53, 13, 'downs_gate', 'The two stones like a doorway'),
     point(61, 9, 'downs_voices', 'Call to your companions', (f) => f.downsFog),
   ],
-  exits: [edge(0, 30, 'tomclearing', 'east')],
+  // Once the mist is down there is no walking back to the house: leaving would
+  // undo the separation and hand the player three companions it has just taken.
+  exits: [
+    {
+      ...edge(0, 30, 'tomclearing', 'east'),
+      blockedWhen: (f) => !!f.downsFog,
+      denied: 'The mist has closed behind you.\nThere is no finding the way back.',
+    },
+  ],
   onCreate: journeyCreate,
   onUpdate: journeyUpdate,
   onDialogueLine: journeyDialogue,
@@ -238,7 +246,9 @@ const EAST = [[0, 17], [7, 17], [13, 15], [21, 13], [31, 12], [47, 12]];
 wind(road, EAST, 1, T.DOWN_GRASS);
 wind(road, EAST, 1, T.PATH);
 for (const [cx, cy] of [[18, 19], [37, 17], [9, 21]]) clearing(road, cx, cy, 3, 2, T.DOWN_HEATHER);
-road[15][26] = T.STONE;
+// A weathered upright by the verge, not a Shire milestone: T.STONE keeps its
+// own green tile behind it and would show as a pale square on downland turf.
+road[15][26] = T.STANDING_STONE;
 
 /** @type {import('../types.js').Zone} */
 export const eastroad = {

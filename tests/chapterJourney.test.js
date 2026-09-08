@@ -59,6 +59,18 @@ describe('beyond the hedge playable routes', () => {
     }
   });
 });
+describe('the downs close behind you', () => {
+  it('blocks the way back to Tom once the mist is down', () => {
+    const back = ZONES.downs.exits.find((e) => e.zone === 'tomclearing');
+    expect(back).toBeTruthy();
+    // Before the mist it is an ordinary way out; afterwards, leaving would
+    // hand the player back the three companions the story has just taken.
+    expect(back.blockedWhen({})).toBe(false);
+    expect(back.blockedWhen({ downsFog: true })).toBe(true);
+    expect(back.blockedWhen({ downsFog: true, downsSeparated: true })).toBe(true);
+    expect(back.denied).toBeTruthy();
+  });
+});
 describe('book sequence gates', () => {
   function finish(key, flags) {
     const d = resolveDialogue(key, flags);
