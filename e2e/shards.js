@@ -7,19 +7,22 @@
 // 47s while routeForest.spec.js is 1 test in ~170s. So the groups are explicit
 // and balanced by measured duration instead.
 //
-// Approximate durations (seconds). The route segments are measured locally
-// and scaled; everything else is from CI run 34249538899. Re-measure from the
-// `list` reporter output and rebalance when they drift.
-//   routeForest ~160  tomHouse   130  crickhollow 60  pippin 40  ponies 20
-//   routeWillow ~160  willowAnim  92  smoke       57  journeyPres 28
-//   routeDowns  ~105  touch       47  chapterJourney ~60  save 10
+// Measured on ubuntu-latest, run 34257256766 (seconds):
+//   routeWillow 216  tomHouse 130  crickhollow 60  pippin 40  chapterJourney 25
+//   routeForest 155  willowAnim 92  smoke      57  journeyPres 35  ponies 20
+//   routeDowns   93  touch     47                                  save   14
+//
+// routeWillow is the longest indivisible unit, so it gets a runner to itself
+// and sets the floor (~216s). Most of it is the half-paced storyMotion beats
+// inside Tom's house — ~123s of the 216 — which is where the next real saving
+// is, not in more shards.
 //
 // Every e2e/*.spec.js file must appear in exactly one group —
 // tests/shards.test.js fails the build otherwise.
 export const SHARDS = {
-  shard1: ['routeForest.spec.js', 'ponies.spec.js'],
-  shard2: ['routeWillow.spec.js', 'journeyPresentation.spec.js', 'save.spec.js'],
-  shard3: ['tomHouse.spec.js', 'chapterJourney.spec.js'],
+  shard1: ['routeWillow.spec.js'],
+  shard2: ['routeForest.spec.js', 'ponies.spec.js', 'chapterJourney.spec.js'],
+  shard3: ['tomHouse.spec.js', 'journeyPresentation.spec.js', 'save.spec.js'],
   shard4: ['routeDowns.spec.js', 'smoke.spec.js', 'pippin.spec.js'],
   shard5: ['willowAnimation.spec.js', 'crickhollow.spec.js', 'touch.spec.js'],
 };
