@@ -21,7 +21,11 @@ import {
 test('supper at Crickhollow, then the hedge and the forest as far as the Willow', async ({
   page,
 }) => {
-  test.setTimeout(420000);
+  // Observed 155s / 228s / 393s across three CI runs on identical code —
+  // GitHub runners vary up to 2.5x. 393s against the old 420s budget left a 7%
+  // margin, so a slower runner would have gone red for no reason. Timeout
+  // headroom is free on a passing run; a spurious failure is not.
+  test.setTimeout(900000);
   const errors = watchErrors(page);
   await checkpoint(page, 'crickhollow');
 

@@ -19,7 +19,9 @@ import {
 } from './journeyRoute.js';
 
 test('Tom frees the party from the Willow and keeps them two nights', async ({ page }) => {
-  test.setTimeout(420000);
+  // Same runner spread as routeForest (216s / 188s / 215s observed, but the
+  // sibling segment reached 393s on one runner). Budget generously.
+  test.setTimeout(900000);
   const errors = watchErrors(page);
   await bootAt(page, 'willow');
 

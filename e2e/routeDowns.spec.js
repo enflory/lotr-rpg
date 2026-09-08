@@ -18,7 +18,8 @@ import {
 } from './journeyRoute.js';
 
 test('the downs, the barrow and the road east with Continue at each turn', async ({ page }) => {
-  test.setTimeout(300000);
+  // Shortest segment (~93s), but subject to the same runner spread.
+  test.setTimeout(600000);
   const errors = watchErrors(page);
   await bootAt(page, 'clearing');
 
