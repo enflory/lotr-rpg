@@ -3,12 +3,14 @@
 // animation here is transient, so Continue replays it from its checkpoint.
 import { gameState, setFlag } from '../state/GameState.js';
 import { T } from '../data/tileTypes.js';
+import { DOWNS_REST, DOWNS_STONE, BARROW_SONG, BARROW_BREACH } from '../data/barrowLandmarks.js';
 import { tween, move, walk } from './storyMotion.js';
 import {
   drawDownsRelief,
   drawDownsFeatures,
   drawBarrowInterior,
   drawBarrowhillScenery,
+  drawBarrowBreach,
 } from '../art/downsScenery.js';
 import { playMusic, sfx } from '../audio/sound.js';
 
@@ -194,7 +196,7 @@ export function updateDowns(s, delta) {
   // taken on *reaching* a landmark: being interrupted inside the sleep or the
   // separation should cost a step, not the whole crossing.
   if (d.saved !== 'gate') {
-    const atStone = Math.hypot(tx - 28, ty - 22) < 4;
+    const atStone = Math.hypot(tx - DOWNS_REST.x, ty - DOWNS_REST.y) < 4;
     const atGate = f.downsFog && Math.hypot(tx - GATE.x, ty - GATE.y) < 5;
     const want = f.downsSeparated || atGate ? 'gate' : f.downsFog || atStone ? 'stone' : d.saved;
     if (want && want !== d.saved) {
@@ -204,7 +206,7 @@ export function updateDowns(s, delta) {
   }
   if (s.storyBeat || s.dialogActive) return;
 
-  const goal = f.downsSeparated ? BEYOND : f.downsFog ? GATE : { x: 28, y: 22 };
+  const goal = f.downsSeparated ? BEYOND : f.downsFog ? GATE : DOWNS_REST;
   // Off the track and out of ideas: the voices drift into view ahead of you.
   const onTrack = nearTrack(s, tx, ty);
   d.stray = onTrack || !f.downsFog ? 0 : d.stray + delta;
@@ -372,16 +374,38 @@ export function createBarrow(s) {
     .setScrollFactor(0)
     .setDepth(860)
     .setAlpha(woke ? 0 : 1);
+  b.songCue = s.add
+    .text(BARROW_SONG.x * 16 + 8, BARROW_SONG.y * 16 - 12, '♪', {
+      fontFamily: '"Press Start 2P"',
+      fontSize: '10px',
+      color: '#f2d782',
+    })
+    .setOrigin(0.5)
+    .setDepth(850)
+    .setVisible(false);
+  b.songLabel = s.add
+    .text(BARROW_SONG.x * 16 + 8, BARROW_SONG.y * 16 + 12, 'SING TOM’S SONG', {
+      fontFamily: '"Press Start 2P"',
+      fontSize: '5px',
+      color: '#f2d782',
+      backgroundColor: '#242b24',
+      padding: { x: 3, y: 3 },
+    })
+    .setOrigin(0.5)
+    .setDepth(850)
+    .setVisible(false);
+  s.tweens.add({ targets: b.songCue, alpha: 0.55, duration: 900, yoyo: true, repeat: -1 });
   // He wakes lying on his back where the dark put him down.
   if (!woke) s.player.setAngle(-90);
 }
 
 // Route the hand round the wall spur: east chamber, through the gap at y≈13,
-// then straight down the chamber at whoever is standing in it.
+// then toward Sam, the nearest of the sleeping hobbits.
 function crawlTarget(s) {
   const hx = s.journey.downs.hand.container.x / 16;
   if (hx > 25) return { x: 25 * 16, y: 13.5 * 16 };
-  return { x: s.player.x, y: s.player.y + 6 };
+  const sam = s.journey.downs.sleepers[0].body;
+  return { x: sam.x, y: sam.y + 6 };
 }
 function updateHand(s, delta) {
   const b = s.journey.downs;
@@ -430,6 +454,9 @@ export function updateBarrow(s, delta) {
   const b = s.journey.downs,
     f = gameState.flags;
   if (b.active && !s.dialogActive) releaseControl(s);
+  const canSing = !!f.barrowCourage && !f.barrowRescued && !s.dialogActive && !s.storyBeat;
+  b.songCue.setVisible(canSing);
+  b.songLabel.setVisible(canSing);
   for (const p of s.followers) p.setData('held', true).setVisible(false);
   if (!s.storyBeat && !s.dialogActive) updateHand(s, delta);
   if (f.barrowTaken && !f.barrowWoke && !f.barrowCourage && !s.dialogActive && !s.storyBeat)
@@ -443,7 +470,8 @@ export function createBarrowhill(s) {
   const b = (s.journey.downs = /** @type {any} */ ({ active: false, hill: true }));
   // The blades stand in the turf only until Tom hands them out.
   b.blades = drawBarrowhillScenery(s, !f.barrowBlades);
-  b.tom = actor(s, 'tom', 27, 17, 1.15);
+  b.tom = actor(s, 'tom', 27, 17, 1.15).setVisible(!f.poniesRecovered);
+  b.leading = !!f.poniesRecovered;
   // Tom whistles the ponies up over the shoulder of the hill during
   // `barrow_ponies`; until he has, there are no ponies standing on this hill.
   b.ponies = [];
@@ -476,6 +504,11 @@ function refreshBarrowhill(s) {
 export function updateBarrowhill(s) {
   const b = s.journey.downs;
   refreshBarrowhill(s);
+  if (gameState.flags.poniesRecovered && !b.leading && !s.dialogActive && !s.storyBeat) {
+    b.leading = true;
+    // Same skipping walk as the Willow, with control left in the player's hands.
+    walk(s, b.tom, 41, 21, 90).then(() => b.tom.setVisible(false));
+  }
   if (b.active && !s.dialogActive) releaseControl(s);
   if (b.rising && !b.woke && !s.dialogActive) {
     b.woke = true;
@@ -541,7 +574,7 @@ function gather(s, cx, cy, spread = 2) {
   return Promise.all([
     walk(s, s.player, cx, cy),
     ...s.followers.map((p, i) =>
-      move(s, p, at(cx - spread - i, cy + (i % 2)), 70).then(() => p.setVisible(true)),
+      walk(s, p, cx - spread - i, cy + (i % 2), 70).then(() => p.setVisible(true)),
     ),
   ]);
 }
@@ -552,8 +585,7 @@ function scatterPonies(s) {
   for (const [i, p] of (s.journey.ponies ?? []).entries())
     s.tweens.add({
       targets: p,
-      x: p.x + (i % 2 ? 90 : -70),
-      y: p.y - 40 - i * 8,
+      angle: i % 2 ? -6 : 6,
       alpha: 0,
       duration: 2200 + i * 180,
       ease: 'Sine.easeIn',
@@ -569,8 +601,8 @@ function downsBeats(s, key, page, f) {
     if (page === 0)
       beat(s, async () => {
         s.cameras.main.stopFollow();
-        s.cameras.main.pan(28 * 16 + 8, 20 * 16, 1100, 'Sine.easeInOut');
-        await gather(s, 28, 22);
+        s.cameras.main.pan(DOWNS_STONE.x * 16 + 8, DOWNS_STONE.y * 16, 1100, 'Sine.easeInOut');
+        await gather(s, DOWNS_REST.x, DOWNS_REST.y);
       });
     else if (page === 1)
       // Out of the sun, in the shadow of the stone: they sit, and stay sitting.
@@ -579,11 +611,9 @@ function downsBeats(s, key, page, f) {
       );
     else if (page === 2)
       beat(s, async () => {
-        // Noon heat. They lie back one by one, the light goes out of the day,
-        // and somewhere in it the ponies wander off.
+        // Noon heat. They sleep through the afternoon; everyone wakes together.
         await Promise.all(party.map((p, i) => lie(s, p, i % 2 ? 78 : -78)));
         await tween(s, d.gloom, { alpha: 0.42 }, 2400);
-        scatterPonies(s);
       });
     else if (page === 3)
       beat(s, async () => {
@@ -605,32 +635,27 @@ function downsBeats(s, key, page, f) {
         sfx.blip();
       });
     else if (page === 1)
-      beat(s, async () => {
-        // They go by him and on through, and the mist takes them in order.
-        await Promise.all(
-          s.followers.map(async (p, i) => {
-            await walk(s, p, GATE.x, GATE.y + 1, 58);
-            await walk(s, p, GATE.x, GATE.y - 2, 58);
-            await walk(s, p, GATE.x + 1 + i, GATE.y - 3, 58);
-            await tween(s, p, { alpha: 0 }, 1500);
-            p.setVisible(false);
-          }),
-        );
-      });
-    else if (page === 2)
       beat(
         s,
         async () => {
-          await walk(s, s.player, GATE.x, GATE.y + 1, 60);
-          await move(s, s.player, at(GATE.x, GATE.y - 1), 44);
-          s.player.setTint(0xb9c6cc);
+          // Frodo leads. The others remain on the near side; the book never
+          // shows them marching past him into a visible capture scene.
+          await Promise.all(s.followers.map((p, i) => walk(s, p, GATE.x, GATE.y + 2 + i, 58)));
+          await walk(s, s.player, GATE.x, GATE.y - 2, 58);
           s.cameras.main.shake(400, 0.002);
-          await tween(s, d.fog, { alpha: 1 }, 900);
-          s.player.clearTint();
-          s.cameras.main.startFollow(s.player, true, 0.08, 0.08);
+          scatterPonies(s);
+          await Promise.all(s.followers.map((p) => tween(s, p, { alpha: 0 }, 1400)));
+          for (const p of s.followers) p.setVisible(false);
+          s.player.play('frodo-idle-down', true);
         },
-        'Pass between the stones',
+        'Lead the way between the stones',
       );
+    else if (page === 2)
+      beat(s, async () => {
+        s.player.play('frodo-idle-right', true);
+        await tween(s, d.fog, { alpha: 1 }, 700);
+        s.cameras.main.startFollow(s.player, true, 0.08, 0.08);
+      });
   }
   if (key === 'downs_voices' && f.downsSeparated && !f.barrowTaken) {
     if (page === 0)
@@ -640,17 +665,13 @@ function downsBeats(s, key, page, f) {
       });
     else if (page === 1)
       beat(s, async () => {
-        // A shape leans over him out of the white: tall, and then everywhere.
-        const shade = s.add
-          .rectangle(s.player.x + 20, s.player.y - 30, 16, 4, 0x14231d, 0.9)
-          .setDepth(880);
+        // The hand closes on him; the whole view goes dark rather than
+        // drawing a giant rectangular figure over the landscape.
         sfx.sting();
-        await tween(s, shade, { scaleX: 3.5, scaleY: 22, y: s.player.y - 22 }, 1200);
-        s.player.setTint(0x8fa3ad);
-        await tween(s, s.player, { x: s.player.x + 14, angle: 42 }, 700);
-        await tween(s, shade, { alpha: 0.35 }, 400);
+        s.cameras.main.shake(500, 0.004);
+        await tween(s, d.night, { alpha: 1 }, 1200);
       });
-    else if (page === 2) beat(s, () => tween(s, d.night, { alpha: 1 }, 1400));
+    else if (page === 2) beat(s, () => tween(s, d.night, { alpha: 1 }, 400));
   }
 }
 
@@ -700,8 +721,8 @@ function barrowBeats(s, key, page, f) {
       });
     else if (page === 2)
       beat(s, async () => {
-        // Past the sleepers, and on at him, in no hurry at all.
-        await tween(s, b.hand.container, { x: 19 * 16, y: 12 * 16 }, 1700);
+        // The arm reaches for Sam while Frodo decides whether to stay.
+        await tween(s, b.hand.container, { x: 14 * 16 + 14, y: 11 * 16 + 8 }, 1700);
       });
     else if (page === 3)
       beat(
@@ -740,9 +761,9 @@ function barrowBeats(s, key, page, f) {
     if (page === 0)
       beat(s, async () => {
         s.cameras.main.stopFollow();
-        s.cameras.main.pan(11 * 16, 13 * 16, 800, 'Sine.easeInOut');
-        await walk(s, s.player, 10, 13, 62);
-        s.player.play('frodo-idle-down', true);
+        s.cameras.main.pan(BARROW_SONG.x * 16 + 8, 10 * 16, 800, 'Sine.easeInOut');
+        await walk(s, s.player, BARROW_SONG.x, BARROW_SONG.y, 62);
+        s.player.play('frodo-idle-up', true);
         sfx.chant();
         await tween(s, b.dark, { alpha: 0.45 }, 1200);
       });
@@ -770,34 +791,31 @@ function barrowBeats(s, key, page, f) {
       beat(s, async () => {
         sfx.crack();
         s.cameras.main.shake(1400, 0.006);
-        b.crackLight = s.add.graphics().setDepth(856);
-        b.crackLight.fillStyle(0xfff6cf, 0.9);
-        for (const [x, y, w, h] of [
-          [14 * 16, 6 * 16, 3, 60],
-          [19 * 16, 5 * 16 + 8, 2, 74],
-          [24 * 16, 6 * 16, 4, 52],
-        ])
-          b.crackLight.fillRect(x, y, w, h);
-        b.crackLight.setAlpha(0);
-        await tween(s, b.crackLight, { alpha: 1 }, 1100);
+        // The answering song comes through the stone, then the wall gives.
+        await tween(s, b.dark, { alpha: 0.05 }, 1100);
       });
     else if (page === 4)
       beat(s, async () => {
         sfx.crack();
-        s.cameras.main.flash(1400, 250, 246, 214);
-        b.gap = s.add.rectangle(18 * 16, 6 * 16, 10, 8, 0xfff8dc).setDepth(857);
+        s.cameras.main.shake(1300, 0.007);
+        b.breach = drawBarrowBreach(s).setAlpha(0);
         await Promise.all([
-          tween(s, b.gap, { scaleX: 13, scaleY: 9 }, 1300),
-          tween(s, b.wight, { alpha: 0, x: 60 }, 1000),
-          tween(s, b.warm, { alpha: 0.3 }, 1300),
+          tween(s, b.breach, { alpha: 1 }, 700),
+          tween(s, b.wight, { alpha: 0 }, 1000),
+          tween(s, b.warm, { alpha: 0.12 }, 1000),
+          tween(s, b.dark, { alpha: 0 }, 700),
         ]);
       });
     else if (page === 5)
       beat(s, async () => {
-        // Out of the daylight in the broken roof, and down into the chamber.
-        const tom = actor(s, 'tom', 18, 8, 1.15).setDepth(858).setAlpha(0);
-        await tween(s, tom, { alpha: 1 }, 600);
-        await tween(s, tom, { y: tom.y + 22 }, 700);
+        // Tom is framed in the actual breach, then steps down into the room.
+        const tom = actor(s, 'tom', BARROW_BREACH.x, BARROW_BREACH.y, 1.15)
+          .setDepth(858)
+          .setAlpha(0);
+        b.rescueTom = tom;
+        await tween(s, tom, { alpha: 1 }, 350);
+        await move(s, tom, at(BARROW_BREACH.x, BARROW_BREACH.y + 3), 48);
+        tom.setDepth(tom.y + 20);
       });
   }
 }
@@ -809,5 +827,9 @@ export function barrowDialogue(s) {
     page = s.dialogIndex,
     f = gameState.flags;
   if (s.zoneKey === 'downs') downsBeats(s, key, page, f);
-  if (s.zoneKey === 'barrow') barrowBeats(s, key, page, f);
+  if (s.zoneKey === 'barrow') {
+    d.songCue.setVisible(false);
+    d.songLabel.setVisible(false);
+    barrowBeats(s, key, page, f);
+  }
 }

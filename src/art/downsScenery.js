@@ -5,6 +5,7 @@
 // Rounded edges follow the collision mask; tile centres always retain their
 // solid/open reading. Shadows and vegetation are flat ground decoration.
 import { T } from '../data/tileTypes.js';
+import { BARROW_BREACH } from '../data/barrowLandmarks.js';
 
 const DOWNS_ZONES = new Set(['downs', 'barrowhill', 'eastroad']);
 
@@ -475,6 +476,34 @@ export function drawBarrowInterior(scene) {
       repeat: -1,
     });
   }
+}
+
+// Daylight through a broken wall, made from stepped pixels rather than a
+// scaled rectangle. It covers the wall texture at the point Tom enters.
+export function drawBarrowBreach(scene) {
+  const g = scene.add.graphics().setDepth(6);
+  const cx = BARROW_BREACH.x * 16 + 8, cy = BARROW_BREACH.y * 16;
+  const r = (x, y, w, h, color) => g.fillStyle(color).fillRect(cx + x, cy + y, w, h);
+  const rows = [14, 20, 24, 27, 29, 29, 28, 30, 29, 28, 26, 24, 21];
+  for (const [i, half] of rows.entries()) {
+    const y = -32 + i * 4;
+    r(-half - 3, y, half * 2 + 6, 4, 0x303a31);
+    r(-half, y, half * 2, 4, i < 7 ? 0xf0dca7 : 0xc5ca88);
+    // The sunlit grass beyond the wall gives the hole a place to lead to.
+    if (i >= 8) r(-half, y + 2, half * 2, 2, i > 10 ? 0x8e9c68 : 0xaeb97b);
+  }
+  for (const [x,y,w,h] of [[-28,-29,9,6],[20,-26,12,7],[-34,-9,10,9],
+    [26,2,11,8],[-27,17,12,7],[-10,20,9,5],[13,18,14,7]]) {
+    r(x,y,w,h,0x55604d);
+    r(x,y,w,2,0xa2ad85);
+    r(x+2,y+h-2,w-2,2,0x394337);
+  }
+  // A short wedge of light reaches down over the chamber floor.
+  for (let n = 0; n < 5; n++) {
+    g.fillStyle(0xe4d59b, 0.16 - n * 0.025)
+      .fillRect(cx - 20 - n * 3, cy + 20 + n * 4, 40 + n * 6, 4);
+  }
+  return g;
 }
 
 /* ── The morning hill ─────────────────────────────────────────────────────

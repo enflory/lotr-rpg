@@ -534,11 +534,11 @@ export const CHAPTER_DIALOGUES = {
       {
         when: (f) => !f.downsFog,
         lines: [
-          'The track climbs to a single stone,\ntaller and darker than the rest,\nstanding alone on the hilltop.',
+          'Beyond the outlook, the track dips\ninto a hollow. A single dark stone\nstands in the midst of the turf.',
           'It is cold under your hand, though\nthe sun is high. Its shadow points\nnorth, and it is very good to sit in.',
           'You eat, and the warmth makes you\nheavy, and one after another the\nfour of you fall asleep against it.',
-          'You wake to a roof of mist. The sun\nis gone, the ponies are gone, and\nthe cold has got into your clothes.',
-          'Somewhere out in the white your\nfriends are calling. The chalk runs\nnorth-east. Follow it.',
+          'You wake together under a roof of\nmist. Evening has come. The ponies\nshift uneasily beside the stone.',
+          'Sam, Merry and Pippin draw close.\nYou set off in single file, Frodo\nleading north-east along the chalk.',
         ],
         set: 'downsFog',
         objective: 'Follow the chalk north-east to the two stones',
@@ -563,9 +563,9 @@ export const CHAPTER_DIALOGUES = {
       {
         when: (f) => !f.downsSeparated,
         lines: [
-          'The two stones show black and close\nin the mist. Beyond them the voices\nof your friends are calling.',
-          'They go by you in the white, one\nafter another, and each call comes\nfrom further off than the last.',
-          'You go through after them. The mist\nshuts behind you like a door, and\nthere is nobody there at all.',
+          'Two great stones loom out of the\nmist. Frodo is leading; behind him\ncome the others and the ponies.',
+          'You pass between the stones. A pony\nshies; there is a cry behind you.\nYou turn, but the mist hides everyone.',
+          'You call their names. From the east\ncomes a faint cry for help. It dies\naway. You are alone at the stones.',
         ],
         set: 'downsSeparated',
         objective: 'Follow the voices north-east into the mist',
@@ -621,8 +621,8 @@ export const CHAPTER_DIALOGUES = {
         lines: [
           'You could put on the Ring. You are\nfairly sure it would hide you, and\nthat you could find the way out.',
           'Round the corner of the wall comes\nan arm with no body behind it,\nwalking on its fingers.',
-          'It drags itself toward the row of\nsleepers, and then past them,\ntoward you, and it is in no hurry.',
-          'There is a short sword lying loose\non the stones beside your hand.\nThe Ring stays in your pocket.',
+          'The pale fingers creep toward Sam,\nfeeling their way across the stone.\nHe does not stir.',
+          'A short sword lies beside your hand.\nThe arm reaches toward Sam. You\nstrike; the blade breaks in the blow.',
         ],
         set: 'barrowCourage',
         objective: 'Sing the verse Tom taught you',
@@ -659,7 +659,7 @@ export const CHAPTER_DIALOGUES = {
       {
         when: (f) => !f.barrowRescued,
         lines: [
-          'The cold singing starts again and\nthe dark leans in. Frodo stands up\nin it and remembers a small tune.',
+          'You bend beside Merry, but he will\nnot wake. Then you remember Tom,\nand the song he taught you.',
           'Ho! Tom, old Tom, Tom of the meadow!\nBy fern and fountain, by sun and\nshadow,',
           'By the green of your door, by your\nfire, hear us and help us: our\nneed is dire!',
           'Nothing. Then, a long way off and\ncoming quickly, somebody is singing\nback through the solid earth.',
@@ -669,7 +669,7 @@ export const CHAPTER_DIALOGUES = {
         set: 'barrowRescued',
         objective: 'Examine the treasures Tom brought into daylight',
       },
-      { lines: ['Daylight fills the broken roof.\nYour companions are safe.'] },
+      { lines: ['Daylight fills the broken wall.\nYour companions are safe.'] },
     ],
   },
   barrow_broken: {

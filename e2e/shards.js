@@ -29,7 +29,7 @@
 // tests/shards.test.js fails the build otherwise.
 export const SHARDS = {
   shard1: ['routeWillow.spec.js'],
-  shard2: ['routeForest.spec.js'],
+  shard2: ['routeForest.spec.js', 'barrowStaging.spec.js'],
   shard3: [
     'tomHouse.spec.js',
     'journeyPresentation.spec.js',

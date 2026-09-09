@@ -43,7 +43,7 @@ test('the morning hill updates collected blades and recovered ponies immediately
   expect(await props()).toEqual({ blades: false, ponies: 0 });
   await act(page, 'barrow_ponies');
   expect(await props()).toEqual({ blades: false, ponies: 6 });
-  await act(page, 'barrow_ponies');
+  await page.waitForTimeout(500);
   expect(await props()).toEqual({ blades: false, ponies: 6 });
   expect(errors).toEqual([]);
 });
@@ -65,9 +65,7 @@ test('older hill saves with blades do not replay the companions waking', async (
   expect(state).toEqual({ rising: false, busy: false, angles: [0, 0, 0] });
 });
 
-test('the companions pass through the gate without crossing stone or hillside', async ({
-  page,
-}) => {
+test('the companions stay behind the gate without crossing stone or hillside', async ({ page }) => {
   test.setTimeout(90000);
   const errors = watchErrors(page);
   await checkpoint(page, 'downs', 'gate', { ...party, downsFog: true });

@@ -1,4 +1,5 @@
 import { COLLISION_TILES, T } from '../tileTypes.js';
+import { DOWNS_REST, DOWNS_STONE, BARROW_SONG } from '../barrowLandmarks.js';
 import { field, clearing, wind, point, edge, smoothNoise } from './journeyMap.js';
 import { journeyCreate, journeyUpdate, journeyDialogue } from '../../events/journeyEvent.js';
 
@@ -117,6 +118,9 @@ const SOUTH = [
   [47, 22],
   [47, 14],
 ];
+// The lookout comes first; the cold resting stone is farther along the
+// crossing, in a broad hollow with room for the four hobbits to sit together.
+clearing(hills, DOWNS_REST.x, DOWNS_REST.y, 5, 3, T.DOWN_GRASS);
 for (const route of [ROAD, NORTH, SOUTH]) wind(hills, route, 1, T.DOWN_GRASS);
 for (const route of [ROAD, NORTH]) wind(hills, route, 0, T.CHALK);
 // The carve widens as it turns; close the scarp back up so the stones really
@@ -135,7 +139,7 @@ for (const [x, y] of [
   [54, 12],
 ])
   hills[y][x] = T.STANDING_STONE;
-hills[20][28] = T.GREAT_STONE;
+hills[DOWNS_STONE.y][DOWNS_STONE.x] = T.GREAT_STONE;
 trim(hills);
 // Quiet destinations on the southern loop. Flowering turf follows the open
 // hollow, without overwriting a mound or the main chalk crossing.
@@ -152,7 +156,7 @@ export const downs = {
   map: hills,
   spawns: {
     west: { x: 2, y: 30, dir: 'right' },
-    stone: { x: 28, y: 22, dir: 'up' },
+    stone: { ...DOWNS_REST, dir: 'up' },
     gate: { x: 53, y: 14, dir: 'up' },
   },
   npcs: [],
@@ -164,7 +168,7 @@ export const downs = {
     point(24, 39, 'downs_heather', 'The sheltered heather hollow'),
     point(31, 36, 'downs_weathered', 'The weathered standing stone'),
     point(37, 18, 'downs_view', 'Look out over the downs'),
-    point(28, 22, 'downs_stone', 'Rest beside the great stone'),
+    point(DOWNS_REST.x, DOWNS_REST.y, 'downs_stone', 'Rest beside the great stone'),
     point(53, 13, 'downs_gate', 'The two stones like a doorway'),
     point(61, 9, 'downs_voices', 'Call to your companions', (f) => f.downsFog),
   ],
@@ -211,7 +215,7 @@ export const barrow = {
   signs: [],
   interactions: [
     point(15, 13, 'barrow_courage', 'Stand by your friends', (f) => !f.barrowCourage),
-    point(10, 13, 'barrow_call', 'Sing the verse Tom taught you', (f) => f.barrowCourage),
+    point(BARROW_SONG.x, BARROW_SONG.y, 'barrow_call', 'Sing Tom’s song beside your friends', (f) => f.barrowCourage && !f.barrowRescued),
     point(31, 16, 'barrow_hoard', 'The heaped treasure', (f) => f.barrowCourage),
   ],
   exits: [],
@@ -261,7 +265,7 @@ export const barrowhill = {
     point(15, 18, 'barrow_memory', 'Merry remembers'),
     point(18, 12, 'barrow_broken', 'The broken mound'),
     // Beside Tom, who is the one you are actually talking to.
-    point(28, 18, 'barrow_ponies', 'Tom and the ponies'),
+    point(28, 18, 'barrow_ponies', 'Tom and the ponies', (f) => !f.poniesRecovered),
   ],
   exits: [
     edge(41, 21, 'eastroad', 'west', 'poniesRecovered', 'Wait for Tom to bring back the ponies.'),

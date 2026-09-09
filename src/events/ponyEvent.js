@@ -45,8 +45,8 @@ export function createPonies(s) {
         }
       : trailPosition(path.length ? path : [s.player], 90 + i * 30);
     const p = makePony(s, pos.x, pos.y, c);
-    // Reloading inside the mist finds them already gone, not fading out again.
-    if (s.zoneKey === 'downs' && gameState.flags.downsFog) p.setAlpha(0).setVisible(false);
+    // The ponies stay with the party in the mist and vanish at the stones.
+    if (s.zoneKey === 'downs' && gameState.flags.downsSeparated) p.setAlpha(0).setVisible(false);
     if (entry && !pasture) {
       const dx = entry.x === 0 ? -1 : entry.x === s.mapWidth - 1 ? 1 : 0;
       const dy = entry.y === 0 ? -1 : entry.y === s.mapHeight - 1 ? 1 : 0;
@@ -61,8 +61,8 @@ export function updatePonies(s, delta) {
   const ponies = s.journey.ponies;
   if (!ponies) return;
   const f = gameState.flags;
-  // In the mist they are simply gone, but they go the way real things do.
-  const wanted = !(s.zoneKey === 'downs' && f.downsFog);
+  // Waking into mist does not lose the ponies; separation at the stones does.
+  const wanted = !(s.zoneKey === 'downs' && f.downsSeparated);
   const wait =
     (s.zoneKey === 'crickhollow' && !f.crickhollowReady && !f.chapter2) ||
     (s.zoneKey === 'tomclearing' && !f.learnedSong) ||
