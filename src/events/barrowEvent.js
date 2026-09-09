@@ -302,6 +302,8 @@ function makeHand(s) {
 }
 export function createBarrow(s) {
   const f = gameState.flags;
+  // Saves from before the waking beat already passed it when courage was won.
+  const woke = f.barrowWoke || f.barrowCourage || f.barrowRescued;
   const b = (s.journey.downs = /** @type {any} */ ({ active: false, barrow: true }));
   drawBarrowInterior(s);
   // The three of them laid out in a row with their heads to the west: a slab
@@ -369,9 +371,9 @@ export function createBarrow(s) {
     .rectangle(480, 360, 320, 240, 0x000000)
     .setScrollFactor(0)
     .setDepth(860)
-    .setAlpha(f.barrowWoke ? 0 : 1);
+    .setAlpha(woke ? 0 : 1);
   // He wakes lying on his back where the dark put him down.
-  if (!f.barrowWoke) s.player.setAngle(-90);
+  if (!woke) s.player.setAngle(-90);
 }
 
 // Route the hand round the wall spur: east chamber, through the gap at y≈13,
@@ -440,18 +442,16 @@ export function createBarrowhill(s) {
   const f = gameState.flags;
   const b = (s.journey.downs = /** @type {any} */ ({ active: false, hill: true }));
   // The blades stand in the turf only until Tom hands them out.
-  drawBarrowhillScenery(s, !f.barrowBlades);
+  b.blades = drawBarrowhillScenery(s, !f.barrowBlades);
   b.tom = actor(s, 'tom', 27, 17, 1.15);
   // Tom whistles the ponies up over the shoulder of the hill during
   // `barrow_ponies`; until he has, there are no ponies standing on this hill.
   b.ponies = [];
-  if (f.poniesRecovered)
-    for (let i = 0; i < 6; i++)
-      b.ponies.push(pony(s, 30 + i * 1.7, 20, i === 5 ? 0x9b8261 : 0x70513d));
+  refreshBarrowhill(s);
   // Straight out of the barrow: the three of them are still lying on the turf.
   // Keyed off its own flag, because any checkpoint taken on this hill before
   // the blades — examining the mound, say — would otherwise replay the waking.
-  b.rising = !f.hillRisen && s.entryKey === 'default';
+  b.rising = !f.hillRisen && !f.barrowBlades && !f.poniesRecovered && s.entryKey === 'default';
   if (b.rising)
     for (const [i, key] of SLEEPERS.entries()) {
       const p = s.followers.find((q) => q.getData('key') === key);
@@ -464,8 +464,18 @@ export function createBarrowhill(s) {
     }
 }
 
+function refreshBarrowhill(s) {
+  const b = s.journey.downs,
+    f = gameState.flags;
+  b.blades?.setVisible(!f.barrowBlades);
+  if (f.poniesRecovered && !b.ponies.length)
+    for (let i = 0; i < 6; i++)
+      b.ponies.push(pony(s, 30 + i * 1.7, 20, i === 5 ? 0x9b8261 : 0x70513d));
+}
+
 export function updateBarrowhill(s) {
   const b = s.journey.downs;
+  refreshBarrowhill(s);
   if (b.active && !s.dialogActive) releaseControl(s);
   if (b.rising && !b.woke && !s.dialogActive) {
     b.woke = true;
@@ -599,9 +609,10 @@ function downsBeats(s, key, page, f) {
         // They go by him and on through, and the mist takes them in order.
         await Promise.all(
           s.followers.map(async (p, i) => {
-            await move(s, p, at(GATE.x - 1 + i, GATE.y + 1), 58);
-            await move(s, p, at(GATE.x + 1 + i, GATE.y - 2), 58);
-            await tween(s, p, { alpha: 0, x: p.x + 22, y: p.y - 16 }, 1500);
+            await walk(s, p, GATE.x, GATE.y + 1, 58);
+            await walk(s, p, GATE.x, GATE.y - 2, 58);
+            await walk(s, p, GATE.x + 1 + i, GATE.y - 3, 58);
+            await tween(s, p, { alpha: 0 }, 1500);
             p.setVisible(false);
           }),
         );

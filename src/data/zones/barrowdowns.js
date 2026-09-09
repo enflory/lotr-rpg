@@ -137,6 +137,12 @@ for (const [x, y] of [
   hills[y][x] = T.STANDING_STONE;
 hills[20][28] = T.GREAT_STONE;
 trim(hills);
+// Quiet destinations on the southern loop. Flowering turf follows the open
+// hollow, without overwriting a mound or the main chalk crossing.
+for (let y = 34; y <= 42; y++) for (let x = 19; x <= 29; x++)
+  if (hills[y][x] === T.DOWN_GRASS && ((x - 24) / 6) ** 2 + ((y - 39) / 4) ** 2 < 1)
+    hills[y][x] = T.DOWN_HEATHER;
+
 
 /** @type {import('../types.js').Zone} */
 export const downs = {
@@ -155,6 +161,8 @@ export const downs = {
   interactions: [
     point(8, 30, 'downs_farewell', 'Look back the way you came'),
     point(17, 35, 'downs_mounds', 'The green mounds'),
+    point(24, 39, 'downs_heather', 'The sheltered heather hollow'),
+    point(31, 36, 'downs_weathered', 'The weathered standing stone'),
     point(37, 18, 'downs_view', 'Look out over the downs'),
     point(28, 22, 'downs_stone', 'Rest beside the great stone'),
     point(53, 13, 'downs_gate', 'The two stones like a doorway'),

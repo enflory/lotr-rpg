@@ -514,6 +514,20 @@ export const CHAPTER_DIALOGUES = {
       'A bird calls once above them. The\nsilence that answers is deeper than\nthe silence before it.',
     ],
   },
+  downs_heather: {
+    name: 'In the Heather',
+    lines: [
+      'Below the wind, the heather holds\na little warmth. Tiny flowers crowd\ntogether between the blades of grass.',
+      'From here the chalk track is hidden.\nYou can hear the wind moving over\nthe ridge above your heads.',
+    ],
+  },
+  downs_weathered: {
+    name: 'Weathered Stone',
+    lines: [
+      'Pale lichen fills the cracks. One\nedge has crumbled into the turf;\nthe other still catches the sun.',
+      'From the track it was a small grey\nmark. Standing beside it, you have\nto look up.',
+    ],
+  },
   downs_stone: {
     name: 'The Great Stone',
     stages: [

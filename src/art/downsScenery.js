@@ -1,9 +1,9 @@
 // The Barrow-downs read as landscape rather than maze because the solid turf
-// tiles are shaded by height, not by tile. A distance transform over the hill
-// mask gives every solid tile an elevation; contours, a lit northern skyline,
+// tiles are shaded by height, not by tile. A smoothed hill mask supplies
+// elevation; contours, a lit northern skyline,
 // a dark southern face and a cast shadow on the grass below are drawn from it.
-// Nothing here changes collision: every mark is clipped to tiles already solid,
-// except the cast shadow, which is a flat stain on the ground.
+// Rounded edges follow the collision mask; tile centres always retain their
+// solid/open reading. Shadows and vegetation are flat ground decoration.
 import { T } from '../data/tileTypes.js';
 
 const DOWNS_ZONES = new Set(['downs', 'barrowhill', 'eastroad']);
@@ -52,11 +52,7 @@ function sample(field, fx, fy) {
     d = data[i + cols + 1];
   return (a * (1 - u) + b * u) * (1 - v) + (c * (1 - u) + d * u) * v;
 }
-// Two octaves of pixel-scale grain: the fine one frays the hill foot, the
-// coarse one gives whole shoulders of turf their own bulge. Everything below
-// is hoisted to module scope and writes into shared scalars on purpose — this
-// runs a few million times per bake, and a closure or an array per call is
-// what makes the difference between a stutter and a stall.
+// Deterministic broad variation, shared by outlines and ground patches.
 function hash(a, b, s) {
   let n = Math.imul(a + s, 374761393) ^ Math.imul(b + 77, 668265263);
   n = Math.imul(n ^ (n >>> 13), 1274126177);
@@ -76,179 +72,101 @@ function wobble(x, y, sx, sy, s) {
     (hash(ix, iy + 1, s) * (1 - u) + hash(ix + 1, iy + 1, s) * u) * v
   );
 }
-function grain(x, y) {
-  return wobble(x, y, 7, 6, 11) * 0.16 + wobble(x, y, 29, 24, 3) * 0.2;
-}
 
-const TURF = [
-  [0x3f, 0x49, 0x33],
-  [0x55, 0x60, 0x43],
-  [0x6c, 0x77, 0x55],
-  [0x86, 0x91, 0x69],
-  [0xa1, 0xab, 0x7f],
-  [0xbe, 0xc6, 0x9c],
-];
-// The colour the last ramp()/vale() call produced. See the note above.
-let R = 0,
-  G = 0,
-  B = 0;
-function ramp(t) {
-  const p = (t < 0 ? 0 : t > 0.999 ? 0.999 : t) * (TURF.length - 1);
-  const i = p | 0,
-    f = p - i;
-  const lo = TURF[i],
-    hi = TURF[i + 1];
-  R = lo[0] + (hi[0] - lo[0]) * f;
-  G = lo[1] + (hi[1] - lo[1]) * f;
-  B = lo[2] + (hi[2] - lo[2]) * f;
-}
+// A small, opaque palette at native resolution. Broad bands describe form;
+// texture is placed in clusters rather than blended into every pixel.
+const TURF = [0x394b42, 0x4b5e48, 0x61754f, 0x7d8d58, 0x98a568, 0xb1b97a, 0xc7cc91];
+const VALE = [0x718455, 0x798b58, 0x81925e];
+const CHALK = [0xa9aa82, 0xc2c39b, 0xdad7b0];
+const ROAD = [0x91805f, 0xa7946d, 0xb5a27b];
+const GROUND = new Set([T.DOWN_GRASS, T.DOWN_HEATHER, T.DOWN_SLOPE, T.CHALK,
+  T.PATH, T.STANDING_STONE, T.GREAT_STONE]);
 
-// The open turf between the hills: one flat base colour, mottled, so half a
-// mile of it never shows a tile repeat.
-function vale(fine, coarse) {
-  ramp(0.44 + (fine + coarse * 0.4) * 0.5);
+// Pure bake: used by the canvas renderer and by the palette/collision checks.
+export function bakeDownsRelief(map) {
+  const width = map[0].length * 16, height = map.length * 16;
+  const pixels = new Uint8ClampedArray(width * height * 4);
+  const hill = maskOf(map, (t) => t === T.DOWN_SLOPE);
+  const chalk = maskOf(map, (t) => t === T.CHALK);
+  const road = maskOf(map, (t) => t === T.PATH);
+  const ribbons = [{ field: chalk, type: T.CHALK, palette: CHALK },
+    { field: road, type: T.PATH, palette: ROAD }];
+  const ink = (x, y, color) => {
+    const i = (y * width + x) * 4;
+    pixels[i] = color >> 16; pixels[i + 1] = (color >> 8) & 255;
+    pixels[i + 2] = color & 255; pixels[i + 3] = 255;
+  };
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const tile = map[y >> 4][x >> 4];
+    if (!GROUND.has(tile)) continue;
+    const fx = x / 16 - 0.5, fy = y / 16 - 0.5;
+    // Two-pixel clusters fray the outline, never a screen of single-pixel noise.
+    const g = wobble(x & ~1, y & ~1, 26, 20, 11) * 0.055;
+    let m = sample(hill, fx, fy) + g;
+    // Keep the middle of every cell honest. Smoothing may round tile corners,
+    // but must not turn a narrow solid spur into an invisible wall, or paint
+    // a walkable cell as a hill. Fade the correction out towards the edges.
+    const core = Math.max(0, 1 - Math.max(Math.abs((x & 15) - 8), Math.abs((y & 15) - 8)) / 7);
+    if (tile === T.DOWN_SLOPE) m = Math.max(m, 0.65 - (1 - core) * 0.6);
+    else m = Math.min(m, 0.39 + (1 - core) * 0.6);
+    let color;
+    const patch = wobble(x & ~3, y & ~1, 64, 42, 37);
+    if (m > 0.52) {
+      const slope = sample(hill, fx, fy + 0.5) - sample(hill, fx, fy - 0.5);
+      const side = sample(hill, fx + 0.5, fy) - sample(hill, fx - 0.5, fy);
+      const elevation = Math.min(1, (m - 0.52) / 0.48);
+      let light = 0.38 + elevation * 0.30 + slope * 1.65 + side * 0.38 + patch * 0.08;
+      if (sample(hill, fx, fy - 0.13) + g <= 0.52) light = 0.96;
+      if (sample(hill, fx, fy + 0.12) + g <= 0.52) light = 0.08;
+      color = TURF[Math.max(0, Math.min(6, Math.floor(light * 7)))];
+    } else {
+      color = VALE[patch < -0.17 ? 0 : patch > 0.18 ? 2 : 1];
+      const above = sample(hill, fx - 0.16, fy - 0.55);
+      if (above > 0.63) color = 0x586e4d;
+      else if (above > 0.52) color = 0x657b51;
+    }
+    // Opaque, worn ribbons: no alpha fringe revealing the old square tiles.
+    for (const { field, type, palette } of ribbons) {
+      if (!field.any || tile === T.DOWN_SLOPE) continue;
+      const c = sample(field, fx, fy) + g * 0.5;
+      if (c > 0.32 || (tile === type && core > 0.35)) {
+        color = palette[c < 0.39 ? 0 : patch > 0.10 ? 2 : 1];
+      }
+    }
+    ink(x, y, color);
+  }
+  // Wind-combed tufts and flowering cushions: sparse, asymmetric pixel
+  // clusters leave quiet ground between them and keep the path easy to read.
+  for (let y = 5; y < height - 5; y += 7) for (let x = 5; x < width - 5; x += 9) {
+    const seed = hash(x, y, 89) + 0.5;
+    const px = x + Math.floor(seed * 5), py = y + Math.floor((hash(y, x, 23) + 0.5) * 4);
+    const tile = map[py >> 4][px >> 4];
+    if (tile !== T.DOWN_GRASS && tile !== T.DOWN_HEATHER) continue;
+    if (sample(hill, px / 16 - 0.5, py / 16 - 0.5) > 0.38) continue;
+    if (sample(chalk, px / 16 - 0.5, py / 16 - 0.5) > 0.15 ||
+        sample(road, px / 16 - 0.5, py / 16 - 0.5) > 0.15) continue;
+    const flower = tile === T.DOWN_HEATHER;
+    if (seed > (flower ? 0.74 : 0.17)) continue;
+    const marks = flower
+      ? [[-2,0,0x596c50],[-1,0,0x796480],[0,0,0x796480],[1,0,0x796480],
+         [2,0,0x596c50],[-1,-1,0xad8fa5],[1,-2,0xbca0b0],[2,-1,0x947a97]]
+      : [[-2,0,0x63764b],[-1,-1,0x9dab6e],[0,0,0x63764b],[1,-2,0x9dab6e],[1,-1,0x9dab6e],[2,0,0x63764b]];
+    for (const [dx, dy, col] of marks) {
+      if (map[(py + dy) >> 4][(px + dx) >> 4] === tile) ink(px + dx, py + dy, col);
+    }
+  }
+  return { width, height, pixels };
 }
 
 export function drawDownsRelief(scene) {
   if (!DOWNS_ZONES.has(scene.zoneKey)) return;
-  const map = scene.zone.map;
-  const rows = map.length,
-    cols = map[0].length;
-  const W = cols * 16,
-    H = rows * 16;
   const key = `downs-relief-${scene.zoneKey}`;
   if (!scene.textures.exists(key)) {
-    const canvas = scene.textures.createCanvas(key, W, H);
+    const { width, height, pixels } = bakeDownsRelief(scene.zone.map);
+    const canvas = scene.textures.createCanvas(key, width, height);
     const ctx = canvas.getContext();
-    const image = ctx.createImageData(W, H);
-    const data = image.data;
-    const hill = maskOf(map, (t) => t === T.DOWN_SLOPE);
-    const chalk = maskOf(map, (t) => t === T.CHALK);
-    // The East Road gets the same smoothed ribbon as the chalk track, in the
-    // colour of beaten earth: a metalled road, not a staircase of tan squares.
-    const highway = maskOf(map, (t) => t === T.PATH);
-    const hasChalk = chalk.any,
-      hasRoad = highway.any;
-    for (let py = 0; py < H; py++) {
-      for (let px = 0; px < W; px++) {
-        // Mask values belong at tile CENTRES: sampling at px/16 puts them at
-        // the top-left corner instead and slides the whole painted landscape
-        // half a tile up and left of the collision it is supposed to describe,
-        // which is what turns hill edges into invisible and imaginary walls.
-        const fx = px / 16 - 0.5,
-          fy = py / 16 - 0.5;
-        const tile = map[py >> 4][px >> 4];
-        const heather = tile === T.DOWN_HEATHER;
-        // Only downland tiles are repainted. A road, a flower bed or a
-        // milestone keeps its own art; the relief just casts shadow on it.
-        const paintable =
-          heather ||
-          tile === T.DOWN_GRASS ||
-          tile === T.DOWN_SLOPE ||
-          tile === T.CHALK ||
-          tile === T.PATH ||
-          tile === T.STANDING_STONE ||
-          tile === T.GREAT_STONE;
-        const g = grain(px, py);
-        // The finer octaves cost as much as everything else in this loop put
-        // together, so each branch pays only for the ones it actually reads.
-        let g2 = NaN,
-          g3 = NaN;
-        const m = sample(hill, fx, fy) + g;
-        const i = (py * W + px) * 4;
-        let r, gr, b, a;
-        let shadowed = false;
-        if (m > 0.52) {
-          // Light comes from the north, so the far crest of a hill is lit and
-          // its near face falls away into shadow.
-          const slope = sample(hill, fx, fy + 0.5) - sample(hill, fx, fy - 0.5);
-          const side = sample(hill, fx + 0.5, fy) - sample(hill, fx - 0.5, fy);
-          const e = Math.min(1, (m - 0.52) / 0.5);
-          const band = Math.abs(((e * 4) % 1) - 0.5) < 0.07 ? -0.06 : 0;
-          g3 = grain(px * 3, py * 3);
-          let light = 0.46 + e * 0.3 + slope * 2.4 + side * 0.45 + band + g3 * 0.42;
-          if (sample(hill, fx, fy - 0.17) + g <= 0.52) light += 0.42; // skyline rim
-          if (sample(hill, fx, fy + 0.17) + g <= 0.52) light -= 0.3; // the near face
-          ramp(light);
-          r = R;
-          gr = G;
-          b = B;
-          a = 255;
-        } else {
-          const above = sample(hill, fx, fy - 0.75) + g;
-          const shadow = above > 0.5 ? Math.min(1, (above - 0.5) / 0.3) : 0;
-          if (shadow > 0.02) {
-            // The shadow a hill throws down onto the turf in front of it.
-            r = 0x35;
-            gr = 0x3f;
-            b = 0x2f;
-            a = Math.round(105 * shadow);
-            shadowed = true;
-          } else {
-            // The vale floor is painted outright rather than tinted, so the
-            // flat grass tile can never show its repeat through the mottle.
-            g2 = grain(px * 2, py * 2);
-            vale(g2, grain(px * 5, py * 5));
-            r = R;
-            gr = G;
-            b = B;
-            if (heather) {
-              const f = grain(px * 6, py * 6) + g2 * 0.6;
-              if (f > 0.17) (r = 0x8d), (gr = 0x76), (b = 0x9c);
-              else if (f > 0.13) (r = 0x60), (gr = 0x56), (b = 0x68);
-              else if (f < -0.2) (r = 0x6c), (gr = 0x71), (b = 0x52);
-            }
-            a = 255;
-          }
-        }
-        // The chalk track and the East Road are laid over everything, each
-        // from its own smoothed mask, so the carved tile corners never show
-        // through as steps.
-        if (hasChalk) {
-          const c = sample(chalk, fx, fy) + g * 0.12;
-          if (c > 0.3) {
-            const wear = Math.min(1, (c - 0.3) / 0.06);
-            if (Number.isNaN(g3)) g3 = grain(px * 3, py * 3);
-            const t = g3 + g * 0.5;
-            r = Math.min(255, 0xb2 + t * 150);
-            gr = Math.min(255, 0xb4 + t * 140);
-            b = Math.min(255, 0x96 + t * 130);
-            a = Math.round(255 * wear);
-          } else if (tile === T.CHALK) {
-            if (Number.isNaN(g2)) g2 = grain(px * 2, py * 2);
-            vale(g2, grain(px * 5, py * 5));
-            r = R;
-            gr = G;
-            b = B;
-            a = 255;
-          }
-        }
-        if (hasRoad) {
-          const road = sample(highway, fx, fy) + g * 0.12;
-          if (road > 0.3) {
-            const wear = Math.min(1, (road - 0.3) / 0.06);
-            if (Number.isNaN(g3)) g3 = grain(px * 3, py * 3);
-            const t = g3 + g * 0.5;
-            r = Math.min(255, 0x9a + t * 130);
-            gr = Math.min(255, 0x8b + t * 120);
-            b = Math.min(255, 0x6c + t * 110);
-            a = Math.round(255 * wear);
-          } else if (tile === T.PATH) {
-            if (Number.isNaN(g2)) g2 = grain(px * 2, py * 2);
-            vale(g2, grain(px * 5, py * 5));
-            r = R;
-            gr = G;
-            b = B;
-            a = 255;
-          }
-        }
-        if (!paintable && !shadowed) a = 0;
-        data[i] = r;
-        data[i + 1] = gr;
-        data[i + 2] = b;
-        data[i + 3] = a;
-      }
-    }
+    const image = ctx.createImageData(width, height);
+    image.data.set(pixels);
     ctx.putImageData(image, 0, 0);
     canvas.refresh();
   }
@@ -262,7 +180,7 @@ export function drawDownsRelief(scene) {
 // downs, and leaning together so the gap between them reads as a doorway.
 function portal(scene, cx, cy, dir) {
   const s = scene.add.graphics().setDepth(cy + 2);
-  const r = (dx, dy, w, h, col) => s.fillStyle(col).fillRect(cx + dx * dir, cy + dy, w, h);
+  const r = (dx, dy, w, h, col) => s.fillStyle(col).fillRect(cx + (dir === 1 ? dx : -dx - w + 1), cy + dy, w, h);
   r(-8, -8, 17, 9, 0x39433f);
   r(-7, -9, 14, 3, 0x76816f);
   r(-7, -58, 15, 52, 0x1e2427);
@@ -339,6 +257,25 @@ function cairn(scene, cx, cy) {
   return s;
 }
 
+// Low kerbstones are part of the turf, not a new obstacle. Their broken arcs
+// make the southern burial mounds readable from the walking loop.
+function moundKerbs(scene) {
+  const g = scene.add.graphics().setDepth(4);
+  const r = (x, y, w, h, color) => g.fillStyle(color).fillRect(x, y, w, h);
+  for (const [cx, cy, rx, ry] of [[16,35,3,2], [22,37,2,1], [11,33,2,1], [45,33,3,2], [51,36,2,1]]) {
+    for (let n = 0; n < 14; n++) {
+      if (n % 5 === 2) continue;
+      const a = n * Math.PI * 2 / 14;
+      const x = Math.round((cx + 0.5) * 16 + Math.cos(a) * rx * 15);
+      const y = Math.round((cy + 0.5) * 16 + Math.sin(a) * ry * 15);
+      if (scene.zone.map[y >> 4]?.[x >> 4] !== T.DOWN_SLOPE) continue;
+      r(x - 3, y, 7, 3, 0x53624e);
+      r(x - 2, y - 2, 5, 3, 0x929b78);
+      r(x - 1, y - 2, 3, 1, 0xb7bc96);
+    }
+  }
+}
+
 export function drawDownsFeatures(scene) {
   const map = scene.zone.map;
   if (!DOWNS_ZONES.has(scene.zoneKey)) return;
@@ -354,6 +291,7 @@ export function drawDownsFeatures(scene) {
     }
   // A waymark every few tiles of chalk, alighting on the hillside beside it.
   if (scene.zoneKey !== 'downs') return;
+  moundKerbs(scene);
   let n = 0;
   for (let y = 1; y < map.length - 1; y++)
     for (let x = 1; x < map[y].length - 1; x++) {
@@ -596,15 +534,17 @@ export function drawBarrowhillScenery(scene, blades = true) {
   }
   // Four blades stood point-down in the turf, waiting to be picked up — and
   // gone from the ground once each hobbit is carrying one.
-  for (let n = 0; blades && n < 4; n++) {
+  const bladeArt = scene.add.graphics().setDepth(gy + 3).setVisible(blades);
+  const blade = (x, y, w, h, col) => bladeArt.fillStyle(col).fillRect(x, y, w, h);
+  for (let n = 0; n < 4; n++) {
     const x = gx - 20 + n * 14;
-    t(x - 1, gy - 28, 5, 4, 0x8b7541);
-    t(x - 1, gy - 28, 5, 1, 0xd8bd61);
-    t(x, gy - 25, 3, 8, 0x5d4a2c);
-    t(x - 3, gy - 17, 9, 3, 0x8b7541);
-    t(x - 3, gy - 17, 9, 1, 0xd8bd61);
-    t(x, gy - 14, 3, 16, 0xc7d8c0);
-    t(x, gy - 14, 1, 16, 0xeef5e8);
+    blade(x - 1, gy - 28, 5, 4, 0x8b7541);
+    blade(x - 1, gy - 28, 5, 1, 0xd8bd61);
+    blade(x, gy - 25, 3, 8, 0x5d4a2c);
+    blade(x - 3, gy - 17, 9, 3, 0x8b7541);
+    blade(x - 3, gy - 17, 9, 1, 0xd8bd61);
+    blade(x, gy - 14, 3, 16, 0xc7d8c0);
+    blade(x, gy - 14, 1, 16, 0xeef5e8);
   }
   // Sunlight after a night underground: a warm wash and a few drifting seeds.
   scene.add
@@ -626,4 +566,5 @@ export function drawBarrowhillScenery(scene, blades = true) {
       repeat: -1,
     });
   }
+  return bladeArt;
 }
