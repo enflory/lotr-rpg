@@ -19,7 +19,7 @@ function makePony(s, x, y, color) {
   body.fillStyle(0xd5caaa).fillRect(12, -15, 1, 1);
   const legs = [-7, 7].map((x) => s.add.rectangle(x, 3, 3, 7, 0x302c24));
   const p = s.add.container(x, y, [...legs, body]).setDepth(y);
-  p.setData({ body, legs, route: [], clock: 0, phase: 0, target: null });
+  p.setData({ body, legs, route: [], clock: 0, phase: 0, target: null, heading: 1 });
   return p;
 }
 export function createPonies(s) {
@@ -45,6 +45,8 @@ export function createPonies(s) {
         }
       : trailPosition(path.length ? path : [s.player], 90 + i * 30);
     const p = makePony(s, pos.x, pos.y, c);
+    // The ponies stay with the party in the mist and vanish at the stones.
+    if (s.zoneKey === 'downs' && gameState.flags.downsSeparated) p.setAlpha(0).setVisible(false);
     if (entry && !pasture) {
       const dx = entry.x === 0 ? -1 : entry.x === s.mapWidth - 1 ? 1 : 0;
       const dy = entry.y === 0 ? -1 : entry.y === s.mapHeight - 1 ? 1 : 0;
@@ -59,15 +61,18 @@ export function updatePonies(s, delta) {
   const ponies = s.journey.ponies;
   if (!ponies) return;
   const f = gameState.flags;
-  const visible = !(s.zoneKey === 'downs' && f.downsFog);
+  // Waking into mist does not lose the ponies; separation at the stones does.
+  const wanted = !(s.zoneKey === 'downs' && f.downsSeparated);
   const wait =
     (s.zoneKey === 'crickhollow' && !f.crickhollowReady && !f.chapter2) ||
     (s.zoneKey === 'tomclearing' && !f.learnedSong) ||
     (s.zoneKey === 'withywindle' && f.willowTrapped && !f.willowFreed);
   for (let i = 0; i < ponies.length; i++) {
     const p = ponies[i];
-    p.setVisible(visible);
-    if (!visible || wait || s.storyBeat || s.dialogActive) continue;
+    const fade = Math.min(1, delta / 900);
+    p.setAlpha(p.alpha + ((wanted ? 1 : 0) - p.alpha) * fade);
+    p.setVisible(p.alpha > 0.02);
+    if (!wanted || wait || s.storyBeat || s.dialogActive) continue;
     const leader = i ? ponies[i - 1] : s.followers.at(-1) || s.player;
     const distance = Math.hypot(leader.x - p.x, leader.y - p.y);
     const dt = Math.min(delta, 50);
@@ -99,7 +104,12 @@ export function updatePonies(s, delta) {
     p.x += (dx / d) * step;
     p.y += (dy / d) * step;
     p.setDepth(p.y + 5);
-    if (Math.abs(dx) > 0.1) p.scaleX = dx < 0 ? -1 : 1;
+    // Face the way you are actually travelling. A route alternates axis-aligned
+    // steps, so the instantaneous dx of a northward leg is noise: smooth it, and
+    // only turn the pony round once the smoothed heading really has changed side.
+    const heading = p.getData('heading') * 0.82 + (dx / d) * 0.18;
+    p.setData('heading', heading);
+    if (Math.abs(heading) > 0.28) p.scaleX = heading < 0 ? -1 : 1;
     const phase = p.getData('phase') + step / 5;
     p.setData('phase', phase);
     p.getData('legs').forEach((l, j) => (l.y = 3 + Math.sin(phase + j * Math.PI) * 2));

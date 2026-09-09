@@ -278,8 +278,33 @@ export async function walk(page, x, y) {
   );
   if (outcome === 'dialog') {
     await dialogue(page);
-    await walk(page, x, y);
+    // A story trigger can move the party to a different zone entirely (the
+    // wight taking Frodo into the barrow), in which case the destination we
+    // were walking to no longer exists. `zoneKey` still reads as the old zone
+    // for the length of the camera fade, so wait the transition out before
+    // asking where we are — otherwise the re-walk runs against the new map.
+    await page.waitForFunction(
+      () => !window.__game.scene.getScene('WorldScene').transitioning,
+      null,
+      { timeout: 20000 },
+    );
+    const here = await page.evaluate(() => window.__game.scene.getScene('WorldScene').zoneKey);
+    if (here === data.zone) await walk(page, x, y);
   }
+}
+
+// Wait for an automatic cutscene to hand control back. The downs separate the
+// party and the morning hill wakes it again without any dialogue open, so
+// neither is covered by waiting on `dialogActive`.
+export async function settled(page) {
+  await page.waitForFunction(
+    () => {
+      const s = window.__game.scene.getScene('WorldScene');
+      return !s.storyBeat && !s.dialogActive && !s.transitioning;
+    },
+    null,
+    { timeout: 60000 },
+  );
 }
 
 export async function act(page, key) {

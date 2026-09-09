@@ -82,6 +82,10 @@ export const T = {
   BARROW_FLOOR: 69,
   CHALK: 70,
   HEDGE: 71,
+  // Barrow-downs relief: turf scarps, the tall marker stone, flowering turf
+  DOWN_SLOPE: 72,
+  GREAT_STONE: 73,
+  DOWN_HEATHER: 74,
 };
 
 export const COLLISION_TILES = [
@@ -92,6 +96,8 @@ export const COLLISION_TILES = [
   T.STANDING_STONE,
   T.BARROW_WALL,
   T.HEDGE,
+  T.DOWN_SLOPE,
+  T.GREAT_STONE,
 
   T.WATER,
   T.TREE,

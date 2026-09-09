@@ -2,6 +2,7 @@
 // broad crowns never cover a walkable path or imply a new invisible collider.
 import { T } from '../data/tileTypes.js';
 
+// The Barrow-downs have their own renderer in downsScenery.js.
 const FORESTS = new Set(['forestgate', 'forestheart', 'withywindle']);
 const WOOD = new Set([T.OLD_TREE, T.DEAD_TREE]);
 const noise = (x, y) => ((Math.imul(x + 713, 374761393) ^ Math.imul(y + 91, 668265263)) >>> 0) / 4294967296;
@@ -10,7 +11,7 @@ export function drawJourneyScenery(scene) {
   const map = scene.zone.map;
   const rows = map.length, cols = map[0].length;
   const forest = FORESTS.has(scene.zoneKey);
-  if (!forest && scene.zoneKey !== 'downs') return;
+  if (!forest) return;
   const textureKey = `journey-scenery-${scene.zoneKey}`;
   if (forest && scene.textures.exists(textureKey)) {
     scene.add.image(0, 0, textureKey).setOrigin(0).setDepth(2);
@@ -132,24 +133,6 @@ export function drawJourneyScenery(scene) {
       const x = cx - size + Math.floor(noise(n, cx) * size * 2);
       const y = cy + 19 + Math.floor(noise(cy, n) * 10);
       ink(x, y, 3, 1, colors[1]);
-    }
-  }
-  if (scene.zoneKey === 'downs') {
-    for (let y = 1; y < rows - 1; y++) for (let x = 1; x < cols - 1; x++) {
-      if (map[y][x] !== T.STANDING_STONE) continue;
-      const cx = x * 16 + 8, cy = y * 16 + 15;
-      mound(cx, cy, 30 + Math.floor(noise(x, y) * 12));
-      // Narrow upright remains rooted precisely in its original solid cell;
-      // its height extends north, never broadening the obstruction at feet.
-      const stone = scene.add.graphics().setDepth(cy);
-      const r = (dx, dy, w, h, col) => stone.fillStyle(col).fillRect(cx + dx, cy + dy, w, h);
-      r(-6, -27, 12, 27, 0x3f4b48);
-      r(-4, -35, 7, 34, 0x7e8c80);
-      r(-3, -37, 4, 3, 0xaab3a0);
-      r(-3, -32, 2, 25, 0xaab3a0);
-      r(3, -24, 2, 20, 0x596a62);
-      r(0, -17, 2, 8, 0x53665c);
-      r(-4, -4, 8, 2, 0x8c956c);
     }
   }
   if (forest) {

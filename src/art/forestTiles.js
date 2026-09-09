@@ -60,9 +60,10 @@ export function drawLilies(c,ox) {
     px(c,ox+x+2,y+1,'#779063');
   }
 }
+// Base coat only: downsScenery.js paints the mottle and relief on top, so a
+// strong pattern here would tile visibly across half a mile of open turf.
 export function drawDownGrass(c,ox) {
-  ground(c,ox,'#858b69','#71795e','#a2a587');
-  rc(c,ox+4,9,4,1,'#939a79');
+  rc(c,ox,0,16,16,'#7b835c');
 }
 export function drawStandingStone(c,ox) {
   drawDownGrass(c,ox);
@@ -96,4 +97,31 @@ export function drawHedge(c,ox) {
     rc(c,ox+x,y,2,3,'#637747');
     px(c,ox+x+1,y,'#869357');
   }
+}
+
+// Downland turf: hill flanks, flowering saddles and the tall marker stone.
+// The flank tile is deliberately darker than DOWN_GRASS so a slope reads as
+// rising ground even before the relief pass adds crests and cast shadow.
+export function drawDownSlope(c,ox) {
+  ground(c,ox,'#77815b','#6f7a55','#828c63');
+}
+// Base coat only: downsScenery.js scatters the flowers from a pixel field, so
+// a whole hillside of heather never repeats.
+export function drawDownHeather(c,ox) {
+  rc(c,ox,0,16,16,'#6f7355');
+}
+// The waymark the road climbs to: broader, darker and capped with pale lichen
+// so it is legible as *the* stone among the scattered uprights.
+export function drawGreatStone(c,ox) {
+  drawDownGrass(c,ox);
+  rc(c,ox+2,13,13,3,'#5c6553');
+  rc(c,ox+3,14,11,1,'#79826a');
+  rc(c,ox+4,0,9,15,'#22282c');
+  rc(c,ox+5,2,7,13,'#3b444a');
+  rc(c,ox+5,0,5,4,'#7d8a84');
+  rc(c,ox+6,1,3,2,'#b3bcae');
+  rc(c,ox+6,4,2,10,'#5d6a67');
+  rc(c,ox+10,3,2,11,'#2b3236');
+  px(c,ox+8,7,'#8e9a8c');
+  px(c,ox+7,10,'#77857e');
 }

@@ -225,3 +225,29 @@ export const sfx = {
       tone(m, t + dt, 0.7, 'triangle', 0.22, master));
   },
 };
+
+// Chapter 3: the wight's cold chant, Frodo's answering verse, breaking stone.
+sfx.chant = () => {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  [[0, 33], [0.55, 32], [1.1, 35], [1.7, 31]].forEach(([dt, m]) =>
+    tone(m, t + dt, 0.75, 'sawtooth', 0.16, master));
+  [[0, 56], [0.55, 55], [1.1, 58]].forEach(([dt, m]) =>
+    tone(m, t + dt, 0.7, 'sine', 0.07, master));
+};
+sfx.hymn = () => {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  [[0, 69, 0.42], [0.4, 72, 0.42], [0.8, 74, 0.42], [1.2, 76, 0.7], [1.9, 74, 0.5], [2.4, 71, 0.9]]
+    .forEach(([dt, m, len]) => tone(m, t + dt, len, 'triangle', 0.3, master));
+  [[0, 45], [1.2, 50], [2.4, 47]].forEach(([dt, m]) =>
+    tone(m, t + dt, 1.1, 'sine', 0.16, master));
+};
+sfx.crack = () => {
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  tone(28, t, 0.7, 'square', 0.22, master);
+  tone(35, t + 0.12, 0.5, 'sawtooth', 0.18, master);
+  [[0.3, 81], [0.42, 86], [0.55, 90]].forEach(([dt, m]) =>
+    tone(m, t + dt, 0.5, 'triangle', 0.24, master));
+};

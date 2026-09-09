@@ -14,17 +14,15 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 | :----------------------------------------------------------------------------: | :-------------------------------------------------------------: |
 |                   Gildor's company feasting in the Woody End                   |         Farmer Maggot's Bamfurlong, down in the Marish          |
 
-|     ![Winding paths beneath the Old Forest canopy](assets/screenshots/oldforest.png)     |      ![Captivity at Old Man Willow](assets/screenshots/willow.png)      |
-| :--------------------------------------------------------------------------------------: | :---------------------------------------------------------------------: |
-|                                      The Old Forest                                      |                             Old Man Willow                              |
-| ![The four hobbits in Tom and Goldberry’s house](assets/screenshots/tomhouse-supper.png) | ![Fog gathers around the standing stones](assets/screenshots/downs.png) |
-|                                Tom and Goldberry’s house                                 |                            The Barrow-downs                             |
-
 | ![Crickhollow's cottage, lawn and kitchen garden](assets/screenshots/crickhollow.png) | ![All five hobbits sharing supper](assets/screenshots/crickhollow-supper.png) |
 | :-----------------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
 |                               The garden at Crickhollow                               |                        Supper and the friends' secret                         |
 
-![The first night’s dream above the sleeping hobbits](assets/screenshots/tomhouse-dream.png)
+|     ![Winding paths beneath the Old Forest canopy](assets/screenshots/oldforest.png)     |            ![Captivity at Old Man Willow](assets/screenshots/willow.png)             |
+| :--------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------: |
+|                                      The Old Forest                                      |                                    Old Man Willow                                    |
+| ![The four hobbits in Tom and Goldberry’s house](assets/screenshots/tomhouse-supper.png) | ![Chalk paths and standing stones in the Barrow-downs](assets/screenshots/downs.png) |
+|                                Tom and Goldberry’s house                                 |                                   The Barrow-downs                                   |
 
 ## Running Locally
 
@@ -55,9 +53,9 @@ band below it; in landscape the widgets float over the side letterboxes.
 
 Chapter 1 follows the Shire, the Black Rider, Gildor, Maggot, and the Brandywine ferry. Chapter 2 begins with an evening at Crickhollow: a secluded garden, hot baths, supper with all five hobbits, and the friends revealing their preparations. A night-to-morning cutscene brings the party back outside; Merry joins the travelling party, the tunnel opens beneath the High Hay, and the journey winds through the Bonfire Glade, a grassy knoll, misleading northern paths, deep hollows, and the Withywindle. Old Man Willow's capture and rescue use measured cutscene walking and continuous character animation, moving tree cracks, and player actions to help Sam, extinguish the fire, and reach for the prisoners. Tom skips ahead along the river after the rescue. His house guides one active cue at a time through supper with all six characters seated, two nights in bed with dimmed lights and dream vignettes, rainy tales, the Ring demonstration and farewell. The Ring returns to Frodo's pocket after the demonstration.
 
-Chapter 3 crosses the open downs into fog, separation, and the barrow. Frodo defends his friends and calls Tom; the four blades and recovered ponies carry the party to the East Road. Bree is the next destination and is not yet playable. Twelve new zones bring the total to seventeen.
+Chapter 3 opens with chalk paths, heather hollows and ancient stones to explore across the downs. Beyond the panoramic lookout, the hobbits rest beside a cold standing stone, wake together in mist, and become separated at the gate stones before Frodo is taken into the barrow. Frodo defends his friends and calls Tom; the four blades and recovered ponies carry the party to the East Road. Bree is the next destination and is not yet playable. Twelve new zones bring the total to seventeen.
 
-The new chapters use original paraphrased dialogue and procedural art/music. [Adaptation notes](docs/lore/old-forest-adaptation.md) distinguish book chronology from gameplay compression. Five animated ponies follow the hobbits from Crickhollow through the forest, wait outside Tom’s house, and follow again until the fog on the downs. The four hobbits use the existing walking controls. Forest paths are deliberately winding and fixed, with optional places to inspect. Gold glints mark interactions; nearby prompts name the action.
+The new chapters use original paraphrased dialogue and procedural art/music. [Adaptation notes](docs/lore/old-forest-adaptation.md) distinguish book chronology from gameplay compression. Five animated ponies follow the hobbits from Crickhollow through the forest, wait outside Tom’s house, and follow again until the company becomes separated at the gate stones on the downs. The four hobbits use the existing walking controls. Forest paths are deliberately winding and fixed, with optional places to inspect. Gold glints mark interactions; nearby prompts name the action.
 
 Continue checkpoints preserve completed conversations, encounters, and both nights at the house, including older v1 saves. The `I` overlay pauses walking, and `Q` recalls the current objective.
 
