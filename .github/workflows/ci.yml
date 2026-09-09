@@ -23,6 +23,14 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+    strategy:
+      # Duration-balanced groups defined in e2e/shards.js, one runner each.
+      # tests/shards.test.js fails the build if a spec file is in no group.
+      # Don't cancel the others on a failure — seeing every result is worth
+      # the extra minutes.
+      fail-fast: false
+      matrix:
+        project: [shard1, shard2, shard3, shard4, shard5]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -30,8 +38,26 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - id: playwright
+        run: echo "version=$(node -p "require('@playwright/test/package.json').version")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        id: browser-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright.outputs.version }}
+      # The browser binaries cache; the apt libraries they link against do
+      # not, so install-deps runs either way.
+      - if: steps.browser-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+      - if: steps.browser-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e -- --project=${{ matrix.project }}
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.project }}
+          path: playwright-report/
+          retention-days: 7
 
   deploy:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
