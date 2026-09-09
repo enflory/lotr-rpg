@@ -4,6 +4,10 @@ import { act, checkpoint, dialogue, settled, walk, watchErrors } from './journey
 const party = { chapter2: true, merryJoined: true, learnedSong: true };
 
 test('Continue after courage in an older save keeps the chamber visible', async ({ page }) => {
+  // This also walks to the song and plays the entire rescue. Identical code
+  // took 45s in CI, then exceeded the default 60s on another runner. Keep
+  // the helper's per-step stall limits, but allow headroom for the full scene.
+  test.setTimeout(120000);
   await checkpoint(page, 'barrow', 'default', {
     ...party,
     barrowTaken: true,
