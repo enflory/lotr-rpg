@@ -1,4 +1,5 @@
 import { CHAPTER_DIALOGUES } from './chapterDialogues.js';
+import { HOBBITON_DIALOGUES } from './hobbitonDialogues.js';
 
 // NPC dialogues — drawn from or closely paraphrasing The Lord of the Rings.
 //
@@ -16,6 +17,7 @@ import { CHAPTER_DIALOGUES } from './chapterDialogues.js';
 /** @type {Record<string, import('./types.js').Dialogue>} */
 export const DIALOGUES = {
   ...CHAPTER_DIALOGUES,
+  ...HOBBITON_DIALOGUES,
   crickhollow_ponies: {
     name: 'The Ponies',
     lines: [
@@ -143,6 +145,17 @@ export const DIALOGUES = {
         ],
         set: 'halfPintDelivered',
         take: 'ale_mug',
+      },
+      {
+        // The stranger who came to Number Three asking after Baggins. In the
+        // book the Gaffer tells this to Gandalf; here he tells it to Frodo,
+        // if Frodo ever walks back up the Row after the Woody End.
+        when: (f) => f.escapedRider,
+        lines: [
+          'Queer doings on the Row\nwhile you were off east,\nMr. Frodo.',
+          'A black sort of fellow\ncame asking after Baggins.\nOn a black horse.',
+          "I told him you'd gone, and\nwhere. I'm sorry for it now,\nthe way he hissed at me.",
+        ],
       },
       {
         when: (f) => !f.samJoined,

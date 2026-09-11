@@ -263,10 +263,10 @@ test('talking to Gandalf reveals the Ring and sets the story flag', async ({ pag
 
 test('exploration: pickups collect and the overlay tallies them', async ({ page }) => {
   await startGame(page);
-  // Walk onto the Bagshot Row mathom pickup (shire_mathom_3 at tile 2,16)
+  // Walk onto the mathom hidden in the cornfield (shire_mathom_3 at tile 37,4)
   await page.evaluate(() => {
     const scene = window.__game.scene.getScene('WorldScene');
-    scene.player.setPosition(2 * 16 + 8, 16 * 16 + 8);
+    scene.player.setPosition(37 * 16 + 8, 4 * 16 + 8);
   });
   await page.waitForFunction(() => (window.__state.items.mathom || 0) >= 1, null, {
     timeout: 5_000,

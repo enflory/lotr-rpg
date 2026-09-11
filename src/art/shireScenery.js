@@ -22,20 +22,25 @@ export const SHIRE_ZONES = new Set(['shire', 'woodyend', 'marish']);
 const MEADOW = [0x2d5520, 0x356328, 0x3d722b, 0x447f2c, 0x4a8a31, 0x519436, 0x59a03c];
 const TURF = [0x2f5b26, 0x33612a, 0x3a7029, 0x46812f, 0x529136, 0x5fa03f, 0x6cae49];
 const EARTH = [0x3c2a14, 0x4a3418, 0x5a4020, 0x6b4d28, 0x7a5d30, 0x8a6b3d, 0x9a7b4d];
-const ROAD = [0x6e5c36, 0x826d3e, 0x9c854b, 0xa88c4e, 0xb89a5c, 0xc4a265, 0xd2b076];
+const ROAD = [0x655840, 0x77694c, 0x8b7c5b, 0x9c8c68, 0xac9a75, 0xbaa883, 0xc8b795];
 const MIRE = [0x33481f, 0x3d5726, 0x46632a, 0x527232, 0x5e5430, 0x6a6438, 0x7a8a54];
 const SHINGLE = [0x8e8a63, 0xa9a279, 0xc0b88e];
+const MOWN = [0x5c6b33, 0x74833f, 0x8f9a4e, 0xaab060, 0xc3c47c];
+const FLOOD = [0x1b3c5e, 0x234a70, 0x2b5a84, 0x356c99, 0x4885ae, 0x6aa6c6, 0x9ccbdd];
 const BLOSSOM = [0xd8484a, 0xe2d04c, 0xc668c4, 0xefeade];
 
 // Leaf ramps for the canopy layer: dark rim, body, lit crown.
 const GREENWOOD = [0x0d2110, 0x142d14, 0x1c3c18, 0x254c1e, 0x2f5e25, 0x3c7130, 0x4d873c];
-const AUTUMN = [0x1d2109, 0x2a2c0d, 0x3a3a12, 0x4c4917, 0x64591d, 0x7f6f26, 0x9a8833];
+// The lighter-leaved trees: orchard apple in the Shire, turning beech in
+// the Woody End. Kept green enough that a row of them never reads as dead.
+const AUTUMN = [0x1b2b0d, 0x293d13, 0x3b521a, 0x4f6a21, 0x68862a, 0x86a136, 0xa4bb48];
+const FRUIT = [0xa8352f, 0xc85a3a];
 const BARK = [0x2a1b0d, 0x412a14, 0x5a3a1c, 0x74512a, 0x8d6738];
 
 const OPEN = new Set([T.GRASS, T.GRASS2, T.PATH, T.HILLTOP, T.BOG, T.FLOWERS]);
 // The woods are painted too: the ground bake lays shaded woodland floor
 // under every tree cell, and the canopy strips draw the trees themselves.
-const PAINTED = new Set([...OPEN, T.HILL, T.TREE, T.TREE2]);
+const PAINTED = new Set([...OPEN, T.HILL, T.TREE, T.TREE2, T.WATER, T.HAY]);
 const WOODS = new Set([T.TREE, T.TREE2]);
 // Anything with real bulk standing on the ground throws a shadow south.
 const CASTERS = new Set([
@@ -82,24 +87,23 @@ export function bakeShireGround(map) {
         fy = y / 16 - 0.5;
       // Two-pixel clusters fray every outline; never a screen of single noise.
       const g = wobble(x & ~1, y & ~1, 26, 20, 11) * 0.06;
-      // Keep the middle of every cell honest: smoothing may round a corner,
-      // but a bank centre must never be painted as open turf, nor a walkable
-      // centre as a bank. The correction fades out towards the tile edges.
-      const core = Math.max(0, 1 - Math.max(Math.abs((x & 15) - 8), Math.abs((y & 15) - 8)) / 7);
       const patch = wobble(x & ~3, y & ~1, 70, 46, 37);
       const p = sample(plateau, fx, fy) + g;
 
       let color;
       if (tile === T.HILL) {
-        // A cut earth bank. The turf of the field above rolls over its lip,
-        // so grass, not a hard edge, meets the sky side of the bank. The
-        // threshold tightens towards the middle of the cell: a bank centre is
-        // always earth, so a solid cell can never be mistaken for a lawn.
-        const lip = p - core * 0.3;
-        if (lip > 0.26) color = TURF[lip > 0.4 ? 5 : 4];
+        // A cut earth bank. Turf from the field above rolls over its brow, so
+        // grass — not a hard edge — meets the sky side of it. The depth of
+        // that spill varies smoothly along the bank rather than per cell,
+        // which is what keeps a long bank from reading as battlements. Only
+        // the top course of a bank has a brow; the rest is all face.
+        const brow = map[(y >> 4) - 1]?.[x >> 4] !== T.HILL;
+        const spill = 4 + Math.round((wobble(x, 0, 19, 1, 7) + 0.5) * 6);
+        const into = y & 15;
+        if (brow && into < spill) color = TURF[into < spill - 3 ? 5 : 4];
         else {
-          const drop = Math.min(1, (0.26 - lip) / 0.3);
-          color = drop < 0.18 ? EARTH[1] : EARTH[step(2 + Math.floor(drop * 3) + (patch > 0.16 ? 1 : 0), 6)];
+          const drop = brow ? Math.min(1, (into - spill) / 9) : 0.8;
+          color = drop < 0.2 ? EARTH[1] : EARTH[step(2 + Math.floor(drop * 3) + (patch > 0.16 ? 1 : 0), 6)];
         }
       } else if (tile === T.HILLTOP) {
         // The high field: lit, and falling off in tone towards its own lip.
@@ -107,6 +111,27 @@ export function bakeShireGround(map) {
         color = TURF[step(3 + Math.round(lift * 3) + (patch > 0.16 ? 1 : -1) * (patch > 0.16 || patch < -0.2 ? 1 : 0), 6)];
       } else if (tile === T.BOG) {
         color = MIRE[step(2 + (patch > 0.12 ? 1 : 0) + (patch > 0.3 ? 1 : 0) + (patch < -0.18 ? -1 : 0), 6)];
+      } else if (tile === T.WATER) {
+        // Open water: depth read from how far the pixel is from any bank,
+        // with a slow ripple and one lit band where the sky lands on it.
+        const deep = sample(river, fx, fy) + g;
+        const ripple = wobble(x, y & ~1, 30, 9, 61);
+        let level = deep > 0.8 ? 1 : deep > 0.62 ? 2 : deep > 0.45 ? 3 : 4;
+        if (ripple > 0.21) level += 1;
+        else if (ripple < -0.26) level -= 1;
+        color = FLOOD[step(level, 6)];
+        if (ripple > 0.34 && (y & 3) === 1) color = FLOOD[6];
+      } else if (tile === T.HAY) {
+        // Cut hay lying in swathes over the stubble it was mown from. The
+        // swathes are the bands the mower walked, not a tile fill, so a
+        // hayfield never reads as a pale rectangle dropped on a lawn.
+        const walk = Math.sin((y + wobble(x, 0, 37, 1, 53) * 13) * 0.42);
+        color =
+          walk > 0.3
+            ? MOWN[step(3 + (patch > 0.2 ? 1 : 0), 4)]
+            : walk > -0.15
+              ? MOWN[step(1 + (patch > 0.15 ? 1 : 0), 4)]
+              : MEADOW[step(4 + (patch > 0.2 ? 1 : 0), 6)];
       } else if (WOODS.has(tile)) {
         // Leaf litter under the woods. The crown that grows from this cell is
         // drawn in the canopy strip; what shows past it is floor, not a lawn.
@@ -120,26 +145,26 @@ export function bakeShireGround(map) {
 
       // The lanes: opaque worn ribbons, so no alpha fringe can reveal the old
       // square tiles underneath. Banks keep their earth face.
-      if (tile !== T.HILL && !WOODS.has(tile)) {
+      if (tile !== T.HILL && tile !== T.WATER && !WOODS.has(tile)) {
         const c = sample(lane, fx, fy) + g * 0.5;
-        if (c > 0.34 || (tile === T.PATH && core > 0.35))
+        if (c > 0.36 || tile === T.PATH)
           color = ROAD[step(4 + (c < 0.42 ? -1 : 0) + (patch > 0.12 ? 1 : 0) + (patch > 0.3 ? 1 : 0), 6)];
       }
 
       // Damp shingle where the ground runs down into water.
       const w = sample(river, fx, fy) + g * 0.5;
-      if (w > 0.12 && tile !== T.HILL && !WOODS.has(tile))
+      if (w > 0.12 && tile !== T.HILL && tile !== T.WATER && !WOODS.has(tile))
         color = SHINGLE[w > 0.3 ? 0 : w > 0.2 ? 1 : 2];
 
       // Cast shadow: the bank above, the woods, and anything built. All three
       // fall to the south-east, so the whole zone reads as one hour of day.
       let dark = 0;
-      if (tile !== T.HILL && tile !== T.HILLTOP && !WOODS.has(tile)) {
+      if (tile !== T.HILL && tile !== T.HILLTOP && tile !== T.WATER && !WOODS.has(tile)) {
         const over = sample(bank, fx - 0.1, fy - 0.45) + sample(plateau, fx - 0.1, fy - 0.45) * 0.4;
         if (over > 0.5) dark = 2;
         else if (over > 0.25) dark = 1;
       }
-      if (!WOODS.has(tile)) {
+      if (!WOODS.has(tile) && tile !== T.WATER) {
         const shade = sample(wood, fx - 0.14, fy - 0.42) + sample(built, fx - 0.14, fy - 0.4);
         if (shade > 0.46) dark = Math.max(dark, 2);
         else if (shade > 0.22) dark = Math.max(dark, 1);
@@ -178,7 +203,7 @@ export function bakeShireGround(map) {
 // A shadow is a step down whichever ramp the pixel already belongs to, so the
 // palette never grows and a shaded lane still reads as lane.
 function shadeOf(color, amount) {
-  for (const ramp of [MEADOW, TURF, EARTH, ROAD, MIRE]) {
+  for (const ramp of [MEADOW, TURF, EARTH, ROAD, MIRE, FLOOD, MOWN]) {
     const i = ramp.indexOf(color);
     if (i >= 0) return ramp[step(i - amount, ramp.length - 1)];
   }
@@ -227,13 +252,19 @@ function tree(paint, map, tx, ty) {
     paint(cx - w, cy + dy, w * 2, 2, leaves[0]);
     paint(cx - w + 2, cy + dy, w * 2 - 4, 2, leaves[t > 0.6 ? 1 : t > 0.28 ? 2 : 3]);
   }
-  // Lit leaf masses towards the north-west; flecks only at their edges.
+  // Lit leaf masses towards the north-west; flecks only at their edges, and
+  // a little fruit where the lighter-leaved trees are.
+  const fruited = map[ty][tx] === T.TREE2;
   for (let n = 0; n < 5; n++) {
     const dx = Math.round(hash(seed, n, 3) * 12) - 3;
     const dy = Math.round(hash(n, seed, 9) * 12) - 4;
     if (dx * dx * 1.6 + dy * dy > ry * ry) continue;
     paint(cx + dx - 3, cy + dy, 3 + (n % 3), 2, leaves[4 + (n % 2)]);
     if (n % 3 === 0) paint(cx + dx - 2, cy + dy - 1, 2, 1, leaves[6]);
+    if (fruited && n % 2 === 1) {
+      paint(cx - dx, cy - dy + 2, 2, 2, FRUIT[n % 2]);
+      paint(cx - dx, cy - dy + 2, 1, 1, FRUIT[1]);
+    }
   }
 }
 
@@ -343,4 +374,35 @@ export function drawShireScenery(scene) {
   for (let y = 0; y < map.length; y++)
     for (let x = 0; x < map[y].length; x++)
       if (map[y][x] === T.PARTY_NL) partyTree(scene, x, y);
+}
+
+/* ── weather ──────────────────────────────────────────────────────────────
+   A little motion in the air. Nothing here is interactive and nothing is
+   saved: it is the difference between a picture of the Shire and a place
+   with an afternoon going on in it.                                       */
+const WEATHER = {
+  shire: { count: 22, colors: [0xf0ead6, 0xdfe6b4], size: 2, drift: [30, -18], speed: 5200 },
+  woodyend: { count: 26, colors: [0xb0a564, 0x8a984e], size: 2, drift: [24, 38], speed: 4000 },
+  marish: { count: 20, colors: [0x8fa06a, 0xa9b7d0], size: 1, drift: [-14, 22], speed: 4600 },
+};
+
+export function drawShireWeather(scene) {
+  const spec = WEATHER[scene.zoneKey];
+  if (!spec) return;
+  for (let i = 0; i < spec.count; i++) {
+    const x = (i * 137 + 53) % (scene.mapWidth * 16);
+    const y = (i * 101 + 37) % (scene.mapHeight * 16);
+    const mote = scene.add
+      .rectangle(x, y, spec.size + (i % 2), spec.size, spec.colors[i % 2], 0.55)
+      .setDepth(830);
+    scene.tweens.add({
+      targets: mote,
+      x: x + spec.drift[0],
+      y: y + spec.drift[1],
+      alpha: 0,
+      duration: spec.speed + i * 151,
+      delay: i * 130,
+      repeat: -1,
+    });
+  }
 }

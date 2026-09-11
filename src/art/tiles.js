@@ -847,6 +847,95 @@ function drawWaggon(c, ox) {
   circle(c, ox + 12, 12, 1, '#3a2410');
 }
 
+
+/* ── Hobbiton field furniture ─────────────────────────────────────────────
+   The east of Hobbiton was one wide lawn; these are what divide it into
+   fields worth walking across.                                           */
+function drawHedgerow(c, ox) {
+  // Hawthorn laid the old way: thick, dark, with berries and a bare stem row
+  rc(c, ox, 0, 16, 16, '#3c7a2c');
+  rc(c, ox, 3, 16, 11, '#1c3c16');
+  rc(c, ox, 4, 16, 8, '#25501c');
+  for (const [dx, dy] of [[1,5],[6,4],[11,6],[14,4],[3,9],[8,10],[13,10]])
+    rc(c, ox + dx, dy, 3, 2, '#2f6423');
+  for (const [dx, dy] of [[2,5],[7,4],[12,6],[9,9]]) px(c, ox + dx, dy, '#3f7a2e');
+  for (const [dx, dy] of [[10, 5], [3, 10]]) px(c, ox + dx, dy, '#8a2f2b');
+  rc(c, ox, 13, 16, 1, '#153113');
+}
+
+function drawStook(c, ox) {
+  // A sheaf stood on end to dry, tied at the waist
+  rc(c, ox, 0, 16, 16, '#7d9440');
+  rc(c, ox + 3, 13, 11, 3, '#5f7431');
+  for (let i = 0; i < 7; i++) {
+    const x = 3 + i;
+    rc(c, ox + x, 12 - i, 2, 4 + i, '#c8a24e');
+    rc(c, ox + 15 - x, 12 - i, 2, 4 + i, '#b08c3e');
+  }
+  rc(c, ox + 4, 2, 8, 4, '#dcbb63');
+  rc(c, ox + 6, 1, 4, 2, '#eed27e');
+  rc(c, ox + 3, 8, 10, 2, '#8a6c2c');
+  px(c, ox + 7, 8, '#6b5220');
+}
+
+function drawSkep(c, ox) {
+  // A straw bee skep on a plank stand
+  rc(c, ox, 0, 16, 16, '#4e9235');
+  rc(c, ox + 2, 13, 12, 2, '#6b4423');
+  circle(c, ox + 8, 9, 6, '#8a6a26');
+  circle(c, ox + 8, 9, 5, '#c49a3c');
+  for (let y = 5; y <= 13; y += 2) rc(c, ox + 3, y, 10, 1, '#8a6a26');
+  rc(c, ox + 6, 12, 4, 2, '#3a2a12');
+  px(c, ox + 12, 4, '#e8d24a');
+  px(c, ox + 13, 6, '#2a2410');
+}
+
+function drawBench(c, ox) {
+  // A plank bench facing the lane
+  rc(c, ox, 0, 16, 16, '#4e9235');
+  rc(c, ox + 1, 6, 14, 3, '#8a6b3d');
+  rc(c, ox + 1, 6, 14, 1, '#a07c48');
+  rc(c, ox + 1, 3, 14, 2, '#6b4423');
+  rc(c, ox + 2, 9, 2, 4, '#5a3a1c');
+  rc(c, ox + 12, 9, 2, 4, '#5a3a1c');
+  rc(c, ox + 1, 12, 14, 1, '#3d7a2a');
+}
+
+function drawMilestone(c, ox) {
+  // A weathered waymark, leaning where the lane has worn round it
+  rc(c, ox, 0, 16, 16, '#4e9235');
+  rc(c, ox + 4, 12, 9, 3, '#3d7a2a');
+  rc(c, ox + 5, 4, 7, 10, '#6f7264');
+  rc(c, ox + 6, 3, 5, 11, '#9aa08c');
+  rc(c, ox + 7, 4, 2, 9, '#bcc0ac');
+  rc(c, ox + 10, 6, 1, 7, '#54574b');
+  rc(c, ox + 6, 7, 5, 1, '#54574b');
+  rc(c, ox + 6, 10, 4, 1, '#54574b');
+}
+
+function drawCorn(c, ox) {
+  // Standing corn, shoulder-high to a hobbit and impossible to see through
+  rc(c, ox, 0, 16, 16, '#8a9a42');
+  for (let x = 0; x < 16; x += 3) {
+    const wob = (x * 5) % 3;
+    rc(c, ox + x, 2 + wob, 2, 14 - wob, '#b9a84e');
+    rc(c, ox + x + 1, 3 + wob, 1, 12, '#d6c266');
+    rc(c, ox + x, wob, 2, 3, '#e8d67e');
+    px(c, ox + x + 1, wob, '#f4e8a0');
+  }
+  for (const [dx, dy] of [[2,9],[8,12],[13,6]]) px(c, ox + dx, dy, '#7d6c2c');
+}
+
+function drawHay(c, ox) {
+  // Cut hay lying in swathes, walkable
+  rc(c, ox, 0, 16, 16, '#a89a52');
+  for (const [dx, dy, w] of [[0,2,9],[7,5,9],[2,8,11],[9,11,7],[0,14,12]]) {
+    rc(c, ox + dx, dy, w, 2, '#c4b262');
+    rc(c, ox + dx + 1, dy, w - 3, 1, '#dccb82');
+  }
+  for (const [dx, dy] of [[4,4],[12,9],[6,13],[14,2]]) px(c, ox + dx, dy, '#8a7c3c');
+}
+
 export const TILE_FNS = [
   drawGrass, drawGrass2, drawPath, drawWater, drawTree,
   drawHill, drawHillTop, drawDoor, drawBridge, drawFence,
@@ -862,6 +951,7 @@ export const TILE_FNS = [
   drawMoundL, drawMoundR, drawBaseL, drawBaseR, drawWindowF,
   drawForestFloor, drawOldTree, drawRoots, drawDeadTree, drawDarkWater, drawLilies, drawDownGrass, drawStandingStone, drawBarrowWall, drawBarrowFloor, drawChalk, drawHedge,
   drawDownSlope, drawGreatStone, drawDownHeather,
+  drawHedgerow, drawStook, drawSkep, drawBench, drawMilestone, drawCorn, drawHay,
 ];
 
 export function makeTilesetDataURL() {

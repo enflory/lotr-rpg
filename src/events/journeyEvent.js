@@ -33,16 +33,11 @@ function atmosphere(scene) {
 }
 
 export function journeyCreate(scene) {
+  // The pale glimmer on each examine point is drawn by WorldScene now, for
+  // every zone in the game rather than only the ones on the journey.
   scene.journey = { state: '', props: [], markers: [] };
   const j = scene.journey,
     key = scene.zoneKey;
-  for (const p of scene.zone.interactions ?? []) {
-    const dot = scene.add
-      .ellipse(p.x * 16 + 8, p.y * 16 + 8, 8, 3, 0xd4c581, 0.5)
-      .setDepth(p.y * 16 - 10);
-    scene.tweens.add({ targets: dot, alpha: 0.2, duration: 1700, yoyo: true, repeat: -1 });
-    j.markers.push({ p, dot });
-  }
   drawJourneyScenery(scene);
   drawHouseScenery(scene);
   barrowCreate(scene);
@@ -72,7 +67,6 @@ export function journeyUpdate(scene, delta) {
   const tx = scene.player.x / 16,
     ty = scene.player.y / 16;
   updatePonies(scene, delta);
-  for (const { p, dot } of j.markers) dot.setVisible(!p.when || p.when(f));
   if (key === 'crickhollow' || key === 'crickhollowhouse') updateCrickhollow(scene);
   if (key === 'hedgetunnel') {
     j.gate.setVisible(!f.hedgeEntered);

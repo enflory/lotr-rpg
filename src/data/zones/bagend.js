@@ -41,6 +41,15 @@ export const bagend = {
     { x: 7, y: 3, dialogue: 'examine_fireplace' },
     { x: 12, y: 3, dialogue: 'examine_bookcase' },
   ],
+  // The smial is a home, not a room: the things in it are worth reading.
+  interactions: [
+    { x: 5, y: 4, label: 'The round window', dialogue: 'examine_window_bagend' },
+    { x: 8, y: 4, label: 'The envelope', dialogue: 'examine_ringspot' },
+    { x: 11, y: 4, label: 'The map of Wilderland', dialogue: 'examine_map' },
+    { x: 14, y: 4, label: 'The pantry', dialogue: 'examine_pantry' },
+    { x: 14, y: 9, label: 'The mathom chest', dialogue: 'examine_chest' },
+    { x: 7, y: 11, label: 'The walking sticks', dialogue: 'examine_sticks' },
+  ],
   pickups: [{ id: 'bagend_mathom_1', x: 15, y: 10, item: 'mathom' }],
   exits: [
     { x: 9, y: 14, zone: 'shire', entry: 'fromBagEnd' },

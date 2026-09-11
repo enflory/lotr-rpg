@@ -165,6 +165,27 @@ describe('signs and NPCs', () => {
     }
   });
 
+  it('every examine point stands on open ground and has a dialogue entry', () => {
+    for (const zone of zones) {
+      const reach = reachable(zone);
+      for (const p of zone.interactions ?? []) {
+        expect(inBounds(zone, p.x, p.y), `${zone.key} interaction out of bounds`).toBe(true);
+        expect(
+          walkable(zone, p.x, p.y),
+          `${zone.key} interaction (${p.x},${p.y}) sits on a solid tile`,
+        ).toBe(true);
+        expect(reach[p.y][p.x], `${zone.key} interaction (${p.x},${p.y}) cannot be walked to`).toBe(
+          true,
+        );
+        expect(p.label, `${zone.key} interaction (${p.x},${p.y}) has no label`).toBeTruthy();
+        expect(
+          DIALOGUES[p.dialogue],
+          `${zone.key} interaction references unknown dialogue ${p.dialogue}`,
+        ).toBeTruthy();
+      }
+    }
+  });
+
   it('every NPC has a sprite definition, a dialogue entry, and a walkable position', () => {
     for (const zone of zones) {
       for (const npc of zone.npcs) {
@@ -234,12 +255,39 @@ describe('the Party Field (western Shire)', () => {
         .filter((n) => !n.when || n.when(flags))
         .map((n) => n.key)
         .sort();
-    expect(at({})).toEqual(['bilbo', 'gaffer', 'gandalf', 'noakes', 'rosie', 'ted', 'twofoot']);
-    expect(at({ prologueDone: true })).toEqual(['gaffer', 'gandalf', 'lobelia', 'sam', 'sandyman']);
-    expect(at({ prologueDone: true, samJoined: true })).toEqual([
+    expect(at({})).toEqual([
+      'bilbo',
+      'fatty',
+      'folco',
+      'gaffer',
+      'gandalf',
+      'lotho',
+      'noakes',
+      'rosie',
+      'ted',
+      'twofoot',
+    ]);
+    expect(at({ prologueDone: true })).toEqual([
+      'cotton',
+      'fatty',
+      'folco',
       'gaffer',
       'gandalf',
       'lobelia',
+      'lotho',
+      'rumble',
+      'sam',
+      'sandyman',
+    ]);
+    expect(at({ prologueDone: true, samJoined: true })).toEqual([
+      'cotton',
+      'fatty',
+      'folco',
+      'gaffer',
+      'gandalf',
+      'lobelia',
+      'lotho',
+      'rumble',
       'sandyman',
     ]);
   });

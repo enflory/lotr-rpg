@@ -188,6 +188,13 @@ export const woodyend = {
     { x: 55, y: 17, dialogue: 'elf_feast' },
     { x: 56, y: 17, dialogue: 'elf_feast' },
   ],
+  interactions: [
+    { x: 10, y: 16, label: 'The Road', dialogue: 'examine_road_woody' },
+    { x: 12, y: 17, label: 'The fern brake', dialogue: 'examine_ferns' },
+    { x: 23, y: 22, label: 'The fir hollow', dialogue: 'examine_hollow' },
+    { x: 44, y: 11, label: 'The tree tunnel', dialogue: 'examine_treetunnel' },
+    { x: 54, y: 16, label: 'The hall of trees', dialogue: 'examine_elfclearing' },
+  ],
   pickups: [
     { id: 'woody_mush_1', x: 44, y: 6, item: 'mushroom' },
     { id: 'woody_mush_2', x: 48, y: 18, item: 'mushroom' }, // nudged off TREE2 at (49,18)

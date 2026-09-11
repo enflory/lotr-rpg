@@ -3,13 +3,13 @@
 import { T } from '../tileTypes.js';
 
 const V = T.VOID, W = T.WALL, F = T.FLOOR, A = T.TABLE, C = T.COUNTER;
-const I = T.WINDOW_I, S = T.SHELF;
+const I = T.WINDOW_I, S = T.SHELF, P = T.FIREPLACE;
 
 const MAP = [
   [V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V], // 0
   [V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V, V], // 1
   [V, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, W, V], // 2
-  [V, W, I, W, S, S, W, I, W, W, S, S, W, I, W, W, S, W, W, V], // 3  ← back wall
+  [V, W, I, W, S, S, W, P, P, W, S, S, W, I, W, W, S, W, W, V], // 3  ← back wall, with the inn fire
   [V, W, C, C, C, C, C, C, C, F, F, F, F, F, F, F, F, F, W, V], // 4  ← the bar
   [V, W, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, F, W, V], // 5
   [V, W, F, A, F, F, F, A, F, F, F, F, A, F, F, F, A, F, W, V], // 6
@@ -43,7 +43,9 @@ export const greendragon = {
   signs: [
     { x: 4, y: 4, dialogue: 'examine_casks' },
     { x: 16, y: 3, dialogue: 'examine_shelf_gd' },
+    { x: 7, y: 3, dialogue: 'examine_hearth_gd' },
   ],
+  interactions: [{ x: 8, y: 5, label: 'The settle', dialogue: 'examine_settle' }],
   exits: [
     { x: 9, y: 14, zone: 'shire', entry: 'fromGreenDragon' },
     { x: 10, y: 14, zone: 'shire', entry: 'fromGreenDragon' },

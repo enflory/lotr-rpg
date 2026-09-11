@@ -16,7 +16,7 @@ import {
 import { ITEMS, ITEM_KEYS } from '../data/items.js';
 import { QUESTS } from '../data/quests.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
-import { drawShireScenery } from '../art/shireScenery.js';
+import { drawShireScenery, drawShireWeather } from '../art/shireScenery.js';
 import { save } from '../state/saveGame.js';
 import { findWalkablePath, trailPosition } from '../state/partyMovement.js';
 import {
@@ -77,6 +77,7 @@ export class WorldScene extends Phaser.Scene {
     // Shire-side zones are shaded as country over the tilemap: the roll of
     // The Hill, worn lane edges, cast shadows and depth-sorted woods.
     drawShireScenery(this);
+    drawShireWeather(this);
 
     /* ── player ──────────────────────────────────────── */
     const spawn = zone.spawns[this.entryKey] || zone.spawns.default;
@@ -115,6 +116,18 @@ export class WorldScene extends Phaser.Scene {
     /* ── pickups ─────────────────────────────────────── */
     this.pickups = [];
     for (const def of zone.pickups ?? []) this.spawnPickup(def);
+
+    /* ── inspectable points ──────────────────────────── */
+    // Every examine point wears a slow pale glimmer on the ground. Without
+    // it a player has no way of knowing which patch of grass is worth a
+    // SPACE, and the ones that matter go unread.
+    this.interactionMarks = (zone.interactions ?? []).map((p) => {
+      const dot = this.add
+        .ellipse(p.x * TILE_SIZE + 8, p.y * TILE_SIZE + 8, 8, 3, 0xd4c581, 0.5)
+        .setDepth(p.y * TILE_SIZE - 10);
+      this.tweens.add({ targets: dot, alpha: 0.2, duration: 1700, yoyo: true, repeat: -1 });
+      return { p, dot };
+    });
 
     /* ── interaction hint icon ───────────────────────── */
     this.hintIcon = this.add.image(0, 0, 'hint').setVisible(false).setDepth(900);
@@ -571,6 +584,10 @@ export class WorldScene extends Phaser.Scene {
     this.hintIcon.setVisible(!!closestNpc);
     if (closestNpc) this.hintIcon.setPosition(closestNpc.x, closestNpc.y - 18);
 
+    for (const { p, dot } of this.interactionMarks) {
+      dot.setVisible(!p.when || p.when(gameState.flags));
+    }
+
     const action = (this.zone.interactions ?? [])
       .filter(
         (p) =>
@@ -582,17 +599,26 @@ export class WorldScene extends Phaser.Scene {
           Math.hypot(this.player.x - a.x * TILE_SIZE - 8, this.player.y - a.y * TILE_SIZE) -
           Math.hypot(this.player.x - b.x * TILE_SIZE - 8, this.player.y - b.y * TILE_SIZE),
       )[0];
-    if (action) {
+    // A hobbit standing in front of you always wins over a thing on the
+    // ground behind them: examine points must never swallow a conversation.
+    const actionDist = action
+      ? Math.hypot(
+          this.player.x - (action.x * TILE_SIZE + 8),
+          this.player.y - action.y * TILE_SIZE,
+        )
+      : Infinity;
+    const examine = actionDist < closestDist ? action : null;
+    if (examine) {
       this.hintIcon
         .setVisible(true)
-        .setPosition(action.x * TILE_SIZE + 8, action.y * TILE_SIZE - 16);
-      this.actionHint.setText(`${this.actionVerb()} · ${action.label}`).setVisible(true);
+        .setPosition(examine.x * TILE_SIZE + 8, examine.y * TILE_SIZE - 16);
+      this.actionHint.setText(`${this.actionVerb()} · ${examine.label}`).setVisible(true);
     }
 
     /* ── interact ────────────────────────────────────── */
     if (interactPressed) {
-      if (action) {
-        this.startDialogue(action.dialogue);
+      if (examine) {
+        this.startDialogue(examine.dialogue);
       } else if (closestNpc) {
         this.faceNpcToPlayer(closestNpc);
         this.startDialogue(closestNpc.getData('key'));

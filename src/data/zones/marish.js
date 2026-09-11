@@ -216,6 +216,13 @@ export const marish = {
     { x: 10, y: 16, dialogue: 'sign_stock' },
     { x: 54, y: 12, dialogue: 'examine_brandyhall' },
   ],
+  interactions: [
+    { x: 5, y: 15, label: 'The rushes', dialogue: 'examine_reeds' },
+    { x: 20, y: 18, label: 'The mushroom beds', dialogue: 'examine_mushroom_bed' },
+    { x: 36, y: 15, label: 'The causeway', dialogue: 'examine_causeway' },
+    { x: 40, y: 16, label: 'The dike', dialogue: 'examine_dike' },
+    { x: 42, y: 16, label: 'The landing', dialogue: 'examine_ferrylanding' },
+  ],
   pickups: [
     // Easy, by the lane
     { id: 'marish_mush_1', x: 10, y: 12, item: 'mushroom' },
