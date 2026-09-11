@@ -64,14 +64,14 @@ export function bakeInteriorShadow(map) {
   return { width, height, pixels };
 }
 
-/** Interiors are the zones whose map is a room cut out of solid earth. */
-function isInterior(map) {
-  return map.some((row) => row.includes(T.VOID));
-}
+// Chapter 1's two interiors. The houses in the later chapters stage their own
+// light as part of their set pieces (the hearth at Crickhollow, the fire and
+// the dream in Tom's house), so a second baked layer is left off them.
+export const LIT_INTERIORS = new Set(['bagend', 'greendragon']);
 
 export function drawInteriorLight(scene) {
+  if (!LIT_INTERIORS.has(scene.zoneKey)) return;
   const map = scene.zone.map;
-  if (!isInterior(map)) return;
 
   const key = `interior-shadow-${scene.zoneKey}`;
   if (!scene.textures.exists(key)) {

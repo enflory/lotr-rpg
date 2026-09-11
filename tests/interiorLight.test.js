@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bakeInteriorShadow } from '../src/art/interiorLight.js';
+import { bakeInteriorShadow, LIT_INTERIORS } from '../src/art/interiorLight.js';
 import { ZONES } from '../src/data/zones/index.js';
 import { T } from '../src/data/tileTypes.js';
 
@@ -14,7 +14,7 @@ const find = (map, tile) => {
   throw new Error(`no ${tile} in map`);
 };
 
-describe.each(['bagend', 'greendragon'])('%s is lit by its own fire and windows', (key) => {
+describe.each([...LIT_INTERIORS])('%s is lit by its own fire and windows', (key) => {
   const map = ZONES[key].map;
   const art = bakeInteriorShadow(map);
 
