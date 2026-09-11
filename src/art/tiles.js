@@ -462,27 +462,28 @@ function drawWindowInt(c, ox) {
 /* ── forest tiles ───────────────────────────────────────── */
 
 function drawFern(c, ox) {
-  // Lush fern brake — must read clearly as a hiding spot
-  rc(c, ox, 0, 16, 16, '#4e9235');
-  // Shadowed base
-  circle(c, ox + 8, 9, 6, '#26541c');
-  // Radiating fronds
-  const fronds = [
-    [8, 9, 3, 2], [8, 9, 13, 2], [8, 9, 8, 0],
-    [8, 9, 4, 13], [8, 9, 12, 13], [8, 9, 1, 7], [8, 9, 15, 7],
-  ];
-  for (const [cx, cy, tx, ty] of fronds) {
-    const steps = 5;
-    for (let i = 0; i <= steps; i++) {
-      const x = Math.round(cx + ((tx - cx) * i) / steps);
-      const y = Math.round(cy + ((ty - cy) * i) / steps);
-      px(c, ox + x, y, i > 3 ? '#5fae44' : '#3a8030');
+  // Lush fern brake — must read clearly as a hiding spot, and must not tile
+  // into wallpaper, so the fronds are asymmetric and the shade is off-centre
+  rc(c, ox, 0, 16, 16, '#3c7a2c');
+  for (const [dx, dy] of [[1,2],[6,0],[12,3],[3,13],[14,10],[9,15]]) px(c, ox + dx, dy, '#33692a');
+  // Two overlapping crowns rather than one radial star
+  for (const [cx, cy, sc, tint] of [[5, 10, 1, '#26541c'], [11, 7, 0.8, '#2e6222']]) {
+    circle(c, ox + cx, cy, Math.round(5 * sc), tint);
+    const fronds = [[-4, 2], [-5, -2], [-2, -5], [2, -5], [5, -2], [4, 3], [0, 5]];
+    for (const [tx, ty] of fronds) {
+      const steps = 5;
+      for (let i = 1; i <= steps; i++) {
+        const x = Math.round(cx + (tx * sc * i) / steps);
+        const y = Math.round(cy + (ty * sc * i) / steps);
+        px(c, ox + x, y, i > 3 ? '#63b447' : '#3e8a32');
+        if (i % 2 === 0) px(c, ox + x + (tx > 0 ? -1 : 1), y, '#4a9c3a');
+      }
     }
   }
-  // Frond barbs
-  for (const [dx, dy] of [[6,4],[10,4],[4,7],[12,7],[6,11],[10,11],[8,6]])
-    px(c, ox + dx, dy, '#4a9c3a');
-  px(c, ox + 8, 9, '#26541c');
+  px(c, ox + 5, 10, '#1e4416');
+  px(c, ox + 11, 7, '#1e4416');
+  px(c, ox + 13, 13, '#63b447');
+  px(c, ox + 2, 5, '#63b447');
 }
 
 function drawTree2(c, ox) {

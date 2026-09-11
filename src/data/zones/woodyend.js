@@ -106,6 +106,20 @@ function generateMap() {
     for (const y of [12, 13, 14, 17, 18, 19]) map[y][x] = T.FERN;
   }
 
+  // Fray the outside of every brake. The row nearest the road is left whole —
+  // that is the cover the Rider scene depends on — but the far edges break up
+  // into single fronds and bare ground, so a brake reads as undergrowth
+  // rather than as a rectangle of wallpaper.
+  for (let y = 1; y < HEIGHT - 1; y++) {
+    for (let x = 1; x < WIDTH - 1; x++) {
+      if (map[y][x] !== T.FERN || nearRoad(x, y)) continue;
+      const edge =
+        map[y - 1][x] !== T.FERN || map[y + 1][x] !== T.FERN ||
+        map[y][x - 1] !== T.FERN || map[y][x + 1] !== T.FERN;
+      if (edge && rnd() < 0.45) map[y][x] = rnd() < 0.45 ? T.FLOWERS : T.GRASS2;
+    }
+  }
+
   // Tree-tunnel: canopy closes right over the road mid-forest.
   for (let x = 40; x <= 48; x++) {
     const above = ROAD_Y[x] - 1, below = ROAD_Y[x] + 2;
