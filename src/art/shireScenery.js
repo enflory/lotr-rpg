@@ -8,9 +8,10 @@
 //   canopy  — the woods, cut into one image band per tile row so a hobbit
 //             walks behind a crown and in front of the trunk beneath it.
 //
-// Nothing here changes collision: ground ink is confined to open tiles plus
-// the bank tiles it shades, and every crown fills the solid cell it grows
-// from before it is allowed to overhang.
+// Nothing here changes collision. Ground ink is confined to the cells it is
+// allowed to repaint, the centre of a bank cell is always earth and never
+// turf, and a crown may rise above its own cell and lean one cell either way
+// but no further — enough to read as canopy, never enough to imply a wall.
 import { T } from '../data/tileTypes.js';
 import { maskOf, sample, wobble, hash, step } from './relief.js';
 
@@ -99,7 +100,9 @@ export function bakeShireGround(map) {
         // which is what keeps a long bank from reading as battlements. Only
         // the top course of a bank has a brow; the rest is all face.
         const brow = map[(y >> 4) - 1]?.[x >> 4] !== T.HILL;
-        const spill = 4 + Math.round((wobble(x, 0, 19, 1, 7) + 0.5) * 6);
+        // Never as deep as the middle of the cell: a bank centre is always
+        // earth, so a solid cell can never be mistaken for a lawn.
+        const spill = 2 + Math.round((wobble(x, 0, 19, 1, 7) + 0.5) * 5);
         const into = y & 15;
         if (brow && into < spill) color = TURF[into < spill - 3 ? 5 : 4];
         else {
