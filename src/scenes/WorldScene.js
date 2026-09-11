@@ -605,10 +605,7 @@ export class WorldScene extends Phaser.Scene {
     // A hobbit standing in front of you always wins over a thing on the
     // ground behind them: examine points must never swallow a conversation.
     const actionDist = action
-      ? Math.hypot(
-          this.player.x - (action.x * TILE_SIZE + 8),
-          this.player.y - action.y * TILE_SIZE,
-        )
+      ? Math.hypot(this.player.x - (action.x * TILE_SIZE + 8), this.player.y - action.y * TILE_SIZE)
       : Infinity;
     const examine = actionDist < closestDist ? action : null;
     if (examine) {

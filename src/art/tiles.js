@@ -8,13 +8,13 @@ import { drawForestFloor, drawOldTree, drawRoots, drawDeadTree, drawDarkWater, d
 const TS = 16;
 
 function drawGrass(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   for (const [dx, dy, col] of [[3,4,'#4a8630'],[10,2,'#4a8630'],[7,9,'#4a8630'],[1,12,'#6eb848'],[13,7,'#6eb848'],[5,14,'#4a8630'],[12,11,'#6eb848'],[8,1,'#4a8630']])
     px(c, ox + dx, dy, col);
 }
 
 function drawGrass2(c, ox) {
-  rc(c, ox, 0, 16, 16, '#4e9235');
+  rc(c, ox, 0, 16, 16, '#447f2c');
   for (const [dx, dy, col] of [[5,3,'#3d7a2a'],[11,6,'#3d7a2a'],[2,10,'#5ea840'],[8,13,'#3d7a2a'],[14,1,'#5ea840'],[6,8,'#3d7a2a'],[0,5,'#5ea840']])
     px(c, ox + dx, dy, col);
 }
@@ -37,7 +37,7 @@ function drawWater(c, ox) {
 }
 
 function drawTree(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   // Shadow pool under canopy
   circle(c, ox + 8, 12, 5, '#4a8630');
   rc(c, ox + 6, 11, 4, 5, '#5a3a1c');
@@ -117,7 +117,7 @@ function drawBridge(c, ox) {
 }
 
 function drawFence(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   rc(c, ox + 2, 3, 2, 12, '#8a6b3d');
   rc(c, ox + 12, 3, 2, 12, '#8a6b3d');
   rc(c, ox + 1, 2, 4, 2, '#6b4423');
@@ -127,7 +127,7 @@ function drawFence(c, ox) {
 }
 
 function drawBush(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   circle(c, ox + 8, 9, 5, '#2d5a1e');
   circle(c, ox + 8, 8, 4, '#3a6e28');
   px(c, ox + 6, 6, '#4a8630');
@@ -147,7 +147,7 @@ function drawStone(c, ox) {
 }
 
 function drawFlowers(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   for (const [dx, dy, col] of [[3,3,'#4a8630'],[10,9,'#4a8630'],[7,14,'#6eb848']])
     px(c, ox + dx, dy, col);
   px(c, ox + 4, 6, '#e83030'); px(c, ox + 3, 5, '#e83030');
@@ -492,7 +492,7 @@ function drawFern(c, ox) {
 
 function drawTree2(c, ox) {
   // Autumn-tinged tree for the Woody End
-  rc(c, ox, 0, 16, 16, '#4e9235');
+  rc(c, ox, 0, 16, 16, '#447f2c');
   circle(c, ox + 8, 12, 5, '#3d7a2a');
   rc(c, ox + 6, 11, 4, 5, '#4a2c14');
   rc(c, ox + 7, 12, 2, 4, '#6a4528');
@@ -514,7 +514,7 @@ function drawVoid(c, ox) {
 }
 
 function drawSign(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   px(c, ox + 2, 13, '#4a8630'); px(c, ox + 12, 14, '#4a8630');
   // Post
   rc(c, ox + 7, 6, 2, 9, '#6b4423');
@@ -593,31 +593,31 @@ function partyCanopy(c, ox, bx, by) {
 }
 
 function drawPartyNL(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   px(c, ox + 2, 3, '#4a8630');
   partyCanopy(c, ox, 0, 0);
 }
 
 function drawPartyNR(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   px(c, ox + 13, 2, '#4a8630');
   partyCanopy(c, ox, 16, 0);
 }
 
 function drawPartyTL(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   px(c, ox + 2, 2, '#4a8630');
   partyCanopy(c, ox, 0, 16);
 }
 
 function drawPartyTR(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   px(c, ox + 13, 3, '#4a8630');
   partyCanopy(c, ox, 16, 16);
 }
 
 function drawPartyBL(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   px(c, ox + 3, 13, '#4a8630');
   // Trunk (left half, hugging the block seam) with root flare
   rc(c, ox + 11, 4, 5, 9, '#4a2c14');
@@ -632,7 +632,7 @@ function drawPartyBL(c, ox) {
 }
 
 function drawPartyBR(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   px(c, ox + 12, 14, '#4a8630');
   rc(c, ox, 4, 5, 9, '#4a2c14');
   rc(c, ox, 4, 3, 9, '#6a4528');
@@ -645,7 +645,7 @@ function drawPartyBR(c, ox) {
 }
 
 function drawPartyTable(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   px(c, ox + 1, 14, '#4a8630'); px(c, ox + 14, 15, '#4a8630');
   // Trestle table with a cream cloth
   rc(c, ox + 1, 5, 14, 5, '#a0703c');
@@ -700,7 +700,7 @@ function pavilionPixel(gx, gy) {
 }
 
 function drawPavQuad(c, ox, qx, qy) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   px(c, ox + 2, 13, '#4a8630'); px(c, ox + 13, 14, '#4a8630');
   for (let y = 0; y < 16; y++)
     for (let x = 0; x < 16; x++) {
@@ -715,7 +715,7 @@ function drawPavBL(c, ox) { drawPavQuad(c, ox, 0, 1); }
 function drawPavBR(c, ox) { drawPavQuad(c, ox, 1, 1); }
 
 function drawLantern(c, ox) {
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   px(c, ox + 3, 12, '#4a8630'); px(c, ox + 12, 13, '#4a8630');
   // Post
   rc(c, ox + 7, 6, 2, 8, '#6b4423');
@@ -789,7 +789,7 @@ function drawWheel(c, ox) {
 
 function drawCrate(c, ox) {
   // Firework crate: planked box with rocket tips poking from the open top
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   rc(c, ox + 2, 5, 12, 10, '#a5823c');
   rc(c, ox + 2, 5, 12, 1, '#6e5228');
   rc(c, ox + 2, 9, 12, 1, '#6e5228');
@@ -801,7 +801,7 @@ function drawCrate(c, ox) {
 
 function drawWell(c, ox) {
   // Village well: stone ring with a dark hole, timber posts and crossbar
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   circle(c, ox + 8, 10, 6, '#7a7a88');
   circle(c, ox + 8, 10, 4, '#14141a');
   rc(c, ox + 1, 1, 2, 10, '#8a6b3d');
@@ -825,7 +825,7 @@ function drawBarn(c, ox) {
 
 function drawFeast(c, ox) {
   // Feast table cloth with bread and fruit dabs
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   rc(c, ox + 1, 3, 14, 11, '#f0ece4');
   rc(c, ox + 1, 3, 14, 1, '#d8d4c8');
   for (const [dx, dy, col] of [
@@ -848,7 +848,7 @@ function drawDitch(c, ox) {
 
 function drawWaggon(c, ox) {
   // Side-on cart: bed, two wheels, and a hay load on top
-  rc(c, ox, 0, 16, 16, '#5a9e3a');
+  rc(c, ox, 0, 16, 16, '#4a8a31');
   rc(c, ox + 1, 5, 14, 6, '#8a6b3d');
   rc(c, ox + 1, 5, 14, 1, '#a5823c');
   rc(c, ox + 2, 0, 11, 5, '#e8d070');
@@ -892,7 +892,7 @@ function drawStook(c, ox) {
 
 function drawSkep(c, ox) {
   // A straw bee skep on a plank stand
-  rc(c, ox, 0, 16, 16, '#4e9235');
+  rc(c, ox, 0, 16, 16, '#447f2c');
   rc(c, ox + 2, 13, 12, 2, '#6b4423');
   circle(c, ox + 8, 9, 6, '#8a6a26');
   circle(c, ox + 8, 9, 5, '#c49a3c');
@@ -904,7 +904,7 @@ function drawSkep(c, ox) {
 
 function drawBench(c, ox) {
   // A plank bench facing the lane
-  rc(c, ox, 0, 16, 16, '#4e9235');
+  rc(c, ox, 0, 16, 16, '#447f2c');
   rc(c, ox + 1, 6, 14, 3, '#8a6b3d');
   rc(c, ox + 1, 6, 14, 1, '#a07c48');
   rc(c, ox + 1, 3, 14, 2, '#6b4423');
@@ -915,7 +915,7 @@ function drawBench(c, ox) {
 
 function drawMilestone(c, ox) {
   // A weathered waymark, leaning where the lane has worn round it
-  rc(c, ox, 0, 16, 16, '#4e9235');
+  rc(c, ox, 0, 16, 16, '#447f2c');
   rc(c, ox + 4, 12, 9, 3, '#3d7a2a');
   rc(c, ox + 5, 4, 7, 10, '#6f7264');
   rc(c, ox + 6, 3, 5, 11, '#9aa08c');

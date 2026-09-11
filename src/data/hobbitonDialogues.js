@@ -367,11 +367,13 @@ export const HOBBITON_DIALOGUES = {
     stages: [
       {
         when: (f) => f.ringRevealed,
+        lines: ['Made up, and not likely to\nbe slept in many more\nnights.'],
+      },
+      {
         lines: [
-          'Made up, and not likely to\nbe slept in many more\nnights.',
+          'Bilbo\u2019s old bed, and Frodo\u2019s\nnow. Deep, and turned to\nface the window.',
         ],
       },
-      { lines: ['Bilbo\u2019s old bed, and Frodo\u2019s\nnow. Deep, and turned to\nface the window.'] },
     ],
   },
 

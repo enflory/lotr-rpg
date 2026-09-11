@@ -48,6 +48,7 @@ const CASTERS = new Set([
   T.DOOR, T.WINDOW_F, T.STONE, T.BARN, T.WAGGON, T.WELL, T.CRATE,
   T.PAV_TL, T.PAV_TR, T.PAV_BL, T.PAV_BR, T.PARTY_BL, T.PARTY_BR,
   T.REEDS, T.BUSH, T.SIGN, T.LANTERN, T.PARTY_TABLE, T.FEAST,
+  T.HEDGEROW, T.STOOK, T.SKEP, T.BENCH, T.MILESTONE, T.CORN,
 ]);
 
 /* ── the ground layer ─────────────────────────────────────────────────── */
@@ -322,31 +323,34 @@ export function bakeShireCanopy(map) {
    a landmark can be as tall as it deserves and still sort against a hobbit
    standing under it.                                                       */
 function partyTree(scene, tx, ty) {
-  // Rooted in the bottom row of the 2×3 composite; the crown covers the rest.
+  // Rooted in the bottom row of the 2x3 composite; the crown covers the rest,
+  // and is the largest thing growing anywhere in Chapter One.
   const cx = tx * 16 + 16,
     base = (ty + 3) * 16;
   const g = scene.add.graphics().setDepth(base - 1);
   const r = (x, y, w, h, color, alpha = 1) =>
     g.fillStyle(color, alpha).fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
   // Shadow pool and root flare fill the solid cells the crown cannot reach.
-  r(cx - 17, base - 12, 34, 11, 0x2d5520);
-  r(cx - 14, base - 15, 28, 6, 0x356328);
-  r(cx - 11, base - 26, 22, 24, BARK[0]);
-  r(cx - 9, base - 25, 13, 23, BARK[2]);
-  r(cx - 7, base - 24, 5, 22, BARK[4]);
-  r(cx + 5, base - 22, 4, 19, BARK[0]);
-  for (let yy = base - 74; yy < base - 20; yy += 2) {
-    const t = (yy - (base - 74)) / 54;
-    const swell = t < 0.6 ? Math.sin(t * 2.6) : 1 - (t - 0.6) * 0.55;
-    const w = Math.round(26 * swell) + Math.round(hash(yy, 7, 21) * 5);
+  r(cx - 18, base - 11, 36, 10, 0x2d5520);
+  r(cx - 16, base - 15, 32, 6, 0x356328);
+  r(cx - 13, base - 20, 26, 8, BARK[0]);
+  r(cx - 8, base - 34, 16, 26, BARK[0]);
+  r(cx - 6, base - 33, 9, 25, BARK[2]);
+  r(cx - 5, base - 32, 4, 24, BARK[4]);
+  r(cx + 4, base - 30, 3, 21, BARK[0]);
+  // A broad round crown, not a cone: widest across the middle of its height.
+  for (let yy = base - 88; yy < base - 14; yy += 2) {
+    const t = (yy - (base - 88)) / 74;
+    const swell = Math.pow(Math.sqrt(Math.max(0, 1 - (t * 2 - 1) ** 2)), 0.62);
+    const w = Math.round(34 * swell) + Math.round(hash(yy, 7, 21) * 6);
     if (w <= 1) continue;
-    r(cx - w, yy, w * 2, 2, GREENWOOD[t < 0.1 ? 1 : 0]);
-    r(cx - w + 3, yy, w * 2 - 6, 2, GREENWOOD[t < 0.78 ? 3 : 2]);
+    r(cx - w, yy, w * 2, 2, GREENWOOD[t < 0.09 ? 1 : 0]);
+    r(cx - w + 3, yy, w * 2 - 6, 2, GREENWOOD[t < 0.8 ? 3 : 2]);
   }
-  for (let n = 0; n < 26; n++) {
-    const dx = Math.round(hash(n, 41, 3) * 38);
-    const dy = Math.round(hash(41, n, 9) * 40);
-    r(cx + dx - 4, base - 52 + dy, 6 + (n % 3), 2, GREENWOOD[4 + (n % 3)]);
+  for (let n = 0; n < 34; n++) {
+    const dx = Math.round(hash(n, 41, 3) * 48);
+    const dy = Math.round(hash(41, n, 9) * 54);
+    r(cx + dx - 5, base - 62 + dy, 7 + (n % 3), 2, GREENWOOD[4 + (n % 3)]);
   }
   return g;
 }

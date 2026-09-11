@@ -10,6 +10,10 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 
 ![Frodo, Sam, and Gandalf on the lane below Bag End](assets/screenshots/hobbiton.png)
 
+| ![The Party Field, laid out for a hundred and forty-four guests](assets/screenshots/party-field.png) | ![The hall and parlour of Bag End](assets/screenshots/bagend.png) |
+| :--------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------: |
+|                                The Party Field, under the Party Tree                                 |                    Inside Bag End, by the fire                    |
+
 | ![Gildor's company feasting in the Woody End](assets/screenshots/woodyend.png) | ![Bamfurlong farm in the Marish](assets/screenshots/marish.png) |
 | :----------------------------------------------------------------------------: | :-------------------------------------------------------------: |
 |                   Gildor's company feasting in the Woody End                   |         Farmer Maggot's Bamfurlong, down in the Marish          |
