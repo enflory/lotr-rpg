@@ -372,16 +372,20 @@ function drawTable(c, ox) {
   rc(c, ox, 11, 16, 1, '#8a6238');
   // Shadow, then dark walnut round table — must contrast with the floor
   circle(c, ox + 8, 9, 7, '#7a5c34');
-  circle(c, ox + 8, 8, 7, '#2e1c0c');
-  circle(c, ox + 8, 8, 6, '#4a2f14');
-  circle(c, ox + 8, 7, 5, '#5f3d1c');
+  circle(c, ox + 8, 8, 7, '#3a2410');
+  circle(c, ox + 8, 8, 6, '#6b4622');
+  circle(c, ox + 8, 7, 5, '#82592c');
   // Rim highlight
   rc(c, ox + 5, 2, 6, 1, '#7a5228');
-  // Cream doily + frothy tankard
-  rc(c, ox + 5, 6, 3, 3, '#e8dcc0');
-  rc(c, ox + 9, 8, 3, 3, '#c8a050');
-  rc(c, ox + 9, 7, 3, 1, '#f0ead6');
-  px(c, ox + 12, 9, '#c8a050');
+  // Cream doily, a frothy tankard, and a lit candle
+  rc(c, ox + 4, 8, 3, 3, '#e8dcc0');
+  rc(c, ox + 9, 9, 3, 3, '#c8a050');
+  rc(c, ox + 9, 8, 3, 1, '#f0ead6');
+  px(c, ox + 12, 10, '#c8a050');
+  rc(c, ox + 7, 4, 2, 4, '#f0ead6');
+  px(c, ox + 7, 3, '#f8d868');
+  px(c, ox + 8, 3, '#f8b848');
+  px(c, ox + 7, 2, '#fff0b0');
 }
 
 function drawFireplace(c, ox) {
@@ -746,17 +750,25 @@ function drawBog(c, ox) {
 }
 
 function drawReeds(c, ox) {
-  // Marsh rushes on sodden ground — impassable
-  rc(c, ox, 0, 16, 16, '#4e7030');
-  rc(c, ox + 1, 10, 6, 4, '#3e6070'); rc(c, ox + 9, 3, 5, 3, '#3e6070');
-  px(c, ox + 3, 11, '#6b98b8'); px(c, ox + 11, 4, '#6b98b8');
-  px(c, ox + 6, 14, '#42622a'); px(c, ox + 13, 8, '#42622a');
-  // Stalks with cattail heads
-  for (const [sx, top, tall] of [[2, 5, 10], [5, 2, 13], [8, 4, 11], [11, 1, 14], [14, 6, 9]]) {
-    rc(c, ox + sx, top, 1, tall, '#6a8a3a');
-    px(c, ox + sx, top + Math.floor(tall / 2), '#5a7a30');
-    rc(c, ox + sx, top, 1, 2, '#8a6b3d'); // cattail
-    px(c, ox + sx, top - 1 < 0 ? 0 : top - 1, '#a08850'); // tip
+  // Sedge tussocks standing in black water, with cattails over them.
+  // Impassable, and dense enough that you cannot see through a brake of it.
+  rc(c, ox, 0, 16, 16, '#2f4433');
+  for (const [dx, dy, w, h] of [[0, 9, 7, 5], [8, 11, 8, 5], [4, 2, 9, 4]])
+    rc(c, ox + dx, dy, w, h, '#3d5a3a');
+  for (const [dx, dy] of [[2, 12], [11, 13], [6, 4]]) px(c, ox + dx, dy, '#587a50');
+  // Blades, leaning as the wind left them
+  for (const [bx, by, lean] of [[2, 15, 1], [5, 14, -1], [8, 16, 1], [11, 15, -1], [14, 14, 1]]) {
+    for (let i = 0; i < 9; i++) {
+      const x = bx + Math.round((i * lean) / 3);
+      const y = by - i;
+      if (y < 0 || x < 0 || x > 15) continue;
+      px(c, ox + x, y, i > 5 ? '#7d9a55' : '#4c6d3e');
+    }
+  }
+  // Cattail heads
+  for (const [dx, dy] of [[4, 3], [12, 5]]) {
+    rc(c, ox + dx, dy, 2, 4, '#6b4a24');
+    px(c, ox + dx, dy, '#8a6434');
   }
 }
 
@@ -936,6 +948,84 @@ function drawHay(c, ox) {
   for (const [dx, dy] of [[4,4],[12,9],[6,13],[14,2]]) px(c, ox + dx, dy, '#8a7c3c');
 }
 
+
+/* ── Smial interiors ──────────────────────────────────────────────────────
+   Bag End is panelled, not plastered: "a very comfortable tunnel without
+   smoke, with panelled walls, and floors tiled and carpeted, provided with
+   polished chairs, and lots and lots of pegs for hats and coats".         */
+function panelling(c, ox) {
+  // Dark oak panelling. It has to read as a vertical surface against the lit
+  // plank floor, or a smial is one flat sheet of brown.
+  rc(c, ox, 0, 16, 16, '#3d2a17');
+  rc(c, ox, 0, 16, 3, '#644627'); // the moulding catches the light
+  rc(c, ox, 3, 16, 1, '#24170c');
+  for (const x of [0, 5, 10, 15]) rc(c, ox + x, 4, 1, 12, '#24170c');
+  for (const x of [1, 6, 11]) rc(c, ox + x, 5, 3, 9, '#4a3320');
+  for (const x of [1, 6, 11]) rc(c, ox + x, 5, 3, 1, '#573c24');
+  for (const [dx, dy] of [[2, 8], [7, 11], [12, 7]]) px(c, ox + dx, dy, '#5d4128');
+  rc(c, ox, 15, 16, 1, '#1b1109');
+}
+
+function drawPanel(c, ox) {
+  panelling(c, ox);
+}
+
+function drawPegs(c, ox) {
+  panelling(c, ox);
+  rc(c, ox, 4, 16, 1, '#4d3520');
+  for (const x of [2, 7, 12]) {
+    rc(c, ox + x, 5, 1, 2, '#3a2817');
+    px(c, ox + x, 6, '#2a1c10');
+  }
+  // A cloak on one peg and a hat on another
+  rc(c, ox + 6, 6, 4, 7, '#3f5a38');
+  rc(c, ox + 7, 7, 2, 5, '#4e6f43');
+  rc(c, ox + 11, 6, 4, 2, '#6a5330');
+  rc(c, ox + 12, 5, 2, 2, '#7d6239');
+}
+
+function drawMapWall(c, ox) {
+  panelling(c, ox);
+  rc(c, ox + 2, 2, 12, 11, '#3a2817');
+  rc(c, ox + 3, 3, 10, 9, '#d8caa2');
+  // Coastline, mountains, and a small red mark in the east
+  for (const [dx, dy, w] of [[4, 5, 3], [7, 4, 2], [9, 6, 3], [5, 9, 4]])
+    rc(c, ox + dx, dy, w, 1, '#8a9a6a');
+  for (const dx of [6, 8, 10]) {
+    px(c, ox + dx, 7, '#7a6a52');
+    px(c, ox + dx, 6, '#9a8a70');
+  }
+  px(c, ox + 11, 8, '#b03028');
+  rc(c, ox + 3, 11, 10, 1, '#b8a982');
+}
+
+function drawSettle(c, ox) {
+  // High-backed bench: keeps the draught off and the gossip in
+  rc(c, ox, 0, 16, 16, '#a8804e');
+  rc(c, ox, 3, 16, 1, '#8a6238');
+  rc(c, ox, 11, 16, 1, '#8a6238');
+  rc(c, ox + 1, 1, 14, 6, '#3d2a17');
+  rc(c, ox + 2, 2, 12, 4, '#5a3f24');
+  for (const x of [4, 8, 12]) rc(c, ox + x, 2, 1, 4, '#3d2a17');
+  rc(c, ox + 1, 7, 14, 3, '#6b4a28');
+  rc(c, ox + 1, 7, 14, 1, '#8a6238');
+  rc(c, ox + 2, 10, 2, 4, '#3d2a17');
+  rc(c, ox + 12, 10, 2, 4, '#3d2a17');
+  rc(c, ox + 1, 13, 14, 1, '#7a5c34');
+}
+
+function drawChest(c, ox) {
+  rc(c, ox, 0, 16, 16, '#8a6238');
+  rc(c, ox + 1, 3, 14, 11, '#5a3a1c');
+  rc(c, ox + 1, 3, 14, 4, '#7a5330');
+  rc(c, ox + 2, 4, 12, 2, '#8d6238');
+  rc(c, ox + 1, 7, 14, 1, '#3d2712');
+  for (const x of [3, 12]) rc(c, ox + x, 3, 1, 11, '#c8a84e');
+  rc(c, ox + 7, 7, 3, 3, '#c8a84e');
+  px(c, ox + 8, 8, '#4a3a10');
+  rc(c, ox + 1, 13, 14, 1, '#32200f');
+}
+
 export const TILE_FNS = [
   drawGrass, drawGrass2, drawPath, drawWater, drawTree,
   drawHill, drawHillTop, drawDoor, drawBridge, drawFence,
@@ -952,6 +1042,7 @@ export const TILE_FNS = [
   drawForestFloor, drawOldTree, drawRoots, drawDeadTree, drawDarkWater, drawLilies, drawDownGrass, drawStandingStone, drawBarrowWall, drawBarrowFloor, drawChalk, drawHedge,
   drawDownSlope, drawGreatStone, drawDownHeather,
   drawHedgerow, drawStook, drawSkep, drawBench, drawMilestone, drawCorn, drawHay,
+  drawPegs, drawChest, drawMapWall, drawPanel, drawSettle,
 ];
 
 export function makeTilesetDataURL() {

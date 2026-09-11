@@ -354,6 +354,27 @@ export const HOBBITON_DIALOGUES = {
     ],
   },
 
+  examine_hall: {
+    name: 'The Hall',
+    lines: [
+      'A comfortable tunnel without\nsmoke: panelled walls, tiled\nfloor, and pegs, and pegs.',
+      'It runs straight into the\nHill, and the best rooms all\nopen off the left of it.',
+    ],
+  },
+
+  examine_bed_bagend: {
+    name: 'The Bed',
+    stages: [
+      {
+        when: (f) => f.ringRevealed,
+        lines: [
+          'Made up, and not likely to\nbe slept in many more\nnights.',
+        ],
+      },
+      { lines: ['Bilbo\u2019s old bed, and Frodo\u2019s\nnow. Deep, and turned to\nface the window.'] },
+    ],
+  },
+
   examine_window_bagend: {
     name: 'The Round Window',
     lines: [
@@ -388,6 +409,14 @@ export const HOBBITON_DIALOGUES = {
     lines: [
       'Banked low for the season.\nThe settle beside it is\nthe best seat in Bywater.',
       'Talk here runs to weather,\ncrops, and the queer folk\nseen on the roads of late.',
+    ],
+  },
+
+  examine_bar_gd: {
+    name: 'The Bar',
+    lines: [
+      'Barrels racked behind, mugs\nhung above, and the Cotton\nfarm\u2019s best in every one.',
+      'Sam is generally at the\nend of it, and Ted\nSandyman generally opposite.',
     ],
   },
 

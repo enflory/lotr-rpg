@@ -109,8 +109,6 @@ export function bakeShireGround(map) {
         // The high field: lit, and falling off in tone towards its own lip.
         const lift = Math.min(1, Math.max(0, (p - 0.42) / 0.38));
         color = TURF[step(3 + Math.round(lift * 3) + (patch > 0.16 ? 1 : -1) * (patch > 0.16 || patch < -0.2 ? 1 : 0), 6)];
-      } else if (tile === T.BOG) {
-        color = MIRE[step(2 + (patch > 0.12 ? 1 : 0) + (patch > 0.3 ? 1 : 0) + (patch < -0.18 ? -1 : 0), 6)];
       } else if (tile === T.WATER) {
         // Open water: depth read from how far the pixel is from any bank,
         // with a slow ripple and one lit band where the sky lands on it.
@@ -138,9 +136,22 @@ export function bakeShireGround(map) {
         color = MEADOW[step(1 + (patch > 0.2 ? 1 : 0) + (patch < -0.22 ? -1 : 0), 6)];
       } else {
         color = MEADOW[step(4 + (patch > 0.14 ? 1 : 0) + (patch > 0.32 ? 1 : 0) + (patch < -0.16 ? -1 : 0), 6)];
-        // Wet ground bleeds outwards from the bog rather than stopping square.
-        const m = sample(mire, fx, fy) + g * 0.5;
-        if (m > 0.3) color = MIRE[step(3 + (patch > 0.18 ? 1 : 0), 6)];
+      }
+
+      // Wet ground is drawn as a ribbon, like the lanes: a marsh spreads and
+      // dries out across tile boundaries instead of stopping square at them.
+      // Sedge at the margin, dark water standing in the middle of it.
+      if (tile === T.BOG || (OPEN.has(tile) && tile !== T.PATH)) {
+        // No floor under the reading: one wet cell on its own simply dries
+        // into the meadow, and only a real hollow of them holds water.
+        const wet = sample(mire, fx, fy) + g;
+        if (wet > 0.34) {
+          const pool = wobble(x & ~1, y & ~1, 22, 14, 71);
+          color =
+            wet > 0.5 && pool > 0.22
+              ? FLOOD[step(3 + (pool > 0.34 ? 2 : 0), 6)]
+              : MIRE[step((wet > 0.5 ? 2 : 4) + (patch > 0.15 ? 1 : 0), 6)];
+        }
       }
 
       // The lanes: opaque worn ribbons, so no alpha fringe can reveal the old

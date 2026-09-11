@@ -17,6 +17,7 @@ import { ITEMS, ITEM_KEYS } from '../data/items.js';
 import { QUESTS } from '../data/quests.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
 import { drawShireScenery, drawShireWeather } from '../art/shireScenery.js';
+import { drawInteriorLight } from '../art/interiorLight.js';
 import { save } from '../state/saveGame.js';
 import { findWalkablePath, trailPosition } from '../state/partyMovement.js';
 import {
@@ -78,6 +79,8 @@ export class WorldScene extends Phaser.Scene {
     // The Hill, worn lane edges, cast shadows and depth-sorted woods.
     drawShireScenery(this);
     drawShireWeather(this);
+    // A smial is a hole in a hill: only the windows and the fire light it.
+    drawInteriorLight(this);
 
     /* ── player ──────────────────────────────────────── */
     const spawn = zone.spawns[this.entryKey] || zone.spawns.default;

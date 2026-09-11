@@ -72,15 +72,31 @@ function generateMap() {
     }
   }
 
-  // Bog, rushes, and flowers scattered across the wet ground
+  // Rushes and flowers across the wet ground. The bog itself is laid down in
+  // hollows rather than scattered cell by cell: single wet cells dry into the
+  // meadow when the ground is shaded, and only a real hollow holds water.
   for (let y = 1; y < HEIGHT - 1; y++) {
     for (let x = 1; x < RIVER_X - 1; x++) {
       if (nearLane(x, y) || inFarm(x, y)) continue;
       const r = rnd();
-      if (r < 0.2) map[y][x] = T.BOG;
-      else if (r < 0.26) map[y][x] = T.REEDS;
-      else if (r < 0.28) map[y][x] = T.FLOWERS;
+      if (r < 0.06) map[y][x] = T.REEDS;
+      else if (r < 0.08) map[y][x] = T.FLOWERS;
     }
+  }
+  for (let n = 0; n < 16; n++) {
+    const cx = 2 + Math.floor(rnd() * (RIVER_X - 5));
+    const cy = 2 + Math.floor(rnd() * (HEIGHT - 5));
+    const rx = 2 + Math.floor(rnd() * 4),
+      ry = 2 + Math.floor(rnd() * 3);
+    for (let y = cy - ry; y <= cy + ry; y++)
+      for (let x = cx - rx; x <= cx + rx; x++) {
+        if (x < 1 || y < 1 || x >= RIVER_X - 1 || y >= HEIGHT - 1) continue;
+        if (nearLane(x, y) || inFarm(x, y)) continue;
+        const dx = (x - cx) / rx,
+          dy = (y - cy) / ry;
+        if (dx * dx + dy * dy > 1 - rnd() * 0.5) continue;
+        if (map[y][x] === T.GRASS || map[y][x] === T.GRASS2) map[y][x] = T.BOG;
+      }
   }
 
   // Two standing pools ringed by rushes
@@ -180,8 +196,53 @@ function generateMap() {
     for (let x = BANK_X + 2; x < WIDTH; x++) map[y][x] = T.TREE;
   }
 
-  for (const y of [15,16]) for (let x=52;x<WIDTH;x++) map[y][x]=T.PATH;
+  for (const y of [15, 16]) for (let x = 52; x < WIDTH; x++) map[y][x] = T.PATH;
+
+  dressTheMarish(map, nearLane, inFarm);
   return map;
+}
+
+
+/* ── The Marish ────────────────────────────────────────────────────────────
+   Low, wet, well-tilled country. Alders stand along every ditch and pool,
+   hedges divide the drier ground into fields, and a second set of standing
+   pools breaks up the middle of the map — which was otherwise a lawn with a
+   farm fenced off in the middle of it.                                     */
+function dressTheMarish(map, nearLane, inFarm) {
+  const free = (x, y) =>
+    x > 0 && x < RIVER_X - 1 && y > 0 && y < HEIGHT - 1 && !nearLane(x, y) && !inFarm(x, y);
+
+  // Three more standing pools, ringed with rushes like the first two.
+  for (const [px0, py0] of [[9, 4], [38, 23], [20, 27]]) {
+    for (let y = py0 - 1; y <= py0 + 2; y++)
+      for (let x = px0 - 1; x <= px0 + 2; x++) {
+        if (!free(x, y)) continue;
+        const pool = x >= px0 && x <= px0 + 1 && y >= py0 && y <= py0 + 1;
+        map[y][x] = pool ? T.WATER : T.REEDS;
+      }
+  }
+
+  // Alders: wherever open ground stands next to water, one tree in three.
+  for (let y = 1; y < HEIGHT - 1; y++)
+    for (let x = 1; x < RIVER_X - 1; x++) {
+      if (!free(x, y) || map[y][x] !== T.GRASS) continue;
+      const wet = [[0, -1], [0, 1], [-1, 0], [1, 0]].some(
+        ([dx, dy]) => map[y + dy][x + dx] === T.WATER,
+      );
+      if (wet && (x * 7 + y * 3) % 3 === 0) map[y][x] = T.TREE;
+    }
+
+  // Hedged fields on the drier ground north of the lane, and the hay in them.
+  for (let x = 4; x <= 20; x++) if (free(x, 5)) map[5][x] = T.HEDGEROW;
+  for (let y = 5; y <= 8; y++) if (free(20, y)) map[y][20] = T.HEDGEROW;
+  map[5][12] = T.GRASS; // the gate
+  for (const y of [6, 8]) for (let x = 6; x <= 18; x++) if (free(x, y)) map[y][x] = T.HAY;
+  for (const [x, y] of [[8, 7], [14, 7], [17, 9], [11, 9]]) if (free(x, y)) map[y][x] = T.STOOK;
+
+  // The dry shoulder above the causeway: corn, and the barn it goes into.
+  for (const y of [20, 22]) for (let x = 33; x <= 41; x++) if (free(x, y)) map[y][x] = T.CORN;
+  for (const [x, y] of [[35, 25], [39, 26]]) if (free(x, y)) map[y][x] = T.STOOK;
+  map[26][31] = T.SKEP;
 }
 
 /** @type {import('../types.js').Zone} */
@@ -218,6 +279,8 @@ export const marish = {
   ],
   interactions: [
     { x: 5, y: 15, label: 'The rushes', dialogue: 'examine_reeds' },
+    { x: 12, y: 7, label: 'The hayfield', dialogue: 'examine_stook' },
+    { x: 37, y: 21, label: 'The corn', dialogue: 'examine_cornfield' },
     { x: 20, y: 18, label: 'The mushroom beds', dialogue: 'examine_mushroom_bed' },
     { x: 36, y: 15, label: 'The causeway', dialogue: 'examine_causeway' },
     { x: 40, y: 16, label: 'The dike', dialogue: 'examine_dike' },
