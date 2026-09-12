@@ -76,7 +76,6 @@ function buildMap() {
   // The bedroom, and the chest of mathoms at the foot of the bed.
   map[9][24] = T.BED;
   map[10][21] = T.CHEST;
-  map[7][23] = T.MAP_WALL;
 
   // The kitchen: the pantry shelves and the long counter.
   for (let x = 5; x <= 9; x++) map[15][x] = T.SHELF;
