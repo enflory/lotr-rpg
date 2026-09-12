@@ -55,10 +55,13 @@ test("prologue: Bilbo's farewell party opens the game", async ({ page }) => {
   expect(opening.objective).toMatch(/Bilbo/);
   expect(opening.tileX).toBeLessThan(10); // spawned in the Party Field, not Bag End
 
-  // Stand just below Bilbo (4,25) and talk through the speech
+  // Stand on Bilbo and talk through the speech. His spot in the Party Field
+  // is read from the scene rather than written down here, so dressing the
+  // field differently never silently breaks the prologue test.
   await page.evaluate(() => {
     const scene = window.__game.scene.getScene('WorldScene');
-    scene.player.setPosition(4 * 16 + 8, 26 * 16 + 8);
+    const bilbo = scene.npcs.find((n) => n.getData('key') === 'bilbo');
+    scene.player.setPosition(bilbo.x, bilbo.y + 10);
   });
   await press(page, ' ');
   await expect

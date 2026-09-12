@@ -127,7 +127,10 @@ export class WorldScene extends Phaser.Scene {
     this.interactionMarks = (zone.interactions ?? []).map((p) => {
       const dot = this.add
         .ellipse(p.x * TILE_SIZE + 8, p.y * TILE_SIZE + 8, 8, 3, 0xd4c581, 0.5)
-        .setDepth(p.y * TILE_SIZE - 10);
+        .setDepth(p.y * TILE_SIZE - 10)
+        // Set before the first update, or a point that is not due yet shows
+        // for a frame as the zone fades in.
+        .setVisible(!p.when || p.when(gameState.flags));
       this.tweens.add({ targets: dot, alpha: 0.2, duration: 1700, yoyo: true, repeat: -1 });
       return { p, dot };
     });
