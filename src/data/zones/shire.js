@@ -302,12 +302,14 @@ function dressTheVillage(map) {
    lantern-lit lane between them, and the fire-pit the fireworks go up from. */
 function dressThePartyField(map) {
   const E = T.PARTY_TABLE, M = T.LANTERN, C = T.FEAST;
-  // Trestles in rows with the cloth laid between them, well clear of the
-  // pavilion in the south-west corner.
-  for (const [x, y] of [[7, 22], [2, 25], [7, 25], [7, 28], [2, 32], [7, 31]]) map[y][x] = E;
-  for (const [x, y] of [[6, 22], [3, 25], [6, 25], [6, 28], [3, 32], [6, 30]]) map[y][x] = C;
-  for (const [x, y] of [[1, 24], [8, 24], [1, 28], [8, 28], [1, 32], [8, 32]]) map[y][x] = M;
-  for (const [x, y] of [[3, 24], [4, 26], [6, 29]]) map[y][x] = T.BENCH;
+  // Trestles down both sides with the cloth laid between them, well clear of
+  // the pavilion in the south-west corner. Laid sparsely: a field packed
+  // corner to corner with furniture leaves nowhere to stand and nothing to
+  // look at.
+  for (const [x, y] of [[7, 22], [2, 25], [7, 28], [2, 32]]) map[y][x] = E;
+  for (const [x, y] of [[6, 22], [3, 25], [6, 28], [3, 32]]) map[y][x] = C;
+  for (const [x, y] of [[1, 27], [8, 25]]) map[y][x] = M;
+  for (const [x, y] of [[3, 24], [6, 29]]) map[y][x] = T.BENCH;
   // The fire-pit the rockets go up from: a horseshoe of stones, open to the
   // north so a hobbit can walk right up to it.
   for (const [x, y] of [[4, 32], [6, 32], [4, 33], [5, 33], [6, 33]]) map[y][x] = S;
@@ -328,7 +330,7 @@ export const shire = {
   },
   npcs: [
     // The Long-expected Party (prologue, before the time skip)
-    { key: 'bilbo',   x: 3, y: 21, dir: 'down',  when: (f) => !f.prologueDone },
+    { key: 'bilbo',   x: 5, y: 24, dir: 'down',  when: (f) => !f.prologueDone },
     { key: 'gandalf', x: 2, y: 27, dir: 'right', when: (f) => !f.prologueDone },
     { key: 'gaffer',  x: 1, y: 26, dir: 'right', when: (f) => !f.prologueDone },
     { key: 'rosie',   x: 7, y: 26, dir: 'left',  when: (f) => !f.prologueDone },
@@ -337,15 +339,15 @@ export const shire = {
     { key: 'twofoot', x: 45, y: 24, dir: 'left',  when: (f) => !f.prologueDone },
     // Seventeen years later
     { key: 'gandalf', x: 19, y: 8, dir: 'down',  when: (f) => f.prologueDone && !f.gandalfGone },
-    { key: 'sam',     x: 14, y: 5, dir: 'down',  when: (f) => f.prologueDone && !f.samJoined },
+    { key: 'sam',     x: 13, y: 5, dir: 'down',  when: (f) => f.prologueDone && !f.samJoined },
     { key: 'gaffer',  x: 10, y: 15, dir: 'right', when: (f) => f.prologueDone },
     { key: 'lobelia', x: 10, y: 19, dir: 'right', when: (f) => f.prologueDone },
     { key: 'sandyman', x: 6, y: 41, dir: 'up',   when: (f) => f.prologueDone },
     // Folco Boffin and Fredegar Bolger are at the party like everyone else,
     // and afterwards they are the two who help Frodo pack Bag End up.
-    { key: 'folco',  x: 8, y: 26, dir: 'left',  when: (f) => !f.prologueDone },
-    { key: 'fatty',  x: 1, y: 30, dir: 'up',    when: (f) => !f.prologueDone },
-    { key: 'lotho',  x: 3, y: 26, dir: 'right', when: (f) => !f.prologueDone },
+    // The field is small and the party is loud enough with six in it: Folco
+    // and Fredegar turn up afterwards, when there is packing to be done.
+    { key: 'lotho',  x: 2, y: 24, dir: 'right', when: (f) => !f.prologueDone },
     { key: 'folco',  x: 26, y: 8, dir: 'left',  when: (f) => f.prologueDone },
     { key: 'fatty',  x: 21, y: 7, dir: 'up',    when: (f) => f.prologueDone },
     { key: 'lotho',  x: 11, y: 20, dir: 'up',   when: (f) => f.prologueDone },
@@ -364,35 +366,20 @@ export const shire = {
     { x: 40, y: 24, dialogue: 'sign_ivybush' },
     { x: 35, y: 40, dialogue: 'examine_cotton_sign' },
   ],
-  // Inspectable places. Each one wears a glimmer on the ground, so a hobbit
-  // can see at a glance which patch of the Shire is worth stopping at.
+  // Inspectable places, kept sparse: two or so to an area, and fewer still
+  // where there are hobbits standing about to talk to instead. Each one wears
+  // a glimmer on the ground so it can be seen to be worth stopping at.
   interactions: [
-    // The Hill
     { x: 20, y: 2, label: 'Look out over Hobbiton', dialogue: 'examine_hilltop' },
-    { x: 15, y: 3, label: 'The old trees', dialogue: 'examine_hill_trees' },
     { x: 16, y: 6, label: "Sam's garden", dialogue: 'examine_garden' },
-    { x: 23, y: 5, label: 'The bee skeps', dialogue: 'examine_skep' },
-    { x: 18, y: 6, label: 'The bench', dialogue: 'examine_bench' },
     { x: 10, y: 12, label: 'Bagshot Row', dialogue: 'examine_bagshotrow' },
-    // The Party Field
-    { x: 5, y: 24, label: 'The Party Tree', dialogue: 'examine_partytree' },
-    { x: 2, y: 24, label: 'The trestles', dialogue: 'examine_trestle' },
-    { x: 4, y: 29, label: 'The pavilion', dialogue: 'examine_pavilion' },
+    { x: 1, y: 22, label: 'The Party Tree', dialogue: 'examine_partytree' },
     { x: 5, y: 31, label: 'The fire-pit', dialogue: 'examine_firepit' },
-    // The fields above Bywater
+    { x: 30, y: 23, label: 'The inn yard', dialogue: 'examine_innyard' },
     { x: 37, y: 6, label: 'The corn', dialogue: 'examine_cornfield' },
     { x: 43, y: 3, label: 'The duck pond', dialogue: 'examine_ducks' },
-    { x: 40, y: 11, label: 'The hedge', dialogue: 'examine_hedgerow' },
-    { x: 33, y: 15, label: 'The stooks', dialogue: 'examine_stook' },
-    { x: 44, y: 19, label: 'The waymark', dialogue: 'examine_milestone' },
-    // The Water
     { x: 24, y: 33, label: 'The Bywater Pool', dialogue: 'examine_pool' },
-    { x: 19, y: 35, label: 'The bridge', dialogue: 'examine_bridge' },
     { x: 2, y: 38, label: 'The mill wheel', dialogue: 'examine_millwheel' },
-    { x: 12, y: 38, label: 'The allotments', dialogue: 'examine_allotment' },
-    // The village
-    { x: 30, y: 23, label: 'The inn yard', dialogue: 'examine_innyard' },
-    { x: 30, y: 29, label: 'The paddock', dialogue: 'examine_paddock' },
   ],
   pickups: [
     { id: 'shire_mathom_1', x: 5, y: 30, item: 'mathom' },

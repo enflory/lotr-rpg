@@ -325,6 +325,24 @@ export function bakeShireCanopy(map) {
    Drawn as graphics rather than baked, so the one tree in the Shire that is
    a landmark can be as tall as it deserves and still sort against a hobbit
    standing under it.                                                       */
+// How much sky the crown takes up, and how deep it is drawn. Anything standing
+// inside this box with a smaller depth is painted over by the tree, so the
+// zone tests read the same numbers the drawing does.
+const CROWN = { spread: 34, jog: 6, rise: 88, hang: 14 };
+
+/** The ground the Party Tree's crown covers, and the depth it covers it at. */
+export function partyTreeCover(tx, ty) {
+  const cx = tx * 16 + 16,
+    base = (ty + 3) * 16;
+  return {
+    left: cx - CROWN.spread - CROWN.jog,
+    right: cx + CROWN.spread + CROWN.jog,
+    top: base - CROWN.rise,
+    bottom: base - CROWN.hang,
+    depth: base - 1,
+  };
+}
+
 function partyTree(scene, tx, ty) {
   // Rooted in the bottom row of the 2x3 composite; the crown covers the rest,
   // and is the largest thing growing anywhere in Chapter One.
@@ -342,10 +360,11 @@ function partyTree(scene, tx, ty) {
   r(cx - 5, base - 32, 4, 24, BARK[4]);
   r(cx + 4, base - 30, 3, 21, BARK[0]);
   // A broad round crown, not a cone: widest across the middle of its height.
-  for (let yy = base - 88; yy < base - 14; yy += 2) {
-    const t = (yy - (base - 88)) / 74;
+  const top = base - CROWN.rise;
+  for (let yy = top; yy < base - CROWN.hang; yy += 2) {
+    const t = (yy - top) / (CROWN.rise - CROWN.hang);
     const swell = Math.pow(Math.sqrt(Math.max(0, 1 - (t * 2 - 1) ** 2)), 0.62);
-    const w = Math.round(34 * swell) + Math.round(hash(yy, 7, 21) * 6);
+    const w = Math.round(CROWN.spread * swell) + Math.round(hash(yy, 7, 21) * CROWN.jog);
     if (w <= 1) continue;
     r(cx - w, yy, w * 2, 2, GREENWOOD[t < 0.09 ? 1 : 0]);
     r(cx - w + 3, yy, w * 2 - 6, 2, GREENWOOD[t < 0.8 ? 3 : 2]);

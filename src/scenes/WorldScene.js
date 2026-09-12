@@ -90,6 +90,7 @@ export class WorldScene extends Phaser.Scene {
       'frodo',
     );
     this.lastDir = spawn.dir || 'down';
+    this.player.setDepth(this.player.y);
     this.player.anims.play(`frodo-idle-${this.lastDir}`);
     // 16×24 sprite; body covers just the feet for Zelda-style overlap
     this.player.setSize(10, 8);
@@ -349,7 +350,12 @@ export class WorldScene extends Phaser.Scene {
   createFollower(key) {
     const existing = this.followers.find((sprite) => sprite.getData('key') === key);
     if (existing) return existing;
+    // Depth from the start. The baked ground layer sits at depth 3, so anyone
+    // left at the default 0 is drawn underneath the Shire itself — which is
+    // where Sam went while Pippin was walking in, since the arrival skips the
+    // follower update that would otherwise have given him one.
     const sprite = this.add.sprite(this.player.x, this.player.y, key, 1);
+    sprite.setDepth(this.player.y);
     sprite.setData('key', key);
     sprite.setData('dir', this.lastDir);
     sprite.setData('fernOverlay', this.add.image(0, 0, 'tileset', T.FERN).setVisible(false));
@@ -371,7 +377,7 @@ export class WorldScene extends Phaser.Scene {
     this.trail = [{ x: this.player.x, y: this.player.y }, ...path];
     this.followers.forEach((sprite, i) => {
       const p = trailPosition(this.trail, FOLLOW_DISTANCE * (i + 1));
-      sprite.setPosition(p.x, p.y);
+      sprite.setPosition(p.x, p.y).setDepth(p.y);
     });
   }
 

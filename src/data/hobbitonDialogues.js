@@ -6,6 +6,8 @@
 // him pack, the Gaffer at Number Three, and the stranger who came asking
 // after Baggins. Nothing is invented beyond the furniture of a farm.
 
+import { CHAPTER_DIALOGUES } from './chapterDialogues.js';
+
 /** @type {Record<string, import('./types.js').Dialogue>} */
 export const HOBBITON_DIALOGUES = {
   /* ── Hobbiton folk ─────────────────────────────────────────────────── */
@@ -33,6 +35,35 @@ export const HOBBITON_DIALOGUES = {
           'Still. A Baggins back in\nBuckland. Your mother\nwould have laughed.',
         ],
       },
+    ],
+  },
+
+  // Fredegar is in two chapters at once. In Hobbiton he is helping Frodo
+  // empty Bag End; at Crickhollow he stays behind to play the decoy, and those
+  // are his lines in chapterDialogues. Without this he greeted Frodo on the
+  // Hill by refusing to go into the Old Forest.
+  fatty: {
+    name: 'Fredegar Bolger',
+    stages: [
+      {
+        when: (f) => !f.prologueDone,
+        lines: ['Eleventy-one, and the whole\nShire invited. Trust a Baggins\nto do it properly.'],
+      },
+      {
+        when: (f) => !f.crossedFerry && f.ringRevealed,
+        lines: [
+          "I'm no walker, Frodo, and I\nsay so plainly. But I can\ncarry a box to a cart.",
+          'Folco and I will have Bag End\nbare by Thursday. Lobelia can\nhave the dust.',
+        ],
+      },
+      {
+        when: (f) => !f.crossedFerry,
+        lines: [
+          'Buckland! You were born there,\nI know. It still seems a long\nway to go for a quiet life.',
+        ],
+      },
+      // and at Crickhollow, the lines he already had
+      { lines: CHAPTER_DIALOGUES.fatty.lines },
     ],
   },
 
@@ -123,30 +154,6 @@ export const HOBBITON_DIALOGUES = {
     ],
   },
 
-  examine_bench: {
-    name: 'The Bench',
-    lines: [
-      'Worn smooth by long sitting\nand longer talking.',
-      'Bilbo sat here the evening\nhe came home with a ring\nin his pocket.',
-    ],
-  },
-
-  examine_skep: {
-    name: 'The Bee Skeps',
-    lines: [
-      'Straw skeps, humming in\nthe warm. Shire honey\nfor Shire bread.',
-      'Somebody has told the bees\nthat the master of Bag End\nis going away.',
-    ],
-  },
-
-  examine_hill_trees: {
-    name: 'The Old Trees',
-    lines: [
-      'Two old trees stand over\nthe roof of Bag End, older\nthan the smial beneath.',
-      'Bilbo used to say the Hill\nwas here long before any\nBaggins thought to dig it.',
-    ],
-  },
-
   /* ── The Party Field ───────────────────────────────────────────────── */
 
   examine_partytree: {
@@ -187,51 +194,13 @@ export const HOBBITON_DIALOGUES = {
     ],
   },
 
-  examine_trestle: {
-    name: 'The Trestles',
-    stages: [
-      {
-        when: (f) => !f.prologueDone,
-        lines: [
-          'Laid for a hundred and\nforty-four guests: a gross,\nas Bilbo would not have it.',
-          'Three official meals are\npromised. Nobody intends\nto stop at three.',
-        ],
-      },
-      { lines: ['Boards and trestles, stacked\nand strapped, waiting for\nthe next long party.'] },
-    ],
-  },
-
-  examine_pavilion: {
-    name: 'The Pavilion',
-    lines: [
-      'The specially large pavilion.\nThe tree grows up through\nthe middle of it.',
-      'Invitations went out to\nevery family in Hobbiton\nand half of Bywater.',
-    ],
-  },
-
   /* ── The village, the fields and the Water ─────────────────────────── */
-
-  examine_hedgerow: {
-    name: 'The Hedge',
-    lines: [
-      'Hawthorn, laid and pleached\nthe slow way, so it grows\ninto its own fence.',
-      'A well-ordered and\nwell-farmed countryside, and\nhobbits let it alone.',
-    ],
-  },
 
   examine_cornfield: {
     name: 'The Corn',
     lines: [
       'Shoulder-high to a hobbit\nand nearly ready. The ears\nrattle when the wind moves.',
       'Mostly for bread, some for\nbeer, and a little for the\nmill to argue over.',
-    ],
-  },
-
-  examine_stook: {
-    name: 'The Stooks',
-    lines: [
-      'Sheaves stood up in fours\nto dry. Harvest is close.',
-      'Hobbits are slow to change\nbut quick to the field when\nthe weather turns.',
     ],
   },
 
@@ -243,27 +212,11 @@ export const HOBBITON_DIALOGUES = {
     ],
   },
 
-  examine_bridge: {
-    name: 'The Bridge',
-    lines: [
-      'Three arches over the Water,\nthe road to Bywater and\nall the East beyond.',
-      'Every road out of Hobbiton\ncrosses here in the end.',
-    ],
-  },
-
   examine_millwheel: {
     name: 'The Mill Wheel',
     lines: [
       'Old Sandyman grinds for\nthe whole of Hobbiton, and\ngrumbles at the rate.',
       'His son Ted thinks a bigger\nwheel and more of them\nwould suit better.',
-    ],
-  },
-
-  examine_milestone: {
-    name: 'The Waymark',
-    lines: [
-      'A worn stone at the road-\nside. The letters were cut\nlong before any Baggins.',
-      'East: to Bywater, Frogmorton,\nthe Bridge of Stonebows,\nand out of the Shire.',
     ],
   },
 
@@ -277,22 +230,6 @@ export const HOBBITON_DIALOGUES = {
     lines: [
       'Benches, a well, and a\nstable for the Bywater\ncarters\u2019 ponies.',
       'The Green Dragon has stood\nhere longer than anyone in\nBywater can remember.',
-    ],
-  },
-
-  examine_paddock: {
-    name: 'The Paddock',
-    lines: [
-      'Hay cut and turned, and a\ngate on the lane side for\nthe carts to come through.',
-      'Grazing between the two\nroads. Somebody\u2019s pony has\nbeen at the hedge again.',
-    ],
-  },
-
-  examine_allotment: {
-    name: 'The Allotments',
-    lines: [
-      'Strips of dug ground along\nthe bank: onions, beans and\na great many potatoes.',
-      'Half of Hobbiton keeps a\nrow here, and all of it\nkeeps an opinion.',
     ],
   },
 
@@ -319,25 +256,6 @@ export const HOBBITON_DIALOGUES = {
     ],
   },
 
-  examine_pantry: {
-    name: 'The Pantry',
-    stages: [
-      {
-        when: (f) => f.ringRevealed,
-        lines: [
-          'Shelf after shelf, and all\nof it to be eaten, given\naway or left behind.',
-          'Folco says he will take\nthe pickles off your hands\nas a personal favour.',
-        ],
-      },
-      {
-        lines: [
-          'Seed-cake, raspberry jam,\nmince-pies, cheese, cold\nchicken, pork pie.',
-          'Bilbo kept it stocked for\nunexpected parties. It\nhappened to him once.',
-        ],
-      },
-    ],
-  },
-
   examine_sticks: {
     name: 'The Walking Sticks',
     lines: [
@@ -359,29 +277,6 @@ export const HOBBITON_DIALOGUES = {
     lines: [
       'A comfortable tunnel without\nsmoke: panelled walls, tiled\nfloor, and pegs, and pegs.',
       'It runs straight into the\nHill, and the best rooms all\nopen off the left of it.',
-    ],
-  },
-
-  examine_bed_bagend: {
-    name: 'The Bed',
-    stages: [
-      {
-        when: (f) => f.ringRevealed,
-        lines: ['Made up, and not likely to\nbe slept in many more\nnights.'],
-      },
-      {
-        lines: [
-          'Bilbo\u2019s old bed, and Frodo\u2019s\nnow. Deep, and turned to\nface the window.',
-        ],
-      },
-    ],
-  },
-
-  examine_window_bagend: {
-    name: 'The Round Window',
-    lines: [
-      'It looks west over the\ngarden and down the Hill,\nand it will not be yours.',
-      'Bilbo wrote his book at\nthis window, most of it\nin the mornings.',
     ],
   },
 
@@ -414,14 +309,6 @@ export const HOBBITON_DIALOGUES = {
     ],
   },
 
-  examine_bar_gd: {
-    name: 'The Bar',
-    lines: [
-      'Barrels racked behind, mugs\nhung above, and the Cotton\nfarm\u2019s best in every one.',
-      'Sam is generally at the\nend of it, and Ted\nSandyman generally opposite.',
-    ],
-  },
-
   examine_settle: {
     name: 'The Settle',
     lines: [
@@ -432,14 +319,6 @@ export const HOBBITON_DIALOGUES = {
 
   /* ── The Woody End ─────────────────────────────────────────────────── */
 
-  examine_road_woody: {
-    name: 'The East Road',
-    lines: [
-      'The Road runs on, east\nand south, out of the Shire\naltogether.',
-      'Bilbo used to say it was\ndangerous business, going\nout of your door.',
-    ],
-  },
-
   examine_ferns: {
     name: 'The Fern Brake',
     lines: [
@@ -448,37 +327,11 @@ export const HOBBITON_DIALOGUES = {
     ],
   },
 
-  examine_treetunnel: {
-    name: 'The Tree Tunnel',
-    lines: [
-      'The boughs close right over\nthe Road. Green light, and\nno sky at all.',
-      'Sound goes strange here.\nHoofbeats would carry a\nlong way.',
-    ],
-  },
-
   examine_hollow: {
     name: 'The Fir Hollow',
     lines: [
       'A carpet of wild flowers in\na ring of firs, and the\nsmell of resin.',
       'The kind of place a hobbit\nsleeps out under the stars\nand thinks nothing of it.',
-    ],
-  },
-
-  examine_elfclearing: {
-    name: 'The Hall of Trees',
-    stages: [
-      {
-        when: (f) => f.metGildor,
-        lines: [
-          'Grass trodden in a wide\nring, and the scent of\nsomething like lamplight.',
-          'Gildor’s people keep the\nhigh road east, and pass\nthis way but rarely.',
-        ],
-      },
-      {
-        lines: [
-          'A wide clearing where the\nRoad runs straight. Trees\nstand about it like pillars.',
-        ],
-      },
     ],
   },
 
@@ -492,11 +345,6 @@ export const HOBBITON_DIALOGUES = {
     ],
   },
 
-  examine_dike: {
-    name: 'The Dike',
-    lines: ['Black water in a straight\ncut, and the frogs going\nquiet as you pass.'],
-  },
-
   examine_mushroom_bed: {
     name: 'The Mushroom Beds',
     stages: [
@@ -508,19 +356,6 @@ export const HOBBITON_DIALOGUES = {
         ],
       },
       { lines: ['Row upon row, bedded in\nstraw. The best mushrooms\nin the Eastfarthing.'] },
-    ],
-  },
-
-  examine_reeds: {
-    name: 'The Rushes',
-    lines: ['Rushes taller than a hobbit,\nand somewhere behind them\nthe river going by.'],
-  },
-
-  examine_ferrylanding: {
-    name: 'The Landing',
-    lines: [
-      'A flat raft on a rope, and\na lamp on a post for those\nwho come after dark.',
-      'Buckland is the far side.\nThe Brandywine is the\nShire’s eastern wall.',
     ],
   },
 };
