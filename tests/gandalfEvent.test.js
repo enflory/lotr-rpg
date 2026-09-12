@@ -7,11 +7,22 @@ import { gameState } from '../src/state/GameState.js';
 import { DIALOGUES } from '../src/data/dialogues.js';
 import { shire } from '../src/data/zones/shire.js';
 
+// The least of a Phaser sprite that storyMotion's walk actually touches.
 const wizard = () => ({
   x: 19 * 16 + 8,
   y: 8 * 16 + 6,
   body: { enable: true },
   getData: () => 'gandalf',
+  play() {},
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
+    return this;
+  },
+  setDepth() {
+    return this;
+  },
+  anims: {},
 });
 
 function makeScene(npcs) {
@@ -28,8 +39,27 @@ function makeScene(npcs) {
     removeNpc(key) {
       this.removed.push(key);
     },
+    checkpoints: 0,
+    checkpoint() {
+      this.checkpoints++;
+    },
     player: { x: 0, y: 0 },
-    tweens: { add: () => {} }, // the walk never completes in the fake scene
+    // Every leg of the walk lands the moment it is started, so a test can see
+    // the far end of the departure without waiting on real tweens: the target
+    // is moved to where the tween would have put it, then completed.
+    tweens: {
+      add: (config) => {
+        const { targets, onUpdate, onComplete } = config;
+        const props = Object.fromEntries(
+          Object.entries(config).filter(
+            ([key, value]) => typeof value === 'number' && key !== 'duration',
+          ),
+        );
+        for (const target of [].concat(targets)) Object.assign(target, props);
+        onUpdate?.();
+        onComplete?.();
+      },
+    },
   };
 }
 
@@ -44,16 +74,25 @@ it('stays on the doorstep until his farewell has been heard', () => {
   expect(scene.banners).toEqual([]);
 });
 
-it('sets out once, and takes his collision with him', () => {
+it('sets out once, and takes his collision with him', async () => {
   const scene = makeScene([wizard()]);
+  const npc = scene.npcs[0];
   gameState.flags.gandalfLeft = true;
   gandalfEventUpdate(scene);
-  expect(scene.inputLocked).toBe(true);
   expect(scene.banners).toHaveLength(1);
-  expect(scene.npcs[0].body.enable).toBe(false);
+  expect(npc.body.enable).toBe(false);
 
   gandalfEventUpdate(scene); // a second frame must not start a second walk
   expect(scene.banners).toHaveLength(1);
+
+  // The walk is a chain of awaited legs; a macrotask flushes all of them.
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(npc.x).toBeGreaterThan(19 * 16 + 8); // he went east, down the lane
+  expect(npc.y).toBeGreaterThan(8 * 16 + 6);
+  expect(scene.removed).toEqual(['gandalf']);
+  expect(gameState.flags.gandalfGone).toBe(true);
+  expect(scene.inputLocked).toBe(false);
+  expect(scene.checkpoints).toBe(1);
 });
 
 it('counts himself gone if a save is restored after the farewell', () => {
