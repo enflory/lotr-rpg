@@ -16,6 +16,16 @@ export const HOBBITON_DIALOGUES = {
     name: 'Folco Boffin',
     stages: [
       {
+        // Gandalf used to say this, but he is gone long before anyone has
+        // gathered six of them. A Boffin is the right hobbit for it anyway.
+        when: (f, count) => f.prologueDone && count('mathom') >= 6 && !f.mathomsPraised,
+        lines: [
+          "Six of Bilbo's old mathoms!\nThe museum at Michel Delving\nnever held a finer haul.",
+          'A Boffin knows a mathom\nwhen he sees one. Those are\nvery good mathoms.',
+        ],
+        set: 'mathomsPraised',
+      },
+      {
         when: (f) => !f.prologueDone,
         lines: [
           'One hundred and eleven!\nAnd not a grey hair on him.',

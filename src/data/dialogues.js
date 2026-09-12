@@ -65,6 +65,10 @@ export const DIALOGUES = {
         set: 'cratesAsked',
       },
       {
+        // One conversation, not two. His counsel and his farewell are the same
+        // scene: he tells Frodo what the Ring is, sends him for Sam, and goes.
+        // Splitting them let a player walk away and never see him leave — and
+        // in the book Frodo never does see him again before setting out.
         when: (f) => !f.metGandalf,
         lines: [
           'My dear Frodo! Good to see\nyou again at last.',
@@ -73,34 +77,12 @@ export const DIALOGUES = {
           'It must not stay in the\nShire. You must leave,\nand you must leave soon.',
           'Keep it secret.\nKeep it safe!',
           'And Frodo -- do not go\nalone. Young Samwise is\nin the garden. Fetch him.',
-        ],
-        set: 'metGandalf',
-        objective: 'Find Sam in his garden',
-      },
-      {
-        when: (f) => !f.samJoined,
-        lines: ['Samwise is in the garden --\nor under the window, more\nlike. Go and fetch him.'],
-      },
-      {
-        when: (f, count) => count('mathom') >= 6 && !f.mathomsPraised,
-        lines: [
-          "Six of Bilbo's old mathoms!\nThe museum at Michel Delving\nnever held a finer haul.",
-        ],
-        set: 'mathomsPraised',
-      },
-      {
-        // His last counsel, and then he goes: in the book Frodo waits all
-        // summer for him and sets out at last without him.
-        when: (f) => !f.gandalfLeft,
-        lines: [
-          'So -- Samwise goes with you.\nGood. I could not have\nchosen better myself.',
-          'Make for Bucklebury by way\nof the Woody End. Take the\nEast Road out of Hobbiton.',
-          'And remember: do not use\nthe Ring! The Enemy has\nmany spies in the Shire.',
-          'I must ride and seek news,\nand speak with Saruman,\nthe head of my order.',
+          'Make for Bucklebury by way\nof the Woody End, and do\nnot use the Ring. Not once.',
+          'As for me -- I must ride and\nseek news, and speak with\nthe head of my order.',
           'Look for me in Bree, at the\nsign of the Prancing Pony.\nBe careful, Frodo!',
         ],
-        set: 'gandalfLeft',
-        objective: 'Take the East Road out of Hobbiton',
+        set: ['metGandalf', 'gandalfLeft'],
+        objective: 'Find Sam in his garden',
       },
       { lines: ['...'] },
     ],

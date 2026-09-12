@@ -7,7 +7,8 @@
 //
 // The player watches him go, then has control back as soon as he is clear of
 // the view: a long wait at the top of the Hill for a wizard's whole journey
-// would be a worse scene than a short one.
+// would be a worse scene than a short one. No banner — the objective banner
+// from the conversation is still up, and a wizard walking away says the rest.
 
 import { hasFlag, setFlag } from '../state/GameState.js';
 import { walk } from './storyMotion.js';
@@ -28,8 +29,6 @@ export function gandalfEventUpdate(scene) {
   scene.inputLocked = true;
   // A static body would stay behind on the doorstep; the walk owns him now.
   if (wizard.body) wizard.body.enable = false;
-  scene.showBanner('Gandalf goes down the Hill,\nand does not look back.');
-
   walk(scene, wizard, AWAY.x, AWAY.y, 54).then(() => {
     scene.removeNpc('gandalf');
     setFlag('gandalfGone');

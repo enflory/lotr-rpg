@@ -72,18 +72,35 @@ export function makeWaggon(scene) {
   const offsets = [-14, 8];
 
   let last = null;
+  let travelled = 0;
+  let facing = 1;
   return {
     body,
     wheels,
-    /** Put the rig on the road at (x, y) and roll the wheels to match. */
+    /** Face the way it is going: 1 for east, as drawn, -1 for the road home. */
+    setFacing(dir) {
+      facing = dir;
+      body.setScale(dir, 1);
+    },
+    /**
+     * Put the rig on the road at (x, y), roll the wheels by how far it moved,
+     * and rumble. Returns the rumble, so whoever is riding can rumble with it
+     * instead of floating above a cart that is moving under them.
+     */
     place(x, y) {
-      const rolled = last ? Math.hypot(x - last.x, y - last.y) : 0;
+      const dx = last ? x - last.x : 0;
+      const rolled = last ? Math.hypot(dx, y - last.y) : 0;
+      travelled += rolled;
       last = { x, y };
-      body.setPosition(x, y).setDepth(y + 2);
+      // One pixel is plenty at this scale, and a laden cart on a farm lane
+      // never sits still.
+      const bob = Math.round(Math.sin(travelled / 9));
+      body.setPosition(x, y + bob).setDepth(y + 2);
       wheels.forEach((w, i) => {
-        w.setPosition(x + offsets[i], y - 4).setDepth(y + 3);
-        w.rotation += rolled / 6;
+        w.setPosition(x + offsets[i] * facing, y - 4 + bob).setDepth(y + 3);
+        w.rotation += (rolled / 6) * (dx < 0 ? -1 : 1);
       });
+      return bob;
     },
     setVisible(on) {
       body.setVisible(on);

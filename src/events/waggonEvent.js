@@ -4,9 +4,13 @@
 // with one halt on the road when hoofs are heard behind them. The light that
 // answers out of the mist is Merry's lantern, not a Rider.
 //
-// The ride is a watched scene, not a fade to black. It ends with the party
-// standing at the lamplit landing — the same spot the old fade-teleport left
-// them — so everything downstream of `rodeWaggon` is unchanged.
+// The ride runs east along the causeway and nowhere else. The lane turns a
+// right angle at the farm, and a cart drawn from the side cannot turn a right
+// angle — it can only slide down the corner looking like it is on ice — so
+// climbing aboard is covered by a short fade and the whole of the drive is
+// straight. It ends with the party standing at the lamplit landing, the same
+// spot the old fade-teleport left them, so everything downstream of
+// `rodeWaggon` is unchanged.
 
 import { TILE_SIZE } from '../data/tileTypes.js';
 import { hasFlag, setFlag, setObjective } from '../state/GameState.js';
@@ -16,26 +20,18 @@ import { raiseNight } from '../art/marishNight.js';
 import { PIER_X, LANE_ROW } from '../data/zones/marish.js';
 import { tween } from './storyMotion.js';
 
-// The lane, in pixels, from Maggot's gate to the landing. The two straights
-// are joined where the lane itself bends, so the waggon never leaves the road.
 // Built on demand: the Marish zone pulls this module in, so reading its lane
 // constants at module load would read them before the zone has defined them.
-const GATE_ROW = 11;
 export function route() {
-  // The turn is taken at x=30. The lane is carved two cells wide through the
-  // bend, but Bamfurlong's east fence stands in the western one of them, so
-  // the cart drops down the eastern one or it drives through a fence.
-  const BEND = 30;
+  const y = (LANE_ROW + 1) * TILE_SIZE + 8;
   return [
-    { x: 25 * TILE_SIZE, y: GATE_ROW * TILE_SIZE + 8 },
-    { x: BEND * TILE_SIZE + 8, y: GATE_ROW * TILE_SIZE + 8 },
-    { x: BEND * TILE_SIZE + 8, y: (LANE_ROW + 1) * TILE_SIZE + 8 },
-    { x: 40 * TILE_SIZE, y: (LANE_ROW + 1) * TILE_SIZE + 8 },
-    { x: 44 * TILE_SIZE, y: (LANE_ROW + 1) * TILE_SIZE + 8 },
+    { x: 30 * TILE_SIZE, y }, // on the causeway, past the turn
+    { x: 37 * TILE_SIZE, y }, // where the hoofs are heard
+    { x: 41 * TILE_SIZE, y }, // drawn up short of the landing
   ];
 }
-const HALT_AT = 3; // the leg that ends with hoofs on the road behind
-const SPEED = 62; // px/sec — a laden farm cart, trotting in the dark
+const HALT_AT = 1; // the leg that ends with hoofs on the road behind
+const SPEED = 32; // px/sec — a laden farm cart, walking pace, in the dark
 
 // Where each rider sits, measured from the waggon's own origin.
 export const SEATS = [
@@ -46,6 +42,11 @@ export const SEATS = [
 ];
 
 const pause = (s, ms) => new Promise((resolve) => s.time.delayedCall(ms, resolve));
+const fade = (s, out, ms) =>
+  new Promise((resolve) => {
+    s.cameras.main[out ? 'fadeOut' : 'fadeIn'](ms, 0, 0, 0);
+    s.cameras.main.once(out ? 'camerafadeoutcomplete' : 'camerafadeincomplete', resolve);
+  });
 
 function freeze(s) {
   s.player.setVelocity(0);
@@ -79,29 +80,73 @@ function crew(s, maggot) {
   }).filter(Boolean);
 }
 
+// Everyone aboard rides with the cart, rumble included.
 function seat(waggon, riders, wx, wy) {
-  waggon.place(wx, wy);
+  const bob = waggon.place(wx, wy);
   for (const { sprite, x, y } of riders) {
-    sprite.setPosition(wx + x, wy + y);
+    sprite.setPosition(wx + x, wy + y + bob);
     sprite.setDepth(wy + 4 - x / 8);
   }
 }
 
-/** One leg of the lane, with everyone aboard riding along with the cart. */
+/**
+ * One leg of the causeway. Eased at both ends: a cart pulls away and draws up,
+ * it does not snap to a constant speed and then stop dead.
+ */
 async function roll(s, waggon, riders, from, to) {
   const at = { x: from.x, y: from.y };
   const distance = Math.hypot(to.x - from.x, to.y - from.y);
   for (const { sprite } of riders) {
-    const dir = Math.abs(to.x - from.x) >= Math.abs(to.y - from.y) ? 'right' : 'down';
-    sprite.anims.play(`${sprite.getData('key') || sprite.texture.key}-idle-${dir}`, true);
+    sprite.anims.play(`${sprite.getData('key') || sprite.texture.key}-idle-right`, true);
   }
   await tween(
     s,
     at,
-    { x: to.x, y: to.y, ease: 'Linear', onUpdate: () => seat(waggon, riders, at.x, at.y) },
+    { x: to.x, y: to.y, onUpdate: () => seat(waggon, riders, at.x, at.y) },
     Math.max(150, (distance / SPEED) * 1000),
   );
   seat(waggon, riders, to.x, to.y);
+}
+
+/**
+ * Merry comes up the road out of the fog with a lantern, rather than a glow
+ * growing out of nothing and an NPC appearing at the landing afterwards.
+ */
+function lanternBearer(s, x, y) {
+  const sprite = s.add
+    .sprite(x, y - 10, 'merry', 4)
+    .setDepth(y + 6)
+    .setAlpha(0);
+  const lamp = s.add
+    .ellipse(x + 8, y - 2, 46, 32, 0xffc46a, 0.38)
+    .setDepth(y + 5)
+    .setBlendMode('ADD')
+    .setAlpha(0);
+  const at = { x };
+  const put = () => {
+    sprite.setPosition(at.x, y - 10).setDepth(y + 6);
+    lamp.setPosition(at.x + 8, y - 2);
+  };
+  return {
+    sprite,
+    lamp,
+    at,
+    put,
+    show: (ms) => {
+      s.tweens.add({ targets: sprite, alpha: 1, duration: ms });
+      s.tweens.add({ targets: lamp, alpha: 0.38, duration: ms });
+    },
+    walk: (to, ms, dir) => {
+      sprite.anims.play(`merry-walk-${dir}`, true);
+      return tween(s, at, { x: to, ease: 'Linear', onUpdate: put }, ms).then(() => {
+        sprite.anims.play(`merry-idle-${dir}`, true);
+      });
+    },
+    destroy: () => {
+      sprite.destroy();
+      lamp.destroy();
+    },
+  };
 }
 
 export async function startWaggonRide(s) {
@@ -109,21 +154,24 @@ export async function startWaggonRide(s) {
   s.waggonRide = true;
   freeze(s);
 
-  // Maggot leaves his gate and climbs up on the seat.
-  const maggot = s.npcs.find((n) => n.getData('key') === 'maggot');
-  const driver = s.add.sprite(0, 0, 'maggot', 7).setData('key', 'maggot');
-  if (maggot) s.removeNpc('maggot');
-
   const ROUTE = route();
+  const landing = s.zone.spawns.landing;
+
+  // Climbing up beside him, and the turn out of the farm lane, happen behind a
+  // short fade. What the ride itself is worth watching for starts on the road.
+  await fade(s, true, 450);
+  const maggot = s.npcs.find((n) => n.getData('key') === 'maggot');
+  if (maggot) s.removeNpc('maggot');
+  const driver = s.add.sprite(0, 0, 'maggot', 7).setData('key', 'maggot');
   const waggon = makeWaggon(s);
   const riders = crew(s, driver);
   seat(waggon, riders, ROUTE[0].x, ROUTE[0].y);
   s.cameras.main.startFollow(waggon.body, true, 0.09, 0.09);
-
-  raiseNight(s, s.marishNight, 1800);
+  raiseNight(s, s.marishNight, 0);
+  await fade(s, false, 700);
   s.showBanner('Night comes down\non the Marish.');
-  await pause(s, 1500);
-  sfx.door(); // the cart creaking out of the yard
+  sfx.door(); // the cart creaking onto the causeway
+  await pause(s, 1200);
 
   for (let i = 1; i < ROUTE.length; i++) {
     await roll(s, waggon, riders, ROUTE[i - 1], ROUTE[i]);
@@ -133,46 +181,58 @@ export async function startWaggonRide(s) {
     // still in the dark, and what comes out of the fog is a friend.
     sfx.sting();
     s.showBanner('Hoofs on the road\nbehind you. Maggot halts.');
-    await pause(s, 1800);
-    const lamp = s.add
-      .ellipse(ROUTE[i].x + 150, ROUTE[i].y - 6, 10, 8, 0xffc46a, 0.9)
-      .setDepth(ROUTE[i].y + 8)
-      .setBlendMode('ADD');
-    await tween(s, lamp, { x: ROUTE[i].x + 58, scaleX: 4, scaleY: 4, alpha: 0.5 }, 1300);
-    s.showBanner('A lantern swings out of\nthe fog. Only a friend.');
-    await pause(s, 1500);
-    await tween(s, lamp, { alpha: 0 }, 500);
-    lamp.destroy();
+    await pause(s, 1600);
+
+    const merry = lanternBearer(s, ROUTE[i].x + 176, ROUTE[i].y);
+    merry.show(900);
+    await merry.walk(ROUTE[i].x + 72, 2600, 'left');
+    s.showBanner('A lantern out of the fog --\nand Merry Brandybuck\nbehind it.');
+    await pause(s, 1700);
+    // He turns and leads them down to the landing, keeping ahead of the cart.
+    merry.walk((PIER_X - 2) * TILE_SIZE + 8, 5200, 'right').then(() => {
+      merry.destroy();
+      s.spawnNpc({ key: 'merry', x: PIER_X - 2, y: LANE_ROW - 1, dir: 'down' });
+    });
   }
 
-  // Down at the landing. Maggot puts them off, wishes them good night, and
-  // turns the waggon for home.
+  // Down at the landing. Maggot puts them off and wishes them good night.
   s.showBanner('"Good night to you,\nMr. Baggins!"');
-  await pause(s, 1500);
+  await pause(s, 1200);
 
-  const landing = s.zone.spawns.landing;
-  s.player.setPosition(landing.x * TILE_SIZE + 8, landing.y * TILE_SIZE + 8);
+  // Step down off the cart and walk on past its nose to the landing, rather
+  // than blinking onto the lane. Everyone ends up east of the cart, so it can
+  // turn for home without driving straight through the party.
+  const ground = landing.y * TILE_SIZE + 8;
+  await Promise.all(
+    [s.player, ...s.followers].map((sprite, i) => {
+      const to = { x: (landing.x + i * 0.9) * TILE_SIZE + 8, y: ground };
+      sprite.anims.play(`${sprite.getData('key') || 'frodo'}-walk-right`, true);
+      return tween(s, sprite, { ...to, onUpdate: () => sprite.setDepth(sprite.y) }, 900).then(() =>
+        sprite.anims.play(`${sprite.getData('key') || 'frodo'}-idle-down`, true),
+      );
+    }),
+  );
   s.player.setDepth(s.player.y);
-  s.snapFollower();
-  driver.setPosition(ROUTE[ROUTE.length - 1].x + 13, ROUTE[ROUTE.length - 1].y - 27);
-  s.spawnNpc({ key: 'merry', x: PIER_X - 2, y: LANE_ROW - 1, dir: 'down' });
 
   setFlag('rodeWaggon');
   setObjective('Cross the Brandywine with Merry');
   s.checkpoint?.('landing');
   unfreeze(s);
 
-  // The cart rolls back the way it came while the player has the run of the
-  // landing again — nothing below depends on it, so it is not awaited.
+  // The cart turns for home. It is drawn facing east, so it has to be flipped
+  // or it reverses the whole way back up the lane. Nothing below waits on it.
+  await pause(s, 900);
+  waggon.setFacing(-1);
+  driver.setFrame(4);
   const home = { x: ROUTE[ROUTE.length - 1].x, y: ROUTE[ROUTE.length - 1].y };
   s.tweens.add({
     targets: home,
-    x: ROUTE[2].x,
-    duration: 9000,
-    ease: 'Linear',
+    x: ROUTE[0].x - 40,
+    duration: 8000,
+    ease: 'Sine.easeIn',
     onUpdate: () => {
-      waggon.place(home.x, home.y);
-      driver.setPosition(home.x + 13, home.y - 27).setDepth(home.y + 4);
+      const bob = waggon.place(home.x, home.y);
+      driver.setPosition(home.x - 13, home.y - 27 + bob).setDepth(home.y + 4);
     },
     onComplete: () => {
       waggon.destroy();

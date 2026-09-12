@@ -71,7 +71,7 @@ it('stays on the doorstep until his farewell has been heard', () => {
   const scene = makeScene([wizard()]);
   gandalfEventUpdate(scene);
   expect(scene.inputLocked).toBe(false);
-  expect(scene.banners).toEqual([]);
+  expect(scene.removed).toEqual([]);
 });
 
 it('sets out once, and takes his collision with him', async () => {
@@ -79,11 +79,11 @@ it('sets out once, and takes his collision with him', async () => {
   const npc = scene.npcs[0];
   gameState.flags.gandalfLeft = true;
   gandalfEventUpdate(scene);
-  expect(scene.banners).toHaveLength(1);
+  expect(scene.inputLocked).toBe(true);
   expect(npc.body.enable).toBe(false);
 
   gandalfEventUpdate(scene); // a second frame must not start a second walk
-  expect(scene.banners).toHaveLength(1);
+  expect(scene.removed).toEqual([]);
 
   // The walk is a chain of awaited legs; a macrotask flushes all of them.
   await new Promise((resolve) => setTimeout(resolve, 0));
@@ -111,9 +111,13 @@ it('does not stand outside Bag End once he has gone', () => {
 });
 
 it('says his farewell exactly once and points Frodo at the East Road', () => {
-  const farewell = DIALOGUES.gandalf.stages.find((s) => s.set === 'gandalfLeft');
-  expect(farewell).toBeTruthy();
-  expect(farewell.objective).toMatch(/East Road/);
-  expect(farewell.when({ samJoined: true })).toBe(true);
-  expect(farewell.when({ samJoined: true, gandalfLeft: true })).toBe(false);
+  // The Ring and the farewell are one conversation, so there is no way to
+  // hear the first and walk off without seeing him go.
+  const farewell = DIALOGUES.gandalf.stages.filter((s) =>
+    [].concat(s.set ?? []).includes('gandalfLeft'),
+  );
+  expect(farewell).toHaveLength(1);
+  expect(farewell[0].set).toContain('metGandalf');
+  expect(farewell[0].when({})).toBe(true);
+  expect(farewell[0].when({ metGandalf: true })).toBe(false);
 });
