@@ -10,13 +10,17 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 
 ![Frodo, Sam, and Gandalf on the lane below Bag End](assets/screenshots/hobbiton.png)
 
-| ![The Party Field, laid out for a hundred and forty-four guests](assets/screenshots/party-field.png) | ![The hall and parlour of Bag End](assets/screenshots/bagend.png) |
-| :--------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------: |
-|                                The Party Field, under the Party Tree                                 |                    Inside Bag End, by the fire                    |
+| ![The Party Field, laid out for a hundred and forty-four guests](assets/screenshots/party-field.png) | ![Gandalf walking away down the Hill](assets/screenshots/gandalf-leaves.png) |
+| :--------------------------------------------------------------------------------------------------: | :--------------------------------------------------------------------------: |
+|                                The Party Field, under the Party Tree                                 |                     Gandalf goes, and does not look back                     |
 
-| ![Gildor's company feasting in the Woody End](assets/screenshots/woodyend.png) | ![Bamfurlong farm in the Marish](assets/screenshots/marish.png) |
-| :----------------------------------------------------------------------------: | :-------------------------------------------------------------: |
-|                   Gildor's company feasting in the Woody End                   |         Farmer Maggot's Bamfurlong, down in the Marish          |
+| ![The hall and parlour of Bag End](assets/screenshots/bagend.png) | ![Gildor's company feasting in the Woody End](assets/screenshots/woodyend.png) |
+| :---------------------------------------------------------------: | :----------------------------------------------------------------------------: |
+|                    Inside Bag End, by the fire                    |                   Gildor's company feasting in the Woody End                   |
+
+| ![Farmer Maggot's waggon on the causeway at night](assets/screenshots/waggon-ride.png) | ![Bamfurlong farm in the Marish](assets/screenshots/marish.png) |
+| :------------------------------------------------------------------------------------: | :-------------------------------------------------------------: |
+|                    Maggot drives them to the Ferry through the fog                     |         Farmer Maggot's Bamfurlong, down in the Marish          |
 
 | ![Crickhollow's cottage, lawn and kitchen garden](assets/screenshots/crickhollow.png) | ![All five hobbits sharing supper](assets/screenshots/crickhollow-supper.png) |
 | :-----------------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |

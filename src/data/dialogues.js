@@ -89,12 +89,20 @@ export const DIALOGUES = {
         set: 'mathomsPraised',
       },
       {
+        // His last counsel, and then he goes: in the book Frodo waits all
+        // summer for him and sets out at last without him.
+        when: (f) => !f.gandalfLeft,
         lines: [
+          'So -- Samwise goes with you.\nGood. I could not have\nchosen better myself.',
           'Make for Bucklebury by way\nof the Woody End. Take the\nEast Road out of Hobbiton.',
           'And remember: do not use\nthe Ring! The Enemy has\nmany spies in the Shire.',
-          'I must see Saruman, head\nof my order. I will meet\nyou in Bree if I can.',
+          'I must ride and seek news,\nand speak with Saruman,\nthe head of my order.',
+          'Look for me in Bree, at the\nsign of the Prancing Pony.\nBe careful, Frodo!',
         ],
+        set: 'gandalfLeft',
+        objective: 'Take the East Road out of Hobbiton',
       },
+      { lines: ['...'] },
     ],
   },
 

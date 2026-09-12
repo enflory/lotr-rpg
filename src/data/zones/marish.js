@@ -8,6 +8,9 @@ import { T } from '../tileTypes.js';
 import { stamp } from './mapUtils.js';
 import { ferryEventUpdate, ferryZoneCreate } from '../../events/ferryEvent.js';
 import { dogsEventUpdate } from '../../events/dogsEvent.js';
+import { waggonEventUpdate } from '../../events/waggonEvent.js';
+import { createNight, raiseNight } from '../../art/marishNight.js';
+import { hasFlag } from '../../state/GameState.js';
 
 const WIDTH = 56, HEIGHT = 30;
 
@@ -306,8 +309,15 @@ export const marish = {
     { x: 0, y: 14, zone: 'woodyend', entry: 'east' },
     { x: 0, y: 15, zone: 'woodyend', entry: 'east' },
   ],
-  onCreate: ferryZoneCreate,
+  onCreate: (scene) => {
+    ferryZoneCreate(scene);
+    // Night and the river fog come up during Maggot's ride and stay up: the
+    // crossing happens in the dark, and so does the far bank.
+    scene.marishNight = createNight(scene);
+    if (hasFlag('rodeWaggon')) raiseNight(scene, scene.marishNight, 0);
+  },
   onUpdate: (scene, delta) => {
+    waggonEventUpdate(scene);
     ferryEventUpdate(scene, delta);
     dogsEventUpdate(scene);
   },

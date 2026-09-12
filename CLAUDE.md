@@ -64,6 +64,8 @@ under `devices['iPhone 13']`; the pad's direction maths is unit-tested in
 - `tiles.js`: one draw function per tile, composited onto a strip; order must match `T` in `src/data/tileTypes.js`.
 - `relief.js`: the shared height-field machinery (`maskOf`, `sample`, `wobble`, `hash`, `step`) used by both baked landscape renderers.
 - `shireScenery.js`: the Shire, the Woody End and the Marish are shaded as country rather than tilework. One baked ground layer carries the roll of The Hill, lanes worn into irregular ribbons, wet ground as a spreading marsh, mown hay swathes, damp shingle at the water's edge and every cast shadow; a canopy layer cuts the woods into one image strip per tile row, each drawn at that row's depth so a hobbit walks behind a crown and in front of the trunk beneath it. Crowns rise at most `RISE` px above their own cell and never reach sideways over open ground. The Party Tree is drawn as a graphics landmark in its own right. `drawShireWeather` adds drifting motes per zone.
+- `marishNight.js`: night and the river fog for the Marish — a screen-fixed tint, wisps of fog lying in world space, and a warm pool under every lamp. Raised during Maggot's ride and, from a `rodeWaggon` save, put straight up at zone creation.
+- `waggon.js`: Farmer Maggot's cart and pony, drawn side-on rather than tiled so it can run along the lane and sort against the hobbits riding in it. `place(x, y)` sets it on the road and rolls the wheels by how far it moved.
 - `interiorLight.js`: interiors are lit, not merely drawn. `bakeInteriorShadow` is a pure bake (no Phaser import, so it is unit-tested) producing a quantised darkness overlay opened out around every window, hearth, lamp and table candle; the hearth also gets an additive pool that breathes. Neither layer touches the characters.
 - `ui.js`: hint bubble sprite.
 
@@ -74,6 +76,8 @@ under `devices['iPhone 13']`; the pad's direction maths is unit-tested in
 - **`src/data/hobbitonDialogues.js`**: Chapter 1's inspectable places and the Hobbiton folk (Folco Boffin, Fredegar Bolger, Lotho Sackville-Baggins, Widow Rumble, Farmer Cotton), spread into `DIALOGUES`.
 - **`src/data/dialogues.js`**: staged dialogue. Entry = `{ name, lines }` or `{ name, stages: [{ when(flags), lines, set?, objective?, join? }] }` — the first matching stage wins; effects fire when the dialogue closes. `resolveDialogue(key, flags)` does the lookup.
 - **`src/state/GameState.js`**: module-singleton flags, follower, current objective. Reset only by page reload.
+- **`src/events/gandalfEvent.js`**: Gandalf walks off down the Hill once his farewell has been heard (`gandalfLeft`), and the doorstep is empty from then on (`gandalfGone`).
+- **`src/events/waggonEvent.js`**: the night ride to the Ferry. `route()` is built on demand — the Marish zone imports this module, so reading its lane constants at module load would read them before the zone has defined them — and it takes the bend on the eastern cell, because Bamfurlong's east fence stands in the western one. The ride ends by setting the party down at the `landing` spawn and setting `rodeWaggon`, which is where `ferryEvent.js` picks up.
 - **`src/events/riderEvent.js`**: the Black Rider set piece (armed → riding → sniffing → done/caught). Each hobbit is hidden iff their feet are on a `T.FERN` tile; an exposed companion can also be caught. The first encounter has three-row fern brakes on both sides of the road.
 
 ### Audio (`src/audio/sound.js`)
@@ -106,7 +110,9 @@ Chapter 1 has since been brought up to the standard of the later chapters. Visua
 - **People.** Folco Boffin and Fredegar Bolger (who help Frodo pack up in the book), Lotho Sackville-Baggins, Widow Rumble and Farmer Cotton. The Gaffer tells of the black-clad stranger who came to Number Three asking after Baggins, if Frodo walks back up the Row after the Woody End.
 - **Examine points.** `zone.interactions` are used across all five Chapter 1 zones, and `WorldScene` now draws the glimmer marker for _every_ zone (not just the journey zones, where `journeyEvent` used to own it). A hobbit standing in front of you always takes priority over a thing on the ground behind them.
 
-Chapter 1 still wants: Green Hill Country as a middle zone, and scripted movement (Gandalf leaving, Maggot's waggon visible on the road).
+- **Scripted departures.** Gandalf gives his last counsel and then walks down off the Hill and away east; he does not come back, exactly as in the book, where Frodo waits all summer for him and sets out without him. Farmer Maggot's lift to the Ferry is a watched ride rather than a fade to black: night comes down over the Marish, the fog rises, the cart runs the length of the causeway with all four aboard, halts once when hoofs are heard on the road behind, and the light that answers out of the mist is a lantern, not a Rider. The night and the fog stay up for the crossing.
+
+Chapter 1 still wants: Green Hill Country as a middle zone.
 
 Pippin uses the existing hobbit sprite template with a blue waistcoat. His initial arrival follows walkable tiles while Frodo waits briefly; both companions then follow through zones, fern cover, and the ferry. `src/state/partyMovement.js` contains the tile-route and distance-along-trail helpers. Existing checkpoints with Sam restore both companions without replaying the entrance; the save format remains v1.
 

@@ -133,8 +133,9 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
     )
     .toBe(true);
 
-  // The waggon ride fade-teleports to the landing and spawns Merry
-  await page.waitForFunction(() => window.__state.flags.rodeWaggon, null, { timeout: 10_000 });
+  // Maggot drives them down through the night fog, halts on the road, and
+  // sets them down at the lamplit landing where Merry is waiting.
+  await page.waitForFunction(() => window.__state.flags.rodeWaggon, null, { timeout: 45_000 });
   await expect
     .poll(() =>
       page.evaluate(() => {

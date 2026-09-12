@@ -3,6 +3,7 @@
 
 import { T } from '../tileTypes.js';
 import { partyEventUpdate, partyZoneCreate } from '../../events/partyEvent.js';
+import { gandalfEventUpdate } from '../../events/gandalfEvent.js';
 import { extendMap, stamp } from './mapUtils.js';
 
 // Shorthand
@@ -335,7 +336,7 @@ export const shire = {
     { key: 'noakes',  x: 41, y: 24, dir: 'right', when: (f) => !f.prologueDone },
     { key: 'twofoot', x: 45, y: 24, dir: 'left',  when: (f) => !f.prologueDone },
     // Seventeen years later
-    { key: 'gandalf', x: 19, y: 8, dir: 'down',  when: (f) => f.prologueDone },
+    { key: 'gandalf', x: 19, y: 8, dir: 'down',  when: (f) => f.prologueDone && !f.gandalfGone },
     { key: 'sam',     x: 14, y: 5, dir: 'down',  when: (f) => f.prologueDone && !f.samJoined },
     { key: 'gaffer',  x: 10, y: 15, dir: 'right', when: (f) => f.prologueDone },
     { key: 'lobelia', x: 10, y: 19, dir: 'right', when: (f) => f.prologueDone },
@@ -434,5 +435,8 @@ export const shire = {
     },
   ],
   onCreate: partyZoneCreate,
-  onUpdate: partyEventUpdate,
+  onUpdate: (scene, delta) => {
+    partyEventUpdate(scene, delta);
+    gandalfEventUpdate(scene);
+  },
 };

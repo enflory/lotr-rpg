@@ -50,29 +50,9 @@ export function ferryEventUpdate(scene, delta) {
   }
 
   if (ev.phase === 'idle') {
-    if (hasFlag('rodeWaggon')) {
-      ev.phase = 'armed'; // re-entered the zone after the ride
-      return;
-    }
-    if (hasFlag('maggotRide')) {
-      // Maggot drives them through the dusk — fade out at the farm,
-      // fade in at the lamplit landing.
-      ev.phase = 'riding';
-      scene.inputLocked = true;
-      scene.cameras.main.fadeOut(700, 0, 0, 0);
-      scene.cameras.main.once('camerafadeoutcomplete', () => {
-        setFlag('rodeWaggon');
-        scene.removeNpc('maggot');
-        const s = scene.zone.spawns.landing;
-        scene.player.setPosition(s.x * TILE_SIZE + 8, s.y * TILE_SIZE + 8);
-        scene.snapFollower();
-        scene.spawnNpc({ key: 'merry', x: PIER_X - 2, y: LANE_ROW - 1, dir: 'down' });
-        scene.inputLocked = false;
-        scene.cameras.main.fadeIn(700, 0, 0, 0);
-        scene.showBanner("Maggot's waggon rattles on\nthrough the dusk...");
-        ev.phase = 'armed';
-      });
-    }
+    // The ride itself belongs to waggonEvent.js; the crossing picks up from
+    // the landing once it has set `rodeWaggon`.
+    if (hasFlag('rodeWaggon')) ev.phase = 'armed';
     return;
   }
 

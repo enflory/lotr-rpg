@@ -836,14 +836,19 @@ function drawFeast(c, ox) {
 }
 
 function drawDitch(c, ox) {
-  // Sunken drainage ditch: grass banks above and below a dark water line
-  rc(c, ox, 0, 16, 5, '#4a6a2c');
-  rc(c, ox, 11, 16, 5, '#4a6a2c');
-  rc(c, ox, 5, 16, 6, '#3e6070');
-  rc(c, ox, 5, 16, 1, '#2a4a54');
-  rc(c, ox, 10, 16, 1, '#2a4a54');
-  px(c, ox + 3, 7, '#2a4a54'); px(c, ox + 10, 8, '#2a4a54');
-  px(c, ox + 13, 6, '#6b98b8'); px(c, ox + 6, 9, '#6b98b8');
+  // Sunken drainage ditch: cut banks either side of standing black water.
+  // It is a dike between wet fields, not a canal — so the water reads dark
+  // and still, and does not lie across the causeway like a blue pipe.
+  rc(c, ox, 0, 16, 5, '#46652a');
+  rc(c, ox, 11, 16, 5, '#3f5c26');
+  rc(c, ox, 4, 16, 1, '#2f4a1c');
+  rc(c, ox, 11, 16, 1, '#2f4a1c');
+  rc(c, ox, 5, 16, 6, '#26362f');
+  rc(c, ox, 5, 16, 1, '#1a2722');
+  for (const [dx, dy] of [[2, 7], [9, 9], [13, 6]]) px(c, ox + dx, dy, '#1a2722');
+  for (const [dx, dy] of [[5, 6], [11, 8]]) px(c, ox + dx, dy, '#4a6a62');
+  px(c, ox + 6, 12, '#547a33');
+  px(c, ox + 12, 2, '#547a33');
 }
 
 function drawWaggon(c, ox) {
