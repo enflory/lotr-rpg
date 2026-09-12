@@ -289,11 +289,11 @@ function tree(paint, map, tx, ty) {
  * @returns {{ row: number, y0: number, width: number, height: number,
  *             pixels: Uint8ClampedArray }[]}
  */
-export function bakeShireCanopy(map) {
+export function bakeShireCanopy(map, needsRow = () => true) {
   const width = map[0].length * 16;
   const strips = [];
   for (let ty = 0; ty < map.length; ty++) {
-    if (!map[ty].some((t) => WOODS.has(t))) continue;
+    if (!needsRow(ty) || !map[ty].some((t) => WOODS.has(t))) continue;
     const y0 = ty * 16 - RISE;
     const pixels = new Uint8ClampedArray(width * STRIP_H * 4);
     // Ink is clipped to the strip, and sideways to the cell and its
@@ -394,18 +394,24 @@ export function drawShireScenery(scene) {
   if (!SHIRE_ZONES.has(scene.zoneKey)) return;
   const map = scene.zone.map;
   const groundKey = `shire-ground-${scene.zoneKey}`;
-  texture(scene, groundKey, bakeShireGround(map));
+  if (!scene.textures.exists(groundKey)) texture(scene, groundKey, bakeShireGround(map));
   scene.add.image(0, 0, groundKey).setOrigin(0).setDepth(3);
 
-  for (const strip of bakeShireCanopy(map)) {
-    const key = `shire-canopy-${scene.zoneKey}-${strip.row}`;
-    texture(scene, key, strip);
+  // Only missing rows need pixels. Re-entry recreates the images using the
+  // cached textures, without retaining another copy of their pixel buffers.
+  const canopyKey = (row) => `shire-canopy-${scene.zoneKey}-${row}`;
+  for (const strip of bakeShireCanopy(map, (row) => !scene.textures.exists(canopyKey(row)))) {
+    texture(scene, canopyKey(strip.row), strip);
+  }
+  for (let row = 0; row < map.length; row++) {
+    const key = canopyKey(row);
+    if (!scene.textures.exists(key)) continue;
     scene.add
-      .image(0, strip.y0, key)
+      .image(0, row * 16 - RISE, key)
       .setOrigin(0)
       // The bottom of the row the trees stand in: a hobbit one row further
       // south has a greater depth and walks in front.
-      .setDepth(strip.row * 16 + 15);
+      .setDepth(row * 16 + 15);
   }
 
   for (let y = 0; y < map.length; y++)

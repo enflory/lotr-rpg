@@ -83,3 +83,58 @@ test('N starts a new game, discarding the save', async ({ page }) => {
   expect(checkpoint.entry).toBe('party');
   expect(!!checkpoint.flags.prologueDone).toBe(false);
 });
+
+test('a pre-departure v1 save gets Gandalf’s farewell and saves him gone', async ({ page }) => {
+  await bootToTitle(page);
+  await page.evaluate(() =>
+    localStorage.setItem(
+      'lotr-rpg.save.v1',
+      JSON.stringify({
+        version: 1,
+        savedAt: 0,
+        zone: 'shire',
+        entry: 'default',
+        flags: { prologueDone: true, timeskipShown: true, metGandalf: true },
+        follower: null,
+        objective: 'Find Sam in his garden',
+        items: {},
+        collected: {},
+      }),
+    ),
+  );
+  await page.reload();
+  await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
+  await press(page, 'Enter');
+  await page.waitForFunction(() => window.__game?.scene.isActive('WorldScene'));
+  await page.evaluate(() => {
+    const s = window.__game.scene.getScene('WorldScene');
+    const wizard = s.npcs.find((n) => n.getData('key') === 'gandalf');
+    s.player.setPosition(wizard.x, wizard.y + 18);
+  });
+  await press(page, ' ');
+  expect(
+    await page.evaluate(() => window.__game.scene.getScene('WorldScene').dialogLines.join(' ')),
+  ).toMatch(/Bree/);
+  await expect
+    .poll(
+      async () => {
+        const done = await page.evaluate(() => !!window.__state.flags.gandalfLeft);
+        if (!done) await press(page, ' ');
+        return done;
+      },
+      { timeout: 15000, intervals: [100] },
+    )
+    .toBe(true);
+  await page.waitForFunction(() => window.__state.flags.gandalfGone);
+  expect(await page.evaluate(() => window.__state.objective)).toBe('Find Sam in his garden');
+  await page.reload();
+  await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
+  await press(page, 'Enter');
+  await page.waitForFunction(() => window.__game?.scene.isActive('WorldScene'));
+  expect(
+    await page.evaluate(() => {
+      const s = window.__game.scene.getScene('WorldScene');
+      return s.npcs.some((n) => n.getData('key') === 'gandalf');
+    }),
+  ).toBe(false);
+});

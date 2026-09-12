@@ -116,6 +116,36 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
     () => window.__game.scene.getScene('WorldScene').zone?.key === 'marish',
   );
 
+  // Watch the actual Merry sprite across its entrance and NPC handoff. The
+  // walking actor and static NPC must share a continuous, walkable route.
+  await page.evaluate(async () => {
+    const { COLLISION_TILES } = await import('/src/data/tileTypes.js');
+    const scene = window.__game.scene.getScene('WorldScene');
+    window.__merryMotion = { samples: 0, blocked: false, jumped: false, handedOff: false };
+    let previous = null;
+    const tick = (now) => {
+      if (scene.zoneKey !== 'marish') return;
+      const merry = scene.children.list.find((p) => p.texture?.key === 'merry' && p.alpha > 0);
+      if (merry) {
+        const motion = window.__merryMotion;
+        motion.samples++;
+        const tile = scene.zone.map[Math.floor((merry.y + 8) / 16)]?.[Math.floor(merry.x / 16)];
+        motion.blocked ||= tile == null || COLLISION_TILES.includes(tile);
+        if (previous) {
+          const distance = Math.hypot(merry.x - previous.x, merry.y - previous.y);
+          motion.jumped ||= distance > 2 + ((now - previous.time) * 80) / 1000;
+        }
+        previous = { x: merry.x, y: merry.y, time: now };
+        if (scene.npcs.includes(merry)) {
+          motion.handedOff = true;
+          return;
+        }
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+
   // Talk to Maggot at his gate → waggon offer (sets maggotRide)
   await page.evaluate(() => {
     const scene = window.__game.scene.getScene('WorldScene');
@@ -144,6 +174,12 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
       }),
     )
     .toBe(42); // PIER_X-4
+
+  await page.waitForFunction(() => window.__merryMotion.handedOff);
+  const merryMotion = await page.evaluate(() => window.__merryMotion);
+  expect(merryMotion.samples).toBeGreaterThan(10);
+  expect.soft(merryMotion.blocked, 'Merry must stay on walkable ground').toBe(false);
+  expect.soft(merryMotion.jumped, 'Merry must not jump at the NPC handoff').toBe(false);
 
   // Talk to Merry (44,14) → raft ready (sets merryMet)
   await page.evaluate(() => {

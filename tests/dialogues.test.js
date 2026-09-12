@@ -50,7 +50,12 @@ describe('resolveDialogue staging', () => {
   });
 
   it('has nothing more to say once he has gone', () => {
-    const dlg = resolveDialogue('gandalf', { prologueDone: true, metGandalf: true });
+    const dlg = resolveDialogue('gandalf', {
+      prologueDone: true,
+      metGandalf: true,
+      gandalfLeft: true,
+      gandalfGone: true,
+    });
     expect(dlg.set).toBeUndefined();
     expect(dlg.objective).toBeUndefined();
   });

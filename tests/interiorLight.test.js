@@ -50,3 +50,22 @@ it('lights a room only where there is something to light it with', () => {
   const art = bakeInteriorShadow(map);
   expect(art.pixels.every((v) => v === 0)).toBe(true);
 });
+
+it('the hearth glow fades out and never paints the earth outside either interior', async () => {
+  const { bakeInteriorGlow } = await import('../src/art/interiorLight.js');
+  for (const key of LIT_INTERIORS) {
+    const map = ZONES[key].map;
+    const art = bakeInteriorGlow(map);
+    for (let y = 0; y < art.height; y++)
+      for (let x = 0; x < art.width; x++)
+        if (map[y >> 4][x >> 4] === T.VOID) expect(alphaAt(art, x, y)).toBe(0);
+    const fire = find(map, T.FIREPLACE);
+    const x = fire.x * 16 + 8;
+    const near = alphaAt(art, x, fire.y * 16 + 18);
+    const farther = alphaAt(art, x, fire.y * 16 + 32);
+    expect(near).toBeGreaterThan(farther);
+    expect(farther).toBeGreaterThan(0);
+    const levels = new Set(art.pixels.filter((_, i) => i % 4 === 3));
+    expect(levels.size).toBeGreaterThan(4); // falloff, not two flat discs
+  }
+});

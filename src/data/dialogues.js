@@ -84,6 +84,17 @@ export const DIALOGUES = {
         set: ['metGandalf', 'gandalfLeft'],
         objective: 'Find Sam in his garden',
       },
+      {
+        // Older v1 checkpoints have heard the Ring revelation, but predate
+        // the departure flags. Keep their objective and finish the farewell.
+        when: (f) => f.metGandalf && !f.gandalfLeft && !f.gandalfGone,
+        lines: [
+          'Make for Bucklebury by way\nof the Woody End. Take Sam\nwith you, and keep safe.',
+          'Do not use the Ring.\nI must ride and seek news.',
+          'Look for me in Bree, at the\nsign of the Prancing Pony.\nBe careful, Frodo!',
+        ],
+        set: 'gandalfLeft',
+      },
       { lines: ['...'] },
     ],
   },

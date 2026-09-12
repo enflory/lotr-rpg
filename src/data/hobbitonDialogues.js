@@ -33,7 +33,7 @@ export const HOBBITON_DIALOGUES = {
         ],
       },
       {
-        when: (f) => f.ringRevealed,
+        when: (f) => f.metGandalf,
         lines: [
           'Off to Buckland, is it?\nWell. Somebody has to\nempty the pantry first.',
           'Fredegar and I will see\nthe cart loaded. You just\nmind the road, Frodo.',
@@ -60,7 +60,7 @@ export const HOBBITON_DIALOGUES = {
         lines: ['Eleventy-one, and the whole\nShire invited. Trust a Baggins\nto do it properly.'],
       },
       {
-        when: (f) => !f.crossedFerry && f.ringRevealed,
+        when: (f) => !f.crossedFerry && f.metGandalf,
         lines: [
           "I'm no walker, Frodo, and I\nsay so plainly. But I can\ncarry a box to a cart.",
           'Folco and I will have Bag End\nbare by Thursday. Lobelia can\nhave the dust.',
@@ -100,7 +100,7 @@ export const HOBBITON_DIALOGUES = {
     name: 'Widow Rumble',
     stages: [
       {
-        when: (f) => f.ringRevealed,
+        when: (f) => f.metGandalf,
         lines: [
           "I do for the Gaffer, and\nI'll go on doing for him\nwhen you're gone.",
           "Don't fret about Number\nThree. Fret about wherever\nit is you're going.",
@@ -123,7 +123,7 @@ export const HOBBITON_DIALOGUES = {
         lines: ['Maggot down in the Marish\nkeeps dogs. I keep a good\nstout gate. Cheaper.'],
       },
       {
-        when: (f) => f.ringRevealed,
+        when: (f) => f.metGandalf,
         lines: [
           'You want the Ferry road?\nEast along the Water, then\nsouth at the Stock turn.',
           'Mind the Marish. Soft\nground and softer\ntempers, down that way.',
@@ -294,7 +294,7 @@ export const HOBBITON_DIALOGUES = {
     name: 'The Envelope',
     stages: [
       {
-        when: (f) => !f.ringRevealed,
+        when: (f) => !f.metGandalf,
         lines: [
           'A heavy envelope on the\nmantel, sealed, addressed\nto Frodo in a shaky hand.',
           'Gandalf said to leave it\nuntil he came. He has not\ncome yet.',

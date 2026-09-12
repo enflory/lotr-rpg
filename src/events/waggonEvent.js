@@ -1,8 +1,8 @@
 // "You shouldn't be walking the lanes at night." — Farmer Maggot drives the
 // hobbits from Bamfurlong down to the Bucklebury Ferry, as he does at the end
 // of "A Shortcut to Mushrooms": in the dark, with the river fog coming up, and
-// with one halt on the road when hoofs are heard behind them. The light that
-// answers out of the mist is Merry's lantern, not a Rider.
+// with one halt on the road when someone approaches through the fog. The
+// light that answers out of the mist is Merry's lantern, not a Rider.
 //
 // The ride runs east along the causeway and nowhere else. The lane turns a
 // right angle at the farm, and a cart drawn from the side cannot turn a right
@@ -30,7 +30,7 @@ export function route() {
     { x: 41 * TILE_SIZE, y }, // drawn up short of the landing
   ];
 }
-const HALT_AT = 1; // the leg that ends with hoofs on the road behind
+const HALT_AT = 1; // the leg that ends with someone approaching through the fog
 const SPEED = 32; // px/sec — a laden farm cart, walking pace, in the dark
 
 // Where each rider sits, measured from the waggon's own origin.
@@ -122,10 +122,10 @@ function lanternBearer(s, x, y) {
     .setDepth(y + 5)
     .setBlendMode('ADD')
     .setAlpha(0);
-  const at = { x };
+  const at = { x, y: y - 10 };
   const put = () => {
-    sprite.setPosition(at.x, y - 10).setDepth(y + 6);
-    lamp.setPosition(at.x + 8, y - 2);
+    sprite.setPosition(at.x, at.y).setDepth(at.y);
+    lamp.setPosition(at.x + 8, at.y + 8).setDepth(at.y - 1);
   };
   return {
     sprite,
@@ -138,7 +138,7 @@ function lanternBearer(s, x, y) {
     },
     walk: (to, ms, dir) => {
       sprite.anims.play(`merry-walk-${dir}`, true);
-      return tween(s, at, { x: to, ease: 'Linear', onUpdate: put }, ms).then(() => {
+      return tween(s, at, { ...to, onUpdate: put }, ms).then(() => {
         sprite.anims.play(`merry-idle-${dir}`, true);
       });
     },
@@ -173,6 +173,7 @@ export async function startWaggonRide(s) {
   sfx.door(); // the cart creaking onto the causeway
   await pause(s, 1200);
 
+  let merryAtLanding = Promise.resolve();
   for (let i = 1; i < ROUTE.length; i++) {
     await roll(s, waggon, riders, ROUTE[i - 1], ROUTE[i]);
     if (i !== HALT_AT) continue;
@@ -180,19 +181,23 @@ export async function startWaggonRide(s) {
     // The halt. In the book Maggot stops the waggon dead and they all sit
     // still in the dark, and what comes out of the fog is a friend.
     sfx.sting();
-    s.showBanner('Hoofs on the road\nbehind you. Maggot halts.');
+    s.showBanner('A sound in the fog\nahead. Maggot halts.');
     await pause(s, 1600);
 
-    const merry = lanternBearer(s, ROUTE[i].x + 176, ROUTE[i].y);
+    // Come from the pier, not the water beyond it.
+    const merry = lanternBearer(s, PIER_X * TILE_SIZE + 8, ROUTE[i].y);
     merry.show(900);
-    await merry.walk(ROUTE[i].x + 72, 2600, 'left');
+    await merry.walk({ x: ROUTE[i].x + 72 }, 2600, 'left');
     s.showBanner('A lantern out of the fog --\nand Merry Brandybuck\nbehind it.');
     await pause(s, 1700);
     // He turns and leads them down to the landing, keeping ahead of the cart.
-    merry.walk((PIER_X - 2) * TILE_SIZE + 8, 5200, 'right').then(() => {
+    const landingNpc = s.zone.npcs.find((n) => n.key === 'merry' && n.x < PIER_X);
+    merryAtLanding = (async () => {
+      await merry.walk({ x: landingNpc.x * TILE_SIZE + 8 }, 2800, 'right');
+      await merry.walk({ y: landingNpc.y * TILE_SIZE + 6 }, 900, 'up');
       merry.destroy();
-      s.spawnNpc({ key: 'merry', x: PIER_X - 2, y: LANE_ROW - 1, dir: 'down' });
-    });
+      s.spawnNpc(landingNpc);
+    })();
   }
 
   // Down at the landing. Maggot puts them off and wishes them good night.
@@ -214,6 +219,8 @@ export async function startWaggonRide(s) {
   );
   s.player.setDepth(s.player.y);
 
+  // Finish the actor-to-NPC handoff before conversations can refresh spawns.
+  await merryAtLanding;
   setFlag('rodeWaggon');
   setObjective('Cross the Brandywine with Merry');
   s.checkpoint?.('landing');

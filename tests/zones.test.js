@@ -243,7 +243,7 @@ describe('signs and NPCs', () => {
     for (const key of shared) {
       // Where each of them actually stands: Hobbiton with the Ring revealed,
       // and beyond the Brandywine with the chapter turned over.
-      const hobbiton = { prologueDone: true, samJoined: true, ringRevealed: true };
+      const hobbiton = { prologueDone: true, samJoined: true, metGandalf: true };
       const before = resolveDialogue(key, hobbiton, () => 0);
       const after = resolveDialogue(
         key,

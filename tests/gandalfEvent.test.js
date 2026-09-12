@@ -114,10 +114,10 @@ it('says his farewell exactly once and points Frodo at the East Road', () => {
   // The Ring and the farewell are one conversation, so there is no way to
   // hear the first and walk off without seeing him go.
   const farewell = DIALOGUES.gandalf.stages.filter((s) =>
-    [].concat(s.set ?? []).includes('gandalfLeft'),
+    [].concat(s.set ?? []).includes('metGandalf'),
   );
   expect(farewell).toHaveLength(1);
-  expect(farewell[0].set).toContain('metGandalf');
+  expect(farewell[0].set).toContain('gandalfLeft');
   expect(farewell[0].when({})).toBe(true);
   expect(farewell[0].when({ metGandalf: true })).toBe(false);
 });
