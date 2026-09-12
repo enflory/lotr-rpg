@@ -71,7 +71,7 @@ test("prologue: Bilbo's farewell party opens the game", async ({ page }) => {
         if (!done) await press(page, ' ');
         return done;
       },
-      { timeout: 20_000 },
+      { timeout: 30_000, intervals: [100] },
     )
     .toBe(true);
 
@@ -129,7 +129,7 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
         if (!done) await press(page, ' ');
         return done;
       },
-      { timeout: 20_000 },
+      { timeout: 30_000, intervals: [100] },
     )
     .toBe(true);
 
@@ -158,7 +158,7 @@ test('the marish: maggot, the waggon ride, and the ferry crossing', async ({ pag
         if (!done) await press(page, ' ');
         return done;
       },
-      { timeout: 20_000 },
+      { timeout: 30_000, intervals: [100] },
     )
     .toBe(true);
 
@@ -253,7 +253,7 @@ test('talking to Gandalf reveals the Ring and sets the story flag', async ({ pag
         if (!done) await press(page, ' ', 60);
         return done;
       },
-      { timeout: 20_000 },
+      { timeout: 30_000, intervals: [100] },
     )
     .toBe(true);
 

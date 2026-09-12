@@ -144,7 +144,10 @@ test.describe('on a phone', () => {
       .poll(() => page.evaluate(() => window.__game.scene.getScene('WorldScene').dialogActive))
       .toBe(true);
 
-    // Tapping through the lines eventually closes the box and sets the flag
+    // Tapping through the lines eventually closes the box and sets the flag.
+    // Gandalf's is the longest conversation in the game — the Ring, the errand
+    // and his farewell are deliberately one scene — so this polls on a fixed
+    // interval rather than letting it escalate to a second between taps.
     await expect
       .poll(
         async () => {
@@ -152,7 +155,7 @@ test.describe('on a phone', () => {
           if (!done) await page.getByLabel('action').tap();
           return done;
         },
-        { timeout: 20_000 },
+        { timeout: 30_000, intervals: [100] },
       )
       .toBe(true);
     // Prompts name the on-screen button, not a key nobody has
