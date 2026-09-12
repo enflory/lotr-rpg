@@ -34,8 +34,9 @@ function atmosphere(scene) {
 
 export function journeyCreate(scene) {
   // The pale glimmer on each examine point is drawn by WorldScene now, for
-  // every zone in the game rather than only the ones on the journey.
-  scene.journey = { state: '', props: [], markers: [] };
+  // every zone in the game rather than only the ones on the journey. The house
+  // beats still steer which of them shows, so they share the same array.
+  scene.journey = { state: '', props: [], markers: scene.interactionMarks ?? [] };
   const j = scene.journey,
     key = scene.zoneKey;
   drawJourneyScenery(scene);

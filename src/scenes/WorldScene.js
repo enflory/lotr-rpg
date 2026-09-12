@@ -602,23 +602,21 @@ export class WorldScene extends Phaser.Scene {
           Math.hypot(this.player.x - a.x * TILE_SIZE - 8, this.player.y - a.y * TILE_SIZE) -
           Math.hypot(this.player.x - b.x * TILE_SIZE - 8, this.player.y - b.y * TILE_SIZE),
       )[0];
-    // A hobbit standing in front of you always wins over a thing on the
-    // ground behind them: examine points must never swallow a conversation.
-    const actionDist = action
-      ? Math.hypot(this.player.x - (action.x * TILE_SIZE + 8), this.player.y - action.y * TILE_SIZE)
-      : Infinity;
-    const examine = actionDist < closestDist ? action : null;
-    if (examine) {
+    // An examine point takes the press ahead of a nearby NPC. The house beats
+    // in the later chapters depend on it — Goldberry's cue is placed on top of
+    // Goldberry — so a Chapter 1 point must simply be kept clear of anyone
+    // there is a conversation to be had with.
+    if (action) {
       this.hintIcon
         .setVisible(true)
-        .setPosition(examine.x * TILE_SIZE + 8, examine.y * TILE_SIZE - 16);
-      this.actionHint.setText(`${this.actionVerb()} · ${examine.label}`).setVisible(true);
+        .setPosition(action.x * TILE_SIZE + 8, action.y * TILE_SIZE - 16);
+      this.actionHint.setText(`${this.actionVerb()} · ${action.label}`).setVisible(true);
     }
 
     /* ── interact ────────────────────────────────────── */
     if (interactPressed) {
-      if (examine) {
-        this.startDialogue(examine.dialogue);
+      if (action) {
+        this.startDialogue(action.dialogue);
       } else if (closestNpc) {
         this.faceNpcToPlayer(closestNpc);
         this.startDialogue(closestNpc.getData('key'));

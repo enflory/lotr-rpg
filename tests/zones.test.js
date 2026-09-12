@@ -186,6 +186,22 @@ describe('signs and NPCs', () => {
     }
   });
 
+  // An examine point takes the SPACE press ahead of anyone standing nearby.
+  // The later chapters rely on that (Goldberry's cue is placed on Goldberry),
+  // but in Chapter 1 every NPC is someone to talk to, so a point must never be
+  // close enough to swallow the conversation.
+  it('keeps Chapter 1 examine points clear of the folk you can talk to', () => {
+    for (const key of ['shire', 'bagend', 'greendragon', 'woodyend', 'marish']) {
+      const zone = ZONES[key];
+      for (const p of zone.interactions ?? []) {
+        for (const npc of zone.npcs) {
+          const gap = Math.hypot(p.x * 16 - npc.x * 16, p.y * 16 - (npc.y * 16 - 2));
+          expect(gap, `${key}: ${p.dialogue} sits on ${npc.key}`).toBeGreaterThan(25);
+        }
+      }
+    }
+  });
+
   it('every NPC has a sprite definition, a dialogue entry, and a walkable position', () => {
     for (const zone of zones) {
       for (const npc of zone.npcs) {

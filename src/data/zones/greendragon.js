@@ -46,7 +46,7 @@ export const greendragon = {
     { x: 7, y: 3, dialogue: 'examine_hearth_gd' },
   ],
   interactions: [
-    { x: 8, y: 5, label: 'The settle', dialogue: 'examine_settle' },
+    { x: 10, y: 6, label: 'The settle', dialogue: 'examine_settle' },
     { x: 4, y: 5, label: 'The bar', dialogue: 'examine_bar_gd' },
   ],
   exits: [

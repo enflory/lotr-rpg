@@ -31,8 +31,17 @@ describe.each([...SHIRE_ZONES])('%s as painted country', (key) => {
   it('never paints over a tile it has no business repainting', () => {
     const map = ZONES[key].map;
     const painted = new Set([
-      T.GRASS, T.GRASS2, T.PATH, T.HILLTOP, T.BOG, T.FLOWERS,
-      T.HILL, T.TREE, T.TREE2, T.WATER, T.HAY,
+      T.GRASS,
+      T.GRASS2,
+      T.PATH,
+      T.HILLTOP,
+      T.BOG,
+      T.FLOWERS,
+      T.HILL,
+      T.TREE,
+      T.TREE2,
+      T.WATER,
+      T.HAY,
     ]);
     for (let y = 0; y < map.length; y++)
       for (let x = 0; x < map[y].length; x++) {
