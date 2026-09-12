@@ -12,7 +12,9 @@ import { sfx } from '../../audio/sound.js';
 export const WIDTH = 64, HEIGHT = 28;
 export const RIDER_EXIT_X = 50; // he gives up before the elf clearing
 export const GILDOR_SPOT = { x: 56, y: 15 };
-export const HOLLOW = { x0: 20, y0: 20, x1: 26, y1: 24 };
+export const HOLLOW = { x0: 18, y0: 18, x1: 29, y1: 26 };
+export const FOX_REST = { x: 23, y: 20 };
+export const FOX_ROUTE = { x0: 19, x1: 28, y: 22, stopX: 24 };
 export const ELF_SPOTS = [
   { key: 'elf_a', x: 54, y: 14, dir: 'right' },
   { key: 'elf_b', x: 58, y: 13, dir: 'down' },
@@ -130,16 +132,24 @@ function generateMap() {
   // Fir hollow — a fox-haunted glade south of the road: a wildflower
   // carpet ringed by firs, reached by one fern-lined trail down from
   // the road. The break in the tree wall is the cue to wander off-path.
-  for (let y = 20; y <= 24; y++)
-    for (let x = 20; x <= 26; x++) map[y][x] = T.FLOWERS; // flower carpet
-  for (let x = 20; x <= 26; x++) { map[20][x] = T.TREE; map[24][x] = T.TREE; }
-  for (let y = 20; y <= 24; y++) { map[y][20] = T.TREE; map[y][26] = T.TREE; }
-  map[20][23] = T.FLOWERS; // the single north entrance
-  // Fern-lined trail from the road down to the entrance
-  for (let y = 13; y <= 19; y++) {
-    map[y][23] = y === 19 ? T.FLOWERS : T.GRASS; // petals spill at the mouth
-    map[y][22] = T.FERN;
-    map[y][24] = T.FERN;
+  // Leave room below the resting place for the fox, and several rows
+  // before the southern trees: their raised crowns reach into the clearing.
+  for (let y = HOLLOW.y0; y <= HOLLOW.y1; y++)
+    for (let x = HOLLOW.x0; x <= HOLLOW.x1; x++) map[y][x] = T.FLOWERS;
+  for (let x = HOLLOW.x0; x <= HOLLOW.x1; x++) {
+    map[HOLLOW.y0][x] = T.TREE;
+    map[HOLLOW.y1][x] = T.TREE;
+  }
+  for (let y = HOLLOW.y0; y <= HOLLOW.y1; y++) {
+    map[y][HOLLOW.x0] = T.TREE;
+    map[y][HOLLOW.x1] = T.TREE;
+  }
+  map[HOLLOW.y0][FOX_REST.x] = T.FLOWERS;
+  // Fern-lined trail from the road down to the north entrance.
+  for (let y = 13; y < HOLLOW.y0; y++) {
+    map[y][FOX_REST.x] = y === HOLLOW.y0 - 1 ? T.FLOWERS : T.GRASS;
+    map[y][FOX_REST.x - 1] = T.FERN;
+    map[y][FOX_REST.x + 1] = T.FERN;
   }
 
   // Border trees, with road gaps on the west and east edges
@@ -190,7 +200,7 @@ export const woodyend = {
   ],
   interactions: [
     { x: 12, y: 17, label: 'The fern brake', dialogue: 'examine_ferns' },
-    { x: 23, y: 22, label: 'The fir hollow', dialogue: 'examine_hollow' },
+    { ...FOX_REST, label: 'The fir hollow', dialogue: 'examine_hollow' },
   ],
   pickups: [
     { id: 'woody_mush_1', x: 44, y: 6, item: 'mushroom' },

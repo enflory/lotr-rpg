@@ -3,7 +3,7 @@
 
 import { describe, it, expect } from 'vitest';
 import { ZONES } from '../src/data/zones/index.js';
-import { ROAD_Y, HOLLOW, woodyend } from '../src/data/zones/woodyend.js';
+import { ROAD_Y, FOX_REST, FOX_ROUTE, woodyend } from '../src/data/zones/woodyend.js';
 import { LANE_Y, FARM, PIER_X, marish } from '../src/data/zones/marish.js';
 import { DIALOGUES, resolveDialogue } from '../src/data/dialogues.js';
 import { CHAR_DEFS } from '../src/art/characters.js';
@@ -462,17 +462,16 @@ describe('the Woody End (generated map)', () => {
     }
   });
 
-  it('the fox hollow is reachable, so the vignette can trigger', () => {
-    // foxEventUpdate fires when the player stands inside the HOLLOW box;
-    // if the forest seals it off the fox can never appear.
+  it('the resting place and the full fox crossing are reachable', () => {
     const seen = reachable(woodyend);
-    let anyReachable = false;
-    for (let y = HOLLOW.y0; y <= HOLLOW.y1; y++) {
-      for (let x = HOLLOW.x0; x <= HOLLOW.x1; x++) {
-        if (seen[y][x]) anyReachable = true;
-      }
+    expect(seen[FOX_REST.y][FOX_REST.x]).toBe(true);
+    for (let x = FOX_ROUTE.x0; x <= FOX_ROUTE.x1; x++) {
+      expect(seen[FOX_ROUTE.y][x], `fox crossing at ${x}`).toBe(true);
+      // Keep the southern crowns two rows away from the crossing.
+      expect(COLLISION_TILES.includes(map[FOX_ROUTE.y + 1][x])).toBe(false);
+      expect(COLLISION_TILES.includes(map[FOX_ROUTE.y + 2][x])).toBe(false);
     }
-    expect(anyReachable, 'fox hollow is walled off — no way to trigger the fox').toBe(true);
+    expect((FOX_ROUTE.y - FOX_REST.y) * 16).toBeGreaterThanOrEqual(32);
   });
 });
 

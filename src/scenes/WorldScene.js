@@ -57,6 +57,7 @@ export class WorldScene extends Phaser.Scene {
     this.journey = null;
     this.storyBeat = null;
     this.riderEvent = null;
+    this.foxEvent = null;
     this.partyEvent = null; // scene.restart reuses the instance
     this.ferryEvent = null;
     this.inputLocked = false;

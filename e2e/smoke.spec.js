@@ -320,3 +320,123 @@ test('exploration: pickups collect and the overlay tallies them', async ({ page 
   expect(overlay.text).toMatch(/Mathom/);
   expect(overlay.text).toMatch(/Mathoms 1\/6/);
 });
+
+test('the fox crosses a roomy hollow without touching the resting party', async ({ page }) => {
+  await startGame(page);
+  await page.evaluate(() => {
+    Object.assign(window.__state.flags, {
+      metGandalf: true,
+      samJoined: true,
+      pippinJoined: true,
+      escapedRider: true,
+      walkingSong: true,
+    });
+    window.__state.follower = 'sam';
+    window.__game.scene.getScene('WorldScene').goToZone('woodyend', 'west');
+  });
+  await page.waitForFunction(() => {
+    const scene = window.__game.scene.getScene('WorldScene');
+    return scene.zoneKey === 'woodyend' && !scene.transitioning;
+  });
+  await page.evaluate(async () => {
+    const { COLLISION_TILES } = await import('/src/data/tileTypes.js');
+    const { FOX_REST } = await import('/src/data/zones/woodyend.js');
+    const scene = window.__game.scene.getScene('WorldScene');
+    // Walk in from the north entrance with the actual trailing companions.
+    scene.player.setPosition(FOX_REST.x * 16 + 8, (FOX_REST.y - 2) * 16);
+    scene.lastDir = 'down';
+    scene.snapFollower();
+    window.__foxMotion = {
+      samples: 0,
+      overlap: false,
+      blocked: false,
+      jumped: false,
+      movedParty: false,
+    };
+    let previous = null;
+    let resting = null;
+    const tick = (now) => {
+      const ev = scene.foxEvent;
+      if (ev?.phase === 'done') return;
+      if (ev) {
+        const fox = ev.fox;
+        const motion = window.__foxMotion;
+        const party = [scene.player, ...scene.followers];
+        motion.samples++;
+        motion.overlap ||= party.some(
+          (hobbit) => Math.abs(hobbit.x - fox.x) < 16 && Math.abs(hobbit.y - fox.y) < 24,
+        );
+        const tile = scene.zone.map[Math.floor((fox.y + 8) / 16)]?.[Math.floor(fox.x / 16)];
+        motion.blocked ||= tile == null || COLLISION_TILES.includes(tile);
+        if (previous) {
+          motion.jumped ||=
+            Math.hypot(fox.x - previous.x, fox.y - previous.y) >
+            2 + ((now - previous.time) * 60) / 1000;
+        }
+        if (resting) {
+          motion.movedParty ||= party.some(
+            (hobbit, i) => Math.hypot(hobbit.x - resting[i].x, hobbit.y - resting[i].y) > 2,
+          );
+        }
+        resting ??= party.map(({ x, y }) => ({ x, y }));
+        previous = { x: fox.x, y: fox.y, time: now };
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+  // Keep Down held across the approach and dialogue: it must not walk Frodo
+  // into the crossing while the fox is moving.
+  await page.keyboard.down('ArrowDown');
+  await page.waitForFunction(() => window.__game.scene.getScene('WorldScene').dialogActive);
+  expect(
+    await page.evaluate(() => window.__game.scene.getScene('WorldScene').followers.length),
+  ).toBe(2);
+  expect(
+    await page.evaluate(() => {
+      const scene = window.__game.scene.getScene('WorldScene');
+      const camera = scene.cameras.main;
+      const fox = scene.foxEvent.fox;
+      const bottom = camera.matrix.transformPoint(
+        fox.x - camera.scrollX,
+        fox.y + fox.displayHeight / 2 - camera.scrollY,
+      ).y;
+      const panelTop = camera.matrix.transformPoint(
+        scene.dialogBg.x,
+        scene.dialogBg.y - scene.dialogBg.height / 2,
+      ).y;
+      return panelTop - bottom;
+    }),
+  ).toBeGreaterThan(0);
+  await expect
+    .poll(
+      async () => {
+        const scene = await page.evaluate(() => {
+          const s = window.__game.scene.getScene('WorldScene');
+          return { phase: s.foxEvent?.phase, dialogue: s.dialogActive };
+        });
+        if (scene.dialogue) await press(page, ' ');
+        return scene.phase;
+      },
+      { timeout: 15_000, intervals: [100] },
+    )
+    .toBe('done');
+  await page.keyboard.up('ArrowDown');
+  const result = await page.evaluate(() => ({
+    ...window.__foxMotion,
+    locked: window.__game.scene.getScene('WorldScene').inputLocked,
+  }));
+  expect(result.samples).toBeGreaterThan(10);
+  expect(result).toMatchObject({
+    overlap: false,
+    blocked: false,
+    jumped: false,
+    movedParty: false,
+    locked: false,
+  });
+  const before = await page.evaluate(() => window.__game.scene.getScene('WorldScene').player.x);
+  await press(page, 'ArrowRight', 250);
+  expect(
+    await page.evaluate(() => window.__game.scene.getScene('WorldScene').player.x),
+  ).toBeGreaterThan(before + 5);
+});
