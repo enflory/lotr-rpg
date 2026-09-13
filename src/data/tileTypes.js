@@ -86,6 +86,20 @@ export const T = {
   DOWN_SLOPE: 72,
   GREAT_STONE: 73,
   DOWN_HEATHER: 74,
+  // Hobbiton field furniture
+  HEDGEROW: 75, // hawthorn field hedge
+  STOOK: 76, // sheaf of corn stood up to dry
+  SKEP: 77, // straw beehive
+  BENCH: 78, // wooden bench
+  MILESTONE: 79, // waymark on the Bywater road
+  CORN: 80, // standing corn, shoulder-high (solid)
+  HAY: 81, // cut hay lying in the field (walkable)
+  // Smial interiors
+  PEGS: 82, // panelled wall with pegs for hats and coats
+  CHEST: 83, // mathom chest
+  MAP_WALL: 84, // framed map of Wilderland on a panelled wall
+  PANEL: 85, // plain panelled wall (interior partition)
+  SETTLE: 86, // high-backed inn bench
 };
 
 export const COLLISION_TILES = [
@@ -144,6 +158,17 @@ export const COLLISION_TILES = [
   T.BASE_L,
   T.BASE_R,
   T.WINDOW_F,
+  T.HEDGEROW,
+  T.STOOK,
+  T.SKEP,
+  T.BENCH,
+  T.MILESTONE,
+  T.CORN,
+  T.PEGS,
+  T.CHEST,
+  T.MAP_WALL,
+  T.PANEL,
+  T.SETTLE,
 ];
 
 export const TILE_SIZE = 16;

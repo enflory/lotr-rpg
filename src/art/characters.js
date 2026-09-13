@@ -702,6 +702,59 @@ export const CHAR_DEFS = {
     feet: ['#d8b080', '#b89060'],
   },
 
+  // Folco Boffin and Fredegar Bolger help Frodo pack Bag End up in
+  // "Three is Company"; Lotho and his mother buy it out from under him.
+  folco: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#3f2a12', h: '#61411e', l: '#87602f',
+      C: '#e4dcc4', c: '#c2b89c',
+      V: '#7a5a2a', v: '#9c7638', G: '#57401d',
+      B: '#2a2418', b: '#d8c070',
+      P: '#4a5a3a', p: '#33402a',
+    },
+    feet: ['#d8b080', '#b89060'],
+  },
+
+  lotho: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#2a1e12', h: '#453222', l: '#634a33',
+      C: '#d8d0c0', c: '#b4ab9c',
+      V: '#5c3a6a', v: '#7a5088', G: '#40284b',
+      B: '#2b1a33', b: '#c8a040',
+      P: '#3b3b44', p: '#28282f',
+    },
+    feet: ['#d8b080', '#b89060'],
+  },
+
+  rumble: {
+    maps: FEMALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#9a9a92', h: '#bcbcb2', l: '#d8d8ce',
+      C: '#e8e0cc', c: '#c6bea8',
+      V: '#4a5a64', v: '#647882', G: '#36434b',
+      B: '#2c363c', b: '#d0c8a8',
+    },
+    feet: ['#d8b080', '#b89060'],
+  },
+
+  cotton: {
+    maps: MALE,
+    pal: {
+      o: OUTLINE, ...HOBBIT_SKIN,
+      H: '#6a4a22', h: '#8e6a32', l: '#b08c48',
+      C: '#dcd0ae', c: '#b8ad90',
+      V: '#8a3f2c', v: '#ac5a3e', G: '#632c1f',
+      B: '#33241a', b: '#d8c070',
+      P: '#5a4a2c', p: '#3d331e',
+    },
+    feet: ['#d8b080', '#b89060'],
+  },
+
   gandalf: {
     maps: WIZARD,
     pal: {

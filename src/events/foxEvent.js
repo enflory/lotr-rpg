@@ -1,10 +1,10 @@
 // The fox of the Woody End — it passes the sleeping hobbits and
-// wonders. One-time trigger when the player steps into the fir hollow:
+// wonders. One-time trigger at the northern resting place in the fir hollow:
 // the fox trots into the meadow, stops while the player reads its
 // thought, and only trots off once the dialogue is dismissed.
 import { TILE_SIZE } from '../data/tileTypes.js';
 import { hasFlag, setFlag } from '../state/GameState.js';
-import { HOLLOW } from '../data/zones/woodyend.js';
+import { FOX_REST, FOX_ROUTE } from '../data/zones/woodyend.js';
 
 export function foxEventUpdate(scene) {
   const ev = scene.foxEvent;
@@ -19,30 +19,49 @@ export function foxEventUpdate(scene) {
       ev.fox.anims.play('fox-walk-right');
       scene.tweens.add({
         targets: ev.fox,
-        x: (HOLLOW.x1 + 1) * TILE_SIZE + 8,
-        duration: 1400,
-        onComplete: () => ev.fox.destroy(),
+        x: FOX_ROUTE.x1 * TILE_SIZE + 8,
+        duration: (((FOX_ROUTE.x1 - FOX_ROUTE.stopX) * TILE_SIZE) / 56) * 1000,
+        onComplete: () => {
+          ev.fox.destroy();
+          ev.phase = 'done';
+          scene.inputLocked = false;
+        },
       });
     }
     return;
   }
 
-  if (hasFlag('foxSeen')) return;
+  if (hasFlag('foxSeen') || scene.inputLocked || scene.dialogActive || scene.storyBeat) return;
   const tx = Math.floor(scene.player.x / TILE_SIZE);
-  const ty = Math.floor(scene.player.y / TILE_SIZE);
-  if (tx < HOLLOW.x0 || tx > HOLLOW.x1 || ty < HOLLOW.y0 || ty > HOLLOW.y1) return;
+  const ty = Math.floor((scene.player.y + 8) / TILE_SIZE);
+  if (Math.abs(tx - FOX_REST.x) > 1 || ty !== FOX_REST.y) return;
+
+  const y = FOX_ROUTE.y * TILE_SIZE;
+  // A returning party may approach from the south. Wait until every visible
+  // companion is clear of the entire crossing, not just the fox's stop.
+  const party = [scene.player, ...(scene.followers ?? [])];
+  if (
+    party.some(
+      (hobbit) =>
+        hobbit.visible !== false &&
+        Math.abs(hobbit.y - y) < 24 &&
+        hobbit.x > FOX_ROUTE.x0 * TILE_SIZE - 8 &&
+        hobbit.x < FOX_ROUTE.x1 * TILE_SIZE + 24,
+    )
+  )
+    return;
 
   setFlag('foxSeen');
-  const y = (HOLLOW.y0 + 2) * TILE_SIZE + 8;
-  const fox = scene.add.sprite(HOLLOW.x0 * TILE_SIZE - 8, y, 'fox', 7); // right-facing
+  scene.inputLocked = true;
+  const fox = scene.add.sprite(FOX_ROUTE.x0 * TILE_SIZE + 8, y, 'fox', 7); // right-facing
   fox.setDepth(y);
   const state = { fox, phase: 'entering' };
   scene.foxEvent = state;
   fox.anims.play('fox-walk-right');
   scene.tweens.add({
     targets: fox,
-    x: (HOLLOW.x0 + 3) * TILE_SIZE,
-    duration: 1400,
+    x: FOX_ROUTE.stopX * TILE_SIZE + 8,
+    duration: (((FOX_ROUTE.stopX - FOX_ROUTE.x0) * TILE_SIZE) / 56) * 1000,
     onComplete: () => {
       fox.anims.play('fox-idle-right');
       state.phase = 'arrived';

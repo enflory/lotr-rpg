@@ -102,7 +102,9 @@ test('Sam recruits Pippin from off screen; both follow, change zones and survive
   await page.evaluate(async () => {
     const { COLLISION_TILES } = await import('/src/data/tileTypes.js');
     const s = window.__game.scene.getScene('WorldScene');
-    s.player.setPosition(16 * 16 + 8, 6 * 16 + 4);
+    // Stand on Sam wherever the Bag End garden puts him.
+    const sam = s.npcs.find((n) => n.getData('key') === 'sam');
+    s.player.setPosition(sam.x, sam.y + 10);
     window.entrance = null;
     window.entranceTravel = { distance: 0, maxStep: 0, solid: false, last: null };
     s.events.on('postupdate', () => {

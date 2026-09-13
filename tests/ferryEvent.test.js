@@ -1,6 +1,6 @@
-// The Marish set-piece machine: waggon ride (fade-teleport to the
-// landing) and the Brandywine raft crossing with the Rider on the
-// bank. Driven through a fake Phaser scene.
+// The Marish set-piece machine: the hand-off from Maggot's waggon ride and
+// the Brandywine raft crossing with the Rider on the bank. Driven through a
+// fake Phaser scene.
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { ferryEventUpdate, ferryZoneCreate } from '../src/events/ferryEvent.js';
@@ -111,37 +111,29 @@ beforeEach(() => {
   gameState.objective = '';
 });
 
-describe('the waggon ride', () => {
-  it('waits at the farm until Maggot offers the lift', () => {
+describe('the waggon ride hand-off', () => {
+  it('waits at the farm until the ride has actually happened', () => {
     const scene = makeScene();
     ferryEventUpdate(scene, 16);
     expect(scene.ferryEvent.phase).toBe('idle');
     expect(scene.inputLocked).toBe(false);
-  });
 
-  it('fades to the landing, spawns Merry, and fires only once', () => {
-    const scene = makeScene();
+    // Accepting the lift is waggonEvent.js's business, not the crossing's:
+    // the raft stays asleep until the waggon has put them down at the landing.
     gameState.flags.maggotRide = true;
-    ferryEventUpdate(scene, 16); // fade fires synchronously in the fake
-
-    expect(gameState.flags.rodeWaggon).toBe(true);
-    expect(scene.removed).toEqual(['maggot']);
-    expect(scene.spawned).toEqual(['merry']);
-    expect(scene.player.x).toBe((PIER_X - 4) * TILE_SIZE + 8);
-    expect(scene.ferryEvent.phase).toBe('armed');
-    expect(scene.inputLocked).toBe(false);
-
-    ferryEventUpdate(scene, 16); // no double-teleport
-    expect(scene.removed).toEqual(['maggot']);
+    ferryEventUpdate(scene, 16);
+    expect(scene.ferryEvent.phase).toBe('idle');
+    expect(scene.spawned).toEqual([]);
   });
 
-  it('re-arms without a ride when the zone is re-entered later', () => {
+  it('arms the crossing once the ride is done, without staging it again', () => {
     const scene = makeScene();
     gameState.flags.maggotRide = true;
     gameState.flags.rodeWaggon = true;
     ferryEventUpdate(scene, 16);
     expect(scene.ferryEvent.phase).toBe('armed');
     expect(scene.spawned).toEqual([]);
+    expect(scene.removed).toEqual([]);
   });
 });
 

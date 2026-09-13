@@ -1,0 +1,451 @@
+// The Shire, the Woody End and the Marish are shaded as country rather than
+// as tilework. Two baked layers do it:
+//
+//   ground  — one image under everything: the roll of The Hill, turf that
+//             rolls over the lip of every bank, lanes with worn irregular
+//             edges instead of sixteen-pixel stairs, damp river margins and
+//             every cast shadow.
+//   canopy  — the woods, cut into one image band per tile row so a hobbit
+//             walks behind a crown and in front of the trunk beneath it.
+//
+// Nothing here changes collision. Ground ink is confined to the cells it is
+// allowed to repaint, the centre of a bank cell is always earth and never
+// turf, and a crown may rise above its own cell and lean one cell either way
+// but no further — enough to read as canopy, never enough to imply a wall.
+import { T } from '../data/tileTypes.js';
+import { maskOf, sample, wobble, hash, step } from './relief.js';
+
+export const SHIRE_ZONES = new Set(['shire', 'woodyend', 'marish']);
+
+/* ── palettes ─────────────────────────────────────────────────────────────
+   Short opaque ramps. Index 0-1 of each is its own shadow, so a cast shadow
+   is a step down the same ramp rather than a new blended colour.          */
+const MEADOW = [0x2d5520, 0x356328, 0x3d722b, 0x447f2c, 0x4a8a31, 0x519436, 0x59a03c];
+const TURF = [0x2f5b26, 0x33612a, 0x3a7029, 0x46812f, 0x529136, 0x5fa03f, 0x6cae49];
+const EARTH = [0x3c2a14, 0x4a3418, 0x5a4020, 0x6b4d28, 0x7a5d30, 0x8a6b3d, 0x9a7b4d];
+const ROAD = [0x655840, 0x77694c, 0x8b7c5b, 0x9c8c68, 0xac9a75, 0xbaa883, 0xc8b795];
+const MIRE = [0x33481f, 0x3d5726, 0x46632a, 0x527232, 0x5e5430, 0x6a6438, 0x7a8a54];
+const SHINGLE = [0x8e8a63, 0xa9a279, 0xc0b88e];
+const MOWN = [0x5c6b33, 0x74833f, 0x8f9a4e, 0xaab060, 0xc3c47c];
+const FLOOD = [0x1b3c5e, 0x234a70, 0x2b5a84, 0x356c99, 0x4885ae, 0x6aa6c6, 0x9ccbdd];
+const BLOSSOM = [0xd8484a, 0xe2d04c, 0xc668c4, 0xefeade];
+
+// Leaf ramps for the canopy layer: dark rim, body, lit crown.
+const GREENWOOD = [0x0d2110, 0x142d14, 0x1c3c18, 0x254c1e, 0x2f5e25, 0x3c7130, 0x4d873c];
+// The lighter-leaved trees: orchard apple in the Shire, turning beech in
+// the Woody End. Kept green enough that a row of them never reads as dead.
+const AUTUMN = [0x1b2b0d, 0x293d13, 0x3b521a, 0x4f6a21, 0x68862a, 0x86a136, 0xa4bb48];
+const FRUIT = [0xa8352f, 0xc85a3a];
+const BARK = [0x2a1b0d, 0x412a14, 0x5a3a1c, 0x74512a, 0x8d6738];
+
+const OPEN = new Set([T.GRASS, T.GRASS2, T.PATH, T.HILLTOP, T.BOG, T.FLOWERS]);
+// The woods are painted too: the ground bake lays shaded woodland floor
+// under every tree cell, and the canopy strips draw the trees themselves.
+const PAINTED = new Set([...OPEN, T.HILL, T.TREE, T.TREE2, T.WATER, T.HAY]);
+const WOODS = new Set([T.TREE, T.TREE2]);
+// Anything with real bulk standing on the ground throws a shadow south.
+const CASTERS = new Set([
+  T.MOUND_L, T.MOUND_R, T.BASE_L, T.BASE_R, T.ROOF, T.ROOF_L, T.ROOF_R,
+  T.DOOR, T.WINDOW_F, T.STONE, T.BARN, T.WAGGON, T.WELL, T.CRATE,
+  T.PAV_TL, T.PAV_TR, T.PAV_BL, T.PAV_BR, T.PARTY_BL, T.PARTY_BR,
+  T.REEDS, T.BUSH, T.SIGN, T.LANTERN, T.PARTY_TABLE, T.FEAST,
+  T.HEDGEROW, T.STOOK, T.SKEP, T.BENCH, T.MILESTONE, T.CORN,
+]);
+
+/* ── the ground layer ─────────────────────────────────────────────────── */
+
+/**
+ * Pure bake — used by the canvas renderer and by the palette/collision tests.
+ * @param {number[][]} map
+ * @returns {{ width: number, height: number, pixels: Uint8ClampedArray }}
+ */
+export function bakeShireGround(map) {
+  const cols = map[0].length,
+    rows = map.length;
+  const width = cols * 16,
+    height = rows * 16;
+  const pixels = new Uint8ClampedArray(width * height * 4);
+  const plateau = maskOf(map, (t) => t === T.HILLTOP);
+  const bank = maskOf(map, (t) => t === T.HILL);
+  const lane = maskOf(map, (t) => t === T.PATH);
+  const mire = maskOf(map, (t) => t === T.BOG);
+  const river = maskOf(map, (t) => t === T.WATER);
+  const wood = maskOf(map, (t) => WOODS.has(t));
+  const built = maskOf(map, (t) => CASTERS.has(t));
+
+  const ink = (x, y, color) => {
+    const i = (y * width + x) * 4;
+    pixels[i] = color >> 16;
+    pixels[i + 1] = (color >> 8) & 255;
+    pixels[i + 2] = color & 255;
+    pixels[i + 3] = 255;
+  };
+
+  for (let y = 0; y < height; y++)
+    for (let x = 0; x < width; x++) {
+      const tile = map[y >> 4][x >> 4];
+      if (!PAINTED.has(tile)) continue;
+      const fx = x / 16 - 0.5,
+        fy = y / 16 - 0.5;
+      // Two-pixel clusters fray every outline; never a screen of single noise.
+      const g = wobble(x & ~1, y & ~1, 26, 20, 11) * 0.06;
+      const patch = wobble(x & ~3, y & ~1, 70, 46, 37);
+      const p = sample(plateau, fx, fy) + g;
+
+      let color;
+      if (tile === T.HILL) {
+        // A cut earth bank. Turf from the field above rolls over its brow, so
+        // grass — not a hard edge — meets the sky side of it. The depth of
+        // that spill varies smoothly along the bank rather than per cell,
+        // which is what keeps a long bank from reading as battlements. Only
+        // the top course of a bank has a brow; the rest is all face.
+        const brow = map[(y >> 4) - 1]?.[x >> 4] !== T.HILL;
+        // Never as deep as the middle of the cell: a bank centre is always
+        // earth, so a solid cell can never be mistaken for a lawn.
+        const spill = 2 + Math.round((wobble(x, 0, 19, 1, 7) + 0.5) * 5);
+        const into = y & 15;
+        if (brow && into < spill) color = TURF[into < spill - 3 ? 5 : 4];
+        else {
+          const drop = brow ? Math.min(1, (into - spill) / 9) : 0.8;
+          color = drop < 0.2 ? EARTH[1] : EARTH[step(2 + Math.floor(drop * 3) + (patch > 0.16 ? 1 : 0), 6)];
+        }
+      } else if (tile === T.HILLTOP) {
+        // The high field: lit, and falling off in tone towards its own lip.
+        const lift = Math.min(1, Math.max(0, (p - 0.42) / 0.38));
+        color = TURF[step(3 + Math.round(lift * 3) + (patch > 0.16 ? 1 : -1) * (patch > 0.16 || patch < -0.2 ? 1 : 0), 6)];
+      } else if (tile === T.WATER) {
+        // Open water: depth read from how far the pixel is from any bank,
+        // with a slow ripple and one lit band where the sky lands on it.
+        const deep = sample(river, fx, fy) + g;
+        const ripple = wobble(x, y & ~1, 30, 9, 61);
+        let level = deep > 0.8 ? 1 : deep > 0.62 ? 2 : deep > 0.45 ? 3 : 4;
+        if (ripple > 0.21) level += 1;
+        else if (ripple < -0.26) level -= 1;
+        color = FLOOD[step(level, 6)];
+        if (ripple > 0.34 && (y & 3) === 1) color = FLOOD[6];
+      } else if (tile === T.HAY) {
+        // Cut hay lying in swathes over the stubble it was mown from. The
+        // swathes are the bands the mower walked, not a tile fill, so a
+        // hayfield never reads as a pale rectangle dropped on a lawn.
+        const walk = Math.sin((y + wobble(x, 0, 37, 1, 53) * 13) * 0.42);
+        color =
+          walk > 0.3
+            ? MOWN[step(3 + (patch > 0.2 ? 1 : 0), 4)]
+            : walk > -0.15
+              ? MOWN[step(1 + (patch > 0.15 ? 1 : 0), 4)]
+              : MEADOW[step(4 + (patch > 0.2 ? 1 : 0), 6)];
+      } else if (WOODS.has(tile)) {
+        // Leaf litter under the woods. The crown that grows from this cell is
+        // drawn in the canopy strip; what shows past it is floor, not a lawn.
+        color = MEADOW[step(1 + (patch > 0.2 ? 1 : 0) + (patch < -0.22 ? -1 : 0), 6)];
+      } else {
+        color = MEADOW[step(4 + (patch > 0.14 ? 1 : 0) + (patch > 0.32 ? 1 : 0) + (patch < -0.16 ? -1 : 0), 6)];
+      }
+
+      // Wet ground is drawn as a ribbon, like the lanes: a marsh spreads and
+      // dries out across tile boundaries instead of stopping square at them.
+      // Sedge at the margin, dark water standing in the middle of it.
+      if (tile === T.BOG || (OPEN.has(tile) && tile !== T.PATH)) {
+        // No floor under the reading: one wet cell on its own simply dries
+        // into the meadow, and only a real hollow of them holds water.
+        const wet = sample(mire, fx, fy) + g;
+        if (wet > 0.34) {
+          const pool = wobble(x & ~1, y & ~1, 22, 14, 71);
+          color =
+            wet > 0.5 && pool > 0.22
+              ? FLOOD[step(3 + (pool > 0.34 ? 2 : 0), 6)]
+              : MIRE[step((wet > 0.5 ? 2 : 4) + (patch > 0.15 ? 1 : 0), 6)];
+        }
+      }
+
+      // The lanes: opaque worn ribbons, so no alpha fringe can reveal the old
+      // square tiles underneath. Banks keep their earth face.
+      if (tile !== T.HILL && tile !== T.WATER && !WOODS.has(tile)) {
+        const c = sample(lane, fx, fy) + g * 0.5;
+        if (c > 0.36 || tile === T.PATH)
+          color = ROAD[step(4 + (c < 0.42 ? -1 : 0) + (patch > 0.12 ? 1 : 0) + (patch > 0.3 ? 1 : 0), 6)];
+      }
+
+      // Damp shingle where the ground runs down into water.
+      const w = sample(river, fx, fy) + g * 0.5;
+      if (w > 0.12 && tile !== T.HILL && tile !== T.WATER && !WOODS.has(tile))
+        color = SHINGLE[w > 0.3 ? 0 : w > 0.2 ? 1 : 2];
+
+      // Cast shadow: the bank above, the woods, and anything built. All three
+      // fall to the south-east, so the whole zone reads as one hour of day.
+      let dark = 0;
+      if (tile !== T.HILL && tile !== T.HILLTOP && tile !== T.WATER && !WOODS.has(tile)) {
+        const over = sample(bank, fx - 0.1, fy - 0.45) + sample(plateau, fx - 0.1, fy - 0.45) * 0.4;
+        if (over > 0.5) dark = 2;
+        else if (over > 0.25) dark = 1;
+      }
+      if (!WOODS.has(tile) && tile !== T.WATER) {
+        const shade = sample(wood, fx - 0.14, fy - 0.42) + sample(built, fx - 0.14, fy - 0.4);
+        if (shade > 0.46) dark = Math.max(dark, 2);
+        else if (shade > 0.22) dark = Math.max(dark, 1);
+      }
+      if (dark) color = shadeOf(color, dark);
+      ink(x, y, color);
+    }
+
+  // Tufts, clover and blossom. Sparse asymmetric clusters with quiet ground
+  // between them: the lanes stay easy to read at a glance.
+  for (let y = 5; y < height - 5; y += 6)
+    for (let x = 5; x < width - 5; x += 8) {
+      const seed = hash(x, y, 89) + 0.5;
+      const cx = x + Math.floor(seed * 5),
+        cy = y + Math.floor((hash(y, x, 23) + 0.5) * 4);
+      const tile = map[cy >> 4][cx >> 4];
+      if (tile !== T.GRASS && tile !== T.GRASS2 && tile !== T.FLOWERS && tile !== T.HILLTOP) continue;
+      if (sample(lane, cx / 16 - 0.5, cy / 16 - 0.5) > 0.16) continue;
+      const flower = tile === T.FLOWERS;
+      if (!flower && seed > 0.22) continue;
+      const blade = tile === T.HILLTOP ? TURF[2] : MEADOW[2];
+      const tip = tile === T.HILLTOP ? TURF[6] : MEADOW[6];
+      const marks = flower
+        ? [[-2, 0, blade], [0, 0, blade], [2, 0, blade], [-2, -2, BLOSSOM[(cx + cy) % 4]],
+          [0, -3, BLOSSOM[(cx * 3 + cy) % 4]], [2, -2, BLOSSOM[(cx + cy * 5) % 4]], [1, -1, tip]]
+        : [[-2, 0, blade], [-1, -1, tip], [0, 0, blade], [1, -2, tip], [1, -1, tip], [2, 0, blade]];
+      for (const [dx, dy, col] of marks) {
+        const px = cx + dx,
+          py = cy + dy;
+        if (map[py >> 4]?.[px >> 4] === tile) ink(px, py, col);
+      }
+    }
+  return { width, height, pixels };
+}
+
+// A shadow is a step down whichever ramp the pixel already belongs to, so the
+// palette never grows and a shaded lane still reads as lane.
+function shadeOf(color, amount) {
+  for (const ramp of [MEADOW, TURF, EARTH, ROAD, MIRE, FLOOD, MOWN]) {
+    const i = ramp.indexOf(color);
+    if (i >= 0) return ramp[step(i - amount, ramp.length - 1)];
+  }
+  return color;
+}
+
+
+/* ── the canopy layer ─────────────────────────────────────────────────────
+   Woods are baked into one strip per tile row. A strip holds only the trees
+   rooted in that row, so it can be drawn at that row's depth: a hobbit north
+   of a tree is covered by its crown, one south of it walks in front. Crowns
+   rise at most RISE pixels above their own cell — enough to read as canopy,
+   never enough to look like a wall over the lane.                          */
+const RISE = 32;
+const STRIP_H = RISE + 16;
+
+// One tree: a round crown over a short trunk, with a shadow pool at the foot
+// so the cell it stands in never reads as open ground. Crowns of neighbouring
+// cells swell towards each other, so a grove becomes one leaf mass while a
+// tree standing alone keeps its own outline.
+function tree(paint, map, tx, ty) {
+  const leaves = map[ty][tx] === T.TREE2 ? AUTUMN : GREENWOOD;
+  const seed = Math.abs(Math.round(hash(tx, ty, 5) * 1000));
+  const cx = tx * 16 + 8;
+  const base = ty * 16 + 16;
+  const near = (dx, dy) => WOODS.has(map[ty + dy]?.[tx + dx]);
+  const rx = 11 + (near(-1, 0) ? 2 : 0) + (near(1, 0) ? 2 : 0) + (seed % 2);
+  const cy = base - 14 - (seed % 3);
+  const ry = 11 + (seed % 3) + (near(0, -1) ? 4 : 0);
+
+  // Roots and the shadow they sit in, filling the foot of the cell.
+  paint(cx - 8, base - 5, 16, 4, leaves[0]);
+  paint(cx - 6, base - 3, 12, 3, MEADOW[0]);
+  const lean = (seed % 3) - 1;
+  paint(cx - 3, base - 12, 6, 8, BARK[0]);
+  paint(cx - 2 + lean, base - 15, 4, 8, BARK[2]);
+  paint(cx - 1 + lean, base - 14, 2, 7, BARK[4]);
+
+  // Stepped ellipse — a crown, never a smooth circle.
+  for (let dy = -ry; dy <= ry; dy += 2) {
+    const k = Math.sqrt(Math.max(0, 1 - (dy / ry) * (dy / ry)));
+    const jog = Math.round(hash(dy, seed, 17) * 3);
+    const w = Math.round(rx * k) + (k > 0.55 ? jog : 0);
+    if (w < 2) continue;
+    const t = (dy + ry) / (2 * ry); // 0 at the crown, 1 at the underside
+    paint(cx - w, cy + dy, w * 2, 2, leaves[0]);
+    paint(cx - w + 2, cy + dy, w * 2 - 4, 2, leaves[t > 0.6 ? 1 : t > 0.28 ? 2 : 3]);
+  }
+  // Lit leaf masses towards the north-west; flecks only at their edges, and
+  // a little fruit where the lighter-leaved trees are.
+  const fruited = map[ty][tx] === T.TREE2;
+  for (let n = 0; n < 5; n++) {
+    const dx = Math.round(hash(seed, n, 3) * 12) - 3;
+    const dy = Math.round(hash(n, seed, 9) * 12) - 4;
+    if (dx * dx * 1.6 + dy * dy > ry * ry) continue;
+    paint(cx + dx - 3, cy + dy, 3 + (n % 3), 2, leaves[4 + (n % 2)]);
+    if (n % 3 === 0) paint(cx + dx - 2, cy + dy - 1, 2, 1, leaves[6]);
+    if (fruited && n % 2 === 1) {
+      paint(cx - dx, cy - dy + 2, 2, 2, FRUIT[n % 2]);
+      paint(cx - dx, cy - dy + 2, 1, 1, FRUIT[1]);
+    }
+  }
+}
+
+/**
+ * Pure bake of the woods, one strip per tile row that holds any.
+ * @param {number[][]} map
+ * @returns {{ row: number, y0: number, width: number, height: number,
+ *             pixels: Uint8ClampedArray }[]}
+ */
+export function bakeShireCanopy(map, needsRow = () => true) {
+  const width = map[0].length * 16;
+  const strips = [];
+  for (let ty = 0; ty < map.length; ty++) {
+    if (!needsRow(ty) || !map[ty].some((t) => WOODS.has(t))) continue;
+    const y0 = ty * 16 - RISE;
+    const pixels = new Uint8ClampedArray(width * STRIP_H * 4);
+    // Ink is clipped to the strip, and sideways to the cell and its
+    // neighbours, so no crown ever reaches across open ground.
+    const paint = (x, y, w, h, color, tx) => {
+      const left = Math.max(0, Math.round(x), tx * 16 - 13);
+      const right = Math.min(width, Math.round(x + w), tx * 16 + 29);
+      const top = Math.max(0, Math.round(y) - y0);
+      const bottom = Math.min(STRIP_H, Math.round(y + h) - y0);
+      for (let py = top; py < bottom; py++)
+        for (let px = left; px < right; px++) {
+          const i = (py * width + px) * 4;
+          pixels[i] = color >> 16;
+          pixels[i + 1] = (color >> 8) & 255;
+          pixels[i + 2] = color & 255;
+          pixels[i + 3] = 255;
+        }
+    };
+    for (let tx = 0; tx < map[ty].length; tx++) {
+      if (!WOODS.has(map[ty][tx])) continue;
+      tree((x, y, w, h, color) => paint(x, y, w, h, color, tx), map, tx, ty);
+    }
+    strips.push({ row: ty, y0, width, height: STRIP_H, pixels });
+  }
+  return strips;
+}
+
+/* ── landmarks ────────────────────────────────────────────────────────────
+   Drawn as graphics rather than baked, so the one tree in the Shire that is
+   a landmark can be as tall as it deserves and still sort against a hobbit
+   standing under it.                                                       */
+// How much sky the crown takes up, and how deep it is drawn. Anything standing
+// inside this box with a smaller depth is painted over by the tree, so the
+// zone tests read the same numbers the drawing does.
+const CROWN = { spread: 34, jog: 6, rise: 88, hang: 14 };
+
+/** The ground the Party Tree's crown covers, and the depth it covers it at. */
+export function partyTreeCover(tx, ty) {
+  const cx = tx * 16 + 16,
+    base = (ty + 3) * 16;
+  return {
+    left: cx - CROWN.spread - CROWN.jog,
+    right: cx + CROWN.spread + CROWN.jog,
+    top: base - CROWN.rise,
+    bottom: base - CROWN.hang,
+    depth: base - 1,
+  };
+}
+
+function partyTree(scene, tx, ty) {
+  // Rooted in the bottom row of the 2x3 composite; the crown covers the rest,
+  // and is the largest thing growing anywhere in Chapter One.
+  const cx = tx * 16 + 16,
+    base = (ty + 3) * 16;
+  const g = scene.add.graphics().setDepth(base - 1);
+  const r = (x, y, w, h, color, alpha = 1) =>
+    g.fillStyle(color, alpha).fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+  // Shadow pool and root flare fill the solid cells the crown cannot reach.
+  r(cx - 18, base - 11, 36, 10, 0x2d5520);
+  r(cx - 16, base - 15, 32, 6, 0x356328);
+  r(cx - 13, base - 20, 26, 8, BARK[0]);
+  r(cx - 8, base - 34, 16, 26, BARK[0]);
+  r(cx - 6, base - 33, 9, 25, BARK[2]);
+  r(cx - 5, base - 32, 4, 24, BARK[4]);
+  r(cx + 4, base - 30, 3, 21, BARK[0]);
+  // A broad round crown, not a cone: widest across the middle of its height.
+  const top = base - CROWN.rise;
+  for (let yy = top; yy < base - CROWN.hang; yy += 2) {
+    const t = (yy - top) / (CROWN.rise - CROWN.hang);
+    const swell = Math.pow(Math.sqrt(Math.max(0, 1 - (t * 2 - 1) ** 2)), 0.62);
+    const w = Math.round(CROWN.spread * swell) + Math.round(hash(yy, 7, 21) * CROWN.jog);
+    if (w <= 1) continue;
+    r(cx - w, yy, w * 2, 2, GREENWOOD[t < 0.09 ? 1 : 0]);
+    r(cx - w + 3, yy, w * 2 - 6, 2, GREENWOOD[t < 0.8 ? 3 : 2]);
+  }
+  for (let n = 0; n < 34; n++) {
+    const dx = Math.round(hash(n, 41, 3) * 48);
+    const dy = Math.round(hash(41, n, 9) * 54);
+    r(cx + dx - 5, base - 62 + dy, 7 + (n % 3), 2, GREENWOOD[4 + (n % 3)]);
+  }
+  return g;
+}
+
+/* ── scene wiring ─────────────────────────────────────────────────────── */
+
+function texture(scene, key, { width, height, pixels }) {
+  if (scene.textures.exists(key)) return;
+  const canvas = scene.textures.createCanvas(key, width, height);
+  const ctx = canvas.getContext();
+  const image = ctx.createImageData(width, height);
+  image.data.set(pixels);
+  ctx.putImageData(image, 0, 0);
+  canvas.refresh();
+}
+
+/** Ground under everything; woods in row strips that sort against the party. */
+export function drawShireScenery(scene) {
+  if (!SHIRE_ZONES.has(scene.zoneKey)) return;
+  const map = scene.zone.map;
+  const groundKey = `shire-ground-${scene.zoneKey}`;
+  if (!scene.textures.exists(groundKey)) texture(scene, groundKey, bakeShireGround(map));
+  scene.add.image(0, 0, groundKey).setOrigin(0).setDepth(3);
+
+  // Only missing rows need pixels. Re-entry recreates the images using the
+  // cached textures, without retaining another copy of their pixel buffers.
+  const canopyKey = (row) => `shire-canopy-${scene.zoneKey}-${row}`;
+  for (const strip of bakeShireCanopy(map, (row) => !scene.textures.exists(canopyKey(row)))) {
+    texture(scene, canopyKey(strip.row), strip);
+  }
+  for (let row = 0; row < map.length; row++) {
+    const key = canopyKey(row);
+    if (!scene.textures.exists(key)) continue;
+    scene.add
+      .image(0, row * 16 - RISE, key)
+      .setOrigin(0)
+      // The bottom of the row the trees stand in: a hobbit one row further
+      // south has a greater depth and walks in front.
+      .setDepth(row * 16 + 15);
+  }
+
+  for (let y = 0; y < map.length; y++)
+    for (let x = 0; x < map[y].length; x++)
+      if (map[y][x] === T.PARTY_NL) partyTree(scene, x, y);
+}
+
+/* ── weather ──────────────────────────────────────────────────────────────
+   A little motion in the air. Nothing here is interactive and nothing is
+   saved: it is the difference between a picture of the Shire and a place
+   with an afternoon going on in it.                                       */
+const WEATHER = {
+  shire: { count: 22, colors: [0xf0ead6, 0xdfe6b4], size: 2, drift: [30, -18], speed: 5200 },
+  woodyend: { count: 26, colors: [0xb0a564, 0x8a984e], size: 2, drift: [24, 38], speed: 4000 },
+  marish: { count: 20, colors: [0x8fa06a, 0xa9b7d0], size: 1, drift: [-14, 22], speed: 4600 },
+};
+
+export function drawShireWeather(scene) {
+  const spec = WEATHER[scene.zoneKey];
+  if (!spec) return;
+  for (let i = 0; i < spec.count; i++) {
+    const x = (i * 137 + 53) % (scene.mapWidth * 16);
+    const y = (i * 101 + 37) % (scene.mapHeight * 16);
+    const mote = scene.add
+      .rectangle(x, y, spec.size + (i % 2), spec.size, spec.colors[i % 2], 0.55)
+      .setDepth(830);
+    scene.tweens.add({
+      targets: mote,
+      x: x + spec.drift[0],
+      y: y + spec.drift[1],
+      alpha: 0,
+      duration: spec.speed + i * 151,
+      delay: i * 130,
+      repeat: -1,
+    });
+  }
+}

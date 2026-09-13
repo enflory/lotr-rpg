@@ -1,4 +1,5 @@
 import { CHAPTER_DIALOGUES } from './chapterDialogues.js';
+import { HOBBITON_DIALOGUES } from './hobbitonDialogues.js';
 
 // NPC dialogues — drawn from or closely paraphrasing The Lord of the Rings.
 //
@@ -16,6 +17,7 @@ import { CHAPTER_DIALOGUES } from './chapterDialogues.js';
 /** @type {Record<string, import('./types.js').Dialogue>} */
 export const DIALOGUES = {
   ...CHAPTER_DIALOGUES,
+  ...HOBBITON_DIALOGUES,
   crickhollow_ponies: {
     name: 'The Ponies',
     lines: [
@@ -63,6 +65,10 @@ export const DIALOGUES = {
         set: 'cratesAsked',
       },
       {
+        // One conversation, not two. His counsel and his farewell are the same
+        // scene: he tells Frodo what the Ring is, sends him for Sam, and goes.
+        // Splitting them let a player walk away and never see him leave — and
+        // in the book Frodo never does see him again before setting out.
         when: (f) => !f.metGandalf,
         lines: [
           'My dear Frodo! Good to see\nyou again at last.',
@@ -71,28 +77,25 @@ export const DIALOGUES = {
           'It must not stay in the\nShire. You must leave,\nand you must leave soon.',
           'Keep it secret.\nKeep it safe!',
           'And Frodo -- do not go\nalone. Young Samwise is\nin the garden. Fetch him.',
+          'Make for Bucklebury by way\nof the Woody End, and do\nnot use the Ring. Not once.',
+          'As for me -- I must ride and\nseek news, and speak with\nthe head of my order.',
+          'Look for me in Bree, at the\nsign of the Prancing Pony.\nBe careful, Frodo!',
         ],
-        set: 'metGandalf',
+        set: ['metGandalf', 'gandalfLeft'],
         objective: 'Find Sam in his garden',
       },
       {
-        when: (f) => !f.samJoined,
-        lines: ['Samwise is in the garden --\nor under the window, more\nlike. Go and fetch him.'],
-      },
-      {
-        when: (f, count) => count('mathom') >= 6 && !f.mathomsPraised,
+        // Older v1 checkpoints have heard the Ring revelation, but predate
+        // the departure flags. Keep their objective and finish the farewell.
+        when: (f) => f.metGandalf && !f.gandalfLeft && !f.gandalfGone,
         lines: [
-          "Six of Bilbo's old mathoms!\nThe museum at Michel Delving\nnever held a finer haul.",
+          'Make for Bucklebury by way\nof the Woody End. Take Sam\nwith you, and keep safe.',
+          'Do not use the Ring.\nI must ride and seek news.',
+          'Look for me in Bree, at the\nsign of the Prancing Pony.\nBe careful, Frodo!',
         ],
-        set: 'mathomsPraised',
+        set: 'gandalfLeft',
       },
-      {
-        lines: [
-          'Make for Bucklebury by way\nof the Woody End. Take the\nEast Road out of Hobbiton.',
-          'And remember: do not use\nthe Ring! The Enemy has\nmany spies in the Shire.',
-          'I must see Saruman, head\nof my order. I will meet\nyou in Bree if I can.',
-        ],
-      },
+      { lines: ['...'] },
     ],
   },
 
@@ -143,6 +146,17 @@ export const DIALOGUES = {
         ],
         set: 'halfPintDelivered',
         take: 'ale_mug',
+      },
+      {
+        // The stranger who came to Number Three asking after Baggins. In the
+        // book the Gaffer tells this to Gandalf; here he tells it to Frodo,
+        // if Frodo ever walks back up the Row after the Woody End.
+        when: (f) => f.escapedRider,
+        lines: [
+          'Queer doings on the Row\nwhile you were off east,\nMr. Frodo.',
+          'A black sort of fellow\ncame asking after Baggins.\nOn a black horse.',
+          "I told him you'd gone, and\nwhere. I'm sorry for it now,\nthe way he hissed at me.",
+        ],
       },
       {
         when: (f) => !f.samJoined,

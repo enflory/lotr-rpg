@@ -3,11 +3,12 @@
 
 import { describe, it, expect } from 'vitest';
 import { ZONES } from '../src/data/zones/index.js';
-import { ROAD_Y, HOLLOW, woodyend } from '../src/data/zones/woodyend.js';
+import { ROAD_Y, FOX_REST, FOX_ROUTE, woodyend } from '../src/data/zones/woodyend.js';
 import { LANE_Y, FARM, PIER_X, marish } from '../src/data/zones/marish.js';
-import { DIALOGUES } from '../src/data/dialogues.js';
+import { DIALOGUES, resolveDialogue } from '../src/data/dialogues.js';
 import { CHAR_DEFS } from '../src/art/characters.js';
 import { T, COLLISION_TILES } from '../src/data/tileTypes.js';
+import { partyTreeCover } from '../src/art/shireScenery.js';
 import { ITEMS } from '../src/data/items.js';
 
 const zones = Object.values(ZONES);
@@ -165,6 +166,98 @@ describe('signs and NPCs', () => {
     }
   });
 
+  it('every examine point stands on open ground and has a dialogue entry', () => {
+    for (const zone of zones) {
+      const reach = reachable(zone);
+      for (const p of zone.interactions ?? []) {
+        expect(inBounds(zone, p.x, p.y), `${zone.key} interaction out of bounds`).toBe(true);
+        expect(
+          walkable(zone, p.x, p.y),
+          `${zone.key} interaction (${p.x},${p.y}) sits on a solid tile`,
+        ).toBe(true);
+        expect(reach[p.y][p.x], `${zone.key} interaction (${p.x},${p.y}) cannot be walked to`).toBe(
+          true,
+        );
+        expect(p.label, `${zone.key} interaction (${p.x},${p.y}) has no label`).toBeTruthy();
+        expect(
+          DIALOGUES[p.dialogue],
+          `${zone.key} interaction references unknown dialogue ${p.dialogue}`,
+        ).toBeTruthy();
+      }
+    }
+  });
+
+  // An examine point takes the SPACE press ahead of anyone standing nearby.
+  // The later chapters rely on that (Goldberry's cue is placed on Goldberry),
+  // but in Chapter 1 every NPC is someone to talk to. Measuring the gap
+  // between the two is not enough — what matters is whether there is anywhere
+  // to stand that reaches the NPC without reaching the examine point first,
+  // which is how the Party Tree came to swallow Bilbo's own birthday party.
+  const INTERACT_DIST = 20; // WorldScene
+  const EXAMINE_DIST = 25;
+  it('never lets an examine point steal a conversation in Chapter 1', () => {
+    for (const key of ['shire', 'bagend', 'greendragon', 'woodyend', 'marish']) {
+      const zone = ZONES[key];
+      const points = zone.interactions ?? [];
+      for (const npc of zone.npcs) {
+        // Everywhere a player could be standing and still reach this hobbit.
+        const spots = [
+          [0, 0],
+          [0, -1],
+          [0, 1],
+          [-1, 0],
+          [1, 0],
+        ]
+          .map(([dx, dy]) => ({ x: npc.x + dx, y: npc.y + dy }))
+          .filter((s) => inBounds(zone, s.x, s.y) && walkable(zone, s.x, s.y))
+          .map((s) => ({ px: s.x * 16 + 8, py: s.y * 16 + 8, ...s }))
+          .filter(
+            (s) => Math.hypot(s.px - (npc.x * 16 + 8), s.py - (npc.y * 16 + 6)) < INTERACT_DIST,
+          );
+        expect(spots.length, `${key}: nowhere to stand to reach ${npc.key}`).toBeGreaterThan(0);
+        // From every one of them, the press must reach the hobbit, not a point
+        // on the ground behind them.
+        for (const spot of spots) {
+          for (const p of points) {
+            const gap = Math.hypot(spot.px - (p.x * 16 + 8), spot.py - p.y * 16);
+            expect(
+              gap,
+              `${key}: ${p.dialogue} steals ${npc.key} from (${spot.x},${spot.y})`,
+            ).toBeGreaterThanOrEqual(EXAMINE_DIST);
+          }
+        }
+      }
+    }
+  });
+
+  // Fredegar stands in Hobbiton and again at Crickhollow, and his entry had
+  // only one flat set of lines — so on the Hill he greeted Frodo by refusing
+  // to go into the Old Forest. Anyone who appears in both halves of the game
+  // has to have something different to say in each.
+  it('gives anyone who appears in two chapters something to say in both', () => {
+    const early = ['shire', 'bagend', 'greendragon', 'woodyend', 'marish'];
+    const late = Object.keys(ZONES).filter((k) => !early.includes(k));
+    const inAny = (keys) => new Set(keys.flatMap((k) => ZONES[k].npcs.map((n) => n.key)));
+    const shared = [...inAny(early)].filter((key) => inAny(late).has(key));
+    expect(shared.length).toBeGreaterThan(0);
+    for (const key of shared) {
+      // Where each of them actually stands: Hobbiton with the Ring revealed,
+      // and beyond the Brandywine with the chapter turned over.
+      const hobbiton = { prologueDone: true, samJoined: true, metGandalf: true };
+      const before = resolveDialogue(key, hobbiton, () => 0);
+      const after = resolveDialogue(
+        key,
+        { ...hobbiton, crossedFerry: true, merryJoined: true, chapter2: true },
+        () => 0,
+      );
+      expect(before, `${key} has no dialogue`).toBeTruthy();
+      expect(
+        before.lines[0],
+        `${key} says the same thing in Hobbiton as beyond the Brandywine`,
+      ).not.toBe(after.lines[0]);
+    }
+  });
+
   it('every NPC has a sprite definition, a dialogue entry, and a walkable position', () => {
     for (const zone of zones) {
       for (const npc of zone.npcs) {
@@ -187,6 +280,41 @@ describe('the Party Field (western Shire)', () => {
     expect(shire.map[22][5]).toBe(T.PARTY_TR);
     expect(shire.map[23][4]).toBe(T.PARTY_BL);
     expect(shire.map[23][5]).toBe(T.PARTY_BR);
+  });
+
+  // The Party Tree is drawn above the tilemap at the depth of its own roots,
+  // so it paints over anything standing under the crown with a smaller depth.
+  // Bilbo was moved under it once while spacing examine points apart, and
+  // vanished from his own birthday party.
+  it('never hides anyone, or anything to pick up, behind the Party Tree', () => {
+    let root = null;
+    shire.map.forEach((row, y) =>
+      row.forEach((tile, x) => {
+        if (tile === T.PARTY_NL) root = { x, y };
+      }),
+    );
+    expect(root).toBeTruthy();
+    const crown = partyTreeCover(root.x, root.y);
+    const covered = (px, py) =>
+      px >= crown.left && px <= crown.right && py >= crown.top && py <= crown.bottom;
+
+    for (const npc of shire.npcs) {
+      // spawnNpc rests the sprite's feet on its tile, and depth-sorts by that.
+      const px = npc.x * 16 + 8,
+        py = npc.y * 16 + 6;
+      expect(
+        !covered(px, py) || py > crown.depth,
+        `${npc.key} at (${npc.x},${npc.y}) stands behind the Party Tree`,
+      ).toBe(true);
+    }
+    for (const pickup of shire.pickups) {
+      const px = pickup.x * 16 + 8,
+        py = pickup.y * 16 + 8;
+      expect(
+        !covered(px, py) || pickup.y * 16 > crown.depth,
+        `${pickup.id} at (${pickup.x},${pickup.y}) lies behind the Party Tree`,
+      ).toBe(true);
+    }
   });
 
   it('the East Road leaves Hobbiton two tiles tall', () => {
@@ -234,12 +362,37 @@ describe('the Party Field (western Shire)', () => {
         .filter((n) => !n.when || n.when(flags))
         .map((n) => n.key)
         .sort();
-    expect(at({})).toEqual(['bilbo', 'gaffer', 'gandalf', 'noakes', 'rosie', 'ted', 'twofoot']);
-    expect(at({ prologueDone: true })).toEqual(['gaffer', 'gandalf', 'lobelia', 'sam', 'sandyman']);
-    expect(at({ prologueDone: true, samJoined: true })).toEqual([
+    expect(at({})).toEqual([
+      'bilbo',
+      'gaffer',
+      'gandalf',
+      'lotho',
+      'noakes',
+      'rosie',
+      'ted',
+      'twofoot',
+    ]);
+    expect(at({ prologueDone: true })).toEqual([
+      'cotton',
+      'fatty',
+      'folco',
       'gaffer',
       'gandalf',
       'lobelia',
+      'lotho',
+      'rumble',
+      'sam',
+      'sandyman',
+    ]);
+    expect(at({ prologueDone: true, samJoined: true })).toEqual([
+      'cotton',
+      'fatty',
+      'folco',
+      'gaffer',
+      'gandalf',
+      'lobelia',
+      'lotho',
+      'rumble',
       'sandyman',
     ]);
   });
@@ -309,17 +462,16 @@ describe('the Woody End (generated map)', () => {
     }
   });
 
-  it('the fox hollow is reachable, so the vignette can trigger', () => {
-    // foxEventUpdate fires when the player stands inside the HOLLOW box;
-    // if the forest seals it off the fox can never appear.
+  it('the resting place and the full fox crossing are reachable', () => {
     const seen = reachable(woodyend);
-    let anyReachable = false;
-    for (let y = HOLLOW.y0; y <= HOLLOW.y1; y++) {
-      for (let x = HOLLOW.x0; x <= HOLLOW.x1; x++) {
-        if (seen[y][x]) anyReachable = true;
-      }
+    expect(seen[FOX_REST.y][FOX_REST.x]).toBe(true);
+    for (let x = FOX_ROUTE.x0; x <= FOX_ROUTE.x1; x++) {
+      expect(seen[FOX_ROUTE.y][x], `fox crossing at ${x}`).toBe(true);
+      // Keep the southern crowns two rows away from the crossing.
+      expect(COLLISION_TILES.includes(map[FOX_ROUTE.y + 1][x])).toBe(false);
+      expect(COLLISION_TILES.includes(map[FOX_ROUTE.y + 2][x])).toBe(false);
     }
-    expect(anyReachable, 'fox hollow is walled off — no way to trigger the fox').toBe(true);
+    expect((FOX_ROUTE.y - FOX_REST.y) * 16).toBeGreaterThanOrEqual(32);
   });
 });
 

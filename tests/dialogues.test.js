@@ -36,26 +36,28 @@ describe('resolveDialogue staging', () => {
     }
   });
 
-  it('gandalf first meeting reveals the Ring and sets metGandalf', () => {
+  // The Ring, the errand and the farewell are one conversation: a player who
+  // walks away after "fetch him" must not be able to miss the wizard leaving.
+  it('gandalf reveals the Ring, sends Frodo for Sam, and takes his leave at once', () => {
     const dlg = resolveDialogue('gandalf', { prologueDone: true });
-    expect(dlg.set).toBe('metGandalf');
+    expect(dlg.set).toEqual(['metGandalf', 'gandalfLeft']);
     expect(dlg.objective).toMatch(/Sam/);
-    expect(dlg.lines.join(' ')).toMatch(/One Ring/);
+    const said = dlg.lines.join(' ');
+    expect(said).toMatch(/One Ring/);
+    expect(said).toMatch(/fetch him/i);
+    expect(said).toMatch(/Woody End/);
+    expect(said).toMatch(/Bree/);
   });
 
-  it('gandalf nudges toward Sam until he joins', () => {
-    const dlg = resolveDialogue('gandalf', { prologueDone: true, metGandalf: true });
-    expect(dlg.set).toBeUndefined();
-    expect(dlg.lines.join(' ')).toMatch(/fetch him/i);
-  });
-
-  it('gandalf gives travel directions once Sam has joined', () => {
+  it('has nothing more to say once he has gone', () => {
     const dlg = resolveDialogue('gandalf', {
       prologueDone: true,
       metGandalf: true,
-      samJoined: true,
+      gandalfLeft: true,
+      gandalfGone: true,
     });
-    expect(dlg.lines.join(' ')).toMatch(/Woody End/);
+    expect(dlg.set).toBeUndefined();
+    expect(dlg.objective).toBeUndefined();
   });
 
   it('sam joins as follower only after Gandalf revealed the Ring', () => {

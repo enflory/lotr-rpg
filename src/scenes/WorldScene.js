@@ -16,6 +16,8 @@ import {
 import { ITEMS, ITEM_KEYS } from '../data/items.js';
 import { QUESTS } from '../data/quests.js';
 import { playMusic, sfx, toggleMute } from '../audio/sound.js';
+import { drawShireScenery, drawShireWeather } from '../art/shireScenery.js';
+import { drawInteriorLight } from '../art/interiorLight.js';
 import { save } from '../state/saveGame.js';
 import { findWalkablePath, trailPosition } from '../state/partyMovement.js';
 import {
@@ -55,6 +57,7 @@ export class WorldScene extends Phaser.Scene {
     this.journey = null;
     this.storyBeat = null;
     this.riderEvent = null;
+    this.foxEvent = null;
     this.partyEvent = null; // scene.restart reuses the instance
     this.ferryEvent = null;
     this.inputLocked = false;
@@ -73,6 +76,12 @@ export class WorldScene extends Phaser.Scene {
     this.layer.setCollision(COLLISION_TILES);
     this.mapWidth = zone.map[0].length;
     this.mapHeight = zone.map.length;
+    // Shire-side zones are shaded as country over the tilemap: the roll of
+    // The Hill, worn lane edges, cast shadows and depth-sorted woods.
+    drawShireScenery(this);
+    drawShireWeather(this);
+    // A smial is a hole in a hill: only the windows and the fire light it.
+    drawInteriorLight(this);
 
     /* ── player ──────────────────────────────────────── */
     const spawn = zone.spawns[this.entryKey] || zone.spawns.default;
@@ -82,6 +91,7 @@ export class WorldScene extends Phaser.Scene {
       'frodo',
     );
     this.lastDir = spawn.dir || 'down';
+    this.player.setDepth(this.player.y);
     this.player.anims.play(`frodo-idle-${this.lastDir}`);
     // 16×24 sprite; body covers just the feet for Zelda-style overlap
     this.player.setSize(10, 8);
@@ -111,6 +121,21 @@ export class WorldScene extends Phaser.Scene {
     /* ── pickups ─────────────────────────────────────── */
     this.pickups = [];
     for (const def of zone.pickups ?? []) this.spawnPickup(def);
+
+    /* ── inspectable points ──────────────────────────── */
+    // Every examine point wears a slow pale glimmer on the ground. Without
+    // it a player has no way of knowing which patch of grass is worth a
+    // SPACE, and the ones that matter go unread.
+    this.interactionMarks = (zone.interactions ?? []).map((p) => {
+      const dot = this.add
+        .ellipse(p.x * TILE_SIZE + 8, p.y * TILE_SIZE + 8, 8, 3, 0xd4c581, 0.5)
+        .setDepth(p.y * TILE_SIZE - 10)
+        // Set before the first update, or a point that is not due yet shows
+        // for a frame as the zone fades in.
+        .setVisible(!p.when || p.when(gameState.flags));
+      this.tweens.add({ targets: dot, alpha: 0.2, duration: 1700, yoyo: true, repeat: -1 });
+      return { p, dot };
+    });
 
     /* ── interaction hint icon ───────────────────────── */
     this.hintIcon = this.add.image(0, 0, 'hint').setVisible(false).setDepth(900);
@@ -326,7 +351,12 @@ export class WorldScene extends Phaser.Scene {
   createFollower(key) {
     const existing = this.followers.find((sprite) => sprite.getData('key') === key);
     if (existing) return existing;
+    // Depth from the start. The baked ground layer sits at depth 3, so anyone
+    // left at the default 0 is drawn underneath the Shire itself — which is
+    // where Sam went while Pippin was walking in, since the arrival skips the
+    // follower update that would otherwise have given him one.
     const sprite = this.add.sprite(this.player.x, this.player.y, key, 1);
+    sprite.setDepth(this.player.y);
     sprite.setData('key', key);
     sprite.setData('dir', this.lastDir);
     sprite.setData('fernOverlay', this.add.image(0, 0, 'tileset', T.FERN).setVisible(false));
@@ -348,7 +378,7 @@ export class WorldScene extends Phaser.Scene {
     this.trail = [{ x: this.player.x, y: this.player.y }, ...path];
     this.followers.forEach((sprite, i) => {
       const p = trailPosition(this.trail, FOLLOW_DISTANCE * (i + 1));
-      sprite.setPosition(p.x, p.y);
+      sprite.setPosition(p.x, p.y).setDepth(p.y);
     });
   }
 
@@ -567,6 +597,10 @@ export class WorldScene extends Phaser.Scene {
     this.hintIcon.setVisible(!!closestNpc);
     if (closestNpc) this.hintIcon.setPosition(closestNpc.x, closestNpc.y - 18);
 
+    for (const { p, dot } of this.interactionMarks) {
+      dot.setVisible(!p.when || p.when(gameState.flags));
+    }
+
     const action = (this.zone.interactions ?? [])
       .filter(
         (p) =>
@@ -578,6 +612,10 @@ export class WorldScene extends Phaser.Scene {
           Math.hypot(this.player.x - a.x * TILE_SIZE - 8, this.player.y - a.y * TILE_SIZE) -
           Math.hypot(this.player.x - b.x * TILE_SIZE - 8, this.player.y - b.y * TILE_SIZE),
       )[0];
+    // An examine point takes the press ahead of a nearby NPC. The house beats
+    // in the later chapters depend on it — Goldberry's cue is placed on top of
+    // Goldberry — so a Chapter 1 point must simply be kept clear of anyone
+    // there is a conversation to be had with.
     if (action) {
       this.hintIcon
         .setVisible(true)
