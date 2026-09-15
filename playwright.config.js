@@ -23,7 +23,7 @@ export default defineConfig({
   })),
   use: {
     baseURL: 'http://localhost:5173',
-    trace: 'retain-on-failure',
+    trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
   webServer: {
