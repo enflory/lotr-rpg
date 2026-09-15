@@ -67,15 +67,39 @@ for (const direction of ['north', 'south']) {
     }, direction === 'north');
     await page.keyboard.up(key);
     await expect
-      .poll(() =>
-        page.evaluate(() => {
-          const s = window.__game.scene.getScene('WorldScene');
-          return [s.playerFernOverlay, ...s.followers.map((f) => f.getData('fernOverlay'))].filter(
-            (o) => o.visible,
-          ).length;
-        }),
+      .poll(
+        () =>
+          page.evaluate(async () => {
+            const { T } = await import('/src/data/tileTypes.js');
+            const s = window.__game.scene.getScene('WorldScene');
+            const party = [
+              { key: 'frodo', sprite: s.player, overlay: s.playerFernOverlay },
+              ...s.followers.map((sprite) => ({
+                key: sprite.getData('key'),
+                sprite,
+                overlay: sprite.getData('fernOverlay'),
+              })),
+            ];
+            return party
+              .map(({ key, sprite, overlay }) => {
+                const x = Math.floor(sprite.x / 16);
+                const y = Math.floor((sprite.y + 8) / 16);
+                return {
+                  key,
+                  x,
+                  y,
+                  covered: s.zone.map[y]?.[x] === T.FERN,
+                  overlayVisible: overlay.visible,
+                };
+              })
+              .filter(({ covered, overlayVisible }) => !covered || !overlayVisible);
+          }),
+        {
+          message: 'every hobbit should stand under visible fern cover',
+          timeout: 15000,
+        },
       )
-      .toBe(3);
+      .toEqual([]);
     const spots = await page.evaluate(() => {
       const s = window.__game.scene.getScene('WorldScene');
       return [s.player, ...s.followers].map(

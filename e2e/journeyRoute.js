@@ -11,6 +11,7 @@
 // segment boots from, so the three cannot drift apart silently.
 
 import { expect } from '@playwright/test';
+import { driveRoute, withDeadline } from './routeDriver.js';
 
 // Chapter 1 is complete and the party is across the Brandywine. Every segment
 // starts from at least this much.
@@ -196,85 +197,10 @@ export async function walk(page, x, y) {
     },
     { x, y },
   );
-  const outcome = await page.evaluate(
-    ({ stops, zone }) =>
-      new Promise((resolve, reject) => {
-        const codes = { ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40 };
-        let held = null,
-          index = 0,
-          lastMovement = performance.now(),
-          last = null;
-        function key(next) {
-          if (next === held) return;
-          if (held)
-            window.dispatchEvent(
-              new KeyboardEvent('keyup', {
-                key: held,
-                code: held,
-                keyCode: codes[held],
-                which: codes[held],
-                bubbles: true,
-              }),
-            );
-          held = next;
-          if (held)
-            window.dispatchEvent(
-              new KeyboardEvent('keydown', {
-                key: held,
-                code: held,
-                keyCode: codes[held],
-                which: codes[held],
-                bubbles: true,
-              }),
-            );
-        }
-        function tick() {
-          const s = window.__game.scene.getScene('WorldScene');
-          if (s.zoneKey !== zone) {
-            key(null);
-            resolve('zone');
-            return;
-          }
-          if (s.dialogActive) {
-            key(null);
-            resolve('dialog');
-            return;
-          }
-          if (index >= stops.length) {
-            key(null);
-            resolve('done');
-            return;
-          }
-          const [x, y] = stops[index],
-            dx = x * 16 + 8 - s.player.x,
-            dy = y * 16 - s.player.y;
-          if (last && Math.hypot(s.player.x - last.x, s.player.y - last.y) > 0.1)
-            lastMovement = performance.now();
-          last = { x: s.player.x, y: s.player.y };
-          if (performance.now() - lastMovement > 4000) {
-            key(null);
-            reject(
-              new Error(`Blocked in ${zone} at ${s.player.x},${s.player.y}, aiming at ${x},${y}`),
-            );
-            return;
-          }
-          // Centre the perpendicular axis before a long straight passage. This
-          // prevents clipping a corner merely because the previous frame overshot.
-          if (Math.abs(dx) < 2 && Math.abs(dy) < 2) {
-            key(null);
-            index++;
-          } else if (Math.abs(dx) > 2 && Math.abs(dy) > 2) {
-            const horizontal = index === 0 || stops[index - 1][1] === y;
-            key(
-              horizontal ? (dy > 0 ? 'ArrowDown' : 'ArrowUp') : dx > 0 ? 'ArrowRight' : 'ArrowLeft',
-            );
-          } else if (Math.abs(dx) >= 2) key(dx > 0 ? 'ArrowRight' : 'ArrowLeft');
-          else key(dy > 0 ? 'ArrowDown' : 'ArrowUp');
-          requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-      }),
-    data,
+  const outcome = await withDeadline(
+    page.evaluate(driveRoute, data),
+    30000,
+    `Route movement in ${data.zone} to ${x},${y}`,
   );
   if (outcome === 'dialog') {
     await dialogue(page);
@@ -342,6 +268,9 @@ export const visibleFollowers = (page) =>
 // Collect uncaught page errors for the length of a segment.
 export function watchErrors(page) {
   const errors = [];
-  page.on('pageerror', (e) => errors.push(e.message));
+  page.on('pageerror', (e) => {
+    errors.push(e.message);
+    console.error(`Page error: ${e.message}`);
+  });
   return errors;
 }
