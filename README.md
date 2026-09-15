@@ -18,17 +18,13 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 | :---------------------------------------------------------------: | :----------------------------------------------------------------------------: |
 |                    Inside Bag End, by the fire                    |                   Gildor's company feasting in the Woody End                   |
 
-| ![Farmer Maggot's waggon on the causeway at night](assets/screenshots/waggon-ride.png) | ![Bamfurlong farm in the Marish](assets/screenshots/marish.png) |
-| :------------------------------------------------------------------------------------: | :-------------------------------------------------------------: |
-|                    Maggot drives them to the Ferry through the fog                     |         Farmer Maggot's Bamfurlong, down in the Marish          |
+| ![Bamfurlong farm in the Marish](assets/screenshots/marish.png) | ![Farmer Maggot's waggon on the causeway at night](assets/screenshots/waggon-ride.png) |
+| :-------------------------------------------------------------: | :------------------------------------------------------------------------------------: |
+|         Farmer Maggot's Bamfurlong, down in the Marish          |                    Maggot drives them to the Ferry through the fog                     |
 
-| ![Crickhollow's cottage, lawn and kitchen garden](assets/screenshots/crickhollow.png) | ![All five hobbits sharing supper](assets/screenshots/crickhollow-supper.png) |
-| :-----------------------------------------------------------------------------------: | :---------------------------------------------------------------------------: |
-|                               The garden at Crickhollow                               |                        Supper and the friends' secret                         |
-
-|     ![Winding paths beneath the Old Forest canopy](assets/screenshots/oldforest.png)     |            ![Captivity at Old Man Willow](assets/screenshots/willow.png)             |
+|  ![Crickhollow's cottage, lawn and kitchen garden](assets/screenshots/crickhollow.png)   |            ![Captivity at Old Man Willow](assets/screenshots/willow.png)             |
 | :--------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------: |
-|                                      The Old Forest                                      |                                    Old Man Willow                                    |
+|                                The garden at Crickhollow                                 |                                    Old Man Willow                                    |
 | ![The four hobbits in Tom and Goldberry’s house](assets/screenshots/tomhouse-supper.png) | ![Chalk paths and standing stones in the Barrow-downs](assets/screenshots/downs.png) |
 |                                Tom and Goldberry’s house                                 |                                   The Barrow-downs                                   |
 
