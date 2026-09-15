@@ -22,9 +22,9 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 | :-------------------------------------------------------------: | :------------------------------------------------------------------------------------: |
 |         Farmer Maggot's Bamfurlong, down in the Marish          |                    Maggot drives them to the Ferry through the fog                     |
 
-| ![Crickhollow's cottage, lawn and kitchen garden](assets/screenshots/crickhollow.png) | ![Captivity at Old Man Willow](assets/screenshots/willow.png) |
-| :-----------------------------------------------------------------------------------: | :------------------------------------------------------------: |
-|                               The garden at Crickhollow                               |                            Old Man Willow                            |
+|  ![Crickhollow's cottage, lawn and kitchen garden](assets/screenshots/crickhollow.png)   |            ![Captivity at Old Man Willow](assets/screenshots/willow.png)             |
+| :--------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------: |
+|                                The garden at Crickhollow                                 |                                    Old Man Willow                                    |
 | ![The four hobbits in Tom and Goldberry’s house](assets/screenshots/tomhouse-supper.png) | ![Chalk paths and standing stones in the Barrow-downs](assets/screenshots/downs.png) |
 |                                Tom and Goldberry’s house                                 |                                   The Barrow-downs                                   |
 
