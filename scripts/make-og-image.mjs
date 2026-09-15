@@ -26,12 +26,12 @@ const HEIGHT = 630;
 // timeline thumbnail without resampling. It is therefore placed at 1:1 and
 // *cropped*, never scaled: any non-integer scale would give the pixel art
 // uneven 1px/2px columns.
-const SHOT = 'assets/screenshots/hobbiton.png';
+const SHOT = 'assets/screenshots/gandalf-leaves.png';
 const ART_W = 640; // window onto the screenshot, full card height
-// Crop offsets: hobbit holes along the top, Gandalf and the hobbits centred,
-// the fenced holes along the bottom.
+// Crop offsets: Gandalf walking away down the Hill, with Frodo, the lane,
+// and the Hobbiton smials still visible around the story moment.
 const CROP_X = 210;
-const CROP_Y = 60;
+const CROP_Y = 0;
 
 const background = readFileSync(resolve(root, SHOT)).toString('base64');
 
