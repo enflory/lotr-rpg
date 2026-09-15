@@ -11,7 +11,7 @@
 // segment boots from, so the three cannot drift apart silently.
 
 import { expect, test } from '@playwright/test';
-import { deadlineWithinTest, driveRoute, withDeadline } from './routeDriver.js';
+import { driveRoute, withRouteDeadline } from './routeDriver.js';
 
 // Chapter 1 is complete and the party is across the Brandywine. Every segment
 // starts from at least this much.
@@ -197,9 +197,9 @@ export async function walk(page, x, y) {
     },
     { x, y },
   );
-  const outcome = await withDeadline(
+  const outcome = await withRouteDeadline(
+    test.info(),
     page.evaluate(driveRoute, data),
-    deadlineWithinTest(test.info()),
     `Route movement in ${data.zone} to ${x},${y}`,
   );
   if (outcome === 'dialog') {

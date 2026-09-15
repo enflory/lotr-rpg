@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
-  deadlineWithinTest,
   driveRoute,
   ROUTE_DEADLINE_MS,
   withDeadline,
+  withRouteDeadline,
 } from '../e2e/routeDriver.js';
 
 afterEach(() => {
@@ -12,14 +12,28 @@ afterEach(() => {
 });
 
 describe('route driver liveness', () => {
-  it('caps the route deadline for long tests', () => {
-    expect(deadlineWithinTest({ startTime: new Date(1000), timeout: 600000 }, 11000)).toBe(
-      ROUTE_DEADLINE_MS,
-    );
+  it('temporarily extends and then restores the Playwright test budget', async () => {
+    const setTimeout = vi.fn();
+    const testInfo = { timeout: 60000, setTimeout };
+
+    await expect(
+      withRouteDeadline(testInfo, Promise.resolve('done'), 'Route movement', 25),
+    ).resolves.toBe('done');
+
+    expect(setTimeout.mock.calls).toEqual([[65025], [60000]]);
   });
 
-  it('leaves five seconds for Playwright to report a route failure', () => {
-    expect(deadlineWithinTest({ startTime: new Date(1000), timeout: 60000 }, 11000)).toBe(45000);
+  it('keeps the extended budget when the route deadline fails', async () => {
+    vi.useFakeTimers();
+    const setTimeout = vi.fn();
+    const testInfo = { timeout: 60000, setTimeout };
+    const stalled = withRouteDeadline(testInfo, new Promise(() => {}), 'Route movement', 25);
+    const rejection = expect(stalled).rejects.toThrow('Route movement exceeded 25ms');
+
+    await vi.advanceTimersByTimeAsync(25);
+    await rejection;
+
+    expect(setTimeout.mock.calls).toEqual([[65025]]);
   });
 
   it('rejects from the test process when the browser evaluator never settles', async () => {

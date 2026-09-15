@@ -4,17 +4,6 @@
 export const ROUTE_DEADLINE_MS = 120000;
 const TEST_TIMEOUT_RESERVE_MS = 5000;
 
-// Keep the route-specific failure ahead of Playwright's generic test timeout.
-// Long journey tests still get the full route ceiling, while short tests use
-// only the budget they actually have left.
-export function deadlineWithinTest(testInfo, now = Date.now()) {
-  if (!testInfo.timeout) return ROUTE_DEADLINE_MS;
-  const startedAt = testInfo.startTime.getTime();
-  const elapsed = Math.max(0, now - startedAt);
-  const remaining = testInfo.timeout - elapsed - TEST_TIMEOUT_RESERVE_MS;
-  return Math.max(1, Math.min(ROUTE_DEADLINE_MS, remaining));
-}
-
 export function driveRoute({ stops, zone, frameTimeoutMs = 5000, noMovementTimeoutMs = 4000 }) {
   return new Promise((resolve, reject) => {
     const codes = { ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40 };
@@ -132,4 +121,22 @@ export function withDeadline(operation, timeoutMs = ROUTE_DEADLINE_MS, label = '
     timer = setTimeout(() => reject(new Error(`${label} exceeded ${timeoutMs}ms`)), timeoutMs);
   });
   return Promise.race([operation, deadline]).finally(() => clearTimeout(timer));
+}
+
+// Playwright's test timeout includes time already spent before a route starts.
+// Temporarily add a fresh route budget so the destination-specific deadline
+// always wins over a generic test timeout. Restore the original total budget
+// after success; on failure the test is already ending, so keeping the extension
+// prevents Playwright from replacing the route error during teardown.
+export async function withRouteDeadline(
+  testInfo,
+  operation,
+  label = 'Route movement',
+  timeoutMs = ROUTE_DEADLINE_MS,
+) {
+  const testTimeout = testInfo.timeout;
+  if (testTimeout) testInfo.setTimeout(testTimeout + timeoutMs + TEST_TIMEOUT_RESERVE_MS);
+  const result = await withDeadline(operation, timeoutMs, label);
+  if (testTimeout) testInfo.setTimeout(testTimeout);
+  return result;
 }
