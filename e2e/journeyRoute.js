@@ -10,8 +10,8 @@
 // BOUNDARY below: every segment asserts it reaches the flag state the next
 // segment boots from, so the three cannot drift apart silently.
 
-import { expect } from '@playwright/test';
-import { driveRoute, ROUTE_DEADLINE_MS, withDeadline } from './routeDriver.js';
+import { expect, test } from '@playwright/test';
+import { deadlineWithinTest, driveRoute, withDeadline } from './routeDriver.js';
 
 // Chapter 1 is complete and the party is across the Brandywine. Every segment
 // starts from at least this much.
@@ -199,7 +199,7 @@ export async function walk(page, x, y) {
   );
   const outcome = await withDeadline(
     page.evaluate(driveRoute, data),
-    ROUTE_DEADLINE_MS,
+    deadlineWithinTest(test.info()),
     `Route movement in ${data.zone} to ${x},${y}`,
   );
   if (outcome === 'dialog') {

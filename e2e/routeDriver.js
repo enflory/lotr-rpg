@@ -2,6 +2,18 @@
 // Playwright serializes it into the page, while unit tests can exercise its
 // failure paths without booting the game.
 export const ROUTE_DEADLINE_MS = 120000;
+const TEST_TIMEOUT_RESERVE_MS = 5000;
+
+// Keep the route-specific failure ahead of Playwright's generic test timeout.
+// Long journey tests still get the full route ceiling, while short tests use
+// only the budget they actually have left.
+export function deadlineWithinTest(testInfo, now = Date.now()) {
+  if (!testInfo.timeout) return ROUTE_DEADLINE_MS;
+  const startedAt = testInfo.startTime.getTime();
+  const elapsed = Math.max(0, now - startedAt);
+  const remaining = testInfo.timeout - elapsed - TEST_TIMEOUT_RESERVE_MS;
+  return Math.max(1, Math.min(ROUTE_DEADLINE_MS, remaining));
+}
 
 export function driveRoute({ stops, zone, frameTimeoutMs = 5000, noMovementTimeoutMs = 4000 }) {
   return new Promise((resolve, reject) => {
