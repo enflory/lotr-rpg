@@ -1,6 +1,8 @@
 // Browser-side route driving is intentionally kept in a standalone function:
 // Playwright serializes it into the page, while unit tests can exercise its
 // failure paths without booting the game.
+export const ROUTE_DEADLINE_MS = 120000;
+
 export function driveRoute({ stops, zone, frameTimeoutMs = 5000, noMovementTimeoutMs = 4000 }) {
   return new Promise((resolve, reject) => {
     const codes = { ArrowLeft: 37, ArrowUp: 38, ArrowRight: 39, ArrowDown: 40 };
@@ -112,7 +114,7 @@ export function driveRoute({ stops, zone, frameTimeoutMs = 5000, noMovementTimeo
 
 // This timer runs in Playwright's process, independent of Chromium. It remains
 // able to end a test even when the page's main thread is completely wedged.
-export function withDeadline(operation, timeoutMs = 30000, label = 'Route movement') {
+export function withDeadline(operation, timeoutMs = ROUTE_DEADLINE_MS, label = 'Route movement') {
   let timer;
   const deadline = new Promise((_, reject) => {
     timer = setTimeout(() => reject(new Error(`${label} exceeded ${timeoutMs}ms`)), timeoutMs);

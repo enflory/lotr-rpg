@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { driveRoute, withDeadline } from '../e2e/routeDriver.js';
+import { driveRoute, ROUTE_DEADLINE_MS, withDeadline } from '../e2e/routeDriver.js';
 
 afterEach(() => {
   vi.useRealTimers();
@@ -9,10 +9,12 @@ afterEach(() => {
 describe('route driver liveness', () => {
   it('rejects from the test process when the browser evaluator never settles', async () => {
     vi.useFakeTimers();
-    const stalled = withDeadline(new Promise(() => {}), 25, 'Route movement in downs');
-    const rejection = expect(stalled).rejects.toThrow('Route movement in downs exceeded 25ms');
+    const stalled = withDeadline(new Promise(() => {}), undefined, 'Route movement in downs');
+    const rejection = expect(stalled).rejects.toThrow(
+      `Route movement in downs exceeded ${ROUTE_DEADLINE_MS}ms`,
+    );
 
-    await vi.advanceTimersByTimeAsync(25);
+    await vi.advanceTimersByTimeAsync(ROUTE_DEADLINE_MS);
 
     await rejection;
   });
