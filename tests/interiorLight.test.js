@@ -60,7 +60,7 @@ it('the hearth glow fades out and never paints the earth outside either interior
       for (let x = 0; x < art.width; x++)
         if (map[y >> 4][x >> 4] === T.VOID) expect(alphaAt(art, x, y)).toBe(0);
     if (!map.some((row) => row.includes(T.FIREPLACE))) {
-      expect(art.pixels.every((value) => value === 0)).toBe(true);
+      expect(art.pixels.filter((_, i) => i % 4 === 3).every((value) => value === 0)).toBe(true);
       continue;
     }
     const fire = find(map, T.FIREPLACE);

@@ -61,7 +61,9 @@ function refresh(s) {
   for (const { p, dot } of s.interactionMarks) dot.setVisible(!p.when || p.when(f));
   if (b.actors.strider)
     b.actors.strider.setVisible(
-      !f.striderJoined && (s.zoneKey !== 'ponycommon' || !f.breeRingSlip),
+      !f.striderJoined &&
+        (s.zoneKey !== 'ponycommon' || !f.breeRingSlip) &&
+        (s.zoneKey !== 'bree' || f.breeMorning),
     );
   if (s.zoneKey === 'ponycommon') {
     b.actors.ferny.setVisible(!f.breeRingSlip);
@@ -130,6 +132,7 @@ export function breeCreate(s) {
   if (s.zoneKey === 'breegate') actor(s, 'harry', 19, 12);
   if (s.zoneKey === 'bree') {
     actor(s, 'butterbur', 35, 20, 'right').setVisible(!!gameState.flags.breeMorning);
+    actor(s, 'strider', 34, 19, 'right').setVisible(!!gameState.flags.breeMorning);
     b.bill = makePony(s, 38 * 16, 19 * 16, 0x806046);
     b.bill.setVisible(!!gameState.flags.breeMorning);
   }

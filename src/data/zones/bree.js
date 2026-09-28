@@ -23,7 +23,7 @@ export const breegate = {
   spawns: { west: { x: 2, y: 14, dir: 'right' }, village: { x: 25, y: 14, dir: 'left' } },
   npcs: [], doors: [], signs: [],
   interactions: [cue(17, 14, 'bree_gate', 'Speak to Harry'), inspect(8, 15, 'bree_crossroads', 'The Greenway')],
-  exits: [exit(0, 14, 'eastroad', 'bree'), exit(27, 14, 'bree', 'west', 'breeAdmitted', 'Speak to Harry at the gate first.')], ...hooks,
+  exits: [{...exit(0, 14, 'eastroad', 'bree'), blockedWhen: (f) => f.striderJoined, denied: 'Strider is taking the company east, toward Rivendell.'}, exit(27, 14, 'bree', 'west', 'breeAdmitted', 'Speak to Harry at the gate first.')], ...hooks,
 };
 
 // Building footprints are solid. Scenery draws the facade upward from its
