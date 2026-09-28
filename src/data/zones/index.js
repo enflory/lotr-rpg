@@ -10,8 +10,9 @@ import { marish } from './marish.js';
 import { crickhollow, crickhollowhouse, hedgetunnel, tomclearing, tomhouse } from './beyondHedge.js';
 import { forestgate, forestheart, withywindle } from './oldforest.js';
 import { downs, barrow, barrowhill, eastroad } from './barrowdowns.js';
+import { breegate, bree, ponycommon, ponyparlour, ponyrooms, breeroad } from './bree.js';
 
-export const ZONES = { shire, bagend, greendragon, woodyend, marish, crickhollow, crickhollowhouse, hedgetunnel, forestgate, forestheart, withywindle, tomclearing, tomhouse, downs, barrow, barrowhill, eastroad };
+export const ZONES = { shire, bagend, greendragon, woodyend, marish, crickhollow, crickhollowhouse, hedgetunnel, forestgate, forestheart, withywindle, tomclearing, tomhouse, downs, barrow, barrowhill, eastroad, breegate, bree, ponycommon, ponyparlour, ponyrooms, breeroad };
 
 // Guard against ragged hand-authored maps
 for (const zone of Object.values(ZONES)) {

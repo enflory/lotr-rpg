@@ -23,8 +23,8 @@ describe.each([...LIT_INTERIORS])('%s is lit by its own fire and windows', (key)
     expect(centre(art, earth.x, earth.y)).toBe(0);
   });
 
-  it('is brightest at the hearth and dimmest in the far corners', () => {
-    const fire = find(map, T.FIREPLACE);
+  it('is brightest at a light source and dimmest in the far corners', () => {
+    const fire = find(map, map.some((row) => row.includes(T.FIREPLACE)) ? T.FIREPLACE : T.WINDOW_I);
     const byTheFire = alphaAt(art, fire.x * 16 + 8, fire.y * 16 + 24);
     let darkest = 0;
     for (let y = 0; y < map.length; y++)
@@ -59,6 +59,10 @@ it('the hearth glow fades out and never paints the earth outside either interior
     for (let y = 0; y < art.height; y++)
       for (let x = 0; x < art.width; x++)
         if (map[y >> 4][x >> 4] === T.VOID) expect(alphaAt(art, x, y)).toBe(0);
+    if (!map.some((row) => row.includes(T.FIREPLACE))) {
+      expect(art.pixels.every((value) => value === 0)).toBe(true);
+      continue;
+    }
     const fire = find(map, T.FIREPLACE);
     const x = fire.x * 16 + 8;
     const near = alphaAt(art, x, fire.y * 16 + 18);

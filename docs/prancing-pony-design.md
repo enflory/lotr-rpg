@@ -1,0 +1,13 @@
+# Chapter 4: The Prancing Pony
+
+Build the next complete story unit after the Barrow-downs: Bree gate to departure east with Strider and Bill. Preserve the exploration-first controls, procedural pixel art, staged dialogue effects, and v1 checkpoints. This implements the user's request to select and develop the next chapter autonomously.
+
+The route is the western gate, village street, Pony common room, private parlour, hobbit bedrooms, and eastern road. Optional local conversations and inspections enrich the town; mandatory events have visible cues and explicit objectives. Distinct human sprites and tall stone-and-timber buildings establish the change from the Shire. Warm hearth light contrasts with the blue-brown night outside.
+
+Mandatory sequence: Harry admits Mr Underhill; Butterbur welcomes the travellers; Pippin's story prompts Frodo's song and accidental disappearance; Strider offers help privately; Butterbur delivers Gandalf's delayed letter; Aragorn identifies himself and shows the broken sword; Nob brings Merry back and Merry recounts the Black Breath; the party prepares decoy beds and keeps watch in the parlour; morning reveals the ruined bedrooms and missing ponies; Butterbur makes restitution and Bill is acquired; Sam's apple and departure end the chapter.
+
+Follow Fellowship Book I chapters 9–11. Dialogue is original paraphrase, with no reproduced song or letter. The intruders remain unseen: the book's damaged rooms do not establish an on-screen sword attack by Nazgûl. Merry's encounter is reported after Nob brings him back, preserving Frodo's viewpoint. The chapter guide's shorthand 'Nazgul raid the inn' must not become the film's staging. Bill is a pack pony; the hobbits walk. Strider carries a broken sword, not Andúril.
+
+All persistent effects happen after dialogue completion. Transient choreography retries after Continue; completed milestones reconstruct character visibility, lighting, props, objectives and gates. Repeated conversations cannot duplicate rewards. Existing chapter-3 terminal saves gain a walkable forward exit.
+
+Validation: data integrity and ordered progression tests; every mandatory cue reachable from each valid checkpoint; keyboard route from the East Road to departure, Continue at the Ring/letter/watch seams, interruption of the disappearance, four followers and one pony on departure; touch action and overlays; visual inspection of town/common room/bedrooms through gstack browse; repository lint, typecheck, format, unit, build, and full e2e gates.

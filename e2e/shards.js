@@ -35,6 +35,7 @@ export const SHARDS = {
     'journeyPresentation.spec.js',
     'save.spec.js',
     'chapterJourney.spec.js',
+    'bree.spec.js',
   ],
   shard4: ['routeDowns.spec.js', 'smoke.spec.js', 'pippin.spec.js', 'barrowReview.spec.js'],
   shard5: ['willowAnimation.spec.js', 'crickhollow.spec.js', 'touch.spec.js', 'ponies.spec.js'],

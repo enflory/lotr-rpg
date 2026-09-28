@@ -11,7 +11,7 @@ const travelZones = new Set([
   'tomclearing',
   'downs',
 ]);
-function makePony(s, x, y, color) {
+export function makePony(s, x, y, color) {
   const body = s.add.graphics();
   body.fillStyle(color).fillRect(-10, -9, 21, 9).fillRect(8, -17, 6, 13);
   body.fillStyle(0xb8a478).fillRect(-4, -10, 11, 6);

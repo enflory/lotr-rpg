@@ -55,6 +55,7 @@ export class WorldScene extends Phaser.Scene {
     if (gameState.follower === 'sam') setFlag('pippinJoined');
     save(this.zoneKey, this.entryKey); // checkpoint: every zone entry
     this.journey = null;
+    this.bree = null;
     this.storyBeat = null;
     this.riderEvent = null;
     this.foxEvent = null;
@@ -109,6 +110,7 @@ export class WorldScene extends Phaser.Scene {
     if (gameState.follower) this.createFollower(gameState.follower);
     if (gameState.follower === 'sam') this.createFollower('pippin');
     if (hasFlag('merryJoined')) this.createFollower('merry');
+    if (hasFlag('striderJoined')) this.createFollower('strider');
     this.snapFollower();
 
     /* ── NPCs ────────────────────────────────────────── */
@@ -356,6 +358,7 @@ export class WorldScene extends Phaser.Scene {
     // where Sam went while Pippin was walking in, since the arrival skips the
     // follower update that would otherwise have given him one.
     const sprite = this.add.sprite(this.player.x, this.player.y, key, 1);
+    if (key === 'strider') sprite.setScale(1.25);
     sprite.setDepth(this.player.y);
     sprite.setData('key', key);
     sprite.setData('dir', this.lastDir);
