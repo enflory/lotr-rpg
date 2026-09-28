@@ -110,7 +110,9 @@ test('the wight capture fades the whole view without a local black block', async
 test('courage reveals the nearby song cue and Tom enters through the broken wall', async ({
   page,
 }) => {
-  test.setTimeout(90000);
+  // CI's software renderer can take about 90s to reach and complete the rescue;
+  // leave enough test-level headroom for the route driver's 120s stall deadline.
+  test.setTimeout(150000);
   const errors = watchErrors(page);
   await checkpoint(page, 'barrow', 'default', { ...party, barrowTaken: true, barrowWoke: true });
   await act(page, 'barrow_courage');

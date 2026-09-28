@@ -31,6 +31,7 @@ export const SHARDS = {
   shard1: ['routeWillow.spec.js'],
   shard2: ['routeForest.spec.js', 'barrowStaging.spec.js'],
   shard3: [
+    'routeDriver.spec.js',
     'tomHouse.spec.js',
     'journeyPresentation.spec.js',
     'save.spec.js',

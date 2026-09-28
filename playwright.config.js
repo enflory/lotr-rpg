@@ -25,6 +25,8 @@ export default defineConfig({
   })),
   use: {
     baseURL: `http://localhost:${port}`,
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
   },
   webServer: {
     command: `npm run dev -- --port ${port} --strictPort`,
