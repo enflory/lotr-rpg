@@ -36,7 +36,7 @@ export class TitleScene extends Phaser.Scene {
 
     // Subtitle
     this.add
-      .text(cx, cy - 30, 'Chapter One ~ Three is Company', {
+      .text(cx, cy - 30, 'Chapters I–IV ~ The Road to Bree', {
         fontFamily: '"Press Start 2P"',
         fontSize: '24px',
         color: '#8a8a8a',

@@ -36,10 +36,12 @@ export const SHARDS = {
     'journeyPresentation.spec.js',
     'save.spec.js',
     'chapterJourney.spec.js',
-    'bree.spec.js',
   ],
   shard4: ['routeDowns.spec.js', 'smoke.spec.js', 'pippin.spec.js', 'barrowReview.spec.js'],
   shard5: ['willowAnimation.spec.js', 'crickhollow.spec.js', 'touch.spec.js', 'ponies.spec.js'],
+  // Bree walks a complete chapter (~3 minutes locally); give it an independent
+  // runner instead of adding that entire route to the Tom's-house group.
+  shard6: ['bree.spec.js'],
 };
 
 export const SHARD_NAMES = Object.keys(SHARDS);

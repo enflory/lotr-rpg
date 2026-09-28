@@ -114,6 +114,19 @@ test('walks the complete Bree chapter, preserving Continue and the departure par
     ).length;
   });
   expect(blocked).toBe(0);
+  // Revisiting Bree restores Bill beside the travelling formation, rather
+  // than teleporting him back to Ferny's sale location across town.
+  await walk(page, 0, 14);
+  await zone(page, 'bree');
+  await reload(page, 'bree');
+  expect(
+    await page.evaluate(() => {
+      const s = window.__game.scene.getScene('WorldScene');
+      const bill = s.journey.ponies[0],
+        last = s.followers.at(-1);
+      return Math.hypot(bill.x - last.x, bill.y - last.y);
+    }),
+  ).toBeLessThan(40);
   expect(errors).toEqual([]);
 });
 

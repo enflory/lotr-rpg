@@ -3,6 +3,7 @@ import { nextBreeBeat, breeObjective } from '../state/breeProgress.js';
 import { drawBreeScenery } from '../art/breeScenery.js';
 import { walk, tween } from './storyMotion.js';
 import { makePony, updatePonies } from './ponyEvent.js';
+import { trailPosition } from '../state/partyMovement.js';
 
 const party = (s) => [s.player, ...s.followers];
 const pause = (s, ms) => new Promise((resolve) => s.time.delayedCall(ms, resolve));
@@ -133,7 +134,10 @@ export function breeCreate(s) {
   if (s.zoneKey === 'bree') {
     actor(s, 'butterbur', 35, 20, 'right').setVisible(!!gameState.flags.breeMorning);
     actor(s, 'strider', 34, 19, 'right').setVisible(!!gameState.flags.breeMorning);
-    b.bill = makePony(s, 38 * 16, 19 * 16, 0x806046);
+    const pos = gameState.flags.billBought
+      ? trailPosition(s.trail, 90)
+      : { x: 38 * 16, y: 19 * 16 };
+    b.bill = makePony(s, pos.x, pos.y, 0x806046);
     b.bill.setVisible(!!gameState.flags.breeMorning);
   }
   if (s.zoneKey === 'ponycommon') {
@@ -153,8 +157,10 @@ export function breeCreate(s) {
   if (s.zoneKey === 'ponyrooms') actor(s, 'nob', 11, 7, 'down');
   if (s.zoneKey === 'breeroad') {
     actor(s, 'ferny', 11, 7);
-    if (gameState.flags.billBought)
-      s.journey.ponies = [makePony(s, s.player.x - 38, s.player.y, 0x806046)];
+    if (gameState.flags.billBought) {
+      const pos = trailPosition(s.trail, 90);
+      s.journey.ponies = [makePony(s, pos.x, pos.y, 0x806046)];
+    }
   }
   refresh(s);
 }
@@ -176,7 +182,7 @@ export function breeDialogue(s) {
   if (key === 'bree_song') {
     if (i === 1)
       beat(s, async () => {
-        await walk(s, s.player, 14, 9, 65);
+        await walk(s, s.player, 14, 8, 65);
         await Promise.all(
           s.followers.filter((p) => p.visible).map((p, j) => walk(s, p, 12 + j * 3, 11, 65)),
         );

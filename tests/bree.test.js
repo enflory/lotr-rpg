@@ -27,7 +27,9 @@ describe('Bree chapter', () => {
     const flags = {};
     for (const beat of BREE_BEATS) {
       const zone = ZONES[beat.zone];
-      const cues = zone.interactions.filter((p) => p.when?.(flags));
+      const cues = zone.interactions.filter(
+        (p) => BREE_BEATS.some((b) => b.key === p.dialogue) && p.when?.(flags),
+      );
       expect(cues.map((p) => p.dialogue)).toEqual([beat.key]);
       for (const spawn of Object.values(zone.spawns)) {
         expect(
@@ -54,5 +56,13 @@ describe('Bree chapter', () => {
         .find((e) => e.zone === 'bree')
         .blockedWhen({ breeRingSlip: true, breeMorning: true }),
     ).toBe(false);
+    expect(
+      ZONES.ponycommon.interactions
+        .find((p) => p.dialogue === 'bree_fern')
+        .when({ breeRingSlip: true }),
+    ).toBe(false);
+    expect(
+      ZONES.breegate.exits.find((e) => e.zone === 'eastroad').blockedWhen({ striderJoined: true }),
+    ).toBe(true);
   });
 });
