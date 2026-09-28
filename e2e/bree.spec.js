@@ -33,7 +33,9 @@ const before = (key) =>
 test('walks the complete Bree chapter, preserving Continue and the departure party', async ({
   page,
 }, info) => {
-  info.setTimeout(300000);
+  // The full walking route takes over five minutes on GitHub's runner.
+  // Keep journeyRoute's per-step liveness checks while allowing the chapter to finish.
+  info.setTimeout(process.env.CI ? 480000 : 300000);
   const errors = watchErrors(page);
   await checkpoint(page, 'eastroad', 'bree', afterDowns);
   const missingArt = await page.evaluate(async () => {
