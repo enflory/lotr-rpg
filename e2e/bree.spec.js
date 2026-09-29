@@ -97,6 +97,22 @@ test('walks from the East Road through supper, the common-room company and the R
   await act(page, 'bree_sign');
   await walk(page, 24, 11);
   await zone(page, 'ponycommon');
+  // Step into the room before routing across it. The arrival's feet are on
+  // the threshold row; centring that row first can walk back through the
+  // door when a slow rendered frame overshoots the two-pixel route target.
+  await page.keyboard.down('ArrowUp');
+  try {
+    await page.waitForFunction(
+      () => {
+        const s = window.__game.scene.getScene('WorldScene');
+        return s.zoneKey === 'ponycommon' && s.player.y < 19 * 16;
+      },
+      null,
+      { timeout: 5000 },
+    );
+  } finally {
+    await page.keyboard.up('ArrowUp');
+  }
   await act(page, 'bree_welcome');
   await zone(page, 'ponyparlour');
   await act(page, 'bree_supper');
@@ -125,7 +141,9 @@ test('walks from the East Road through supper, the common-room company and the R
 test('walks from the Ring checkpoint through the night and departure with Strider and Bill', async ({
   page,
 }, info) => {
-  info.setTimeout(process.env.CI ? 360000 : 240000);
+  // Software-rendered CI walks this segment in about 5.3 minutes; leave
+  // headroom for shared-runner variance while retaining per-step stall guards.
+  info.setTimeout(process.env.CI ? 480000 : 240000);
   const errors = watchErrors(page);
   await checkpoint(page, 'ponycommon', 'parlour', { ...afterDowns, ...before('bree_strider') });
   await walk(page, 29, 18);
@@ -320,7 +338,8 @@ test('the welcome and supper stage every hobbit, then Pippin stays with his audi
 test('Continue during Butterbur’s escort replays the unfinished welcome with all four hobbits', async ({
   page,
 }) => {
-  test.setTimeout(90000);
+  // This includes both the interrupted escort and its complete replay.
+  test.setTimeout(process.env.CI ? 180000 : 90000);
   await checkpoint(page, 'ponycommon', 'door', { ...afterDowns, breeAdmitted: true });
   await walk(page, 6, 5);
   await press(page);
