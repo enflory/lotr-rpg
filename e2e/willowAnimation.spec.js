@@ -117,7 +117,11 @@ test('capture moves the actual hobbits and waits for the player to help Sam', as
   expect(
     await page.evaluate(() => {
       const s = window.__game.scene.getScene('WorldScene');
-      return s.actionHint.visible && s.actionHint.depth > s.dialogBg.depth;
+      return (
+        s.actionHint.visible &&
+        s.actionHint.depth > s.dialogBg.depth &&
+        s.actionHint.getBounds().bottom < s.dialogBg.getBounds().top
+      );
     }),
   ).toBe(true);
   await page.waitForTimeout(700);

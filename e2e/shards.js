@@ -39,6 +39,10 @@ export const SHARDS = {
   ],
   shard4: ['routeDowns.spec.js', 'smoke.spec.js', 'pippin.spec.js', 'barrowReview.spec.js'],
   shard5: ['willowAnimation.spec.js', 'crickhollow.spec.js', 'touch.spec.js', 'ponies.spec.js'],
+  // Bree covers the full chapter in two consecutive story segments, plus
+  // inn choreography and Continue recovery. Keep it on an independent runner.
+  shard6: ['bree.spec.js'],
+  shard7: ['breeStaging.spec.js'],
 };
 
 export const SHARD_NAMES = Object.keys(SHARDS);

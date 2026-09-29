@@ -1,6 +1,6 @@
 // Completed chapter beats are persisted as flags. Continue rebuilds their
 // presentation and retries any unfinished animation from the last checkpoint.
-import { gameState, hasFlag } from '../state/GameState.js';
+import { gameState, hasFlag, setObjective } from '../state/GameState.js';
 import { createCrickhollow, updateCrickhollow, crickhollowDialogue } from './crickhollowEvent.js';
 import { createPonies, updatePonies } from './ponyEvent.js';
 import { createTomHouse, updateTomHouse, tomHouseDialogue } from './tomHouseEvent.js';
@@ -33,6 +33,8 @@ function atmosphere(scene) {
 }
 
 export function journeyCreate(scene) {
+  if (scene.zoneKey === 'eastroad' && hasFlag('chapter3Complete'))
+    setObjective('Follow the East Road to Bree and the Prancing Pony');
   // The pale glimmer on each examine point is drawn by WorldScene now, for
   // every zone in the game rather than only the ones on the journey. The house
   // beats still steer which of them shows, so they share the same array.

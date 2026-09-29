@@ -1,6 +1,8 @@
 import { defineConfig } from '@playwright/test';
 import { SHARDS } from './e2e/shards.js';
 
+const port = Number(process.env.PLAYWRIGHT_PORT || 5173);
+
 export default defineConfig({
   testDir: 'e2e',
   // Story tests walk real scenes with fixed-length cinematics (the 6s
@@ -22,13 +24,13 @@ export default defineConfig({
     testMatch: files.map((f) => `**/${f}`),
   })),
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: `http://localhost:${port}`,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
   webServer: {
-    command: 'npm run dev',
-    port: 5173,
+    command: `npm run dev -- --port ${port} --strictPort`,
+    port,
     reuseExistingServer: !process.env.CI,
   },
 });

@@ -21,7 +21,7 @@ The summoning verse is a memory represented by `tom_song`, not a transcription o
 
 Mandatory interactions use short sequences of two or three pages where possible; optional landmarks carry texture separately. Each page has at most three lines. Tom's dialogue uses energetic plain speech rather than imitating Tolkien's metrical songs. Goldberry's presence is expressed through water, light and hospitality without inventing a definite explanation of her nature.
 
-The East Road is the explicit stopping point. Bree and the Prancing Pony are a destination and advice, not a promised playable entrance in this release.
+The East Road closes chapters 2–3. Chapter 4 now continues through the eastern exit to Bree and the Prancing Pony; see `bree-adaptation.md`.
 
 Crickhollow's overnight stay and Fredegar remaining behind were cross-checked against [The Encyclopedia of Arda: Crickhollow](https://www.encyclopedia-of-arda.com/c/crickhollow.php). Book I, chapter 5 remains the narrative anchor; all game dialogue is original paraphrase. The evening conversation is compressed into one shared table scene. Baths and familiar household belongings are optional observations. Existing saves that have already departed are not forced back through supper.
 

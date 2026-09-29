@@ -53,6 +53,27 @@ function tone(midi, t, dur, type, vol, dest) {
 // A song is { bpm, beats, tracks: [{ type, vol, notes: [[beat, midi, lenBeats], ...] }] }
 
 const SONGS = {
+  bree: {
+    bpm: 86, beats: 16,
+    tracks: [
+      { type: 'triangle', vol: 0.42, notes: [[0,62,2],[3,65,1],[4,69,2],[7,67,1],[8,64,3],[12,62,2],[15,57,1]] },
+      { type: 'sine', vol: 0.3, notes: [[0,38,4],[4,45,4],[8,40,4],[12,38,4]] },
+    ],
+  },
+  pony: {
+    bpm: 126, beats: 12,
+    tracks: [
+      { type: 'triangle', vol: 0.52, notes: [[0,62,.5],[.5,66,.5],[1,69,1],[2,66,1],[3,64,.5],[3.5,67,.5],[4,71,1],[5,69,1],[6,67,1],[7,66,.5],[7.5,64,.5],[8,62,1],[9,57,1],[10,62,2]] },
+      { type: 'sine', vol: 0.32, notes: [[0,38,1],[1,45,2],[3,43,1],[4,50,2],[6,45,1],[7,52,2],[9,38,3]] },
+    ],
+  },
+  breewatch: {
+    bpm: 66, beats: 16,
+    tracks: [
+      { type: 'triangle', vol: 0.28, notes: [[0,62,3],[5,60,2],[8,57,3],[13,61,2]] },
+      { type: 'sine', vol: 0.24, notes: [[0,38,7],[8,33,7]] },
+    ],
+  },
   // Original chapter motifs: damp unease, a dancing refuge, wind, cold stone.
   oldforest: {
     bpm: 76, beats: 16,
@@ -185,6 +206,14 @@ export function playMusic(id) {
 export function stopMusic() {
   if (current.timer) clearInterval(current.timer);
   current = { id: null, timer: null, nextBarTime: 0 };
+  // Retire the output too: notes already scheduled must fall silent now,
+  // and must not resume when the next song starts. Sound effects use master.
+  if (musicGain) {
+    musicGain.disconnect();
+    musicGain = ctx.createGain();
+    musicGain.gain.value = 0.32;
+    musicGain.connect(master);
+  }
 }
 
 /* ── sfx ────────────────────────────────────────────────── */

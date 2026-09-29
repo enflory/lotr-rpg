@@ -1,0 +1,220 @@
+import { mirrorRows, validateRows } from './helpers.js';
+
+// A twelve-pixel face leaves room for paired eyes, a nose and an expressive
+// mouth. Hair highlights and the rear view are drawn separately from skin.
+const rows = (name, lines) =>
+  validateRows(
+    name,
+    lines.map((s) => s.padStart(Math.floor((16 + s.length) / 2), '.').padEnd(16, '.')),
+  );
+const head = [
+  'oooooo',
+  'oHhllhHo',
+  'oHhHHhhHHo',
+  'ohSSSSSSho',
+  'ohSWESSEWSho',
+  'osSSNNSso',
+  'ohsSmmSsho',
+  'oossSSssoo',
+];
+const profile = [
+  'oooooo',
+  'oHhllhHo',
+  'oHhHHhhHHo',
+  'oSSSShhhHo',
+  'oWESShlHHo',
+  'oNSSSshHHo',
+  'osmmSshHo',
+  'ossSSsoo',
+];
+const rear = [
+  'oooooo',
+  'oHhllhHo',
+  'oHhHHhhHHo',
+  'ohHhlHHhho',
+  'ohHHhHHHHho',
+  'ohHhlHHhho',
+  'ohHHHhhHho',
+  'ooHHHHoo',
+];
+const coat = [
+  'oGCCCCGGo',
+  'oGVvVVvVGo',
+  'oGVVVVVVGo',
+  'oSVVBBVVSo',
+  'osVVbbVVso',
+  'oGVVVVVVGo',
+  'oGVvVVvVGo',
+  'oGVVVVVVGo',
+  'oGPPPPPPGo',
+  'oPPooPPo',
+  'oPPooPPo',
+  'oppooppo',
+];
+const sideCoat = [
+  'oCCCGGGo',
+  'oVvVVVGGo',
+  'oVVVVVGGo',
+  'oVBBVSSGo',
+  'oVbbVssGo',
+  'oVVVVVGGo',
+  'oVvVVVGGo',
+  'oVVVVVGGo',
+  'oPPPPPGGo',
+  'oPPooPPo',
+  'oPPooPPo',
+  'oppooppo',
+];
+function man(
+  name,
+  palette,
+  fronts = head,
+  sides = profile,
+  backs = rear,
+  body = coat,
+  side = sideCoat,
+) {
+  const down = rows(`${name}_DOWN`, [...fronts, ...body]);
+  const left = rows(`${name}_LEFT`, [...sides, ...side]);
+  return {
+    maps: {
+      down,
+      left,
+      right: mirrorRows(left),
+      up: rows(`${name}_UP`, [...backs, ...body.map((r) => r.replace(/[Ss]/g, 'G'))]),
+    },
+    feet: ['#64503b', '#302a26'],
+    pal: {
+      o: '#201c20',
+      S: '#e2bd96',
+      s: '#b48868',
+      N: '#a46f55',
+      W: '#f5e8d0',
+      E: '#242830',
+      m: '#795147',
+      H: '#332a25',
+      h: '#5c4940',
+      l: '#8b7462',
+      C: '#b7ad8d',
+      V: '#665540',
+      v: '#867251',
+      G: '#423b31',
+      B: '#302923',
+      b: '#b69a67',
+      P: '#4b453c',
+      p: '#2d2b28',
+      ...palette,
+    },
+  };
+}
+const change = (original, edits) => original.map((r, i) => edits[i] ?? r);
+export const BREE_CHARACTERS = {
+  strider: man('STRIDER', {
+    H: '#282c2c',
+    h: '#47504b',
+    l: '#87928b',
+    S: '#d1b899',
+    s: '#9e8e79',
+    E: '#4c6670',
+    W: '#dce1d0',
+    V: '#425e48',
+    v: '#688168',
+    G: '#2c3e34',
+    C: '#6b7960',
+  }),
+  harry: man(
+    'HARRY',
+    { H: '#49403a', h: '#796e5e', l: '#aaa18b', V: '#79613f', v: '#9b8056', G: '#50452f' },
+    change(head, { 2: 'oHHhlllHHo', 6: 'osHmmHHso' }),
+    change(profile, { 6: 'osHmSshHo' }),
+  ),
+  // Tolkien's short, stout, red-faced host has a bald crown, side hair and
+  // a broad white apron. His skin must not be mistaken for a brown hair cap.
+  butterbur: man(
+    'BUTTERBUR',
+    {
+      S: '#f0be9e',
+      s: '#cc866d',
+      N: '#c46d58',
+      m: '#945a48',
+      H: '#805a41',
+      h: '#b38a60',
+      l: '#dfbe85',
+      C: '#f2e5bf',
+      V: '#ecdfb8',
+      v: '#fff0d0',
+      G: '#87614a',
+      P: '#61503d',
+    },
+    change(head, {
+      0: 'oooooo',
+      1: 'osSSSSso',
+      2: 'ohSSSSSSho',
+      3: 'ohSSSSSSho',
+      5: 'osSSNNSSso',
+      6: 'osSSmmSSso',
+      7: 'oossSSssoo',
+    }),
+    change(profile, {
+      1: 'osSSSSso',
+      2: 'ohSSSSShho',
+      3: 'oSSSSSShho',
+      5: 'oNSSSssho',
+      6: 'osmmSSsho',
+    }),
+    change(rear, { 1: 'osSSSSso', 2: 'ohSSSSSShho', 3: 'ohhSSSShhho', 4: 'ohhhhhhhhho' }),
+    [
+      'oGCCCCCCGGo',
+      'oGVvVVVVvVGo',
+      'oGVVVVVVVVGo',
+      'oSVVVVVVVVSo',
+      'osVVVVVVVVso',
+      'oGVvVVVVvVGo',
+      'oGVVVVVVVVGo',
+      'oGPPPPPPPPGo',
+      'oPPooPPo',
+      'oppooppo',
+    ],
+    [
+      'oCCCCGGGo',
+      'oVVVVVGGo',
+      'oVvVVVVGGGo',
+      'oVVVVVSSGGo',
+      'oVVVVVssGGo',
+      'oVvVVVVGGGo',
+      'oVVVVVVGGGo',
+      'oPPPPPPGGo',
+      'oPPooPPo',
+      'oppooppo',
+    ],
+  ),
+  ferny: man(
+    'FERNY',
+    {
+      H: '#241e20',
+      h: '#453730',
+      l: '#6e5342',
+      S: '#c39c75',
+      s: '#9b7456',
+      V: '#69503d',
+      v: '#8c6b4d',
+      G: '#43372e',
+    },
+    change(head, { 3: 'ohSHHSSHho', 6: 'osSmmmSsho' }),
+    change(profile, { 3: 'oHHHShhhHo', 6: 'osmmmshHo' }),
+  ),
+  southerner: man(
+    'SOUTHERNER',
+    {
+      S: '#d1ba83',
+      s: '#a69764',
+      H: '#403626',
+      h: '#6d6040',
+      l: '#928360',
+      V: '#847353',
+      v: '#a49066',
+      G: '#534e3b',
+    },
+    change(head, { 2: 'oHHhhhhHHo', 6: 'ossSmmSso' }),
+  ),
+};

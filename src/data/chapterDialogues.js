@@ -756,7 +756,7 @@ export const CHAPTER_DIALOGUES = {
           'The four of you turn east together.\nBehind, Tom rides away singing.\nAhead lies the road to Bree.',
         ],
         set: 'chapter3Complete',
-        objective: 'The East Road: next chapter not yet playable',
+        objective: 'Follow the East Road to Bree and the Prancing Pony',
       },
       {
         lines: ['Tom has gone home.\nThe East Road leads toward Bree;\nthis chapter is complete.'],
@@ -775,7 +775,7 @@ export const CHAPTER_DIALOGUES = {
       {
         lines: [
           'CHAPTER THREE COMPLETE\nThe road to Bree lies ahead.',
-          'The next chapter is not yet playable.\nYou can rest here or revisit\nthe sunlit barrow hill.',
+          'Continue east along the road\nto Bree’s western gate. Butterbur\nkeeps the Prancing Pony there.',
         ],
       },
     ],

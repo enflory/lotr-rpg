@@ -7,6 +7,7 @@
 // can shuffle them.
 
 import { px, rc, drawPixelMap, mirrorRows, validateRows } from './helpers.js';
+import { BREE_CHARACTERS } from './breeCharacters.js';
 
 export const CH = 24; // frame height
 const TS = 16;        // frame width
@@ -411,6 +412,7 @@ const FOX = { down: FOX_DOWN, left: FOX_LEFT, right: FOX_RIGHT, up: FOX_UP };
 const ELF = { down: EL_DOWN, left: EL_LEFT, right: EL_RIGHT, up: EL_UP };
 
 export const CHAR_DEFS = {
+  ...BREE_CHARACTERS,
   frodo: {
     maps: MALE,
     pal: {
@@ -809,7 +811,6 @@ export const CHAR_DEFS = {
   },
 };
 
-export const CHAR_NAMES = Object.keys(CHAR_DEFS);
 
 /* ── sheet builder ──────────────────────────────────────── */
 
@@ -883,6 +884,25 @@ export function makeRiderSheet() {
 }
 
 const DIR_ORDER = ['down', 'left', 'right', 'up']; // sheet row order
+
+// Bree's Little Folk share the established hobbit proportions.
+CHAR_DEFS.nob = { ...CHAR_DEFS.sam, pal: { ...CHAR_DEFS.sam.pal, V: '#967958', v: '#b79e74', G: '#65503d' } };
+CHAR_DEFS.breelocal = { ...CHAR_DEFS.bilbo, pal: { ...CHAR_DEFS.bilbo.pal, V: '#5e697c', v: '#8595ab', G: '#3d495b' } };
+CHAR_DEFS.breelocal2 = { ...CHAR_DEFS.rosie, pal: { ...CHAR_DEFS.rosie.pal, V: '#9b6652', v: '#bc8d68', G: '#6f483e' } };
+CHAR_DEFS.breedwarf = {
+  ...CHAR_DEFS.gaffer,
+  feet: ['#5b4432', '#312a24'],
+  pal: { ...CHAR_DEFS.gaffer.pal, V: '#806048', v: '#a28161', G: '#4d4038', H: '#654634', h: '#805b40', l: '#997054' },
+  extra(c, x, y, dir) {
+    if (dir === 'up') return;
+    const bx = dir === 'left' ? 2 : dir === 'right' ? 8 : 5;
+    rc(c, x + bx, y + 7, 6, 5, '#79563c');
+    rc(c, x + bx + 1, y + 12, 4, 2, '#543c2c');
+    rc(c, x + bx + 2, y + 14, 2, 1, '#543c2c');
+  },
+};
+
+export const CHAR_NAMES = Object.keys(CHAR_DEFS);
 
 export function makeCharSheet(name) {
   const def = CHAR_DEFS[name];

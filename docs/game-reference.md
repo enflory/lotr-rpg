@@ -43,8 +43,9 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 
 **Places**: Bree (village, gate, The Prancing Pony inn), Bill Ferny's house
 **Key characters**: Harry Goatleaf (gatekeeper), Barliman Butterbur, Nob, Bill Ferny, Aragorn/Strider
-**Story beats**: Arrival at Bree gate, the common room (Frodo's accidental Ring slip), Strider reveals himself, Gandalf's delayed letter, Nazgul raid the inn, pony Bill acquired, departure east
-**Signature mechanics**: Social/stealth gameplay (don't draw attention in the common room — the Ring "accident" as a triggered event), first town with Men (scale contrast — three-storey buildings), information gathering (talking to locals, piecing together Strider's identity)
+**Story beats**: Arrival at Bree gate, the common room (Frodo's accidental Ring slip), Strider's offer, Gandalf's delayed letter and Aragorn's identity, Merry's Black Breath account after Nob brings him back, decoy beds and a watch in the parlour, damaged bedrooms and missing ponies discovered at dawn, Bill acquired, Sam's apple and departure east. The intruders remain unseen.
+**Signature mechanics**: Information gathering and social tension through exploration and staged conversations; the accidental Ring slip is an animated story beat without a failure meter. First town with Men (scale contrast, three-storey buildings), transient disappearance, decoy preparation, night-to-morning lighting, and a new guide and pack pony.
+**Status**: Playable in six linked zones, from the western gate to the road out of Bree. See `lore/bree-adaptation.md` for source anchors and compression.
 **Visual palette**: Stone houses on a hillside, warm inn interiors (lanterns, log fire, smoky common room), nighttime danger outside. First environment with human-scale architecture.
 
 ### Chapter 5: The Long Road
