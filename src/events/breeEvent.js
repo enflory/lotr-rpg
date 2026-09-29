@@ -1,9 +1,10 @@
 import { gameState, setObjective } from '../state/GameState.js';
-import { breeObjective } from '../state/breeProgress.js';
+import { breeObjective, isBreeBeat } from '../state/breeProgress.js';
 import { drawBreeScenery } from '../art/breeScenery.js';
 import { walk, tween } from './storyMotion.js';
 import { makePony, updatePonies } from './ponyEvent.js';
 import { trailPosition } from '../state/partyMovement.js';
+import { innDialogue, restoreInnPositions } from './breeInnEvent.js';
 
 const party = (s) => [s.player, ...s.followers];
 const pause = (s, ms) => new Promise((resolve) => s.time.delayedCall(ms, resolve));
@@ -21,49 +22,62 @@ function lock(s) {
   s.player.setVelocity(0);
   s.player.body.enable = false;
   party(s).forEach((p) => p.setData('held', true));
+  s.hintIcon.setVisible(false);
   s.bree.active = true;
 }
-function beat(s, run) {
+function beat(s, run, prompt = '') {
   lock(s);
-  const b = { busy: true };
+  const b = { busy: false, prompt, action: null };
   s.storyBeat = b;
-  run().then(() => {
-    if (s.storyBeat === b) b.busy = false;
-  });
+  const execute = async () => {
+    b.busy = true;
+    b.prompt = '';
+    await run();
+    if (s.storyBeat !== b) return;
+    b.busy = false;
+    if (prompt) s.advanceDialogue();
+  };
+  if (prompt) b.action = execute;
+  else execute();
 }
 function restore(s) {
   s.player.setData('cinematicAlpha', null).setAlpha(1).setAngle(0);
   party(s).forEach((p) => p.setData('held', false));
   s.player.body.reset(s.player.x, s.player.y);
   s.player.body.enable = true;
-  s.trail = party(s).map((p) => ({ x: p.x, y: p.y }));
+  s.trail = party(s)
+    .filter((p) => p.visible)
+    .map((p) => ({ x: p.x, y: p.y }));
+  s.cameras.main.startFollow(s.player, true, 0.08, 0.08);
   s.bree.active = false;
 }
-function merryVisibility(s) {
+function restoreCompanionRoles(s) {
   const f = gameState.flags,
     m = s.followers.find((p) => p.getData('key') === 'merry');
   if (!m) return;
-  const absent =
-    (f.ponyWelcomed || ['ponycommon', 'ponyparlour', 'ponyrooms'].includes(s.zoneKey)) &&
-    !f.breeMerryReturned;
-  m.setVisible(!absent).setData('held', absent);
+  const leftBehind = (f.ponySupper || f.breeRingSlip) && !f.breeMerryReturned;
+  const resting = s.zoneKey === 'ponyparlour' && f.ponySupper && !f.breeRingSlip;
+  m.setVisible(!leftBehind || resting).setData('held', leftBehind);
+  const pippin = s.followers.find((p) => p.getData('key') === 'pippin');
+  pippin?.setData('held', s.zoneKey === 'ponycommon' && f.breeCompany && !f.breeRingSlip);
 }
 function refresh(s) {
   const b = s.bree,
     f = gameState.flags;
   if (b.active) restore(s);
-  merryVisibility(s);
+  restoreCompanionRoles(s);
   setObjective(breeObjective(f));
   for (const { p, dot } of s.interactionMarks) dot.setVisible(!p.when || p.when(f));
   if (b.actors.strider)
     b.actors.strider.setVisible(
       !f.striderJoined &&
         (s.zoneKey !== 'ponycommon' || !f.breeRingSlip) &&
+        (s.zoneKey !== 'ponyparlour' || f.breeRingSlip) &&
         (s.zoneKey !== 'bree' || f.breeMorning),
     );
   if (s.zoneKey === 'ponycommon') {
-    b.actors.ferny.setVisible(!f.breeRingSlip);
-    b.actors.southerner.setVisible(!f.breeRingSlip);
+    for (const key of ['ferny', 'southerner', 'harry', 'breelocal', 'breelocal2', 'breedwarf'])
+      b.actors[key].setVisible(!f.breeRingSlip);
   }
   if (f.striderJoined && !s.followers.some((p) => p.getData('key') === 'strider')) {
     const p = s.createFollower('strider');
@@ -80,8 +94,11 @@ function refresh(s) {
     b.props = drawBreeRoomProps(s);
   }
   if (b.actors.butterbur && s.zoneKey === 'ponyparlour')
-    b.actors.butterbur.setVisible(f.striderOffer && !f.striderTrusted);
-  if (b.actors.nob && s.zoneKey === 'ponyparlour') b.actors.nob.setVisible(f.striderTrusted);
+    b.actors.butterbur.setVisible(
+      (!f.ponySupper && !f.breeRingSlip) || (f.striderOffer && !f.striderTrusted),
+    );
+  if (b.actors.nob && s.zoneKey === 'ponyparlour')
+    b.actors.nob.setVisible((!f.ponySupper && !f.breeRingSlip) || f.striderTrusted);
   if (s.zoneKey === 'ponyparlour') b.night.setAlpha(f.breeMorning ? 0 : 0.1);
 }
 // Rebuild only mutable bedroom props, without redrawing scenery and lighting.
@@ -111,7 +128,6 @@ export function breeCreate(s) {
     .setAlpha(0)
     .setScrollFactor(0)
     .setDepth(850);
-  b.ring = s.add.circle(0, 0, 2).setStrokeStyle(1, 0xf1d16d).setDepth(810).setVisible(false);
   if (s.zoneKey === 'breegate') actor(s, 'harry', 19, 12);
   if (s.zoneKey === 'bree') {
     actor(s, 'butterbur', 35, 20, 'right').setVisible(!!gameState.flags.breeMorning);
@@ -123,10 +139,16 @@ export function breeCreate(s) {
     b.bill.setVisible(!!gameState.flags.breeMorning);
   }
   if (s.zoneKey === 'ponycommon') {
-    actor(s, 'butterbur', 6, 4);
+    actor(
+      s,
+      'butterbur',
+      gameState.flags.breeRingSlip ? 18 : 6,
+      gameState.flags.breeRingSlip ? 9 : 4,
+    );
     actor(s, 'strider', 25, 4, 'left');
     actor(s, 'ferny', 25, 7, 'left');
     actor(s, 'southerner', 26, 8, 'left');
+    actor(s, 'harry', 4, 18, 'up');
     actor(s, 'breelocal', 8, 15, 'right');
     actor(s, 'breelocal2', 19, 7, 'left');
     actor(s, 'breedwarf', 5, 9, 'right');
@@ -144,6 +166,7 @@ export function breeCreate(s) {
       s.journey.ponies = [makePony(s, pos.x, pos.y, 0x806046)];
     }
   }
+  restoreInnPositions(s);
   refresh(s);
 }
 export function breeUpdate(s, delta) {
@@ -153,6 +176,16 @@ export function breeUpdate(s, delta) {
     s.bree.lastState = state;
     refresh(s);
   }
+  if (s.bree.nextZone) {
+    const { zone, entry } = s.bree.nextZone;
+    s.bree.nextZone = null;
+    s.goToZone(zone, entry);
+    return;
+  }
+  if (s.zoneKey === 'ponycommon' && isBreeBeat(gameState.flags, 'bree_company')) {
+    s.startDialogue('bree_company');
+    return;
+  }
   updatePonies(s, delta);
 }
 export function breeDialogue(s) {
@@ -161,35 +194,7 @@ export function breeDialogue(s) {
     b = s.bree;
   // Replayed/revisited fallback dialogue carries no story effects.
   if (!s.dialogStage.set) return;
-  if (key === 'bree_song') {
-    if (i === 1)
-      beat(s, async () => {
-        await walk(s, s.player, 14, 8, 65);
-        await Promise.all(
-          s.followers.filter((p) => p.visible).map((p, j) => walk(s, p, 12 + j * 3, 11, 65)),
-        );
-      });
-    if (i === 2)
-      beat(s, async () => {
-        await tween(s, s.player, { y: s.player.y - 9 }, 380);
-        await tween(s, s.player, { y: s.player.y + 13, angle: 75 }, 400);
-      });
-    if (i === 3) {
-      lock(s);
-      s.player.setData('cinematicAlpha', 0).setAlpha(0);
-      b.ring.setPosition(s.player.x, s.player.y).setVisible(true);
-      beat(s, async () => {
-        await tween(s, b.ring, { alpha: 0 }, 700);
-        b.ring.setVisible(false).setAlpha(1);
-      });
-    }
-    if (i === 4)
-      beat(s, async () => {
-        await walk(s, s.player, 17, 10, 45);
-        s.player.setAngle(0).setData('cinematicAlpha', 1).setAlpha(1);
-        await pause(s, 300);
-      });
-  }
+  if (innDialogue(s, beat)) return;
   if (key === 'bree_trust' && i === 0)
     beat(s, async () => {
       const a = b.actors.strider;

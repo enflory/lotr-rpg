@@ -4,7 +4,11 @@ Source: J. R. R. Tolkien, _The Fellowship of the Ring_, Book I, chapters 9, “A
 
 ## Preserved sequence
 
-The four hobbits enter through the western gate under Frodo's alias. Butterbur offers hobbit rooms in the north wing. Merry stays apart from the common-room gathering. Pippin's storytelling prompts Frodo to divert attention with a song. Frodo falls during the encore and finds the Ring on his finger. Strider offers help in private; Butterbur remembers Gandalf's delayed letter; Aragorn identifies himself and shows the broken sword. Nob brings Merry back, and Merry tells of the Black Breath. Bolsters and woollen mats make decoys; the party spends the night in the parlour. Damaged rooms and the missing ponies are discovered in the morning. Butterbur pays Ferny's inflated twelve pennies and makes restitution. Sam befriends Bill and throws an apple at Ferny on departure.
+The four hobbits enter through the western gate under Frodo's alias. Butterbur escorts all four to a private supper before inviting them into the common room. Merry stays behind and cautions his friends; Pippin suggests he stay indoors. Frodo presents his interest in hobbit history, while Pippin entertains a gathering. Strider warns Frodo about Pippin's account of Bilbo's birthday. Frodo interrupts with an awkward speech; the company asks for a song. During the encore he dances, falls and vanishes. Ferny, the southerner and Harry slip out while Frodo is invisible. Frodo removes the Ring near Strider, hears his request for a private talk, and gives the remaining company an unconvincing explanation.
+
+Strider offers help in private; Butterbur remembers Gandalf's delayed letter; Aragorn identifies himself and shows the broken sword. Nob brings Merry back, and Merry tells of the Black Breath. Bolsters and woollen mats make decoys; the party spends the night in the parlour. Damaged rooms and the missing ponies are discovered in the morning. Butterbur pays Ferny's inflated twelve pennies and makes restitution. Sam befriends Bill and throws an apple at Ferny on departure.
+
+The ordering of supper, Merry's decision, Pippin's audience, Frodo's speech, the requested song and the spies' departure was also cross-checked against the [chapter synopsis](https://tolkiengateway.net/wiki/At_the_Sign_of_the_Prancing_Pony). The novel remains the source; this is a secondary continuity aid.
 
 The chapter ends on the road beyond Bree. Midgewater, Weathertop, the Morgul wound and Glorfindel belong to the next chapter.
 
@@ -19,4 +23,6 @@ The chapter ends on the road beyond Bree. Midgewater, Weathertop, the Morgul wou
 
 ## Checkpoints and input
 
-Every milestone completes only when its conversation closes. Continue retries interrupted choreography. The Ring is transient and never becomes an equippable ability. The watch advances from night to dawn without a real-time wait. Existing keyboard and touch actions drive the same scenes. No combat system, health penalty, failing social-stealth meter or invented Ring power is added.
+Every milestone completes only when its conversation closes. Continue retries interrupted choreography. The welcome, supper and gathering move the actual party sprites along walkable routes. Pippin remains visibly with his audience after the gathering and across Continue. Merry is visible through supper, then waits in the parlour until his off-screen excursion. The song pauses for the player's action to interrupt Pippin; the crowd recoils and the spies leave during the disappearance. The Ring is transient and never becomes an equippable ability. The watch advances from night to dawn without a real-time wait. Existing keyboard and touch actions drive the same scenes. No combat system, health penalty, failing social-stealth meter or invented Ring power is added.
+
+Saves made before the supper scenes were added can join supper after Butterbur's welcome. Saves already past the Ring accident skip the new earlier milestones, preserving completed progress without changing the v1 format.

@@ -39,8 +39,8 @@ export const SHARDS = {
   ],
   shard4: ['routeDowns.spec.js', 'smoke.spec.js', 'pippin.spec.js', 'barrowReview.spec.js'],
   shard5: ['willowAnimation.spec.js', 'crickhollow.spec.js', 'touch.spec.js', 'ponies.spec.js'],
-  // Bree walks a complete chapter (~3 minutes locally); give it an independent
-  // runner instead of adding that entire route to the Tom's-house group.
+  // Bree covers the full chapter in two consecutive story segments, plus
+  // inn choreography and Continue recovery. Keep it on an independent runner.
   shard6: ['bree.spec.js'],
 };
 

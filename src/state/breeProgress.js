@@ -1,4 +1,4 @@
-// One ordered source for visible story cues, objectives and save recovery.
+// One ordered source for story interactions, objectives and save recovery.
 export const BREE_BEATS = [
   {
     key: 'bree_gate',
@@ -11,6 +11,18 @@ export const BREE_BEATS = [
     flag: 'ponyWelcomed',
     zone: 'ponycommon',
     objective: 'Find Butterbur at the Prancing Pony',
+  },
+  {
+    key: 'bree_supper',
+    flag: 'ponySupper',
+    zone: 'ponyparlour',
+    objective: 'Join your friends for supper in the private parlour',
+  },
+  {
+    key: 'bree_company',
+    flag: 'breeCompany',
+    zone: 'ponycommon',
+    objective: 'Join the company in the common room',
   },
   {
     key: 'bree_song',
@@ -76,7 +88,10 @@ export const BREE_BEATS = [
 
 /** @param {Record<string, boolean>} flags */
 export function nextBreeBeat(flags) {
-  return BREE_BEATS.find((b) => !flags[b.flag]) ?? null;
+  // Saves beyond the accident already completed the inn's earlier evening.
+  const completed = (b) =>
+    flags[b.flag] || (flags.breeRingSlip && ['ponySupper', 'breeCompany'].includes(b.flag));
+  return BREE_BEATS.find((b) => !completed(b)) ?? null;
 }
 
 /** @param {Record<string, boolean>} flags @param {string} key */

@@ -9,6 +9,18 @@ describe('Bree chapter', () => {
   it('registers every character for texture and animation generation', () => {
     expect(CHAR_NAMES.sort()).toEqual(Object.keys(CHAR_DEFS).sort());
   });
+  it('takes a welcomed party to supper before joining the common-room company', () => {
+    const flags = { breeAdmitted: true, ponyWelcomed: true };
+    expect(nextBreeBeat(flags)?.key).toBe('bree_supper');
+    flags.ponySupper = true;
+    expect(nextBreeBeat(flags)?.key).toBe('bree_company');
+    flags.breeCompany = true;
+    expect(nextBreeBeat(flags)?.key).toBe('bree_song');
+  });
+  it('keeps older saves past the Ring accident past the new supper scenes', () => {
+    const flags = { breeAdmitted: true, ponyWelcomed: true, breeRingSlip: true };
+    expect(nextBreeBeat(flags)?.key).toBe('bree_strider');
+  });
   it('requires the whole story in order, and cannot repeat a completed effect', () => {
     const flags = {};
     for (const [index, beat] of BREE_BEATS.entries()) {

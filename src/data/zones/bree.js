@@ -186,6 +186,7 @@ export const ponycommon = {
   signs: [],
   interactions: [
     cue(6, 5, 'bree_welcome', 'Butterbur’s welcome'),
+    cue(13, 11, 'bree_company', 'Meet the company'),
     cue(14, 10, 'bree_song', 'Pippin’s story'),
     inspect(7, 16, 'bree_locals', 'Talk with the company'),
     { ...inspect(24, 8, 'bree_fern', 'The whispering corner'), when: (f) => !f.breeRingSlip },
@@ -201,8 +202,8 @@ export const ponycommon = {
       18,
       'ponyparlour',
       'common',
-      'breeRingSlip',
-      'The private parlour is for later. Join the company first.',
+      'ponyWelcomed',
+      'Speak to Butterbur first. He will show you to your parlour.',
     ),
   ],
   ...hooks,
@@ -213,6 +214,7 @@ parlour[1][6] = T.WINDOW_I;
 parlour[1][18] = T.WINDOW_I;
 rect(parlour, 10, 2, 3, 1, T.FIREPLACE);
 rect(parlour, 7, 8, 3, 1, T.TABLE);
+parlour[4][17] = T.SETTLE;
 parlour[16][0] = T.FLOOR;
 parlour[16][23] = T.FLOOR;
 
@@ -227,6 +229,7 @@ export const ponyparlour = {
   doors: [],
   signs: [],
   interactions: [
+    cue(8, 10, 'bree_supper', 'Supper with your friends'),
     cue(16, 6, 'bree_strider', 'The stranger by the wall'),
     cue(4, 12, 'bree_letter', 'Butterbur’s letter'),
     cue(16, 6, 'bree_trust', 'The broken sword'),

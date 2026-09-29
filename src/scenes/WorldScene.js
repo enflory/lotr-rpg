@@ -503,7 +503,10 @@ export class WorldScene extends Phaser.Scene {
         this.updateFollower(delta);
       }
       if (this.storyBeat?.prompt && !this.typing) {
-        this.actionHint.setText(`${this.actionVerb()} · ${this.storyBeat.prompt}`).setVisible(true);
+        this.actionHint
+          .setY(174 + UI_OY)
+          .setText(`${this.actionVerb()} · ${this.storyBeat.prompt}`)
+          .setVisible(true);
       }
       if (interactPressed) this.advanceDialogue();
       return;
@@ -623,7 +626,10 @@ export class WorldScene extends Phaser.Scene {
       this.hintIcon
         .setVisible(true)
         .setPosition(action.x * TILE_SIZE + 8, action.y * TILE_SIZE - 16);
-      this.actionHint.setText(`${this.actionVerb()} · ${action.label}`).setVisible(true);
+      this.actionHint
+        .setY(226 + UI_OY)
+        .setText(`${this.actionVerb()} · ${action.label}`)
+        .setVisible(true);
     }
 
     /* ── interact ────────────────────────────────────── */
