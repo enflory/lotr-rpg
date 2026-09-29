@@ -1,5 +1,5 @@
 import { gameState, setObjective } from '../state/GameState.js';
-import { nextBreeBeat, breeObjective } from '../state/breeProgress.js';
+import { breeObjective } from '../state/breeProgress.js';
 import { drawBreeScenery } from '../art/breeScenery.js';
 import { walk, tween } from './storyMotion.js';
 import { makePony, updatePonies } from './ponyEvent.js';
@@ -53,12 +53,7 @@ function refresh(s) {
     f = gameState.flags;
   if (b.active) restore(s);
   merryVisibility(s);
-  const next = nextBreeBeat(f);
   setObjective(breeObjective(f));
-  b.cue.setText(next?.zone === s.zoneKey ? '▼ ' + next.objective : '');
-  const p = s.zone.interactions.find((p) => p.dialogue === next?.key);
-  b.cue.setVisible(!!p);
-  if (p) b.cue.setPosition(p.x * 16 + 8, p.y * 16 - 25);
   for (const { p, dot } of s.interactionMarks) dot.setVisible(!p.when || p.when(f));
   if (b.actors.strider)
     b.actors.strider.setVisible(
@@ -89,7 +84,7 @@ function refresh(s) {
   if (b.actors.nob && s.zoneKey === 'ponyparlour') b.actors.nob.setVisible(f.striderTrusted);
   if (s.zoneKey === 'ponyparlour') b.night.setAlpha(f.breeMorning ? 0 : 0.1);
 }
-// Rebuild only mutable bedroom props, without redrawing labels and lighting.
+// Rebuild only mutable bedroom props, without redrawing scenery and lighting.
 function drawBreeRoomProps(s) {
   const g = s.add.graphics().setDepth(100),
     f = gameState.flags;
@@ -111,19 +106,6 @@ export function breeCreate(s) {
   s.journey = { ponies: null };
   const b = s.bree;
   b.props = drawBreeScenery(s);
-  b.cue = s.add
-    .text(0, 0, '', {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '5px',
-      lineSpacing: 5,
-      color: '#f5d389',
-      align: 'center',
-      wordWrap: { width: 150 },
-      backgroundColor: '#151a22cc',
-      padding: { x: 3, y: 3 },
-    })
-    .setOrigin(0.5, 1)
-    .setDepth(800);
   b.night = s.add
     .rectangle(480, 360, 320, 240, 0x101a30, 1)
     .setAlpha(0)

@@ -48,18 +48,6 @@ function building(s, b) {
     r(door + 33, -21, 2, 8, 0xc4c1ae);
   }
 }
-function label(s, x, y, text) {
-  return s.add
-    .text(x * 16 + 8, y * 16, text, {
-      fontFamily: '"Press Start 2P"',
-      fontSize: '5px',
-      color: '#edd19a',
-      backgroundColor: '#151c24cc',
-      padding: { x: 3, y: 3 },
-    })
-    .setOrigin(0.5)
-    .setDepth(790);
-}
 function lamp(s, x, y) {
   const glow = s.add.ellipse(x * 16 + 8, y * 16 + 10, 48, 20, 0xf3ad52, 0.12).setDepth(6);
   s.tweens.add({ targets: glow, alpha: 0.06, duration: 1450, yoyo: true, repeat: -1 });
@@ -97,8 +85,6 @@ export function drawBreeScenery(s) {
       .setDepth(3);
     if (s.zoneKey === 'bree') {
       BREE_BUILDINGS.forEach((b) => building(s, b));
-      label(s, 24, 8, 'THE PRANCING PONY');
-      label(s, 25, 25, 'STABLE YARD');
     }
     if (s.zoneKey === 'breeroad') building(s, { x: 7, y: 3, w: 8, h: 4, floors: 1 });
     if (s.zoneKey === 'breegate') {
@@ -107,22 +93,12 @@ export function drawBreeScenery(s) {
         .fillRect(18 * 16, 12 * 16, 4, 55)
         .fillRect(20 * 16 - 4, 12 * 16, 4, 55);
       g.fillStyle(0x817058).fillRect(18 * 16, 12 * 16, 32, 4);
-      label(s, 20, 11, 'BREE');
     }
   } else {
     // Beams along the far wall frame the room without obscuring walking space.
     const g = s.add.graphics().setDepth(20);
     g.fillStyle(0x322219).fillRect(16, 25, (s.mapWidth - 2) * 16, 5);
     for (let x = 3; x < s.mapWidth - 2; x += 7) g.fillStyle(0x241d18).fillRect(x * 16, 16, 4, 17);
-    if (s.zoneKey === 'ponycommon') {
-      label(s, 27, 17, 'PARLOUR →');
-      label(s, 15, 21, '↓ BREE');
-    }
-    if (s.zoneKey === 'ponyparlour') {
-      label(s, 3, 18, '← COMMON ROOM');
-      label(s, 20, 18, 'ROOMS →');
-    }
-    if (s.zoneKey === 'ponyrooms') label(s, 4, 15, '← PARLOUR');
   }
   const props = s.add.graphics().setDepth(96);
   if (s.zoneKey === 'ponyrooms' && (f.breeDecoys || f.breeMorning)) {
