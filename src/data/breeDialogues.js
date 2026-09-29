@@ -67,9 +67,11 @@ const scenes = {
     'Gandalf’s delayed letter',
     [
       'BARLIMAN: Gandalf left this in\nMidsummer. I meant to send it to\nthe Shire. Business drove it out.',
+      'Butterbur brings out a letter.\nFrodo recognizes the writing\non the outside of the folded sheet.',
       'The letter urges Frodo to leave\nquickly and make for Rivendell.\nGandalf hoped to join him on the way.',
       'He recommends a friend called\nStrider, whose true name is Aragorn,\nand adds a verse about a hidden king.',
       'Frodo knows the handwriting.\nSam still wants proof that this\nstranger is the friend it describes.',
+      'Butterbur goes to find Nob.\nFrodo returns to Strider,\nwith Sam close beside him.',
     ],
   ],
   bree_trust: [
@@ -77,8 +79,8 @@ const scenes = {
     [
       'Strider draws his sword. The blade\nis broken below the hilt; it is\nno ready weapon for a tavern brawl.',
       'ARAGORN: I am Aragorn, son of\nArathorn. I knew Gandalf, and I\nhave been watching for your coming.',
-      'Frodo accepts his help. Sam\nremains cautious, but settles\ncloser to Frodo as they make plans.',
-      'Then hurried feet sound outside.\nNob has found Merry in the street\nand brought him back to the inn.',
+      'Gandalf trusts this man. Sam\nstudies the broken sword. Frodo\nmust decide whether to accept him.',
+      'Frodo accepts his help. Sam\nstays close. Then hurried feet\nand a knock interrupt their plans.',
     ],
   ],
   bree_merry: [
@@ -88,14 +90,16 @@ const scenes = {
       'MERRY: I followed it toward\nFerny’s house. Something came\nbehind me. Then everything went cold.',
       'NOB: I found him lying there.\nI thought someone slipped away\nwhen I called, but I could not tell.',
       'STRIDER: The Black Breath.\nWe must stay together tonight.\nLeave the bedrooms looking occupied.',
+      'Merry steadies himself among\nhis friends. Nob waits by the\npassage to the hobbit bedrooms.',
     ],
   ],
   bree_decoys: [
     'Nob',
     [
-      'Nob lays bolsters beneath the\nblankets and shapes brown woollen\nmats into four sleeping heads.',
-      'The low beds look occupied\nfrom the windows. Packs and\nblankets go back to the parlour.',
-      'NOB: Let them peep in here.\nYou will be beside the fire,\nwith the door barred.',
+      'Nob brings bolsters and brown\nwoollen mats. A rounded pillow\ncan pass for a sleeping head.',
+      'Frodo takes the first bolster.\nThe bed must look occupied\nfrom the dark window above it.',
+      'Nob works along the other beds.\nFrodo carries the last bundle\nto the far end of the room.',
+      'Four beds now seem occupied.\nNOB: Back to the parlour fire!\nLet them peep in here if they will.',
     ],
   ],
   bree_watch: [
@@ -119,7 +123,7 @@ const scenes = {
     [
       'Ferny demands twelve silver pennies\nfor a thin, neglected pony.\nButterbur pays and offers restitution.',
       'SAM: There is more kindness in\nthis poor beast than in its owner.\nCome along, Bill. We will see to you.',
-      'They load the packs carefully.\nBill will carry the baggage;\nthe travellers will go on foot.',
+      'The packs must be secured gently.\nBill will carry the baggage;\nthe travellers will go on foot.',
       'Strider joins them on the road.\nBree is awake and watching as\nthe party turns toward the east gate.',
     ],
   ],
@@ -127,6 +131,7 @@ const scenes = {
     'Out of Bree',
     [
       'Ferny leans over his hedge with\na parting sneer. Sam has one last\nanswer for him: an apple.',
+      'Sam weighs the apple in his hand.\nFerny waits behind the hedge,\nstill sneering at the travellers.',
       'The apple strikes its mark.\nSam walks on with Bill, regretting\nthe fruit more than the throw.',
       'Beyond the last houses, Strider\nleads them away from prying eyes.\nThe country opens, wide and empty.',
       'CHAPTER FOUR COMPLETE\nBree falls behind. Ahead lie the\nmarshes and the distant Weather Hills.',

@@ -42,6 +42,7 @@ export const SHARDS = {
   // Bree covers the full chapter in two consecutive story segments, plus
   // inn choreography and Continue recovery. Keep it on an independent runner.
   shard6: ['bree.spec.js'],
+  shard7: ['breeStaging.spec.js'],
 };
 
 export const SHARD_NAMES = Object.keys(SHARDS);

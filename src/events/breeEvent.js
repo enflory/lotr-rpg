@@ -1,13 +1,13 @@
 import { gameState, setObjective } from '../state/GameState.js';
 import { breeObjective, isBreeBeat } from '../state/breeProgress.js';
-import { drawBreeScenery } from '../art/breeScenery.js';
-import { walk, tween } from './storyMotion.js';
+import { drawBreeScenery, drawBreeDecoy } from '../art/breeScenery.js';
 import { makePony, updatePonies } from './ponyEvent.js';
-import { trailPosition } from '../state/partyMovement.js';
 import { innDialogue, restoreInnPositions } from './breeInnEvent.js';
+import { restDialogue, restoreRestPositions } from './breeRestEvent.js';
+import { departureDialogue } from './breeDepartureEvent.js';
+import { billPosition, packBill } from './breeStoryMotion.js';
 
 const party = (s) => [s.player, ...s.followers];
-const pause = (s, ms) => new Promise((resolve) => s.time.delayedCall(ms, resolve));
 function actor(s, key, x, y, dir = 'down') {
   const p = s.add
     .sprite(x * 16 + 8, y * 16, key)
@@ -45,9 +45,12 @@ function restore(s) {
   party(s).forEach((p) => p.setData('held', false));
   s.player.body.reset(s.player.x, s.player.y);
   s.player.body.enable = true;
-  s.trail = party(s)
-    .filter((p) => p.visible)
-    .map((p) => ({ x: p.x, y: p.y }));
+  s.trail =
+    s.bree.releaseTrail ??
+    party(s)
+      .filter((p) => p.visible)
+      .map((p) => ({ x: p.x, y: p.y }));
+  s.bree.releaseTrail = null;
   s.cameras.main.startFollow(s.player, true, 0.08, 0.08);
   s.bree.active = false;
 }
@@ -95,27 +98,19 @@ function refresh(s) {
   }
   if (b.actors.butterbur && s.zoneKey === 'ponyparlour')
     b.actors.butterbur.setVisible(
-      (!f.ponySupper && !f.breeRingSlip) || (f.striderOffer && !f.striderTrusted),
+      (!f.ponySupper && !f.breeRingSlip) || (f.striderOffer && !f.gandalfLetter),
     );
   if (b.actors.nob && s.zoneKey === 'ponyparlour')
-    b.actors.nob.setVisible((!f.ponySupper && !f.breeRingSlip) || f.striderTrusted);
+    b.actors.nob.setVisible(
+      (!f.ponySupper && !f.breeRingSlip) || (f.breeMerryReturned && !f.breeDecoys) || f.breeMorning,
+    );
   if (s.zoneKey === 'ponyparlour') b.night.setAlpha(f.breeMorning ? 0 : 0.1);
 }
 // Rebuild only mutable bedroom props, without redrawing scenery and lighting.
 function drawBreeRoomProps(s) {
   const g = s.add.graphics().setDepth(100),
     f = gameState.flags;
-  if (f.breeDecoys)
-    for (const x of [5, 10, 15, 20]) {
-      g.fillStyle(0x765335).fillRect(x * 16 + 4, 82, 8, 5);
-      g.fillStyle(0xaaa080).fillRect(x * 16 + 3, 88, 10, 6);
-      if (f.breeMorning) {
-        g.fillStyle(0xeee0bb)
-          .fillRect(x * 16 - 7, 104, 12, 3)
-          .fillRect(x * 16 + 8, 112, 8, 2);
-        g.lineStyle(2, 0x292523).lineBetween(x * 16 + 3, 83, x * 16 + 12, 94);
-      }
-    }
+  if (f.breeDecoys) for (const x of [5, 10, 15, 20]) drawBreeDecoy(g, x, f.breeMorning);
   return g;
 }
 export function breeCreate(s) {
@@ -128,15 +123,27 @@ export function breeCreate(s) {
     .setAlpha(0)
     .setScrollFactor(0)
     .setDepth(850);
-  if (s.zoneKey === 'breegate') actor(s, 'harry', 19, 12);
+  if (s.zoneKey === 'breegate') {
+    const harry = actor(s, 'harry', 19, 13, 'left');
+    b.lantern = s.add.graphics({ x: harry.x - 10, y: harry.y - 5 }).setDepth(harry.y + 25);
+    b.lantern
+      .fillStyle(0xeabb62, 0.14)
+      .fillCircle(0, 0, 9)
+      .fillStyle(0x2c251d)
+      .fillRect(-3, -5, 6, 9)
+      .fillStyle(0xf8d985)
+      .fillRect(-2, -3, 4, 5);
+  }
   if (s.zoneKey === 'bree') {
     actor(s, 'butterbur', 35, 20, 'right').setVisible(!!gameState.flags.breeMorning);
-    actor(s, 'strider', 34, 19, 'right').setVisible(!!gameState.flags.breeMorning);
-    const pos = gameState.flags.billBought
-      ? trailPosition(s.trail, 90)
-      : { x: 38 * 16, y: 19 * 16 };
+    actor(s, 'strider', 34, 17, 'right').setVisible(!!gameState.flags.breeMorning);
+    const pos = gameState.flags.billBought ? billPosition(s) : { x: 38 * 16, y: 19 * 16 };
     b.bill = makePony(s, pos.x, pos.y, 0x806046);
     b.bill.setVisible(!!gameState.flags.breeMorning);
+    if (gameState.flags.billBought) packBill(b.bill);
+    actor(s, 'ferny', 40, 19, 'left').setVisible(
+      !!gameState.flags.breeMorning && !gameState.flags.billBought,
+    );
   }
   if (s.zoneKey === 'ponycommon') {
     actor(
@@ -162,11 +169,14 @@ export function breeCreate(s) {
   if (s.zoneKey === 'breeroad') {
     actor(s, 'ferny', 11, 7);
     if (gameState.flags.billBought) {
-      const pos = trailPosition(s.trail, 90);
-      s.journey.ponies = [makePony(s, pos.x, pos.y, 0x806046)];
+      const pos = billPosition(s);
+      b.bill = makePony(s, pos.x, pos.y, 0x806046);
+      packBill(b.bill);
+      s.journey.ponies = [b.bill];
     }
   }
   restoreInnPositions(s);
+  restoreRestPositions(s);
   refresh(s);
 }
 export function breeUpdate(s, delta) {
@@ -189,68 +199,9 @@ export function breeUpdate(s, delta) {
   updatePonies(s, delta);
 }
 export function breeDialogue(s) {
-  const key = s.dialogKey,
-    i = s.dialogIndex,
-    b = s.bree;
-  // Replayed/revisited fallback dialogue carries no story effects.
+  // Revisited fallback dialogue has no story effects or choreography.
   if (!s.dialogStage.set) return;
   if (innDialogue(s, beat)) return;
-  if (key === 'bree_trust' && i === 0)
-    beat(s, async () => {
-      const a = b.actors.strider;
-      const sword = s.add.graphics().setDepth(a.y + 25);
-      sword
-        .fillStyle(0xddd5b6)
-        .fillRect(a.x - 15, a.y - 2, 11, 2)
-        .fillStyle(0xa89a70)
-        .fillRect(a.x - 7, a.y - 5, 2, 8);
-      await pause(s, 1700);
-      sword.destroy();
-    });
-  if (key === 'bree_merry' && i === 0)
-    beat(s, async () => {
-      const m = s.followers.find((p) => p.getData('key') === 'merry');
-      m.setVisible(true)
-        .setPosition(16, 16 * 16)
-        .setData('held', true);
-      b.actors.nob.setPosition(16, 15 * 16);
-      await Promise.all([walk(s, m, 8, 13, 40), walk(s, b.actors.nob, 7, 13, 40)]);
-    });
-  if (key === 'bree_decoys' && i === 0)
-    beat(s, async () => {
-      for (const x of [5, 10, 15, 20]) {
-        await walk(s, b.actors.nob, x, 6, 85);
-        b.props.fillStyle(0x765335).fillRect(x * 16 + 4, 82, 8, 5);
-        b.props.fillStyle(0xaaa080).fillRect(x * 16 + 3, 88, 10, 6);
-        await pause(s, 180);
-      }
-    });
-  if (key === 'bree_watch') {
-    if (i === 0)
-      beat(s, async () => {
-        await Promise.all(party(s).map((p, j) => walk(s, p, 10 + j * 2, 11, 65)));
-        await walk(s, b.actors.strider, 4, 16, 65);
-      });
-    if (i === 1)
-      beat(s, async () => {
-        await tween(s, b.night, { alpha: 0.78 }, 1500);
-        await pause(s, 1200);
-      });
-    if (i === 2)
-      beat(s, async () => {
-        await tween(s, b.night, { alpha: 0 }, 1800);
-      });
-  }
-  if (key === 'bree_depart' && i === 0)
-    beat(s, async () => {
-      const sam = s.followers.find((p) => p.getData('key') === 'sam');
-      await walk(s, sam, 11, 10, 60);
-      const apple = s.add.circle(sam.x, sam.y - 6, 2, 0xac3f23).setDepth(810);
-      await tween(s, apple, { x: b.actors.ferny.x, y: b.actors.ferny.y - 9 }, 450);
-      b.actors.ferny.setAngle(-12);
-      apple.destroy();
-      await pause(s, 400);
-      b.actors.ferny.setAngle(0);
-      await walk(s, sam, 12, 13, 65);
-    });
+  if (restDialogue(s, beat)) return;
+  departureDialogue(s, beat);
 }

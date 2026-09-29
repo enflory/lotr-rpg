@@ -30,7 +30,7 @@ jobs:
       # the extra minutes.
       fail-fast: false
       matrix:
-        project: [shard1, shard2, shard3, shard4, shard5, shard6]
+        project: [shard1, shard2, shard3, shard4, shard5, shard6, shard7]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

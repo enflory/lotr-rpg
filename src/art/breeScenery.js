@@ -52,6 +52,16 @@ function lamp(s, x, y) {
   const glow = s.add.ellipse(x * 16 + 8, y * 16 + 10, 48, 20, 0xf3ad52, 0.12).setDepth(6);
   s.tweens.add({ targets: glow, alpha: 0.06, duration: 1450, yoyo: true, repeat: -1 });
 }
+export function drawBreeDecoy(g, x, damaged = false) {
+  g.fillStyle(0x765335).fillRect(x * 16 + 4, 82, 8, 5);
+  g.fillStyle(0xaaa080).fillRect(x * 16 + 3, 88, 10, 6);
+  if (damaged) {
+    g.fillStyle(0xeee0bb)
+      .fillRect(x * 16 - 7, 104, 12, 3)
+      .fillRect(x * 16 + 8, 112, 8, 2);
+    g.lineStyle(2, 0x292523).lineBetween(x * 16 + 3, 83, x * 16 + 12, 94);
+  }
+}
 export function drawBreeScenery(s) {
   const f = gameState.flags;
   const outdoor = ['breegate', 'bree', 'breeroad'].includes(s.zoneKey);
@@ -103,15 +113,21 @@ export function drawBreeScenery(s) {
   const props = s.add.graphics().setDepth(96);
   if (s.zoneKey === 'ponyrooms' && (f.breeDecoys || f.breeMorning)) {
     for (const x of [5, 10, 15, 20]) {
-      props.fillStyle(0x796046).fillRect(x * 16 + 4, 5 * 16 + 2, 8, 6);
-      props.fillStyle(f.breeMorning ? 0x322721 : 0xaaa080).fillRect(x * 16 + 3, 5 * 16 + 8, 10, 5);
-      if (f.breeMorning) {
-        props
-          .fillStyle(0xe1d6b5)
-          .fillRect(x * 16 - 5, 6 * 16 + 3, 11, 3)
-          .fillRect(x * 16 + 8, 6 * 16 + 9, 9, 2);
-        props.lineStyle(2, 0x332a27).lineBetween(x * 16 + 2, 5 * 16 + 3, x * 16 + 13, 5 * 16 + 14);
-      }
+      drawBreeDecoy(props, x, f.breeMorning);
+    }
+  }
+  if (s.zoneKey === 'ponyrooms' && f.breeMorning) {
+    const broken = s.add.graphics().setDepth(30);
+    for (const x of [5, 10, 15, 20]) {
+      broken.fillStyle(0x20252c).fillRect(x * 16 + 4, 19, 8, 9);
+      broken
+        .lineStyle(2, 0x947455)
+        .lineBetween(x * 16 + 2, 17, x * 16 + 7, 22)
+        .lineBetween(x * 16 + 10, 25, x * 16 + 15, 30);
+      broken
+        .fillStyle(0xc2ae83)
+        .fillRect(x * 16 + 3, 34, 5, 2)
+        .fillRect(x * 16 + 12, 39, 4, 2);
     }
   }
   return props;

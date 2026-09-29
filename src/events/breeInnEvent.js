@@ -3,6 +3,7 @@
 import { gameState } from '../state/GameState.js';
 import { walk, tween } from './storyMotion.js';
 import { playMusic, stopMusic, sfx } from '../audio/sound.js';
+import { regroup } from './breeStoryMotion.js';
 
 const friend = (s, key) => s.followers.find((p) => p.getData('key') === key);
 const pause = (s, ms) => new Promise((resolve) => s.time.delayedCall(ms, resolve));
@@ -273,6 +274,7 @@ export function innDialogue(s, beat) {
         face(sam, 'right');
         face(pippin, 'right');
         s.lastDir = 'right';
+        await regroup(s, 18, 11, 'right');
       }
     },
     i === 2 ? 'Interrupt Pippin' : '',
