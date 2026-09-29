@@ -12,7 +12,7 @@ export function focus(s, x, y) {
   s.cameras.main.stopFollow();
   s.cameras.main.pan(x * 16 + 8, y * 16, 600, 'Sine.easeInOut');
 }
-export async function enter(s, p, x, y, doorX = 0, doorY = 16) {
+export async function enter(s, p, x, y, doorX = 0, doorY = 12) {
   p.setPosition(doorX * 16 + 8, doorY * 16)
     .setAlpha(0)
     .setVisible(true)

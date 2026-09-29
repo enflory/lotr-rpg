@@ -16,11 +16,11 @@ export function restoreRestPositions(s) {
   const f = gameState.flags,
     b = s.bree;
   if (s.zoneKey === 'ponyparlour' && f.striderOffer && !f.breeMerryReturned) {
-    b.actors.strider.setPosition(16 * 16 + 8, 6 * 16).setDepth(6 * 16 + 20);
+    b.actors.strider.setPosition(12 * 16 + 8, 5 * 16).setDepth(5 * 16 + 20);
     face(b.actors.strider, 'down');
   }
   if (s.zoneKey === 'ponyparlour' && f.breeMerryReturned && !f.breeDecoys) {
-    b.actors.nob.setPosition(21 * 16 + 8, 16 * 16).setDepth(16 * 16 + 20);
+    b.actors.nob.setPosition(15 * 16 + 8, 12 * 16).setDepth(12 * 16 + 20);
     face(b.actors.nob, 'right');
   }
 }
@@ -35,26 +35,26 @@ export function restDialogue(s, beat) {
   if (key === 'bree_strider') {
     beat(s, async () => {
       if (i === 0) {
-        focus(s, 13, 8);
+        focus(s, 9, 7);
         await Promise.all([
-          walk(s, s.player, 15, 7, 65),
-          walk(s, sam, 14, 8, 65),
-          walk(s, pippin, 12, 8, 65),
+          walk(s, s.player, 11, 6, 65),
+          walk(s, sam, 10, 7, 65),
+          walk(s, pippin, 9, 7, 65),
         ]);
         [s.player, sam, pippin].forEach((p) => face(p, 'up'));
         face(a.strider, 'down');
       }
       if (i === 1) {
-        await walk(s, a.strider, 16, 6, 55);
+        await walk(s, a.strider, 12, 5, 55);
         face(a.strider, 'down');
       }
       if (i === 2) await gesture(s, a.strider);
       if (i === 3) {
         sfx.door();
-        focus(s, 9, 10);
-        await enter(s, a.butterbur, 4, 11);
+        focus(s, 9, 7);
+        await enter(s, a.butterbur, 3, 8);
         face(a.butterbur, 'right');
-        await regroup(s, 15, 7, 'up');
+        await regroup(s, 11, 6, 'up');
       }
     });
     return true;
@@ -64,11 +64,11 @@ export function restDialogue(s, beat) {
       s,
       async () => {
         if (i === 0) {
-          focus(s, 8, 12);
+          focus(s, 8, 8);
           await Promise.all([
-            walk(s, s.player, 6, 12, 65),
-            walk(s, sam, 7, 13, 65),
-            walk(s, pippin, 9, 13, 65),
+            walk(s, s.player, 5, 9, 65),
+            walk(s, sam, 6, 10, 65),
+            walk(s, pippin, 8, 10, 65),
           ]);
           face(s.player, 'left');
           face(sam, 'up');
@@ -87,7 +87,7 @@ export function restDialogue(s, beat) {
         if (i === 4) await gesture(s, sam);
         if (i === 5) {
           b.letter.destroy();
-          await Promise.all([leave(s, a.butterbur, 0, 16), regroup(s, 15, 7, 'up')]);
+          await Promise.all([leave(s, a.butterbur, 0, 12), regroup(s, 11, 6, 'up')]);
         }
       },
       i === 1 ? 'Open the letter' : '',
@@ -99,11 +99,11 @@ export function restDialogue(s, beat) {
       s,
       async () => {
         if (i === 0) {
-          focus(s, 14, 7);
+          focus(s, 9, 7);
           await Promise.all([
-            walk(s, s.player, 15, 7, 65),
-            walk(s, sam, 14, 8, 65),
-            walk(s, pippin, 12, 8, 65),
+            walk(s, s.player, 11, 6, 65),
+            walk(s, sam, 10, 7, 65),
+            walk(s, pippin, 9, 7, 65),
           ]);
           [s.player, sam, pippin].forEach((p) => face(p, 'up'));
           face(a.strider, 'down');
@@ -122,13 +122,13 @@ export function restDialogue(s, beat) {
         }
         if (i === 1) await gesture(s, a.strider);
         if (i === 2) {
-          await walk(s, s.player, 16, 7, 55);
+          await walk(s, s.player, 12, 6, 55);
           face(s.player, 'up');
           await tween(s, b.sword, { scaleX: 0.1, alpha: 0 }, 400);
           b.sword.destroy();
         }
         if (i === 3) {
-          await regroup(s, 16, 7, 'up');
+          await regroup(s, 12, 6, 'up');
           sfx.door();
         }
       },
@@ -139,25 +139,25 @@ export function restDialogue(s, beat) {
   if (key === 'bree_merry') {
     beat(s, async () => {
       if (i === 0) {
-        focus(s, 9, 12);
+        focus(s, 9, 8);
         await Promise.all([
-          walk(s, s.player, 9, 12, 65),
-          walk(s, sam, 9, 14, 65),
-          walk(s, pippin, 11, 14, 65),
+          walk(s, s.player, 7, 9, 65),
+          walk(s, sam, 8, 10, 65),
+          walk(s, pippin, 9, 10, 65),
         ]);
-        await enter(s, a.nob, 3, 16);
+        await enter(s, a.nob, 3, 12);
         merry
-          .setPosition(8, 16 * 16)
+          .setPosition(8, 12 * 16)
           .setAlpha(0)
           .setVisible(true)
           .setAngle(-7)
           .setTint(0xc9d0d9)
-          .setDepth(16 * 16 + 20);
+          .setDepth(12 * 16 + 20);
         await tween(s, merry, { alpha: 1 }, 250);
         await Promise.all([
-          walk(s, merry, 8, 13, 38),
-          walk(s, a.nob, 7, 13, 38),
-          walk(s, a.strider, 11, 11, 55),
+          walk(s, merry, 6, 10, 38),
+          walk(s, a.nob, 5, 10, 38),
+          walk(s, a.strider, 10, 9, 55),
         ]);
         face(merry, 'up');
         face(a.nob, 'up');
@@ -170,9 +170,9 @@ export function restDialogue(s, beat) {
         await tween(s, merry, { angle: 0 }, 400);
         merry.clearTint();
         await Promise.all([
-          regroup(s, 12, 12, 'right'),
-          walk(s, a.nob, 21, 16, 65),
-          walk(s, a.strider, 17, 5, 65),
+          regroup(s, 10, 10, 'right'),
+          walk(s, a.nob, 15, 12, 65),
+          walk(s, a.strider, 13, 5, 65),
         ]);
         face(a.nob, 'right');
         face(a.strider, 'left');
@@ -212,19 +212,19 @@ export function restDialogue(s, beat) {
   if (key === 'bree_watch') {
     beat(s, async () => {
       if (i === 0) {
-        focus(s, 12, 12);
+        focus(s, 9, 7);
         b.bedrolls = s.add.graphics().setDepth(5);
         const sleepers = [s.player, sam, pippin, merry];
         await Promise.all(
           sleepers.map(async (p, j) => {
-            const x = 9 + j * 2;
+            const x = 8 + j * 2;
             b.bedrolls.fillStyle(0x665443).fillRect(x * 16 - 4, 7 * 16 - 5, 25, 12);
             await walk(s, p, x, 7, 60);
             face(p, 'right');
             await tween(s, p, { angle: 90 }, 450);
           }),
         );
-        await walk(s, a.strider, 4, 14, 65);
+        await walk(s, a.strider, 3, 11, 65);
         face(a.strider, 'left');
         sfx.door();
       }
@@ -240,9 +240,9 @@ export function restDialogue(s, beat) {
         await tween(s, b.bedrolls, { alpha: 0 }, 350);
         b.bedrolls.destroy();
         await Promise.all([
-          regroup(s, 12, 10, 'right'),
-          walk(s, a.strider, 17, 5, 65),
-          enter(s, a.nob, 4, 15),
+          regroup(s, 10, 9, 'right'),
+          walk(s, a.strider, 13, 5, 65),
+          enter(s, a.nob, 3, 11),
         ]);
         face(a.strider, 'left');
         face(a.nob, 'right');

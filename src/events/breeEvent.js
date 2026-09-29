@@ -161,9 +161,9 @@ export function breeCreate(s) {
     actor(s, 'breedwarf', 5, 9, 'right');
   }
   if (s.zoneKey === 'ponyparlour') {
-    actor(s, 'strider', 17, 5, 'left');
-    actor(s, 'butterbur', 4, 11);
-    actor(s, 'nob', 4, 15, 'right');
+    actor(s, 'strider', 13, 5, 'left');
+    actor(s, 'butterbur', 3, 8);
+    actor(s, 'nob', 3, 11, 'right');
   }
   if (s.zoneKey === 'ponyrooms') actor(s, 'nob', 11, 7, 'down');
   if (s.zoneKey === 'breeroad') {

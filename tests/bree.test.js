@@ -3,11 +3,20 @@ import { BREE_BEATS, nextBreeBeat } from '../src/state/breeProgress.js';
 import { resolveDialogue } from '../src/data/dialogues.js';
 import { ZONES } from '../src/data/zones/index.js';
 import { findWalkablePath } from '../src/state/partyMovement.js';
+import { BREE_BUILDINGS } from '../src/data/zones/bree.js';
+import { T } from '../src/data/tileTypes.js';
 import { CHAR_NAMES, CHAR_DEFS } from '../src/art/characters.js';
 
 describe('Bree chapter', () => {
   it('registers every character for texture and animation generation', () => {
     expect(CHAR_NAMES.sort()).toEqual(Object.keys(CHAR_DEFS).sort());
+  });
+  it('keeps the private parlour intimate and the exterior walls solid', () => {
+    const area = (zone) => zone.map.flat().filter((tile) => tile === T.FLOOR).length;
+    expect(area(ZONES.ponyparlour)).toBeLessThan(area(ZONES.ponycommon) / 2);
+    for (const b of BREE_BUILDINGS)
+      for (let y = b.y; y < b.y + b.h; y++)
+        for (let x = b.x; x < b.x + b.w; x++) expect(ZONES.bree.map[y][x]).toBe(T.BARN);
   });
   it('takes a welcomed party to supper before joining the common-room company', () => {
     const flags = { breeAdmitted: true, ponyWelcomed: true };

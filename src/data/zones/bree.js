@@ -73,14 +73,13 @@ export const BREE_BUILDINGS = [
   { x: 25, y: 22, w: 6, h: 4, floors: 1 },
 ];
 const town = field(48, 32, T.DOWN_GRASS, T.HEDGE);
-for (const b of BREE_BUILDINGS) rect(town, b.x, b.y, b.w, b.h, T.BARN);
 trail(
   town,
   [
     [0, 17],
     [47, 17],
   ],
-  2,
+  1,
   T.PATH,
 );
 trail(
@@ -119,6 +118,17 @@ for (const [x, y] of [
 ])
   town[y][x] = T.TREE2;
 town[24][19] = T.WELL;
+
+// Door approaches follow the south-facing facades, going around the houses.
+for (const points of [
+  [[7, 10], [7, 17]],
+  [[38, 11], [38, 17]],
+  [[14, 17], [14, 29], [9, 29], [9, 28]],
+  [[32, 17], [32, 28], [37, 28], [37, 27]],
+  [[24, 26], [24, 27], [28, 27], [28, 26]],
+]) trail(town, points, 0, T.PATH);
+// Building footprints remain authoritative where paths meet their edges.
+for (const b of BREE_BUILDINGS) rect(town, b.x, b.y, b.w, b.h, T.BARN);
 
 /** @type {import('../types.js').Zone} */
 export const bree = {
@@ -212,14 +222,14 @@ export const ponycommon = {
   ...hooks,
 };
 
-const parlour = room(24, 20);
-parlour[1][6] = T.WINDOW_I;
-parlour[1][18] = T.WINDOW_I;
-rect(parlour, 10, 2, 3, 1, T.FIREPLACE);
-rect(parlour, 7, 8, 3, 1, T.TABLE);
-parlour[4][17] = T.SETTLE;
-parlour[16][0] = T.FLOOR;
-parlour[16][23] = T.FLOOR;
+const parlour = room(18, 15);
+parlour[1][4] = T.WINDOW_I;
+parlour[1][14] = T.WINDOW_I;
+rect(parlour, 8, 2, 3, 1, T.FIREPLACE);
+rect(parlour, 5, 7, 3, 1, T.TABLE);
+parlour[4][13] = T.SETTLE;
+parlour[12][0] = T.FLOOR;
+parlour[12][17] = T.FLOOR;
 
 /** @type {import('../types.js').Zone} */
 export const ponyparlour = {
@@ -227,23 +237,23 @@ export const ponyparlour = {
   label: 'The Pony · A Private Parlour',
   music: 'breewatch',
   map: parlour,
-  spawns: { common: { x: 2, y: 16, dir: 'right' }, rooms: { x: 21, y: 16, dir: 'left' } },
+  spawns: { common: { x: 2, y: 12, dir: 'right' }, rooms: { x: 15, y: 12, dir: 'left' } },
   npcs: [],
   doors: [],
   signs: [],
   interactions: [
-    cue(8, 10, 'bree_supper', 'Supper with your friends'),
-    cue(16, 6, 'bree_strider', 'The stranger by the wall'),
-    cue(4, 12, 'bree_letter', 'Butterbur’s letter'),
-    cue(16, 6, 'bree_trust', 'The broken sword'),
-    cue(5, 15, 'bree_merry', 'Nob brings Merry'),
-    cue(12, 10, 'bree_watch', 'Keep watch by the fire'),
+    cue(6, 9, 'bree_supper', 'Supper with your friends'),
+    cue(12, 5, 'bree_strider', 'The stranger by the wall'),
+    cue(3, 10, 'bree_letter', 'Butterbur’s letter'),
+    cue(12, 5, 'bree_trust', 'The broken sword'),
+    cue(5, 11, 'bree_merry', 'Nob brings Merry'),
+    cue(9, 9, 'bree_watch', 'Keep watch by the fire'),
   ],
   exits: [
-    exit(0, 16, 'ponycommon', 'parlour'),
+    exit(0, 12, 'ponycommon', 'parlour'),
     exit(
-      23,
-      16,
+      17,
+      12,
       'ponyrooms',
       'parlour',
       'breeMerryReturned',

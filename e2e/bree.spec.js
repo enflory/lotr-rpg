@@ -140,7 +140,7 @@ test('walks from the Ring checkpoint through the night and departure with Stride
       () => window.__game.scene.getScene('WorldScene').followers.filter((p) => p.visible).length,
     ),
   ).toBe(3);
-  await walk(page, 23, 16);
+  await walk(page, 17, 12);
   await zone(page, 'ponyrooms');
   await act(page, 'bree_decoys');
   await reload(page, 'ponyrooms');
@@ -149,12 +149,12 @@ test('walks from the Ring checkpoint through the night and departure with Stride
   await act(page, 'bree_watch');
   await flag(page, 'breeMorning');
   await reload(page, 'ponyparlour');
-  await walk(page, 23, 16);
+  await walk(page, 17, 12);
   await zone(page, 'ponyrooms');
   await act(page, 'bree_damage');
   await walk(page, 0, 13);
   await zone(page, 'ponyparlour');
-  await walk(page, 0, 16);
+  await walk(page, 0, 12);
   await zone(page, 'ponycommon');
   await walk(page, 15, 22);
   await zone(page, 'bree');

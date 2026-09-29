@@ -23,11 +23,11 @@ async function leave(s, p, x, y, delay = 0) {
   p.setVisible(false);
 }
 function meal(s) {
-  const g = s.add.graphics().setDepth(140);
-  for (const x of [7, 8, 9]) {
-    g.fillStyle(0xe5d4a8).fillEllipse(x * 16 + 8, 8 * 16 + 7, 10, 5);
-    g.fillStyle(0x9e5a33).fillEllipse(x * 16 + 8, 8 * 16 + 7, 6, 3);
-    g.fillStyle(0xc2954d).fillRect(x * 16 + 1, 8 * 16 + 2, 4, 3);
+  const g = s.add.graphics().setDepth(124);
+  for (const x of [5, 6, 7]) {
+    g.fillStyle(0xe5d4a8).fillEllipse(x * 16 + 8, 7 * 16 + 7, 10, 5);
+    g.fillStyle(0x9e5a33).fillEllipse(x * 16 + 8, 7 * 16 + 7, 6, 3);
+    g.fillStyle(0xc2954d).fillRect(x * 16 + 1, 7 * 16 + 2, 4, 3);
   }
   return g;
 }
@@ -48,7 +48,7 @@ export function restoreInnPositions(s) {
   }
   if (s.zoneKey === 'ponyparlour' && f.ponySupper && !f.breeRingSlip) {
     const m = friend(s, 'merry');
-    m.setPosition(17 * 16 + 8, 5 * 16).setDepth(5 * 16 + 20);
+    m.setPosition(13 * 16 + 8, 5 * 16).setDepth(5 * 16 + 20);
     face(m, 'left');
   }
   if (s.zoneKey === 'ponycommon' && f.breeRingSlip) playMusic('breewatch');
@@ -95,12 +95,12 @@ export function innDialogue(s, beat) {
     s.dialogNameText.setText(names[i]);
     beat(s, async () => {
       if (i === 0) {
-        focus(s, 11, 8);
+        focus(s, 9, 7);
         const seats = [
-          [8, 9, 'up'],
-          [6, 8, 'right'],
-          [10, 8, 'left'],
-          [8, 7, 'down'],
+          [6, 8, 'up'],
+          [4, 7, 'right'],
+          [8, 7, 'left'],
+          [6, 6, 'down'],
         ];
         await Promise.all(
           [s.player, sam, pippin, merry].map(async (p, j) => {
@@ -108,27 +108,27 @@ export function innDialogue(s, beat) {
             face(p, seats[j][2]);
           }),
         );
-        await walk(s, a.butterbur, 11, 8, 75);
+        await walk(s, a.butterbur, 9, 7, 75);
         face(a.butterbur, 'left');
-        await walk(s, a.nob, 7, 10, 75);
+        await walk(s, a.nob, 5, 9, 75);
         face(a.nob, 'up');
         b.meal = meal(s);
         await Promise.all([gesture(s, sam), gesture(s, pippin)]);
       }
       if (i === 1) {
         await gesture(s, a.butterbur);
-        await leave(s, a.butterbur, 0, 16);
+        await leave(s, a.butterbur, 0, 12);
       }
       if (i === 2) await gesture(s, merry);
       if (i === 3) await gesture(s, pippin);
       if (i === 4) {
-        await walk(s, merry, 17, 5, 65);
+        await walk(s, merry, 13, 5, 65);
         face(merry, 'left');
         s.cameras.main.startFollow(s.player, true, 0.08, 0.08);
         await Promise.all(
           [s.player, sam, pippin].map(async (p, j) => {
             await pause(s, j * 180);
-            await walk(s, p, j, 16, 70);
+            await walk(s, p, j, 12, 70);
             face(p, 'left');
           }),
         );
