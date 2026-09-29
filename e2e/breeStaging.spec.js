@@ -228,3 +228,47 @@ test('Bill is loaded visibly and the apple and departure move the travelling com
   expect(motion.moved.strider).toBeGreaterThan(150);
   expect(errors).toEqual([]);
 });
+
+test('detailed Bree terrain stays out of the per-frame geometry budget across revisits', async ({
+  page,
+}) => {
+  await checkpoint(page, 'ponycommon', 'door', { merryJoined: true, breeAdmitted: true });
+  const zones = [
+    ['ponycommon', 'door'],
+    ['ponyparlour', 'common'],
+    ['ponyrooms', 'parlour'],
+    ['breegate', 'west'],
+    ['bree', 'inn'],
+    ['breeroad', 'west'],
+  ];
+  let warmTextureCount;
+  for (let visit = 0; visit < 2; visit++) {
+    for (const [zone, entry] of zones) {
+      await page.evaluate(
+        ({ zone, entry }) => {
+          window.__game.scene.start('WorldScene', { zone, entry });
+        },
+        { zone, entry },
+      );
+      await page.waitForFunction(
+        (zone) => window.__game.scene.getScene('WorldScene').zoneKey === zone,
+        zone,
+      );
+      const entries = await page.evaluate(() => {
+        const s = window.__game.scene.getScene('WorldScene');
+        return s.children.list
+          .filter((o) => o.visible && o.depth === 1 && o.type === 'Graphics')
+          .reduce((total, o) => total + o.commandBuffer.length, 0);
+      });
+      // Static floor/grass detail previously replayed 40,000+ buffer entries each
+      // frame, slowing CI's software renderer until real walks timed out.
+      expect(entries, `${zone} terrain geometry on visit ${visit + 1}`).toBeLessThan(2000);
+    }
+    const textureCount = await page.evaluate(() => window.__game.textures.getTextureKeys().length);
+    if (visit === 0) warmTextureCount = textureCount;
+    else
+      expect(textureCount, 'revisits must reuse terrain instead of leaking textures').toBe(
+        warmTextureCount,
+      );
+  }
+});

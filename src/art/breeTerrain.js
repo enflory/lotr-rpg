@@ -6,59 +6,74 @@ const noise = (x, y, salt = 0) => {
   n = Math.imul(n ^ (n >>> 13), 1274126177);
   return (n ^ (n >>> 16)) >>> 0;
 };
+// Like the forest and downs scenery, static ink is painted once. Keeping the
+// thousands of grass/board rectangles live makes every frame replay them,
+// especially expensive on software WebGL and lower-powered devices.
+function terrain(s, paint) {
+  const key = `bree-terrain-${s.zoneKey}`;
+  if (!s.textures.exists(key)) {
+    const g = s.make.graphics({ x: 0, y: 0, add: false });
+    paint(g);
+    g.generateTexture(key, s.mapWidth * 16, s.mapHeight * 16);
+    g.destroy();
+  }
+  s.add.image(0, 0, key).setOrigin(0).setDepth(1);
+}
+
 export function drawBreeGround(s) {
-  const g = s.add.graphics().setDepth(1);
-  const map = s.zone.map;
-  const road = (x, y) => map[y]?.[x] === T.PATH;
-  const grass = (x, y) => map[y]?.[x] === T.DOWN_GRASS;
-  const town = s.zoneKey === 'bree';
-  const r = (x, y, w, h, color) => g.fillStyle(color).fillRect(x, y, w, h);
-  map.forEach((row, ty) =>
-    row.forEach((tile, tx) => {
-      const x = tx * 16,
-        y = ty * 16;
-      if (tile === T.DOWN_GRASS || tile === T.LANTERN) {
-        r(x, y, 16, 16, 0x687451);
-        // Short blades, moss and leaf litter sit in broad, quiet colour patches.
-        for (let i = 0; i < 5; i++) {
-          const n = noise(tx, ty, i),
-            dx = n % 14,
-            dy = (n >>> 8) % 14;
-          const colors = [0x606d4b, 0x73805a, 0x78825b, 0x5b6b48];
-          r(x + dx, y + dy, 2 + (n % 3), 1, colors[n % 4]);
-          if (i === 0 && n % 3 === 0) r(x + dx + 1, y + dy - 1, 1, 2, 0x879064);
+  terrain(s, (g) => {
+    const map = s.zone.map;
+    const road = (x, y) => map[y]?.[x] === T.PATH;
+    const grass = (x, y) => map[y]?.[x] === T.DOWN_GRASS;
+    const town = s.zoneKey === 'bree';
+    const r = (x, y, w, h, color) => g.fillStyle(color).fillRect(x, y, w, h);
+    map.forEach((row, ty) =>
+      row.forEach((tile, tx) => {
+        const x = tx * 16,
+          y = ty * 16;
+        if (tile === T.DOWN_GRASS || tile === T.LANTERN) {
+          r(x, y, 16, 16, 0x687451);
+          // Short blades, moss and leaf litter sit in broad, quiet colour patches.
+          for (let i = 0; i < 5; i++) {
+            const n = noise(tx, ty, i),
+              dx = n % 14,
+              dy = (n >>> 8) % 14;
+            const colors = [0x606d4b, 0x73805a, 0x78825b, 0x5b6b48];
+            r(x + dx, y + dy, 2 + (n % 3), 1, colors[n % 4]);
+            if (i === 0 && n % 3 === 0) r(x + dx + 1, y + dy - 1, 1, 2, 0x879064);
+          }
         }
-      }
-      if (tile !== T.PATH) return;
-      r(x, y, 16, 16, town ? 0x95856a : 0xa0916c);
-      // Irregular small setts in Bree, scattered pebbles on the open road.
-      for (let i = 0; i < (town ? 4 : 2); i++) {
-        const n = noise(tx, ty, i + 12),
-          dx = n % 11,
-          dy = (n >>> 8) % 12;
-        const w = town ? 3 + (n % 5) : 2 + (n % 2),
-          h = town ? 2 + ((n >>> 4) % 3) : 1;
-        r(x + dx, y + dy + h, w, 1, town ? 0x8b7e67 : 0x8d805e);
-        r(x + dx, y + dy, w, h, [0xa19880, 0x9d947e, 0x938b75, 0xa69b80][n % 4]);
-        if (town) r(x + dx + 1, y + dy, w - 1, 1, 0xaaa087);
-      }
-      // Broken verges soften the grid while keeping all visual road inside
-      // the walkable map. Adjacent path tiles never acquire interior seams.
-      for (let offset = 0; offset < 16; offset += 2) {
-        const d = 1 + (noise(x + offset, y, 8) % 4);
-        if (grass(tx, ty - 1)) r(x + offset, y, 2, d, 0x687451);
-        if (grass(tx, ty + 1)) r(x + offset, y + 16 - d, 2, d, 0x687451);
-        if (grass(tx - 1, ty)) r(x, y + offset, d, 2, 0x687451);
-        if (grass(tx + 1, ty)) r(x + 16 - d, y + offset, d, 2, 0x687451);
-      }
-      if (!town && road(tx - 1, ty) && road(tx + 1, ty)) {
-        // Interrupted wheel wear, not a solid ruler-straight stripe.
-        const n = noise(tx, ty, 27);
-        r(x, y + 5 + (n % 2), 9 + (n % 6), 1, 0x968763);
-        r(x + 3, y + 12, 10, 1, 0x968763);
-      }
-    }),
-  );
+        if (tile !== T.PATH) return;
+        r(x, y, 16, 16, town ? 0x95856a : 0xa0916c);
+        // Irregular small setts in Bree, scattered pebbles on the open road.
+        for (let i = 0; i < (town ? 4 : 2); i++) {
+          const n = noise(tx, ty, i + 12),
+            dx = n % 11,
+            dy = (n >>> 8) % 12;
+          const w = town ? 3 + (n % 5) : 2 + (n % 2),
+            h = town ? 2 + ((n >>> 4) % 3) : 1;
+          r(x + dx, y + dy + h, w, 1, town ? 0x8b7e67 : 0x8d805e);
+          r(x + dx, y + dy, w, h, [0xa19880, 0x9d947e, 0x938b75, 0xa69b80][n % 4]);
+          if (town) r(x + dx + 1, y + dy, w - 1, 1, 0xaaa087);
+        }
+        // Broken verges soften the grid while keeping all visual road inside
+        // the walkable map. Adjacent path tiles never acquire interior seams.
+        for (let offset = 0; offset < 16; offset += 2) {
+          const d = 1 + (noise(x + offset, y, 8) % 4);
+          if (grass(tx, ty - 1)) r(x + offset, y, 2, d, 0x687451);
+          if (grass(tx, ty + 1)) r(x + offset, y + 16 - d, 2, d, 0x687451);
+          if (grass(tx - 1, ty)) r(x, y + offset, d, 2, 0x687451);
+          if (grass(tx + 1, ty)) r(x + 16 - d, y + offset, d, 2, 0x687451);
+        }
+        if (!town && road(tx - 1, ty) && road(tx + 1, ty)) {
+          // Interrupted wheel wear, not a solid ruler-straight stripe.
+          const n = noise(tx, ty, 27);
+          r(x, y + 5 + (n % 2), 9 + (n % 6), 1, 0x968763);
+          r(x + 3, y + 12, 10, 1, 0x968763);
+        }
+      }),
+    );
+  });
 }
 
 function furniture(s) {
@@ -107,27 +122,35 @@ function furniture(s) {
 }
 
 export function drawBreeInterior(s) {
-  const g = s.add.graphics().setDepth(1);
-  const r = (x, y, w, h, c, a = 1) => g.fillStyle(c, a).fillRect(x, y, w, h);
-  s.zone.map.forEach((row, ty) =>
-    row.forEach((tile, tx) => {
-      const x = tx * 16,
-        y = ty * 16;
-      if (tile === T.FLOOR) {
-        for (let i = 0; i < 4; i++) {
-          const n = noise(tx, ty * 4 + i);
-          r(x, y + i * 4, 16, 4, [0x806040, 0x886744, 0x795a3d, 0x8e6c46][n % 4]);
-          r(x, y + i * 4 + 3, 16, 1, 0x60472f);
-          if (n % 3 === 0) r(x + (n % 12), y + i * 4, 1, 3, 0x5c4530);
-          if (n % 4 === 0) r(x + 3, y + i * 4 + 1, 7, 1, 0x99744b);
+  terrain(s, (g) => {
+    const r = (x, y, w, h, c, a = 1) => g.fillStyle(c, a).fillRect(x, y, w, h);
+    s.zone.map.forEach((row, ty) =>
+      row.forEach((tile, tx) => {
+        const x = tx * 16,
+          y = ty * 16;
+        if (tile === T.FLOOR) {
+          for (let i = 0; i < 4; i++) {
+            const n = noise(tx, ty * 4 + i);
+            r(x, y + i * 4, 16, 4, [0x806040, 0x886744, 0x795a3d, 0x8e6c46][n % 4]);
+            r(x, y + i * 4 + 3, 16, 1, 0x60472f);
+            if (n % 3 === 0) r(x + (n % 12), y + i * 4, 1, 3, 0x5c4530);
+            if (n % 4 === 0) r(x + 3, y + i * 4 + 1, 7, 1, 0x99744b);
+          }
+          if (tx === 1 || tx === s.mapWidth - 2) r(x, y, 16, 16, 0x211e1a, 0.14);
         }
-        if (tx === 1 || tx === s.mapWidth - 2) r(x, y, 16, 16, 0x211e1a, 0.14);
-      }
-      if (tile === T.WINDOW_I) {
-        r(x - 1, y + 17, 18, 24, 0xf6d997, 0.05);
-      }
-    }),
-  );
+        if (tile === T.WINDOW_I) {
+          r(x - 1, y + 17, 18, 24, 0xf6d997, 0.05);
+        }
+      }),
+    );
+    if (s.zoneKey === 'ponyparlour') {
+      // A woven hearth rug makes this a small, furnished sitting room.
+      r(8 * 16, 4 * 16, 4 * 16, 2 * 16, 0x5d3931);
+      r(8 * 16 + 3, 4 * 16 + 3, 58, 26, 0x94654c);
+      r(8 * 16 + 5, 4 * 16 + 5, 54, 22, 0x69473a);
+      for (let x = 132; x < 188; x += 8) r(x, 74, 3, 3, 0xb09567);
+    }
+  });
   const trim = s.add.graphics().setDepth(22);
   trim.fillStyle(0x322219).fillRect(16, 28, (s.mapWidth - 2) * 16, 4);
   trim.fillStyle(0xa27b4f).fillRect(16, 28, (s.mapWidth - 2) * 16, 1);
@@ -143,11 +166,4 @@ export function drawBreeInterior(s) {
       s.tweens.add({ targets: glow, alpha: 0.045, duration: 1800, yoyo: true, repeat: -1 });
     }
   furniture(s);
-  if (s.zoneKey === 'ponyparlour') {
-    // A woven hearth rug makes this a small, furnished sitting room.
-    r(8 * 16, 4 * 16, 4 * 16, 2 * 16, 0x5d3931);
-    r(8 * 16 + 3, 4 * 16 + 3, 58, 26, 0x94654c);
-    r(8 * 16 + 5, 4 * 16 + 5, 54, 22, 0x69473a);
-    for (let x = 132; x < 188; x += 8) r(x, 74, 3, 3, 0xb09567);
-  }
 }
