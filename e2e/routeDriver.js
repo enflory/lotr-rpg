@@ -79,8 +79,12 @@ export function driveRoute({ stops, zone, frameTimeoutMs = 5000, noMovementTimeo
         const [x, y] = stops[index],
           dx = x * 16 + 8 - s.player.x,
           dy = y * 16 - s.player.y;
-        if (last && Math.hypot(s.player.x - last.x, s.player.y - last.y) > 0.1)
-          lastMovement = performance.now();
+        const stride = last ? Math.hypot(s.player.x - last.x, s.player.y - last.y) : 0;
+        if (stride > 0.1) lastMovement = performance.now();
+        // A slow frame can jump over the old two-pixel window indefinitely.
+        // Brake one observed step early, allowing for the physics step queued
+        // before WorldScene reads the released key. Stay within half a tile.
+        const tolerance = Math.max(2, Math.min(8, stride + 1));
         last = { x: s.player.x, y: s.player.y };
         if (performance.now() - lastMovement > noMovementTimeoutMs) {
           fail(new Error(`Blocked in ${zone} at ${s.player.x},${s.player.y}, aiming at ${x},${y}`));
@@ -88,15 +92,15 @@ export function driveRoute({ stops, zone, frameTimeoutMs = 5000, noMovementTimeo
         }
         // Centre the perpendicular axis before a long straight passage. This
         // prevents clipping a corner merely because the previous frame overshot.
-        if (Math.abs(dx) < 2 && Math.abs(dy) < 2) {
+        if (Math.abs(dx) < tolerance && Math.abs(dy) < tolerance) {
           key(null);
           index++;
-        } else if (Math.abs(dx) > 2 && Math.abs(dy) > 2) {
+        } else if (Math.abs(dx) >= tolerance && Math.abs(dy) >= tolerance) {
           const horizontal = index === 0 || stops[index - 1][1] === y;
           key(
             horizontal ? (dy > 0 ? 'ArrowDown' : 'ArrowUp') : dx > 0 ? 'ArrowRight' : 'ArrowLeft',
           );
-        } else if (Math.abs(dx) >= 2) key(dx > 0 ? 'ArrowRight' : 'ArrowLeft');
+        } else if (Math.abs(dx) >= tolerance) key(dx > 0 ? 'ArrowRight' : 'ArrowLeft');
         else key(dy > 0 ? 'ArrowDown' : 'ArrowUp');
         requestAnimationFrame(tick);
       } catch (error) {

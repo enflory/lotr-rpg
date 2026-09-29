@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { driveRoute } from './routeDriver.js';
 
 async function press(page, key) {
   await page.keyboard.down(key);
@@ -43,11 +44,7 @@ async function approachRider(page) {
     scene.lastDir = 'right';
     scene.snapFollower();
   });
-  await page.keyboard.down('ArrowRight');
-  await page.waitForFunction(
-    () => window.__game.scene.getScene('WorldScene').player.x >= 12 * 16 + 8,
-  );
-  await page.keyboard.up('ArrowRight');
+  expect(await page.evaluate(driveRoute, { zone: 'woodyend', stops: [[12, 15]] })).toBe('done');
 }
 
 for (const direction of ['north', 'south']) {
@@ -59,13 +56,14 @@ for (const direction of ['north', 'south']) {
     await boot(page, true);
     await forest(page);
     await approachRider(page);
-    const key = direction === 'north' ? 'ArrowUp' : 'ArrowDown';
-    await page.keyboard.down(key);
-    await page.waitForFunction((north) => {
-      const y = window.__game.scene.getScene('WorldScene').player.y;
-      return north ? y <= 12 * 16 : y >= 19 * 16;
-    }, direction === 'north');
-    await page.keyboard.up(key);
+    // Release inside the browser's frame loop. A Playwright round trip after
+    // reaching the north brake could carry Frodo through it into bare grass.
+    expect(
+      await page.evaluate(driveRoute, {
+        zone: 'woodyend',
+        stops: [[12, direction === 'north' ? 12 : 19]],
+      }),
+    ).toBe('done');
     await expect
       .poll(
         () =>
