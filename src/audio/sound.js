@@ -206,6 +206,14 @@ export function playMusic(id) {
 export function stopMusic() {
   if (current.timer) clearInterval(current.timer);
   current = { id: null, timer: null, nextBarTime: 0 };
+  // Retire the output too: notes already scheduled must fall silent now,
+  // and must not resume when the next song starts. Sound effects use master.
+  if (musicGain) {
+    musicGain.disconnect();
+    musicGain = ctx.createGain();
+    musicGain.gain.value = 0.32;
+    musicGain.connect(master);
+  }
 }
 
 /* ── sfx ────────────────────────────────────────────────── */

@@ -188,7 +188,10 @@ export const ponycommon = {
     cue(6, 5, 'bree_welcome', 'Butterbur’s welcome'),
     cue(13, 11, 'bree_company', 'Meet the company'),
     cue(14, 10, 'bree_song', 'Pippin’s story'),
-    inspect(7, 16, 'bree_locals', 'Talk with the company'),
+    {
+      ...inspect(18, 11, 'bree_locals', 'Talk with the company'),
+      when: (f) => f.breeCompany && !f.breeRingSlip,
+    },
     { ...inspect(24, 8, 'bree_fern', 'The whispering corner'), when: (f) => !f.breeRingSlip },
   ],
   exits: [

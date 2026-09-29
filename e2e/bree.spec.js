@@ -346,6 +346,28 @@ test('Continue during Butterbur’s escort replays the unfinished welcome with a
   await zone(page, 'ponyparlour');
 });
 
+test('the optional company conversation stays beside the audience and ends when the guests leave', async ({
+  page,
+}) => {
+  await checkpoint(page, 'ponycommon', 'door', { ...afterDowns, ...before('bree_song') });
+  expect(
+    await page.evaluate(() => {
+      const s = window.__game.scene.getScene('WorldScene');
+      const cue = s.zone.interactions.find((p) => p.dialogue === 'bree_locals');
+      const a = s.bree.actors.breedwarf;
+      return Math.hypot(cue.x * 16 + 8 - a.x, cue.y * 16 - a.y);
+    }),
+  ).toBeLessThan(40);
+  await act(page, 'bree_locals');
+  await checkpoint(page, 'ponycommon', 'door', { ...afterDowns, ...before('bree_strider') });
+  expect(
+    await page.evaluate(() => {
+      const s = window.__game.scene.getScene('WorldScene');
+      return s.interactionMarks.find(({ p }) => p.dialogue === 'bree_locals').dot.visible;
+    }),
+  ).toBe(false);
+});
+
 test('touch action advances the gate conversation and inventory still works', async ({ page }) => {
   await page.addInitScript(() =>
     Object.defineProperty(window, 'matchMedia', {

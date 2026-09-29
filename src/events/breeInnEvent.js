@@ -33,6 +33,7 @@ function meal(s) {
 
 export function restoreInnPositions(s) {
   const f = gameState.flags;
+  if (s.zoneKey === 'ponyparlour' && !f.breeRingSlip) playMusic('interior');
   if (s.zoneKey === 'ponycommon' && f.breeCompany && !f.breeRingSlip) {
     friend(s, 'pippin')
       .setPosition(15 * 16 + 8, 9 * 16)
