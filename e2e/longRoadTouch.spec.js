@@ -139,7 +139,7 @@ for (const [label, device] of [
       await expect.poll(() => scene(page, (s) => s.dialogActive)).toBe(true);
       await tapThrough(page, (s) => s.dialogIndex === 3 && !s.typing);
       expect(await controlsCover(page)).toEqual([]);
-      await tapThrough(page, (s) => !!window.__state.flags.marshEntered);
+      await tapThrough(page, (_s) => !!window.__state.flags.marshEntered);
       expect(await scene(page, (s) => s.actionVerb())).toBe('TAP A');
       await page.screenshot({ path: test.info().outputPath(`midgewater-${label}.png`) });
     });
@@ -155,7 +155,7 @@ for (const [label, device] of [
         expect(await scene(page, (s) => s.actionHint.text)).toContain(`TAP A · ${prompt}`);
         expect(await controlsCover(page)).toEqual([]);
       }
-      await tapThrough(page, (s) => !!window.__state.flags.frodoWounded);
+      await tapThrough(page, (_s) => !!window.__state.flags.frodoWounded);
       expect(await scene(page, (s) => s.player.angle)).toBe(0);
     });
 
@@ -169,7 +169,7 @@ for (const [label, device] of [
       const cover = await controlsCover(page);
       expect(cover).toEqual([]);
       await page.screenshot({ path: test.info().outputPath(`mount-${label}.png`) });
-      await tapThrough(page, (s) => !!window.__state.flags.chapter5Complete);
+      await tapThrough(page, (_s) => !!window.__state.flags.chapter5Complete);
       expect(await scene(page, (s) => s.player.x)).toBeGreaterThan(34 * 16);
       await page.screenshot({ path: test.info().outputPath(`ford-${label}.png`) });
     });
