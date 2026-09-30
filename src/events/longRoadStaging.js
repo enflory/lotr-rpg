@@ -9,7 +9,7 @@ export const AT = {
   striderAtFire: { zone: 'weathertop', x: 40, y: 28 },
   dellRim: { zone: 'weathertop', x: 39, y: 24 },
   // The Trollshaws
-  plants: { zone: 'trollshaws', x: 12, y: 22 },
+  plants: { zone: 'trollshaws', x: 4, y: 20 },
   bridgeMeet: { zone: 'trollshaws', x: 42, y: 15 },
   elfLands: { zone: 'trollshaws', x: 48, y: 14 },
   elfSteed: { zone: 'trollshaws', x: 49, y: 16 },

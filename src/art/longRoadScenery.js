@@ -45,7 +45,7 @@ export function drawLongRoadScenery(s) {
     }
     // A cloud of midges: tiny specks that never settle.
     fx.midges = s.add.container(0, 0).setDepth(830).setAlpha(0.45);
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < 44; i++) {
       const x = rnd(i, 5) * s.mapWidth * 16,
         y = rnd(i, 6) * s.mapHeight * 16;
       const dot = s.add.rectangle(x, y, 2, 1, 0x14120a);

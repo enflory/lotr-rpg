@@ -104,6 +104,7 @@ export const weathertop = {
   spawns: {
     west: { x: 2, y: 30, dir: 'right' },
     east: { x: 49, y: 30, dir: 'left' },
+    summit: { x: 26, y: 10, dir: 'up' },
     dell: { x: 38, y: 28, dir: 'up' },
   },
   npcs: [],
@@ -111,7 +112,7 @@ export const weathertop = {
   signs: [],
   interactions: [
     cue(5, 30, 'road_hill', 'The hill in the wilderness'),
-    cue(26, 8, 'road_rune', 'The flat stone'),
+    cue(27, 8, 'road_rune', 'The flat stone'),
     cue(39, 29, 'road_fire', 'Light a fire'),
     cue(39, 29, 'road_attack', 'Watch the dark'),
     cue(39, 29, 'road_wound', 'Go to Frodo'),
@@ -120,7 +121,7 @@ export const weathertop = {
   ],
   exits: [
     exit(0, 30, 'midgewater', 'east'),
-    exit(51, 30, 'trollshaws', 'west', 'frodoWounded', 'Frodo is hurt. See to him first.'),
+    exit(51, 30, 'trollshaws', 'west', 'frodoWounded', 'The night on the hill is still to come.'),
   ],
   ...hooks,
 };
@@ -129,14 +130,15 @@ export const weathertop = {
 const shaws = field(60, 30, T.LEAVES, T.AUTUMN_TREE);
 scatter(shaws, 4, 7, 0.55, T.AUTUMN_TREE);
 clearing(shaws, 30, 14, 8, 5, T.LEAVES);
-rect(shaws, 43, 1, 4, 28, T.WATER);
-wind(shaws, [[1, 18], [12, 21], [20, 16], [30, 15], [42, 15]], 1, T.PATH);
-wind(shaws, [[48, 15], [58, 15]], 1, T.PATH);
-rect(shaws, 43, 15, 4, 1, T.BRIDGE);
-rect(shaws, 43, 14, 4, 1, T.BRIDGE);
-clearing(shaws, 13, 22, 2, 1, T.LEAVES);
-shaws[22][13] = T.FLOWERS;
-shaws[22][12] = T.FLOWERS;
+// The Hoarwell, crossed by the Last Bridge, lies west of the troll glade.
+rect(shaws, 8, 1, 4, 28, T.WATER);
+wind(shaws, [[1, 18], [5, 17], [7, 15]], 1, T.PATH);
+wind(shaws, [[12, 15], [20, 16], [30, 15], [58, 15]], 1, T.PATH);
+wind(shaws, [[5, 17], [5, 19]], 0, T.PATH);
+rect(shaws, 8, 14, 4, 3, T.BRIDGE);
+clearing(shaws, 5, 20, 2, 1, T.LEAVES);
+shaws[20][5] = T.FLOWERS;
+shaws[20][4] = T.FLOWERS;
 // Three trolls, turned to stone. Their footprints are solid.
 rect(shaws, 26, 10, 2, 2, T.RUIN);
 rect(shaws, 30, 9, 2, 2, T.RUIN);
@@ -151,15 +153,19 @@ export const trollshaws = {
   label: 'The Trollshaws',
   music: 'trollshaws',
   map: shaws,
-  spawns: { west: { x: 2, y: 18, dir: 'right' }, east: { x: 57, y: 15, dir: 'left' } },
+  spawns: {
+    west: { x: 2, y: 18, dir: 'right' },
+    east: { x: 57, y: 15, dir: 'left' },
+    meet: { x: 40, y: 15, dir: 'right' },
+  },
   npcs: [],
   doors: [],
   signs: [],
   interactions: [
-    cue(13, 22, 'road_athelas', 'A sweet-smelling weed'),
+    cue(5, 20, 'road_athelas', 'A sweet-smelling weed'),
     cue(30, 14, 'road_trolls', 'Three stone figures'),
     cue(40, 15, 'road_glorfindel', 'Hoofbeats on the Road'),
-    inspect(44, 14, 'road_bridge', 'The Last Bridge'),
+    inspect(9, 14, 'road_bridge', 'The Last Bridge'),
     inspect(20, 16, 'road_beech', 'A red-gold beech'),
   ],
   exits: [
@@ -193,7 +199,7 @@ export const bruinen = {
   interactions: [
     cue(5, 11, 'road_ford', 'Glorfindel and the white horse'),
     inspect(26, 9, 'road_river', 'The Bruinen'),
-    inspect(38, 11, 'road_nine', 'The far bank', (f) => f.chapter5Complete),
+    inspect(38, 11, 'road_nine', 'The Riders across the water', (f) => f.chapter5Complete),
   ],
   exits: [exit(0, 11, 'trollshaws', 'east')],
   ...hooks,

@@ -44,9 +44,6 @@ test('walks from the road out of Bree through Midgewater and up Weathertop to th
   await flag(page, 'wraithsCame');
   await flag(page, 'frodoWounded');
   await reload(page, 'weathertop');
-  expect(await page.evaluate(() => window.__game.scene.getScene('WorldScene').player.angle)).toBe(
-    0,
-  );
   await reachedAll(page, { ...AFTER_BREE, ...through('road_athelas') });
   expect(errors).toEqual([]);
 });

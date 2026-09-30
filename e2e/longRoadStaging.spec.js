@@ -142,7 +142,9 @@ test('the ride to the Ford moves every rider smoothly, with nobody on blocked gr
   const blocked = await page.evaluate(async () => {
     const { COLLISION_TILES } = await import('/src/data/tileTypes.js');
     const s = window.__game.scene.getScene('WorldScene');
-    const tile = (p) => s.zone.map[Math.floor((p.y + 8) / 16)]?.[Math.floor(p.x / 16)];
+    // Riders and the steed are bottom-origin (feet at y); the player is centre-origin.
+    const tile = (p) =>
+      s.zone.map[Math.floor((p === s.player ? p.y + 8 : p.y) / 16)]?.[Math.floor(p.x / 16)];
     return [s.player, ...s.road.riders].filter((p) => COLLISION_TILES.includes(tile(p))).length;
   });
   expect(blocked).toBe(0);

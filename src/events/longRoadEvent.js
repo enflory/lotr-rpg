@@ -31,7 +31,7 @@ const gather = (s) => {
   return regroup(s, x, y, s.lastDir);
 };
 
-/** The nine wait on the far bank of the Ford once Frodo has crossed. */
+/** The nine wait on the western bank of the Ford, where Frodo began, once he has crossed. */
 export const RIDERS_AT = [
   [25, 9],
   [24, 10],
@@ -44,7 +44,8 @@ export const RIDERS_AT = [
   [26, 8],
 ];
 
-function nightLevel(f) {
+function nightLevel(f, zoneKey) {
+  if (zoneKey !== 'weathertop') return 0;
   if (f.frodoWounded) return 0;
   if (f.fireTale) return 0.34;
   if (f.runeRead) return 0.12;
@@ -81,14 +82,22 @@ function refresh(s) {
   if (r.active) restoreParty(s, r);
   setObjective(roadObjective(f));
   for (const { p, dot } of s.interactionMarks) dot.setVisible(!p.when || p.when(f));
-  r.night.setAlpha(nightLevel(f));
+  r.night.setAlpha(nightLevel(f, s.zoneKey));
   r.chill.setAlpha(chillLevel(f));
   r.sight.setAlpha(0);
   const fx = r.fx;
   if (fx.fire) fx.fire.forEach((o) => o.setVisible(!!f.fireTale && !f.frodoWounded));
   if (fx.midges) fx.midges.setAlpha(f.midgesEndured ? 0.3 : 0.45);
-  // While the night camp is live, Continue returns to it rather than to the hill's edge.
-  if (s.zoneKey === 'weathertop' && f.fireTale && !f.frodoWounded) s.entryKey = 'dell';
+  // Continue returns to where the story is, not to the edge the party came in by.
+  const home =
+    s.zoneKey === 'weathertop' && f.runeRead && !f.frodoWounded
+      ? f.fireTale
+        ? 'dell'
+        : 'summit'
+      : s.zoneKey === 'trollshaws' && f.glorfindelMet && !f.fordReached
+        ? 'meet'
+        : null;
+  if (home && s.entryKey !== home) s.checkpoint(home);
   if (s.zoneKey === 'trollshaws') {
     // Once the company has gone on to the Ford, the Elf and his horse are there, not here.
     const there = !!f.glorfindelMet && !f.fordReached;
@@ -240,18 +249,10 @@ const SCENES = {
         if (st) face(st, 'left');
       });
     if (i === 3) beat(s, () => gesture(s, friend(s, 'strider')));
+    // Strider rises and climbs alone to listen; the hobbits keep the fire.
     if (i === 4)
       beat(s, async () => {
-        const g = s.add
-          .graphics({ x: 37 * TILE, y: 23 * TILE })
-          .setDepth(23 * TILE)
-          .setAlpha(0)
-          .setScale(0.85);
-        drawWraith(g, false);
-        await tween(s, g, { alpha: 0.6 }, 700);
-        await tween(s, g, { alpha: 0 }, 700);
-        g.destroy();
-        await gather(s);
+        await go(s, friend(s, 'strider'), AT.dellRim);
       });
   },
   road_attack(s, i) {
@@ -412,7 +413,7 @@ const SCENES = {
         await pause(s, 1200);
       });
     if (i === 1) beat(s, () => gesture(s, friend(s, 'sam')));
-    if (i === 2) beat(s, () => gesture(s, friend(s, 'merry')));
+    if (i === 2) beat(s, () => gesture(s, s.player));
     if (i === 3)
       beat(s, async () => {
         const sam = friend(s, 'sam');

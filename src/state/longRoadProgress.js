@@ -47,19 +47,19 @@ export const LONG_ROAD_BEATS = [
     key: 'road_athelas',
     flag: 'athelasFound',
     zone: 'trollshaws',
-    objective: 'Look for kingsfoil among the roadside weeds',
+    objective: 'Look for kingsfoil by the roadside',
   },
   {
     key: 'road_trolls',
     flag: 'trollsSeen',
     zone: 'trollshaws',
-    objective: 'Follow the stream to the troll glade',
+    objective: 'Cross the Last Bridge and find the troll glade',
   },
   {
     key: 'road_glorfindel',
     flag: 'glorfindelMet',
     zone: 'trollshaws',
-    objective: 'Cross the Last Bridge. Hoofbeats are coming',
+    objective: 'Follow the Road east. Hoofbeats are coming',
   },
   {
     key: 'road_ford',

@@ -53,7 +53,7 @@ A top-down pixel art RPG covering the full story of The Fellowship of the Ring i
 **Places**: Midgewater Marshes, Weathertop, Trollshaws, road toward Bruinen
 **Key characters**: Aragorn, Nazgul (Witch-king), Glorfindel
 **Story beats**: Miserable marsh crossing, campfire on Weathertop (Aragorn tells the tale of Beren and Luthien), Nazgul attack (Frodo stabbed by Morgul-blade), stone trolls comic relief, Glorfindel's arrival, desperate ride to the Ford
-**Signature mechanics**: Endurance/survival (marshes drain stamina, Neekerbreekers prevent rest), Weathertop battle (first major combat — Frodo uses the Ring, sees the wraiths' true forms), wound mechanic (Frodo weakened after stabbing, ticking clock to reach Rivendell), mounted escape sequence (riding Asfaloth)
+**Signature mechanics**: As built: a staged Weathertop attack (Frodo slips on the Ring and sees the wraiths' true forms; no combat system), a wound shown as a cold tint that athelas eases (no timer), Midgewater misery through haze and midges (no stamina meter), and a scripted mounted escape on Asfaloth. The original plan for stamina, combat and a wound clock was not needed and was not built.
 **Status**: Playable in four linked zones (Midgewater, Weathertop, the Trollshaws, the Ford of Bruinen), from the road out of Bree to the Nine gathered on the western bank of the Ford. The flood and Rivendell open chapter six. The wound is a visual cue, not a timer, and no endurance meter is used; see `lore/long-road-adaptation.md` for source anchors and compression.
 **Visual palette**: Brown/grey bogland → windswept hilltop ruins → autumn woodland (red/gold Trollshaws) → rushing river. Mood shifts from misery → dread → brief humor → desperate flight.
 
