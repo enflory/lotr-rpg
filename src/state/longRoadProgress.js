@@ -72,10 +72,6 @@ export const LONG_ROAD_BEATS = [
 /** @param {Record<string, boolean>} flags */
 export const nextRoadBeat = (flags) => LONG_ROAD_BEATS.find((b) => !flags[b.flag]) ?? null;
 
-/** True while this chapter is the live story: Bree done, Ford not yet crossed.
- * @param {Record<string, boolean>} flags */
-export const onTheRoad = (flags) => !!flags.chapter4Complete && !flags.chapter5Complete;
-
 /** @param {Record<string, boolean>} flags @param {string} key */
 export const isRoadBeat = (flags, key) =>
   !!flags.chapter4Complete && nextRoadBeat(flags)?.key === key;

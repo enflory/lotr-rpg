@@ -211,3 +211,38 @@ test('the road cannot be skipped: each exit waits for its beat, and a read cue i
     ),
   ).toBe(0);
 });
+
+test('the Ford cannot be waded before the ride, and Glorfindel is only ever in one place', async ({
+  page,
+}) => {
+  test.setTimeout(120000);
+  await checkpoint(page, 'bruinen', 'west', { ...AFTER_BREE, ...through('road_ford') });
+  expect(await ev(page, 'window.__state.flags.fordReached')).toBe(true);
+  await walk(page, 27, 11);
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(1500);
+  await page.keyboard.up('ArrowRight');
+  expect(await ev(page, 's.player.x')).toBeLessThan(29 * 16);
+  expect(await ev(page, 's.banner.text')).toMatch(/Glorfindel/);
+  // Back through the trees to the Trollshaws: the Elf and his horse are not there too.
+  await walk(page, 0, 11);
+  await zone(page, 'trollshaws');
+  expect(await ev(page, 's.road.glorfindel.visible')).toBe(false);
+  expect(await ev(page, 's.road.steed.visible')).toBe(false);
+});
+
+test('walking back never brings the wrong checkpoint or objective with it', async ({ page }) => {
+  test.setTimeout(120000);
+  // Back from Midgewater into Bree's road: this chapter's objective, not chapter four's.
+  await checkpoint(page, 'midgewater', 'west', { ...AFTER_BREE, ...through('road_midges') });
+  await walk(page, 0, 13);
+  await zone(page, 'breeroad');
+  expect(await ev(page, 'window.__state.objective')).toMatch(/dry bank/);
+  // Back up to Weathertop after the wound: the dell is only the live camp's checkpoint.
+  await checkpoint(page, 'weathertop', 'dell', { ...AFTER_BREE, ...through('road_athelas') });
+  expect(await ev(page, 's.entryKey')).toBe('dell');
+  await ev(page, "s.goToZone('weathertop', 'west')");
+  await zone(page, 'weathertop');
+  await page.waitForTimeout(600);
+  expect(await ev(page, 's.entryKey')).toBe('west');
+});

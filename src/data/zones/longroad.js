@@ -1,25 +1,13 @@
 import { T } from '../tileTypes.js';
-import { field, wind, clearing, smoothNoise } from './journeyMap.js';
+import { field, wind, clearing, smoothNoise, point, edge } from './journeyMap.js';
 import { isRoadBeat } from '../../state/longRoadProgress.js';
 import { roadCreate, roadUpdate, roadDialogue } from '../../events/longRoadEvent.js';
 
 // Chapter 5, "The Long Road": Midgewater, Weathertop, the Trollshaws and the
 // Ford of Bruinen. Routes are carved last so that scatter can never seal them.
 const cue = (x, y, key, label) => ({ x, y, dialogue: key, label, when: (f) => isRoadBeat(f, key) });
-const inspect = (x, y, key, label, when) => ({
-  x,
-  y,
-  dialogue: key,
-  label,
-  ...(when ? { when } : {}),
-});
-const exit = (x, y, zone, entry, requires, denied) => ({
-  x,
-  y,
-  zone,
-  entry,
-  ...(requires ? { requires, denied } : {}),
-});
+const inspect = point;
+const exit = edge;
 const rect = (m, x, y, w, h, t) => {
   for (let j = y; j < y + h; j++) for (let i = x; i < x + w; i++) m[j][i] = t;
 };

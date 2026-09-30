@@ -97,7 +97,6 @@ describe('Chapter 5: the long road', () => {
 
   it('keeps every scripted mark on open ground and within reach of the spawns', () => {
     for (const [name, at] of Object.entries(AT)) {
-      if (name === 'gladeEdge') continue; // camera target only
       expect(open(at.zone, at.x, at.y), name).toBe(true);
     }
     for (const [x, y] of RIDERS_AT) expect(open('bruinen', x, y), `rider ${x},${y}`).toBe(true);

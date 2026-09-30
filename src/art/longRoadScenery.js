@@ -3,7 +3,12 @@
 // Every object is given a depth when it is created (the baked ground sits at 3).
 import { drawTroll, drawRuneStone } from './longRoadArt.js';
 
-const rnd = (i, n) => ((i * 9301 + 49297 + n * 233) % 233280) / 233280;
+// A small integer hash, so the two axes of one scatter are independent.
+const rnd = (i, n) => {
+  let h = Math.imul(i + 1, 374761393) ^ Math.imul(n + 7, 668265263);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+};
 
 function drifters(s, count, { colors, w, h, dx, dy, alpha, depth, time }) {
   const out = [];
@@ -32,13 +37,11 @@ export function drawLongRoadScenery(s) {
   const fx = {};
   const key = s.zoneKey;
   if (key === 'midgewater') {
-    fx.mist = [];
     for (let i = 0; i < 14; i++) {
       const x = rnd(i, 3) * s.mapWidth * 16,
         y = (2 + rnd(i, 4) * (s.mapHeight - 4)) * 16;
       const m = s.add.rectangle(x, y, 150, 14, 0xc4d2b4, 0.1).setDepth(820);
       s.tweens.add({ targets: m, x: x + 60, duration: 7000 + i * 400, yoyo: true, repeat: -1 });
-      fx.mist.push(m);
     }
     // A cloud of midges: tiny specks that never settle.
     fx.midges = s.add.container(0, 0).setDepth(830).setAlpha(0.45);
@@ -59,8 +62,8 @@ export function drawLongRoadScenery(s) {
     }
   }
   if (key === 'weathertop') {
-    fx.stone = s.add.graphics({ x: 26 * 16 + 8, y: 8 * 16 + 11 }).setDepth(8 * 16 + 12);
-    drawRuneStone(fx.stone);
+    const stone = s.add.graphics({ x: 26 * 16 + 8, y: 8 * 16 + 11 }).setDepth(8 * 16 + 12);
+    drawRuneStone(stone);
     drifters(s, 22, {
       colors: [0xe2e4d0, 0xc8ccb4],
       w: 9,
@@ -109,14 +112,12 @@ export function drawLongRoadScenery(s) {
       [31, 11, 'standing'],
       [35, 13, 'seated'],
     ];
-    fx.trolls = trolls.map(([tx, ty, kind]) => {
+    for (const [tx, ty, kind] of trolls) {
       const g = s.add.graphics({ x: tx * 16, y: ty * 16 }).setDepth(ty * 16 + 6);
       drawTroll(g, kind);
-      return g;
-    });
+    }
   }
   if (key === 'bruinen') {
-    fx.foam = [];
     for (let i = 0; i < 16; i++) {
       const x = (28 + rnd(i, 7) * 6) * 16,
         y = (9 + rnd(i, 8) * 5) * 16;
@@ -129,7 +130,6 @@ export function drawLongRoadScenery(s) {
         delay: i * 130,
         repeat: -1,
       });
-      fx.foam.push(d);
     }
     for (let i = 0; i < 8; i++) {
       const y = (2 + i * 2.6) * 16;

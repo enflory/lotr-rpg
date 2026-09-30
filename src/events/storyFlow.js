@@ -48,3 +48,14 @@ export function restoreParty(s, st) {
   s.cameras.main.startFollow(s.player, true, 0.08, 0.08);
   st.active = false;
 }
+
+/** A standing character on the map: feet on the tile, sorted by depth, facing `dir`. */
+export function placeActor(s, key, x, y, dir = 'down', scale = 1) {
+  const p = s.add
+    .sprite(x * 16 + 8, y * 16, key)
+    .setData('key', key)
+    .setDepth(y * 16)
+    .setScale(scale);
+  p.play(`${key}-idle-${dir}`);
+  return p;
+}

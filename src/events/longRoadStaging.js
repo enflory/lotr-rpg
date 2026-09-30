@@ -8,10 +8,8 @@ export const AT = {
   samAtFire: { zone: 'weathertop', x: 38, y: 28 },
   striderAtFire: { zone: 'weathertop', x: 40, y: 28 },
   dellRim: { zone: 'weathertop', x: 39, y: 24 },
-  frodoSide: { zone: 'weathertop', x: 39, y: 29 },
   // The Trollshaws
   plants: { zone: 'trollshaws', x: 12, y: 22 },
-  gladeEdge: { zone: 'trollshaws', x: 30, y: 14 },
   bridgeMeet: { zone: 'trollshaws', x: 42, y: 15 },
   elfLands: { zone: 'trollshaws', x: 48, y: 14 },
   elfSteed: { zone: 'trollshaws', x: 49, y: 16 },
@@ -19,6 +17,5 @@ export const AT = {
   elfStart: { zone: 'bruinen', x: 6, y: 10 },
   steedStart: { zone: 'bruinen', x: 8, y: 12 },
   mountSpot: { zone: 'bruinen', x: 7, y: 12 },
-  farBank: { zone: 'bruinen', x: 38, y: 11 },
 };
 export const RIDE = { y: 11, from: 8, water: 27, across: 36 };

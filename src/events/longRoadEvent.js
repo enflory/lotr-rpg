@@ -1,4 +1,4 @@
-import { gameState, setObjective } from '../state/GameState.js';
+import { gameState, setFlag, setObjective } from '../state/GameState.js';
 import { roadObjective, isRoadBeat } from '../state/longRoadProgress.js';
 import { drawLongRoadScenery } from '../art/longRoadScenery.js';
 import { drawWraith } from '../art/longRoadArt.js';
@@ -14,7 +14,7 @@ import {
   regroup,
 } from './breeStoryMotion.js';
 import { walk, tween } from './storyMotion.js';
-import { runBeat, restoreParty } from './storyFlow.js';
+import { runBeat, restoreParty, placeActor } from './storyFlow.js';
 import { AT, RIDE } from './longRoadStaging.js';
 import { sfx } from '../audio/sound.js';
 
@@ -53,15 +53,7 @@ function nightLevel(f) {
 const chillLevel = (f) =>
   f.chapter5Complete ? 0.12 : f.frodoWounded ? (f.athelasFound ? 0.07 : 0.13) : 0;
 
-function actor(s, key, x, y, dir = 'down') {
-  const p = s.add
-    .sprite(x * TILE + 8, y * TILE, key)
-    .setData('key', key)
-    .setDepth(y * TILE);
-  p.setScale(1.25);
-  p.play(`${key}-idle-${dir}`);
-  return p;
-}
+const actor = (s, key, x, y, dir = 'down') => placeActor(s, key, x, y, dir, 1.25);
 function steedAt(s, x, y, anim = 'steed-idle') {
   const p = s.add.sprite(x * TILE + 8, y * TILE + 12, 'steed').setOrigin(0.5, 1);
   p.setDepth(y * TILE + 14);
@@ -95,10 +87,11 @@ function refresh(s) {
   const fx = r.fx;
   if (fx.fire) fx.fire.forEach((o) => o.setVisible(!!f.fireTale && !f.frodoWounded));
   if (fx.midges) fx.midges.setAlpha(f.midgesEndured ? 0.3 : 0.45);
-  // The camp is where Continue returns to once the night has begun.
-  if (s.zoneKey === 'weathertop' && f.fireTale) s.entryKey = 'dell';
+  // While the night camp is live, Continue returns to it rather than to the hill's edge.
+  if (s.zoneKey === 'weathertop' && f.fireTale && !f.frodoWounded) s.entryKey = 'dell';
   if (s.zoneKey === 'trollshaws') {
-    const there = !!f.glorfindelMet;
+    // Once the company has gone on to the Ford, the Elf and his horse are there, not here.
+    const there = !!f.glorfindelMet && !f.fordReached;
     r.glorfindel?.setVisible(there);
     r.steed?.setVisible(there);
   }
@@ -116,7 +109,7 @@ function refresh(s) {
 }
 
 export function roadCreate(s) {
-  s.road = { active: false, lastState: '', actors: {}, riders: null, fx: {} };
+  s.road = { active: false, lastState: -1, riders: null, fx: {} };
   s.journey = { ponies: null };
   const r = s.road,
     f = gameState.flags;
@@ -141,10 +134,12 @@ export function roadCreate(s) {
   if (s.zoneKey === 'bruinen') {
     r.glorfindel = actor(s, 'glorfindel', AT.elfStart.x, AT.elfStart.y, 'right');
     r.steed = steedAt(s, AT.steedStart.x, AT.steedStart.y);
+    // Behind Frodo once he is across; before the ride the shallows are fenced by roadUpdate.
     r.block = s.add.zone(33 * TILE + 8, 11.5 * TILE, TILE, 7 * TILE);
     s.physics.add.existing(r.block, true);
     s.physics.add.collider(s.player, r.block);
     r.block.body.enable = !!f.chapter5Complete;
+    if (f.glorfindelMet) setFlag('fordReached');
   }
   refresh(s);
 }
@@ -152,10 +147,19 @@ export function roadCreate(s) {
 export function roadUpdate(s, delta) {
   if (!s.road || s.dialogActive || s.transitioning) return;
   const r = s.road;
-  const state = JSON.stringify(gameState.flags);
+  // Flags are only ever added, so their count is a cheap change signal.
+  const state = Object.keys(gameState.flags).length;
   if (state !== r.lastState || r.active) {
     r.lastState = state;
     refresh(s);
+  }
+  // Until Frodo has ridden, the shallows are not his to wade alone.
+  if (s.zoneKey === 'bruinen' && !gameState.flags.chapter5Complete && s.player.x > 28 * TILE) {
+    s.player.x -= 14;
+    if (!r.deniedAt || s.time.now - r.deniedAt > 1800) {
+      r.deniedAt = s.time.now;
+      s.showBanner('Go to Glorfindel first. He is waiting by the road.');
+    }
   }
   // The wound follows the stabbing without any walking in between.
   if (s.zoneKey === 'weathertop' && isRoadBeat(gameState.flags, 'road_wound') && !s.storyBeat) {

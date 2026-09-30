@@ -6,15 +6,12 @@ import { innDialogue, restoreInnPositions } from './breeInnEvent.js';
 import { restDialogue, restoreRestPositions } from './breeRestEvent.js';
 import { departureDialogue } from './breeDepartureEvent.js';
 import { billPosition, packBill } from './breeStoryMotion.js';
-import { party, runBeat, restoreParty } from './storyFlow.js';
+import { party, runBeat, restoreParty, placeActor } from './storyFlow.js';
+import { roadObjective } from '../state/longRoadProgress.js';
 
 function actor(s, key, x, y, dir = 'down') {
-  const p = s.add
-    .sprite(x * 16 + 8, y * 16, key)
-    .setData('key', key)
-    .setDepth(y * 16);
-  p.setScale(['strider', 'butterbur', 'harry', 'ferny', 'southerner'].includes(key) ? 1.25 : 1);
-  p.play(`${key}-idle-${dir}`);
+  const big = ['strider', 'butterbur', 'harry', 'ferny', 'southerner'].includes(key);
+  const p = placeActor(s, key, x, y, dir, big ? 1.25 : 1);
   s.bree.actors[key] = p;
   return p;
 }
@@ -35,7 +32,8 @@ function refresh(s) {
     f = gameState.flags;
   if (b.active) restore(s);
   restoreCompanionRoles(s);
-  setObjective(breeObjective(f));
+  // Walking back into Bree from the road must not bring chapter four's closing text back.
+  setObjective(f.chapter4Complete ? roadObjective(f) : breeObjective(f));
   for (const { p, dot } of s.interactionMarks) dot.setVisible(!p.when || p.when(f));
   if (b.actors.strider)
     b.actors.strider.setVisible(
