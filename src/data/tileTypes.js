@@ -100,6 +100,13 @@ export const T = {
   MAP_WALL: 84, // framed map of Wilderland on a panelled wall
   PANEL: 85, // plain panelled wall (interior partition)
   SETTLE: 86, // high-backed inn bench
+  // The Long Road: Weathertop, the Trollshaws and the Ford
+  RUIN: 87, // broken masonry of Amon Sul (solid)
+  RUBBLE: 88, // fallen stone and thin turf (walkable)
+  LEAVES: 89, // autumn leaf litter (walkable)
+  AUTUMN_TREE: 90, // red-gold beech (solid)
+  FORD: 91, // shallows of the Bruinen (walkable)
+  FIRE_PIT: 92, // ring of stones around a camp fire (solid)
 };
 
 export const COLLISION_TILES = [
@@ -169,6 +176,9 @@ export const COLLISION_TILES = [
   T.MAP_WALL,
   T.PANEL,
   T.SETTLE,
+  T.RUIN,
+  T.AUTUMN_TREE,
+  T.FIRE_PIT,
 ];
 
 export const TILE_SIZE = 16;

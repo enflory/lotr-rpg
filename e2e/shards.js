@@ -43,6 +43,9 @@ export const SHARDS = {
   // inn choreography and Continue recovery. Keep it on an independent runner.
   shard6: ['bree.spec.js'],
   shard7: ['breeStaging.spec.js'],
+  // The long road: two route segments, then staging and phone coverage.
+  shard8: ['routeLongRoad.spec.js'],
+  shard9: ['longRoadStaging.spec.js', 'longRoadTouch.spec.js'],
 };
 
 export const SHARD_NAMES = Object.keys(SHARDS);

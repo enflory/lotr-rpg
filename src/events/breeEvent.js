@@ -6,54 +6,17 @@ import { innDialogue, restoreInnPositions } from './breeInnEvent.js';
 import { restDialogue, restoreRestPositions } from './breeRestEvent.js';
 import { departureDialogue } from './breeDepartureEvent.js';
 import { billPosition, packBill } from './breeStoryMotion.js';
+import { party, runBeat, restoreParty, placeActor } from './storyFlow.js';
+import { roadObjective } from '../state/longRoadProgress.js';
 
-const party = (s) => [s.player, ...s.followers];
 function actor(s, key, x, y, dir = 'down') {
-  const p = s.add
-    .sprite(x * 16 + 8, y * 16, key)
-    .setData('key', key)
-    .setDepth(y * 16);
-  p.setScale(['strider', 'butterbur', 'harry', 'ferny', 'southerner'].includes(key) ? 1.25 : 1);
-  p.play(`${key}-idle-${dir}`);
+  const big = ['strider', 'butterbur', 'harry', 'ferny', 'southerner'].includes(key);
+  const p = placeActor(s, key, x, y, dir, big ? 1.25 : 1);
   s.bree.actors[key] = p;
   return p;
 }
-function lock(s) {
-  s.player.setVelocity(0);
-  s.player.body.enable = false;
-  party(s).forEach((p) => p.setData('held', true));
-  s.hintIcon.setVisible(false);
-  s.bree.active = true;
-}
-function beat(s, run, prompt = '') {
-  lock(s);
-  const b = { busy: false, prompt, action: null };
-  s.storyBeat = b;
-  const execute = async () => {
-    b.busy = true;
-    b.prompt = '';
-    await run();
-    if (s.storyBeat !== b) return;
-    b.busy = false;
-    if (prompt) s.advanceDialogue();
-  };
-  if (prompt) b.action = execute;
-  else execute();
-}
-function restore(s) {
-  s.player.setData('cinematicAlpha', null).setAlpha(1).setAngle(0);
-  party(s).forEach((p) => p.setData('held', false));
-  s.player.body.reset(s.player.x, s.player.y);
-  s.player.body.enable = true;
-  s.trail =
-    s.bree.releaseTrail ??
-    party(s)
-      .filter((p) => p.visible)
-      .map((p) => ({ x: p.x, y: p.y }));
-  s.bree.releaseTrail = null;
-  s.cameras.main.startFollow(s.player, true, 0.08, 0.08);
-  s.bree.active = false;
-}
+const beat = (s, run, prompt = '') => runBeat(s, s.bree, run, prompt);
+const restore = (s) => restoreParty(s, s.bree);
 function restoreCompanionRoles(s) {
   const f = gameState.flags,
     m = s.followers.find((p) => p.getData('key') === 'merry');
@@ -69,7 +32,8 @@ function refresh(s) {
     f = gameState.flags;
   if (b.active) restore(s);
   restoreCompanionRoles(s);
-  setObjective(breeObjective(f));
+  // Walking back into Bree from the road must not bring chapter four's closing text back.
+  setObjective(f.chapter4Complete ? roadObjective(f) : breeObjective(f));
   for (const { p, dot } of s.interactionMarks) dot.setVisible(!p.when || p.when(f));
   if (b.actors.strider)
     b.actors.strider.setVisible(

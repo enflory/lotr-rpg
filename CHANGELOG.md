@@ -3,6 +3,34 @@
 Versions track chapter milestones: `0.<chapter>.x` while a chapter is in
 progress, `1.0.0` when all ten chapters of _Fellowship_ are playable.
 
+## 0.5.0 — 2026-09-30
+
+Chapter 5, "The Long Road": from the road out of Bree to the Ford of Bruinen.
+
+### Game
+
+- Four new zones: Midgewater Marshes, Weathertop (ruined ring, camp dell),
+  the Trollshaws (three stone trolls, the Last Bridge) and the Ford of Bruinen
+- Eleven story beats in order (Fellowship Book I, chapters 11–12): off the
+  Road, a night of midges, the hill and Gandalf's mark, the tale of Tinuviel,
+  the five Riders, the wound, athelas, the trolls, Glorfindel, the ride
+- Staged Weathertop attack with two player prompts; the Ring is a transient
+  tableau (pale Riders seen through it), never a usable power
+- Glorfindel (new character) and Asfaloth (new mounted sprite sheet); Nine
+  Riders chase Frodo across the Ford
+- Six new tiles (ruin, rubble, leaf litter, autumn beech, ford shallows, fire
+  pit) and four original songs (midgewater, weathertop, trollshaws, ford)
+- No combat, no stamina, no timer; the wound is a cold tint that eases with
+  athelas. Decisions are recorded in `docs/lore/long-road-adaptation.md`
+- Continue works from the end of chapter four and at the camp, the start of
+  the ride and the eastern bank; save format unchanged (v1)
+
+### Infrastructure
+
+- `storyFlow.js`: beat/lock/restore plumbing shared by Bree and the road
+- Route spec (two segments), staging spec and iPhone 13 portrait/landscape
+  spec for the chapter; two new CI shards
+
 ## 0.2.0 — 2026-07-10
 
 Chapter 1 vertical slice, playable end to end, plus repo formalization.

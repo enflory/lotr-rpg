@@ -902,6 +902,12 @@ CHAR_DEFS.breedwarf = {
   },
 };
 
+// Glorfindel of Rivendell: the Elf-lord with gold hair and a cloak of pale grey.
+CHAR_DEFS.glorfindel = {
+  ...CHAR_DEFS.gildor,
+  pal: { ...CHAR_DEFS.gildor.pal, h: '#e0b838', l: '#f8e47a', b: '#f0d050', V: '#d8dce4', v: '#f4f6fa', G: '#aab2c0' },
+};
+
 export const CHAR_NAMES = Object.keys(CHAR_DEFS);
 
 export function makeCharSheet(name) {

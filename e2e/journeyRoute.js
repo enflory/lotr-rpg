@@ -219,6 +219,15 @@ export async function walk(page, x, y) {
   }
 }
 
+// Like reachedBoundary, for a flag set built on the spot rather than a named seam.
+export async function reachedAll(page, flags) {
+  const missing = await page.evaluate(
+    (keys) => keys.filter((k) => !window.__state.flags[k]),
+    Object.keys(flags),
+  );
+  expect(missing, 'flags the next segment assumes but this one never set').toEqual([]);
+}
+
 // Wait for an automatic cutscene to hand control back. The downs separate the
 // party and the morning hill wakes it again without any dialogue open, so
 // neither is covered by waiting on `dialogActive`.

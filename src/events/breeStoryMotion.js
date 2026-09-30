@@ -48,7 +48,7 @@ export async function regroup(s, x, y, dir = 'right', extra = []) {
     }),
   );
   s.lastDir = dir;
-  s.bree.releaseTrail = trail;
+  (s.bree ?? s.road).releaseTrail = trail;
   return trail;
 }
 export function packBill(p) {

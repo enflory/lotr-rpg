@@ -1,5 +1,6 @@
 import { CHAPTER_DIALOGUES } from './chapterDialogues.js';
 import { BREE_DIALOGUES } from './breeDialogues.js';
+import { LONG_ROAD_DIALOGUES } from './longRoadDialogues.js';
 import { HOBBITON_DIALOGUES } from './hobbitonDialogues.js';
 
 // NPC dialogues — drawn from or closely paraphrasing The Lord of the Rings.
@@ -18,6 +19,7 @@ import { HOBBITON_DIALOGUES } from './hobbitonDialogues.js';
 /** @type {Record<string, import('./types.js').Dialogue>} */
 export const DIALOGUES = {
   ...BREE_DIALOGUES,
+  ...LONG_ROAD_DIALOGUES,
   ...CHAPTER_DIALOGUES,
   ...HOBBITON_DIALOGUES,
   crickhollow_ponies: {

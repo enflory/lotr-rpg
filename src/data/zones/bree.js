@@ -301,6 +301,8 @@ trail(
   1,
   T.PATH,
 );
+// The road on toward Midgewater, once the hobbits have left Bree for good.
+rect(beyond, 38, 10, 2, 3, T.PATH);
 rect(beyond, 7, 8, 8, 1, T.HEDGEROW);
 rect(beyond, 7, 3, 8, 4, T.BARN);
 
@@ -310,7 +312,7 @@ export const breeroad = {
   label: 'Out of Bree · The Wild Road',
   music: 'shire',
   map: beyond,
-  spawns: { west: { x: 2, y: 14, dir: 'right' } },
+  spawns: { west: { x: 2, y: 14, dir: 'right' }, east: { x: 37, y: 11, dir: 'left' } },
   npcs: [],
   doors: [],
   signs: [],
@@ -318,6 +320,9 @@ export const breeroad = {
     cue(11, 13, 'bree_depart', 'Leave Bree with the company'),
     inspect(35, 11, 'bree_horizon', 'The road ahead'),
   ],
-  exits: [exit(0, 14, 'bree', 'east')],
+  exits: [
+    exit(0, 14, 'bree', 'east'),
+    exit(39, 11, 'midgewater', 'west', 'chapter4Complete', 'Leave Bree properly first.'),
+  ],
   ...hooks,
 };

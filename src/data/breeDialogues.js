@@ -220,7 +220,7 @@ Object.assign(BREE_DIALOGUES, {
   bree_horizon: {
     name: 'The wild road',
     lines: [
-      'The next chapter leads through\nMidgewater to the Weather Hills.\nFor now, rest here with the company.',
+      'The road runs on east, toward\nMidgewater and the Weather Hills.\nStrider knows a way that is not watched.',
     ],
   },
 });
