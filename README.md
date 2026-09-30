@@ -28,6 +28,12 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 | ![The four hobbits in Tom and Goldberry’s house](assets/screenshots/tomhouse-supper.png) | ![Chalk paths and standing stones in the Barrow-downs](assets/screenshots/downs.png) |
 |                                Tom and Goldberry’s house                                 |                                   The Barrow-downs                                   |
 
+| ![Strider kneels by Gandalf's mark on Weathertop](assets/screenshots/long-road-weathertop.png) |   ![The Riders seen through the Ring](assets/screenshots/long-road-attack.png)   |
+| :--------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------: |
+|                                 The ruined ring on Weathertop                                  |                      The five Riders, seen through the Ring                      |
+|  ![Three stone trolls in a glade of the Trollshaws](assets/screenshots/long-road-trolls.png)   | ![Asfaloth and the Nine at the Ford](assets/screenshots/long-road-ford-ride.png) |
+|                               The stone trolls of the Trollshaws                               |                         The ride to the Ford of Bruinen                          |
+
 ## Running Locally
 
 ```bash
@@ -53,13 +59,15 @@ band below it; in landscape the widgets float over the side letterboxes.
 
 ## Status
 
-**Chapters 1–4** are playable from Bilbo's farewell party through Bree and departure with Strider. The published site updates when changes reach `main`.
+**Chapters 1–5** are playable from Bilbo's farewell party through Bree and the long road to the Ford of Bruinen. The published site updates when changes reach `main`.
 
 Chapter 1 follows the Shire, the Black Rider, Gildor, Maggot, and the Brandywine ferry. Chapter 2 begins with an evening at Crickhollow: a secluded garden, hot baths, supper with all five hobbits, and the friends revealing their preparations. A night-to-morning cutscene brings the party back outside; Merry joins the travelling party, the tunnel opens beneath the High Hay, and the journey winds through the Bonfire Glade, a grassy knoll, misleading northern paths, deep hollows, and the Withywindle. Old Man Willow's capture and rescue use measured cutscene walking and continuous character animation, moving tree cracks, and player actions to help Sam, extinguish the fire, and reach for the prisoners. Tom skips ahead along the river after the rescue. His house guides one active cue at a time through supper with all six characters seated, two nights in bed with dimmed lights and dream vignettes, rainy tales, the Ring demonstration and farewell. The Ring returns to Frodo's pocket after the demonstration.
 
 Chapter 3 opens with chalk paths, heather hollows and ancient stones to explore across the downs. Beyond the panoramic lookout, the hobbits rest beside a cold standing stone, wake together in mist, and become separated at the gate stones before Frodo is taken into the barrow. Frodo defends his friends and calls Tom; the four blades and recovered ponies carry the party to the East Road.
 
 Chapter 4 follows Bree's western gate into the Prancing Pony: the common-room song and Ring accident, Strider's offer, Gandalf's delayed letter, Merry's return, decoy beds and a watch in the parlour. Morning reveals the damaged bedrooms and lost ponies. Butterbur helps acquire Bill; Sam's apple and departure east close the chapter. Six new maps bring the total to twenty-three. Strider and the pack pony travel with the hobbits, and Continue reconstructs every completed story checkpoint. [Bree adaptation notes](docs/lore/bree-adaptation.md) describe the book chronology and gameplay compression.
+
+Chapter 5 leaves the Road with Strider and crosses the Midgewater Marshes (midges, haze, a night on a dry bank), then climbs Weathertop to the burnt ring on its crown and the flat stone scratched with Gandalf's mark. In the dell below, Strider tells the tale of Beren and Lúthien beside a small fire; the five Riders come, Frodo slips on the Ring, cries out to Elbereth and is stabbed, and Strider drives them off with brands. Athelas eases the wound on the long walk; the stone trolls of the Trollshaws make the hobbits laugh; Glorfindel rides in on Asfaloth and sets Frodo on the white horse for the ride to the Ford, with the Nine at his back. The chapter ends with Frodo across the water and the Nine on the far bank. Four new maps bring the total to twenty-seven. Continue returns to the camp, to the start of the ride, or to the eastern bank. There is no combat and no timer; the wound shows as a cold tint. [Long road adaptation notes](docs/lore/long-road-adaptation.md) describe the book chronology and gameplay compression.
 
 The new chapters use original paraphrased dialogue and procedural art/music. [Adaptation notes](docs/lore/old-forest-adaptation.md) distinguish book chronology from gameplay compression. Five animated ponies follow the hobbits from Crickhollow through the forest, wait outside Tom’s house, and follow again until the company becomes separated at the gate stones on the downs. The four hobbits use the existing walking controls. Forest paths are deliberately winding and fixed, with optional places to inspect. Gold glints mark interactions; nearby prompts name the action.
 

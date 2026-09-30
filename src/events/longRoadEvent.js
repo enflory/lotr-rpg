@@ -126,6 +126,8 @@ export function roadCreate(s) {
   r.night = overlay(0x101a30, 850);
   r.chill = overlay(0x9ab8d8, 851);
   r.sight = overlay(0x7c8490, 852);
+  // Midgewater is seen through a sour, yellow-green haze.
+  if (s.zoneKey === 'midgewater') overlay(0x4a5a22, 849).setAlpha(0.14);
   if (f.billBought && s.zoneKey !== 'bruinen') {
     const pos = billPosition(s);
     const bill = makePony(s, pos.x, pos.y, 0x806046);

@@ -45,7 +45,7 @@ export function drawLongRoadScenery(s) {
     for (let i = 0; i < 70; i++) {
       const x = rnd(i, 5) * s.mapWidth * 16,
         y = rnd(i, 6) * s.mapHeight * 16;
-      const dot = s.add.rectangle(x, y, 1, 1, 0x1c1a0c);
+      const dot = s.add.rectangle(x, y, 2, 1, 0x14120a);
       fx.midges.add(dot);
       s.tweens.add({
         targets: dot,

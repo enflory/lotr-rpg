@@ -18,8 +18,8 @@ const scenes = {
     'A night in Midgewater',
     [
       'Evening finds them on a low dry bank\namong the reeds. Strider will not\nhear of a fire in such country.',
-      'The midges find them anyway. All\nnight small shrill creatures chirp\nin the dark, and nobody sleeps.',
-      'PIPPIN: I never knew a night could\nbe so long. MERRY: Nor so full\nof biting.',
+      'The midges find them anyway. All night\nthe neekerbreekers shrill in the dark,\nand nobody sleeps.',
+      'PIPPIN: There are more midges here\nthan water! SAM: What do they live\non when there is no hobbit handy?',
       'STRIDER: Patience. The marsh ends\nin a day or two. Then the hills, and\nwe shall see what lies ahead.',
       'Dawn comes at last. They rise stiff\nand itching, and pick their way\nthrough the reeds toward the hills.',
     ],
@@ -60,7 +60,7 @@ const scenes = {
       'The air grows cold. Something tall\nand dark stands on the slope. Then\nanother, and another.',
       'Five figures glide down through the\nshadows. The others fall on their\nfaces, shaking with fear.',
       'Terror grips Frodo. A voice in his\nmind urges him, more and more\nstrongly, to put on the Ring.',
-      'Through the Ring he sees them true:\ntall and pale, robed in grey, with\ncold eyes and crowns on thin hair.',
+      'Through the Ring he sees them true:\npale faces, grey robes, silver helms\non grey hair. The tallest is crowned.',
       'The Ring drags at him. But Frodo\nremembers Elves and starlight,\nand the sword in his hand.',
       '“O Elbereth! Gilthoniel!” he cries,\nand stabs at the foot of the nearest.\nA cold pain pierces his shoulder.',
       'Then fire blazes on the rim. Strider\ncomes down with a brand in each hand.\nThe shadows scatter before him.',
@@ -88,10 +88,10 @@ const scenes = {
   road_trolls: [
     'Stone in the glade',
     [
-      'In a glade beside the stream stand\nthree huge shapes, caught in stone:\ntwo stooping, one seated.',
+      'In a glade beside the stream stand\nthree huge figures of grey stone, each\nbroad as a barn and twice as ugly.',
       'SAM: Trolls! Turned to stone, every\none, the sun catching them at\nsome wicked business.',
       'MERRY: They look like the trolls in\nBilbo’s tale. SAM: He had a rhyme\nabout one, too. I know it by heart.',
-      'Sam hums it: a lonely troll, a bone\nhe will not share, and a stranger\ncome to ask for his own leg.',
+      'Sam hums it: a lonely troll, a bone\nhe will not share, and a stranger come\nfor his own leg. Even Frodo laughs.',
       'STRIDER: Whatever their names, they\nwill not stir again. But do not\nlinger. The day is short.',
     ],
   ],
