@@ -239,7 +239,8 @@ const SCENES = {
         const g = s.add
           .graphics({ x: 37 * TILE, y: 23 * TILE })
           .setDepth(23 * TILE)
-          .setAlpha(0);
+          .setAlpha(0)
+          .setScale(0.85);
         drawWraith(g, false);
         await tween(s, g, { alpha: 0.6 }, 700);
         await tween(s, g, { alpha: 0 }, 700);
@@ -263,7 +264,8 @@ const SCENES = {
           const g = s.add
             .graphics({ x: x * TILE + 8, y: 22.4 * TILE })
             .setDepth(22.4 * TILE + 40)
-            .setAlpha(0);
+            .setAlpha(0)
+            .setScale(n === 2 ? 0.95 : 0.85);
           drawWraith(g, false, n === 2);
           return g;
         });

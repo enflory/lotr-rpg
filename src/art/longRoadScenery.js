@@ -133,7 +133,7 @@ export function drawLongRoadScenery(s) {
     }
     for (let i = 0; i < 8; i++) {
       const y = (2 + i * 2.6) * 16;
-      const m = s.add.rectangle(30 * 16 + 48, y, 130, 10, 0xe6f2f4, 0.12).setDepth(820);
+      const m = s.add.rectangle(30 * 16 + 48, y, 130, 8, 0xe6f2f4, 0.07).setDepth(820);
       s.tweens.add({ targets: m, x: m.x + 26, duration: 4200 + i * 300, yoyo: true, repeat: -1 });
     }
   }

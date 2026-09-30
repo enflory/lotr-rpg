@@ -80,23 +80,30 @@ export function makeSteedSheet() {
  */
 export function drawWraith(g, seen, leader = false) {
   g.clear();
+  // Shadow, then a robe that swells from hooded shoulders to a ragged hem.
+  const robe = seen ? [0xd4d6de, 0xaeb0bc, 0xf0f2f6, 0x70727e] : [0x12121a, 0x08080e, 0x1e1e2a, 0x000004];
+  const [body, shade, light, void_] = robe;
+  g.fillStyle(0x000000, seen ? 0.2 : 0.4).fillEllipse(0, 1, 26, 6);
+  g.fillStyle(shade).fillRect(-12, -5, 24, 5);
+  for (const x of [-12, -6, 0, 6]) g.fillStyle(body).fillRect(x, -2, 4, 2).fillStyle(void_).fillRect(x + 4, -1, 2, 2);
+  g.fillStyle(shade).fillRect(-10, -18, 20, 14);
+  g.fillStyle(body).fillRect(-9, -20, 18, 16);
+  g.fillStyle(light).fillRect(-6, -19, 3, 14);
+  g.fillStyle(shade).fillRect(-9, -8, 2, 4).fillRect(7, -9, 2, 5);
+  g.fillStyle(shade).fillRect(-8, -27, 16, 9);
+  g.fillStyle(body).fillRect(-7, -27, 14, 8);
+  g.fillStyle(shade).fillRect(-6, -35, 12, 10);
+  g.fillStyle(body).fillRect(-5, -35, 10, 9);
+  g.fillStyle(shade).fillRect(-3, -37, 6, 3);
+  g.fillStyle(void_).fillRect(-3, -32, 6, 6);
   if (seen) {
-    g.fillStyle(0x9a9ca8, 0.35).fillEllipse(0, 1, 22, 6);
-    g.fillStyle(0x8a8c9a).fillTriangle(-9, 0, 9, 0, 0, -28);
-    g.fillStyle(0xd2d4dc).fillTriangle(-7, 0, 7, 0, 0, -27);
-    g.fillStyle(0xeceef2).fillTriangle(-3, 0, 1, 0, -1, -22);
-    g.fillStyle(0xd2d4dc).fillRect(-3, -33, 6, 7);
-    g.fillStyle(0x5a5c6a).fillRect(-2, -31, 4, 3);
     g.fillStyle(0xffffff).fillRect(-2, -30, 1, 1).fillRect(1, -30, 1, 1);
-    g.fillStyle(0xa8aab6).fillRect(-4, -28, 8, 2);
-    if (leader) g.fillStyle(0xf0f0f8).fillRect(-4, -36, 8, 2).fillRect(-4, -38, 2, 2).fillRect(-1, -39, 2, 3).fillRect(2, -38, 2, 2);
+    g.fillStyle(0x9a9caa).fillRect(-2, -28, 4, 1);
   } else {
-    g.fillStyle(0x000000, 0.4).fillEllipse(0, 1, 22, 6);
-    g.fillStyle(0x0a0a10).fillTriangle(-9, 0, 9, 0, 0, -28);
-    g.fillStyle(0x181822).fillTriangle(-6, 0, 6, 0, 0, -26);
-    g.fillStyle(0x0a0a10).fillRect(-4, -33, 8, 8);
-    g.fillStyle(0x000004).fillRect(-2, -31, 4, 4);
+    g.fillStyle(0x3a1018).fillRect(-2, -30, 1, 1).fillRect(1, -30, 1, 1);
   }
+  if (leader && seen)
+    g.fillStyle(0xf4f0d8).fillRect(-5, -38, 10, 2).fillRect(-5, -41, 2, 3).fillRect(-1, -42, 2, 4).fillRect(3, -41, 2, 3);
 }
 
 /**

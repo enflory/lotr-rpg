@@ -108,6 +108,13 @@ describe('Chapter 5: the long road', () => {
     expect(reach('bruinen', ZONES.bruinen.spawns.west, ZONES.bruinen.spawns.east)).toBe(true);
   });
 
+  it('never spawns anyone with solid ground under their feet', () => {
+    // The feet-only body reaches two pixels into the row below the spawn tile.
+    for (const k of ['midgewater', 'weathertop', 'trollshaws', 'bruinen'])
+      for (const [name, sp] of Object.entries(ZONES[k].spawns))
+        expect(open(k, sp.x, sp.y + 1), `${k}.${name}`).toBe(true);
+  });
+
   it('puts the camp, the dell exit and the return spawn where the night happens', () => {
     const w = ZONES.weathertop;
     expect(

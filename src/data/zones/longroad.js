@@ -98,7 +98,7 @@ for (const [x, y] of [[23, 6], [29, 6], [24, 10], [28, 10], [26, 5], [25, 8], [2
 // The dell, walled by turf, with its fire-pit.
 rect(hill, 32, 21, 16, 12, T.DOWN_SLOPE);
 clearing(hill, 39, 27, 5, 3, T.DOWN_GRASS);
-for (const [x, y] of [[35, 24], [43, 24], [36, 30], [43, 30]]) hill[y][x] = T.BUSH;
+for (const [x, y] of [[35, 24], [43, 24], [36, 30], [43, 30]]) hill[y][x] = T.RUIN;
 hill[27][39] = T.FIRE_PIT;
 wind(hill, [[1, 30], [10, 30], [18, 25], [26, 21], [26, 15]], 1, T.PATH);
 wind(hill, [[26, 21], [31, 25], [35, 27]], 1, T.PATH);
@@ -116,7 +116,7 @@ export const weathertop = {
   spawns: {
     west: { x: 2, y: 30, dir: 'right' },
     east: { x: 49, y: 30, dir: 'left' },
-    dell: { x: 38, y: 29, dir: 'up' },
+    dell: { x: 38, y: 28, dir: 'up' },
   },
   npcs: [],
   doors: [],
@@ -140,7 +140,6 @@ export const weathertop = {
 /* ── The Trollshaws ──────────────────────────────────────── */
 const shaws = field(60, 30, T.LEAVES, T.AUTUMN_TREE);
 scatter(shaws, 4, 7, 0.55, T.AUTUMN_TREE);
-scatter(shaws, 3, 23, 0.68, T.TREE2);
 clearing(shaws, 30, 14, 8, 5, T.LEAVES);
 rect(shaws, 43, 1, 4, 28, T.WATER);
 wind(shaws, [[1, 18], [12, 21], [20, 16], [30, 15], [42, 15]], 1, T.PATH);
@@ -186,7 +185,6 @@ export const trollshaws = {
 const ford = field(50, 24, T.LEAVES, T.AUTUMN_TREE);
 scatter(ford, 4, 31, 0.56, T.AUTUMN_TREE, (x, _y) => x >= 28 && x <= 33);
 rect(ford, 34, 1, 15, 22, T.DOWN_GRASS);
-scatter(ford, 4, 5, 0.6, T.TREE2, (x, _y) => x < 34);
 rect(ford, 28, 1, 6, 22, T.WATER);
 rect(ford, 28, 9, 6, 5, T.FORD);
 wind(ford, [[1, 11], [27, 11]], 1, T.PATH);
