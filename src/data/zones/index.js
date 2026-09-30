@@ -11,8 +11,9 @@ import { crickhollow, crickhollowhouse, hedgetunnel, tomclearing, tomhouse } fro
 import { forestgate, forestheart, withywindle } from './oldforest.js';
 import { downs, barrow, barrowhill, eastroad } from './barrowdowns.js';
 import { breegate, bree, ponycommon, ponyparlour, ponyrooms, breeroad } from './bree.js';
+import { midgewater, weathertop, trollshaws, bruinen } from './longroad.js';
 
-export const ZONES = { shire, bagend, greendragon, woodyend, marish, crickhollow, crickhollowhouse, hedgetunnel, forestgate, forestheart, withywindle, tomclearing, tomhouse, downs, barrow, barrowhill, eastroad, breegate, bree, ponycommon, ponyparlour, ponyrooms, breeroad };
+export const ZONES = { shire, bagend, greendragon, woodyend, marish, crickhollow, crickhollowhouse, hedgetunnel, forestgate, forestheart, withywindle, tomclearing, tomhouse, downs, barrow, barrowhill, eastroad, breegate, bree, ponycommon, ponyparlour, ponyrooms, breeroad, midgewater, weathertop, trollshaws, bruinen };
 
 // Guard against ragged hand-authored maps
 for (const zone of Object.values(ZONES)) {

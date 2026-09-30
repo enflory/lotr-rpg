@@ -74,6 +74,37 @@ const SONGS = {
       { type: 'sine', vol: 0.24, notes: [[0,38,7],[8,33,7]] },
     ],
   },
+  // The long road (original): sour marsh, wind on a cold hill, red-gold woods, flight.
+  midgewater: {
+    bpm: 72, beats: 16,
+    tracks: [
+      { type: 'triangle', vol: 0.3, notes: [[0,55,3],[4,52,2],[6,53,1],[8,50,3],[12,52,2],[14,48,2]] },
+      { type: 'sine', vol: 0.22, notes: [[0,31,8],[8,29,8]] },
+      { type: 'square', vol: 0.04, notes: [[2,88,.1],[2.25,88,.1],[6,90,.1],[6.25,90,.1],[10,88,.1],[13,91,.1]] },
+    ],
+  },
+  weathertop: {
+    bpm: 56, beats: 16,
+    tracks: [
+      { type: 'sine', vol: 0.4, notes: [[0,62,4],[4,69,3],[8,66,4],[12,61,3]] },
+      { type: 'triangle', vol: 0.2, notes: [[0,38,8],[8,37,8]] },
+      { type: 'sine', vol: 0.16, notes: [[6,81,2],[14,78,2]] },
+    ],
+  },
+  trollshaws: {
+    bpm: 92, beats: 16,
+    tracks: [
+      { type: 'triangle', vol: 0.5, notes: [[0,62,1],[1,65,1],[2,69,2],[4,67,1],[5,65,1],[6,62,2],[8,60,1],[9,62,1],[10,65,2],[12,64,1],[13,62,1],[14,57,2]] },
+      { type: 'sine', vol: 0.3, notes: [[0,38,4],[4,43,4],[8,36,4],[12,41,4]] },
+    ],
+  },
+  ford: {
+    bpm: 132, beats: 8,
+    tracks: [
+      { type: 'triangle', vol: 0.5, notes: [[0,69,.5],[.5,69,.5],[1,72,1],[2,69,.5],[2.5,69,.5],[3,74,1],[4,69,.5],[4.5,69,.5],[5,72,1],[6,76,1.5]] },
+      { type: 'sine', vol: 0.4, notes: [[0,45,1],[1,45,1],[2,43,1],[3,43,1],[4,41,1],[5,41,1],[6,40,2]] },
+    ],
+  },
   // Original chapter motifs: damp unease, a dancing refuge, wind, cold stone.
   oldforest: {
     bpm: 76, beats: 16,

@@ -3,6 +3,7 @@ import { makeTilesetDataURL } from '../art/tiles.js';
 import { CHAR_NAMES, makeCharSheet, makeRiderSheet, CH } from '../art/characters.js';
 import { makeHintSprite } from '../art/ui.js';
 import { makeItemIconsDataURL } from '../art/items.js';
+import { makeSteedSheet, STEED_FRAMES } from '../art/longRoadArt.js';
 
 const TS = 16;
 
@@ -28,6 +29,11 @@ export class BootScene extends Phaser.Scene {
     }
 
     this.load.spritesheet('rider', makeRiderSheet(), {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
+    this.load.spritesheet('steed', makeSteedSheet(), {
       frameWidth: 32,
       frameHeight: 32,
     });
@@ -67,6 +73,24 @@ export class BootScene extends Phaser.Scene {
       frames: this.anims.generateFrameNumbers('rider', { start: 0, end: 1 }),
       frameRate: 8,
       repeat: -1,
+    });
+
+    // Asfaloth: 0-1 Frodo up, 2-3 Glorfindel up, 4 riderless.
+    for (const [key, start] of [
+      ['steed-frodo', 0],
+      ['steed-elf', 2],
+    ]) {
+      this.anims.create({
+        key,
+        frames: this.anims.generateFrameNumbers('steed', { start, end: start + 1 }),
+        frameRate: 8,
+        repeat: -1,
+      });
+    }
+    this.anims.create({
+      key: 'steed-idle',
+      frames: [{ key: 'steed', frame: STEED_FRAMES - 1 }],
+      frameRate: 1,
     });
 
     this.scene.start('TitleScene');
