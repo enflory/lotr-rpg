@@ -64,7 +64,7 @@ export const RIVENDELL_BEATS = [
   },
 ];
 
-const DONE = 'Chapter six complete · the Company of nine stands at the gate of Rivendell';
+export const DONE = 'Chapter six complete · the Company of nine stands at the gate of Rivendell';
 
 /** @param {Record<string, boolean>} flags */
 export const nextRvBeat = (flags) => RIVENDELL_BEATS.find((b) => !flags[b.flag]) ?? null;
@@ -80,9 +80,6 @@ export const councilNow = (f) => !!f.hallOfFire && !f.ringBearerChosen;
 
 /** The year turns once the weeks have passed. */
 export const winterNow = (f) => !!f.weeksPassed;
-
-/** Before the Ring-bearer is chosen, the Company is not yet named. */
-export const companyGathered = (f) => !!f.giftsGiven;
 
 /**
  * The colour wash laid over the open valley. Interiors and the Ford carry none.

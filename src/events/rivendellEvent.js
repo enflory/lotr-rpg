@@ -8,7 +8,7 @@ import {
 } from '../state/rivendellProgress.js';
 import { PAGE } from '../data/rivendellDialogues.js';
 import { AT, WALKERS, FAREWELL } from './rivendellStaging.js';
-import { drawRivendellScenery } from '../art/rivendellScenery.js';
+import { drawRivendellScenery, turnToWinter } from '../art/rivendellScenery.js';
 import { pause, face, gesture, focus, enter, leave } from './breeStoryMotion.js';
 import { walk, tween } from './storyMotion.js';
 import { runBeat, restoreParty, placeActor } from './storyFlow.js';
@@ -99,6 +99,7 @@ function refresh(s) {
   if (s.zoneKey === 'rivendell') {
     // The Council's relics belong to the Council alone; the Ring itself is never drawn from a flag.
     r.shards?.setVisible(!!f.councilTales && !f.ringBearerChosen);
+    if (winterNow(f)) turnToWinter(s, r.fx);
     if (r.walk) for (const p of Object.values(r.walk)) p.setVisible(!!f.chapter6Complete);
   }
 }
@@ -119,7 +120,7 @@ export function rvCreate(s) {
     .setAlpha(0)
     .setScrollFactor(0)
     .setDepth(848);
-  r.fx = drawRivendellScenery(s, winterNow(f));
+  r.fx = drawRivendellScenery(s);
   if (!f.chapter5Complete) return;
   if (s.zoneKey === 'rivendellroom' && isRvBeat(f, 'rv_wake')) {
     r.gandalf = temp(s, 'rv_wake', 'gandalfrv', AT.gandalfChair.x, AT.gandalfChair.y, 'left');
@@ -134,6 +135,7 @@ export function rvCreate(s) {
     r.shards.fillStyle(0xe8ecf0).fillRect(-6, -1, 5, 1).fillRect(-1, 1, 6, 1);
     r.shards.setVisible(false);
     if (f.chapter6Complete) playMusic('parting');
+    else if (f.councilOpened && !f.weeksPassed) playMusic('council');
   }
   refresh(s);
 }
@@ -208,8 +210,10 @@ const SCENES = {
           const blade = s.add
             .rectangle(s.player.x - 8, s.player.y - 8, 9, 1, 0xdfeefa)
             .setDepth(900);
-          await tween(s, s.player, { x: s.player.x - 2 }, 160);
+          const x0 = s.player.x;
+          await tween(s, s.player, { x: x0 - 2 }, 160);
           sfx.confirm();
+          await tween(s, s.player, { x: x0 }, 160);
           await tween(s, blade, { alpha: 0.2 }, 320);
           blade.destroy();
         },
@@ -271,7 +275,7 @@ const SCENES = {
         s.player.setAngle(90);
         await pause(s, 900);
       });
-    if (i === 1) beat(s, () => tween(s, s.player, { angle: 0 }, 700));
+    if (i === at('sit')) beat(s, () => tween(s, s.player, { angle: 0 }, 700));
     if (i === at('gandalf')) beat(s, () => gesture(s, r.gandalf));
     if (i === at('sam'))
       beat(s, async () => {
@@ -421,9 +425,10 @@ const SCENES = {
         s,
         async () => {
           sfx.confirm();
-          await tween(s, s.player, { y: s.player.y - 3 }, 200);
+          const y0 = s.player.y;
+          await tween(s, s.player, { y: y0 - 3 }, 200);
           await Promise.all([
-            tween(s, s.player, { y: s.player.y }, 200),
+            tween(s, s.player, { y: y0 }, 200),
             tween(s, r.hush, { alpha: 0 }, 900),
           ]);
           r.hush.destroy();
@@ -534,6 +539,8 @@ const SCENES = {
             sprite.setAlpha(1);
             await pause(s, n * 180);
             await walk(s, sprite, w.x, w.y, 70);
+            // Stand exactly where the same character stands after a reload.
+            sprite.setY(w.y * TILE + 6).setDepth(w.y * TILE + 6);
             face(sprite, w.dir ?? 'down');
           }),
         );

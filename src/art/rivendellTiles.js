@@ -94,8 +94,9 @@ export function drawFir(c, ox) {
   rc(c, ox, 0, 16, 16, '#3f7a2c');
   rc(c, ox + 7, 12, 2, 4, '#4a2e18');
   for (const [w, y, col] of [[12, 9, '#1a3a24'], [10, 6, '#1f4a2c'], [7, 3, '#255a34'], [3, 0, '#2c6a3c']]) {
-    rc(c, ox + 8 - w / 2, y, w, 4, col);
-    rc(c, ox + 8 - w / 2 + 1, y, w - 2, 1, '#3e8a4c');
+    const x0 = Math.floor(8 - w / 2);
+    rc(c, ox + x0, y, w, 4, col);
+    rc(c, ox + x0 + 1, y, w - 2, 1, '#3e8a4c');
   }
   px(c, ox + 6, 8, '#6ab07a');
   px(c, ox + 10, 11, '#143020');
@@ -128,7 +129,8 @@ export function drawElfRoof(c, ox) {
     const shift = (y / 4) % 2 ? 4 : 0;
     rc(c, ox, y + 3, 16, 1, '#3e5648');
     for (let x = -shift; x < 16; x += 8) {
-      rc(c, ox + Math.max(0, x), y, Math.min(8, 16 - Math.max(0, x)), 3, y % 8 ? '#86a08c' : '#7a9684');
+      const left = Math.max(0, x);
+      rc(c, ox + left, y, Math.min(x + 8, 16) - left, 3, y % 8 ? '#86a08c' : '#7a9684');
       px(c, ox + Math.max(0, x), y, '#a8c0a8');
     }
   }

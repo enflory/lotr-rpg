@@ -1,4 +1,4 @@
-import { RIVENDELL_BEATS, isRvBeat, councilNow } from '../state/rivendellProgress.js';
+import { RIVENDELL_BEATS, DONE, isRvBeat, councilNow } from '../state/rivendellProgress.js';
 
 // Original paraphrases: Fellowship Book I ch. 12 and Book II ch. 1–3. No film
 // staging; poems and songs are summarised, never quoted. Each page is wrapped to
@@ -110,7 +110,10 @@ const scenes = {
         'open',
         'Frodo wakes in a soft bed. Sunlight lies along the ceiling, and he hears the sound of falling water.',
       ],
-      'FRODO: Where am I? And what is the time? GANDALF: You are in the house of Elrond. It is mid-morning, the twenty-fourth of October, if you must know.',
+      [
+        'sit',
+        'FRODO: Where am I? And what is the time? GANDALF: You are in the house of Elrond. It is mid-morning, the twenty-fourth of October, if you must know.',
+      ],
       'FRODO: Gandalf! Why did you not come to Bree? GANDALF: I was delayed, and it nearly cost us all. I will tell it in due time.',
       'GANDALF: You have lain here for days. A splinter of the Riders’ blade worked toward your heart. Elrond drew it out.',
       [
@@ -182,7 +185,7 @@ const scenes = {
         'lindir',
         'LINDIR: A fair song. But which lines are yours, Master Baggins, and which the Dunadan’s? Mortals are hard to tell apart.',
       ],
-      'BILBO: Well, the Dunadan had a hand in it, I confess. But you will sing it again, I hope. Elves never tire of a song.',
+      'BILBO: Well, the Dunadan had a hand in it, I confess. But sing it again, Lindir, I beg you.',
       [
         'peep',
         'Later, when the hall is quiet, Bilbo leans close. BILBO: Frodo, my lad, might I see it? Only a peep, for old times’ sake.',
@@ -194,7 +197,7 @@ const scenes = {
       'Frodo closes his hand on the Ring and wants to strike. BILBO: I am sorry, dear boy. Sorry you are burdened with it. Do adventures never end? Someone else must carry on the story.',
       [
         'sleep',
-        'Bilbo’s head sinks, and he sleeps by the fire. Gandalf stands in the door. GANDALF: Rest well. Elrond calls a Council at dawn.',
+        'Bilbo’s head sinks, and he sleeps by the fire. Gandalf stands in the door. GANDALF: Rest well. Elrond calls a Council in the morning.',
       ],
     ]),
   ],
@@ -211,7 +214,7 @@ const scenes = {
         'gloin',
         'GLOIN: Dain sent me with grave news. A messenger from the Dark Land came to Erebor, offering rings and friendship.',
       ],
-      'GLOIN: He asked only for word of a hobbit named Baggins, and of a small ring. Dain refused, and fear has grown in our halls.',
+      'GLOIN: He asked only for word of a hobbit named Baggins, and of a small ring. Dain has not yet answered, and fear grows in our halls. He asks for your counsel.',
       'GLOIN: And Balin went long ago to Moria to reclaim it. No word has come from him since.',
       [
         'history',
@@ -253,7 +256,7 @@ const scenes = {
         'GANDALF: I sought the Ring’s tale with Saruman, whom I trusted most. But Saruman has turned. He holds Orthanc, and he too wants the Ring.',
       ],
       'GANDALF: He held me prisoner on the pinnacle. Gwaihir the Eagle bore me away. After that I rode hard, but days were lost. That is why I was late.',
-      'GANDALF: Gollum was taken and made to speak. That is how the Nine learned the name Baggins, and the Shire.',
+      'GANDALF: Gollum was taken by the Enemy’s servants and made to speak. That is how the Nine learned the name Baggins, and the Shire.',
       [
         'legolas',
         'LEGOLAS: I am Legolas, from my father’s halls in Mirkwood. Gollum, whom Aragorn gave into our keeping, has slipped his guards. I came to tell you.',
@@ -269,8 +272,8 @@ const scenes = {
       ],
       'BOROMIR: Why not use it against the Enemy? Gondor’s captains would hold it as a sword.',
       'ELROND: It cannot be used. It answers to its maker alone. GANDALF: To wield it is to be mastered by it. The strongest would fall soonest.',
-      'ERESTOR: Then give it to Tom Bombadil, whom the Ring cannot master. GANDALF: He would lose it or forget it. It means nothing to him.',
-      'GALDOR: Then send it over the Sea. GANDALF: Neither sea nor deep place will keep it. It must be unmade.',
+      'ERESTOR: Then we have but two courses: hide it or unmake it. Let it go to Tom Bombadil, who is master of himself. GANDALF: He would lose it or forget it. It means nothing to him.',
+      'Some would cast it into the Sea. GANDALF: Neither sea nor deep place will keep it. It must be unmade.',
       'ELROND: There is one way only: to cast it into the Fire of Orodruin, in Mordor, where it was made. The road is long and the choice hard.',
       [
         'silence',
@@ -287,7 +290,7 @@ const scenes = {
       ],
       [
         'end',
-        'ELROND: Hardly can we part you from your master, even when he is summoned to a council and you are not. You shall go with him.',
+        'ELROND: Sam, you were not summoned, yet here you are. There is no sundering you from your master. You shall go with him.',
       ],
     ]),
   ],
@@ -371,8 +374,6 @@ const scenes = {
   ],
 };
 
-const DONE = 'Chapter six complete · the Company of nine stands at the gate of Rivendell';
-
 /** @type {Record<string, import('./types.js').Dialogue>} */
 export const RIVENDELL_DIALOGUES = {};
 for (const b of RIVENDELL_BEATS) {
@@ -428,17 +429,14 @@ Object.assign(RIVENDELL_DIALOGUES, {
   arwen: guest(
     'Arwen',
     [done, 'ARWEN: May the light of the stars go with you, Frodo.'],
-    [
-      chosen,
-      'ARWEN: My father listens longer than he speaks. He has heard you, and he is troubled for you.',
-    ],
+    [chosen, 'ARWEN: My father has heard you, and he is troubled for you.'],
     [null, 'ARWEN: Be at rest here, Frodo. Rivendell is a house of healing.'],
   ),
   gloin: guest(
     'Gloin',
     [
       done,
-      'GLOIN: My son goes with you. I have asked him to keep his axe sharp and his temper short.',
+      'GLOIN: My son goes with you. I have asked him to keep his temper, though that is much to ask of a Dwarf.',
     ],
     [
       chosen,
@@ -447,12 +445,12 @@ Object.assign(RIVENDELL_DIALOGUES, {
     [councilNow, 'GLOIN: I have said my piece. Now it is for the wiser heads.'],
     [
       null,
-      'GLOIN: Our halls are rich again, though not as rich as an old Dwarf remembers. I am glad of the ale here.',
+      'GLOIN: Our halls are rich again, though not as rich as an old Dwarf remembers. I am glad of the wine here.',
     ],
   ),
   gimli: guest(
     'Gimli',
-    [done, 'GIMLI: My axe is yours, Master Frodo, so long as I live.'],
+    [done, 'GIMLI: Dwarves are slow to give their word, Master Frodo. But I have given mine.'],
     [chosen, 'GIMLI: If it comes to Moria, I will show you halls the Elves never dreamed of.'],
     [null, 'GIMLI: Ask me nothing yet. The Council has not heard all the Dwarves have to say.'],
   ),
@@ -475,13 +473,13 @@ Object.assign(RIVENDELL_DIALOGUES, {
       chosen,
       'BOROMIR: A hard counsel. I hold that Gondor can use any weapon it is offered. But I will not oppose the Council.',
     ],
-    [null, 'BOROMIR: I have walked a hundred days to hear this. I do not regret it.'],
+    [null, 'BOROMIR: A hundred and ten days I came, the last on foot. I do not regret it.'],
   ),
   lindir: guest(
     'Lindir',
     [
       chosen,
-      'LINDIR: Master Baggins sings tolerably. The Dunadan sings better, but do not tell him I said so.',
+      'LINDIR: There is a song in every stone of this house. Sit by the fire and listen, if you will.',
     ],
     [null, 'LINDIR: A hall of song is best at evening. Sit by the fire, if you will.'],
   ),
@@ -489,7 +487,7 @@ Object.assign(RIVENDELL_DIALOGUES, {
     'Erestor',
     [
       chosen,
-      'ERESTOR: I proposed two paths and both were found wanting. It is the third path that remains.',
+      'ERESTOR: Hide it or unmake it: those were the two courses I named. Neither is within our power, and yet one must be done.',
     ],
     [null, 'ERESTOR: The Council will not be short, and I fear it will not be sweet.'],
   ),
@@ -503,7 +501,7 @@ Object.assign(RIVENDELL_DIALOGUES, {
   ),
   bilboelder: guest(
     'Bilbo',
-    [done, 'BILBO: Off you go, then. And mind: no adventures before breakfast.'],
+    [done, 'BILBO: Off you go, then. Write it all down, and bring me the end of the tale.'],
     [
       (f) => f.giftsGiven,
       'BILBO: Wear it under your shirt and tell no one. A good coat is its own best secret.',
@@ -532,14 +530,11 @@ Object.assign(RIVENDELL_DIALOGUES, {
       done,
       'ARAGORN: I have a long road behind me and a longer one ahead. We shall walk it together.',
     ],
-    [
-      chosen,
-      'ARAGORN: I was Strider to you at Bree. Here I am something else, and I do not know which of us finds it stranger.',
-    ],
+    [chosen, 'ARAGORN: Strider or Dunadan, I am the same man. Now we must see who walks with you.'],
     [councilNow, 'ARAGORN: Sit quietly, Frodo. You will know soon enough what is asked of you.'],
     [
       null,
-      'ARAGORN: In Bree I was a stranger and a ranger. Here I am called by another name, and I do not wear it easily.',
+      'ARAGORN: In Bree I was Strider, a ranger of the wild. Here the Elves call me the Dunadan, and I am at home.',
     ],
   ),
 });

@@ -240,10 +240,13 @@ test('the weeks turn the valley to winter and Merry and Pippin come up the path'
   await dialogue(page);
   await flag(page, 'weeksPassed');
   await page.waitForFunction(() => window.__game.scene.getScene('WorldScene').rv.temp.length === 0);
+  // The snow comes at once, not only after a reload.
+  expect(await ev(page, 's.rv.fx.snow.length')).toBeGreaterThan(40);
   const winter = await ev(page, '({ a: s.rv.sky.alpha, c: s.rv.sky.fillColor })');
   expect(winter.c).not.toBe(autumn.c);
   await reload(page, 'rivendell');
-  expect(await ev(page, 's.rv.fx.fall.length')).toBeGreaterThan(autumn.n);
+  expect(await ev(page, 's.rv.fx.snow.length')).toBeGreaterThan(40);
+  expect(autumn.n).toBeGreaterThan(0);
   await shot(page, 'winter');
   expect(errors).toEqual([]);
 });

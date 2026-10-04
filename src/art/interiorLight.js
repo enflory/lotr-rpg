@@ -80,7 +80,7 @@ export function bakeInteriorGlow(map) {
   for (let y = 0; y < map.length; y++)
     for (let x = 0; x < map[y].length; x++) {
       if (!isHearth(map[y][x])) continue;
-      if (isHearth(map[y][x - 1])) continue; // the same fire, one cell on
+      if (isHearth(map[y][x - 1]) || isHearth(map[y - 1]?.[x])) continue; // the same fire, one cell on
       let span = 1;
       while (isHearth(map[y][x + span])) span++;
       hearths.push({ x: x * 16 + span * 8, y: y * 16 + 16 });
@@ -102,9 +102,9 @@ export function bakeInteriorGlow(map) {
   return { width, height, pixels };
 }
 
-// Chapter 1's two interiors. The houses in the later chapters stage their own
-// light as part of their set pieces (the hearth at Crickhollow, the fire and
-// the dream in Tom's house), so a second baked layer is left off them.
+// The interiors that are lit by the bake: Chapter 1's two, the Bree inns and
+// Rivendell's wing and hall. The houses at Crickhollow and Tom's stage their
+// own light as part of their set pieces, so they are left off.
 export const LIT_INTERIORS = new Set(['bagend', 'greendragon', 'ponycommon', 'ponyparlour', 'ponyrooms', 'rivendellroom', 'rivendellhall']);
 
 export function drawInteriorLight(scene) {
