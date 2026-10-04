@@ -24,12 +24,14 @@ export function drawRivendellScenery(s, winter) {
     const m = s.add.rectangle(55 * 16 + i * 40, (9 + i * 4) * 16, 130, 12, 0xe8f2f8, 0.12).setDepth(820);
     s.tweens.add({ targets: m, x: m.x + 30, duration: 5200 + i * 500, yoyo: true, repeat: -1 });
   }
+  // Frost lies on everything once the weeks have passed.
+  if (winter) s.add.rectangle(0, 0, s.mapWidth * 16, s.mapHeight * 16, 0xeaf2ff, 0.2).setOrigin(0).setDepth(4);
   // Leaves in autumn, snow once the weeks have passed.
   fx.fall = drifters(
     s,
     winter ? 56 : 34,
     winter
-      ? { colors: [0xffffff, 0xe6eefa], w: 2, h: 2, dx: -20, dy: 80, alpha: 0.85, depth: 830, time: 4600 }
+      ? { colors: [0xffffff, 0xe6eefa], w: 3, h: 3, dx: -20, dy: 80, alpha: 1, depth: 830, time: 4600 }
       : { colors: [0xe0a83a, 0xc8782a, 0xf0c850, 0x9a4a24], w: 3, h: 2, dx: 40, dy: 70, alpha: 0.8, depth: 830, time: 4200 },
   );
   // A warm pool at the foot of every lamp on the grounds.

@@ -99,18 +99,21 @@ describe('Chapter 6: Rivendell', () => {
 
   it('chains the house, gating the evening until the Hall of Fire is done', () => {
     const exitTo = (from, to) => ZONES[from].exits.filter((e) => e.zone === to);
-    for (const e of exitTo('rivendellroom', 'rivendellhall')) expect(e.requires).toBe('rivendellWoke');
+    for (const e of exitTo('rivendellroom', 'rivendellhall'))
+      expect(e.requires).toBe('rivendellWoke');
     for (const e of exitTo('rivendellroom', 'rivendell')) expect(e.requires).toBe('hallOfFire');
     for (const e of exitTo('rivendellhall', 'rivendell')) expect(e.requires).toBe('hallOfFire');
     // The way back to the rooms is always open, so no one is stranded.
     for (const e of exitTo('rivendellhall', 'rivendellroom')) expect(e.requires).toBeUndefined();
-    for (const door of ZONES.rivendell.doors) expect(ZONES[door.zone].spawns[door.entry]).toBeTruthy();
+    for (const door of ZONES.rivendell.doors)
+      expect(ZONES[door.zone].spawns[door.entry]).toBeTruthy();
     // Every part of the valley a beat needs can be reached from every way in.
     for (const key of ['bridge', 'door', 'porch', 'gate'])
       for (const to of [AT.councilCue, AT.benchCue, AT.gateCue])
-        expect(reach('rivendell', ZONES.rivendell.spawns[key], to), `${key} to ${to.x},${to.y}`).toBe(
-          true,
-        );
+        expect(
+          reach('rivendell', ZONES.rivendell.spawns[key], to),
+          `${key} to ${to.x},${to.y}`,
+        ).toBe(true);
   });
 
   it('keeps every scripted mark and every guest on open, distinct ground', () => {
@@ -159,7 +162,16 @@ describe('Chapter 6: Rivendell', () => {
     // Nine walk at the end, as the book names them.
     const names = new Set([...WALKERS.map((w) => w.key), 'frodo']);
     expect(names.size).toBe(9);
-    for (const k of ['gandalfrv', 'dunadan', 'legolas', 'gimli', 'boromir', 'merry', 'pippin', 'sam'])
+    for (const k of [
+      'gandalfrv',
+      'dunadan',
+      'legolas',
+      'gimli',
+      'boromir',
+      'merry',
+      'pippin',
+      'sam',
+    ])
       expect(names.has(k)).toBe(true);
   });
 
@@ -172,7 +184,11 @@ describe('Chapter 6: Rivendell', () => {
         for (const row of rows) expect(row.length, `${key} p${i}: ${row}`).toBeLessThanOrEqual(40);
       }
     }
-    expect(wrap('a '.repeat(30).trim()).split('\n').every((l) => l.length <= 40)).toBe(true);
+    expect(
+      wrap('a '.repeat(30).trim())
+        .split('\n')
+        .every((l) => l.length <= 40),
+    ).toBe(true);
   });
 
   it('names real pages for the choreography to hang on', () => {
@@ -203,7 +219,9 @@ describe('Chapter 6: Rivendell', () => {
     expect(skyFor(afterRoad, 'bruinen')).toBeNull();
     expect(skyFor(through('rv_council1'), 'rivendellhall')).toBeNull();
     const at = (key) => skyFor(through(key), 'rivendell');
-    const colours = ['rv_feast', 'rv_council1', 'rv_weeks', 'rv_gifts', 'rv_company'].map((k) => at(k).color);
+    const colours = ['rv_feast', 'rv_council1', 'rv_weeks', 'rv_gifts', 'rv_company'].map(
+      (k) => at(k).color,
+    );
     expect(new Set(colours).size).toBe(colours.length);
     expect(at('rv_weeks').alpha).toBeLessThan(at('rv_gifts').alpha);
     expect(councilNow(through('rv_council2'))).toBe(true);
@@ -212,7 +230,17 @@ describe('Chapter 6: Rivendell', () => {
 
   it('keeps tiles for the valley solid or open as drawn', () => {
     for (const t of [T.ELF_FLOOR, T.STEPS]) expect(COLLISION_TILES).not.toContain(t);
-    for (const t of [T.ELF_PILLAR, T.FALLS, T.BALUSTRADE, T.ELF_WALL, T.GREAT_HEARTH, T.FIR, T.ELF_LAMP, T.ELF_ROOF, T.ELF_TABLE])
+    for (const t of [
+      T.ELF_PILLAR,
+      T.FALLS,
+      T.BALUSTRADE,
+      T.ELF_WALL,
+      T.GREAT_HEARTH,
+      T.FIR,
+      T.ELF_LAMP,
+      T.ELF_ROOF,
+      T.ELF_TABLE,
+    ])
       expect(COLLISION_TILES).toContain(t);
   });
 });

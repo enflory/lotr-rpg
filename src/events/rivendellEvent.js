@@ -1,5 +1,11 @@
 import { gameState, setObjective } from '../state/GameState.js';
-import { rvObjective, isRvBeat, skyFor, councilNow, winterNow } from '../state/rivendellProgress.js';
+import {
+  rvObjective,
+  isRvBeat,
+  skyFor,
+  councilNow,
+  winterNow,
+} from '../state/rivendellProgress.js';
 import { PAGE } from '../data/rivendellDialogues.js';
 import { AT, WALKERS, FAREWELL } from './rivendellStaging.js';
 import { drawRivendellScenery } from '../art/rivendellScenery.js';
@@ -98,10 +104,21 @@ function refresh(s) {
 }
 
 export function rvCreate(s) {
-  s.rv = { active: false, releaseTrail: null, lastState: -1, temp: [], walk: null, born: s.time.now };
+  s.rv = {
+    active: false,
+    releaseTrail: null,
+    lastState: -1,
+    temp: [],
+    walk: null,
+    born: s.time.now,
+  };
   const r = s.rv,
     f = gameState.flags;
-  r.sky = s.add.rectangle(480, 360, 320, 240, 0x000000, 1).setAlpha(0).setScrollFactor(0).setDepth(848);
+  r.sky = s.add
+    .rectangle(480, 360, 320, 240, 0x000000, 1)
+    .setAlpha(0)
+    .setScrollFactor(0)
+    .setDepth(848);
   r.fx = drawRivendellScenery(s, winterNow(f));
   if (!f.chapter5Complete) return;
   if (s.zoneKey === 'rivendellroom' && isRvBeat(f, 'rv_wake')) {
@@ -153,7 +170,11 @@ const rider = (s, n) => s.road?.riders?.[n];
 /** A horse of foam with a pale rider, drawn once and sent down the channel. */
 function waveHorse(s, x, y) {
   const g = s.add.graphics({ x, y }).setDepth(700);
-  g.fillStyle(0xeaf6ff, 0.95).fillEllipse(0, 0, 18, 9).fillEllipse(8, -5, 7, 5).fillRect(-8, 3, 3, 6).fillRect(3, 3, 3, 6);
+  g.fillStyle(0xeaf6ff, 0.95)
+    .fillEllipse(0, 0, 18, 9)
+    .fillEllipse(8, -5, 7, 5)
+    .fillRect(-8, 3, 3, 6)
+    .fillRect(3, 3, 3, 6);
   g.fillStyle(0xffffff).fillRect(-3, -11, 5, 8);
   g.fillStyle(0xcfe4f8).fillRect(-2, -14, 3, 3);
   return g;
@@ -175,14 +196,18 @@ const SCENES = {
       beat(s, async () => {
         sfx.sting();
         await Promise.all(
-          FRONT.map((n, k) => (rider(s, n) ? tween(s, rider(s, n), { x: (29.4 + k * 0.5) * TILE }, 1500) : 0)),
+          FRONT.map((n, k) =>
+            rider(s, n) ? tween(s, rider(s, n), { x: (29.4 + k * 0.5) * TILE }, 1500) : 0,
+          ),
         );
       });
     if (i === at('sword'))
       beat(
         s,
         async () => {
-          const blade = s.add.rectangle(s.player.x - 8, s.player.y - 8, 9, 1, 0xdfeefa).setDepth(900);
+          const blade = s.add
+            .rectangle(s.player.x - 8, s.player.y - 8, 9, 1, 0xdfeefa)
+            .setDepth(900);
           await tween(s, s.player, { x: s.player.x - 2 }, 160);
           sfx.confirm();
           await tween(s, blade, { alpha: 0.2 }, 320);
@@ -193,24 +218,30 @@ const SCENES = {
     if (i === at('ride'))
       beat(s, async () => {
         await Promise.all([
-          ...FRONT.map((n, k) => (rider(s, n) ? tween(s, rider(s, n), { x: (31.2 + k * 0.4) * TILE }, 1200) : 0)),
-          ...[0, 1, 3, 4, 6, 7].map((n) => (rider(s, n) ? tween(s, rider(s, n), { x: 27.4 * TILE }, 1300) : 0)),
+          ...FRONT.map((n, k) =>
+            rider(s, n) ? tween(s, rider(s, n), { x: (31.2 + k * 0.4) * TILE }, 1200) : 0,
+          ),
+          ...[0, 1, 3, 4, 6, 7].map((n) =>
+            rider(s, n) ? tween(s, rider(s, n), { x: 27.4 * TILE }, 1300) : 0,
+          ),
         ]);
       });
     if (i === at('roar'))
       beat(s, async () => {
         sfx.sting();
         s.cameras.main.shake(900, 0.004);
-        r.rise = s.add.rectangle(30.5 * TILE, 11.5 * TILE, 6 * TILE, 22 * TILE, 0xcfe8f6, 0).setDepth(5);
+        r.rise = s.add
+          .rectangle(30.5 * TILE, 11.5 * TILE, 6 * TILE, 22 * TILE, 0xcfe8f6, 0)
+          .setDepth(5);
         await tween(s, r.rise, { alpha: 0.5 }, 1300);
       });
     if (i === at('horses'))
       beat(s, async () => {
-        const horses = [0, 1, 2, 3, 4, 5].map((n) => waveHorse(s, (28.8 + (n % 3) * 1.9) * TILE, (n < 3 ? 0 : -3) * TILE));
+        const horses = [0, 1, 2, 3, 4, 5].map((n) =>
+          waveHorse(s, (28.8 + (n % 3) * 1.9) * TILE, (n < 3 ? 0 : -3) * TILE),
+        );
         const swept = (p, k) =>
-          p
-            ? tween(s, p, { y: p.y + 140 + k * 8, alpha: 0, angle: 80 }, 1700)
-            : 0;
+          p ? tween(s, p, { y: p.y + 140 + k * 8, alpha: 0, angle: 80 }, 1700) : 0;
         await Promise.all([
           ...horses.map((g, n) => tween(s, g, { y: 24 * TILE }, 2100 + (n % 3) * 160)),
           ...(s.road?.riders ?? []).map(swept),
@@ -221,8 +252,15 @@ const SCENES = {
       beat(s, async () => {
         s.cameras.main.flash(300, 255, 255, 255);
         sfx.sting();
-        r.black = s.add.rectangle(480, 360, 320, 240, 0x000000, 1).setAlpha(0).setScrollFactor(0).setDepth(860);
-        await Promise.all([tween(s, s.player, { angle: 90 }, 700), tween(s, r.black, { alpha: 1 }, 1500)]);
+        r.black = s.add
+          .rectangle(480, 360, 320, 240, 0x000000, 1)
+          .setAlpha(0)
+          .setScrollFactor(0)
+          .setDepth(860);
+        await Promise.all([
+          tween(s, s.player, { angle: 90 }, 700),
+          tween(s, r.black, { alpha: 1 }, 1500),
+        ]);
       });
   },
   rv_wake(s, i) {
@@ -244,7 +282,10 @@ const SCENES = {
       });
     if (i === at('rest'))
       beat(s, async () => {
-        await Promise.all([leave(s, r.gandalf, AT.samDoor.x, AT.samDoor.y), r.sam ? leave(s, r.sam, AT.samDoor.x, AT.samDoor.y) : 0]);
+        await Promise.all([
+          leave(s, r.gandalf, AT.samDoor.x, AT.samDoor.y),
+          r.sam ? leave(s, r.sam, AT.samDoor.x, AT.samDoor.y) : 0,
+        ]);
       });
   },
   rv_feast(s, i) {
@@ -289,7 +330,9 @@ const SCENES = {
           s.add.circle(bilbo.x + dx, bilbo.y - 10, 2, 0xf0d070, 0.8).setDepth(bilbo.y + 40 + n),
         );
         sfx.jingle();
-        await Promise.all(notes.map((p, n) => tween(s, p, { y: p.y - 26 - n * 4, alpha: 0 }, 1800)));
+        await Promise.all(
+          notes.map((p, n) => tween(s, p, { y: p.y - 26 - n * 4, alpha: 0 }, 1800)),
+        );
         notes.forEach((p) => p.destroy());
       });
     if (i === at('lindir')) beat(s, () => gesture(s, npcOf(s, 'lindir')));
@@ -346,7 +389,9 @@ const SCENES = {
     if (i === at('ring'))
       beat(s, async () => {
         // Transient: the Ring lies on the stone for this page alone.
-        r.ring = s.add.circle(48 * TILE + 8, 20 * TILE + 4, 3, 0xf0c850, 1).setDepth(20 * TILE + 12);
+        r.ring = s.add
+          .circle(48 * TILE + 8, 20 * TILE + 4, 3, 0xf0c850, 1)
+          .setDepth(20 * TILE + 12);
         sfx.sting();
         await tween(s, r.ring, { scale: 1.5 }, 700);
         await pause(s, 600);
@@ -377,7 +422,10 @@ const SCENES = {
         async () => {
           sfx.confirm();
           await tween(s, s.player, { y: s.player.y - 3 }, 200);
-          await Promise.all([tween(s, s.player, { y: s.player.y }, 200), tween(s, r.hush, { alpha: 0 }, 900)]);
+          await Promise.all([
+            tween(s, s.player, { y: s.player.y }, 200),
+            tween(s, r.hush, { alpha: 0 }, 900),
+          ]);
           r.hush.destroy();
         },
         'Rise and speak',
@@ -431,7 +479,9 @@ const SCENES = {
       });
     if (i === at('sting'))
       beat(s, async () => {
-        const blade = s.add.rectangle(21 * TILE + 8, 5 * TILE + 4, 10, 2, 0xcfe4f4).setDepth(5 * TILE + 12);
+        const blade = s.add
+          .rectangle(21 * TILE + 8, 5 * TILE + 4, 10, 2, 0xcfe4f4)
+          .setDepth(5 * TILE + 12);
         s.rv.prop = blade;
         sfx.jingle();
         await gesture(s, npcOf(s, 'bilboelder'));
@@ -439,9 +489,13 @@ const SCENES = {
     if (i === at('mail'))
       beat(s, async () => {
         const sparkle = [0, 1, 2].map((n) =>
-          s.add.rectangle(21 * TILE + 3 + n * 5, 5 * TILE - 2, 2, 2, 0xffffff).setDepth(5 * TILE + 20),
+          s.add
+            .rectangle(21 * TILE + 3 + n * 5, 5 * TILE - 2, 2, 2, 0xffffff)
+            .setDepth(5 * TILE + 20),
         );
-        await Promise.all(sparkle.map((p, n) => tween(s, p, { y: p.y - 10, alpha: 0 }, 900 + n * 100)));
+        await Promise.all(
+          sparkle.map((p, n) => tween(s, p, { y: p.y - 10, alpha: 0 }, 900 + n * 100)),
+        );
         sparkle.forEach((p) => p.destroy());
         s.rv.prop?.destroy();
         s.rv.prop = null;
@@ -449,9 +503,13 @@ const SCENES = {
     if (i === at('snow'))
       beat(s, async () => {
         const flakes = Array.from({ length: 10 }, (_, n) =>
-          s.add.rectangle((20 + (n % 4) * 0.6) * TILE, 3 * TILE + n, 2, 2, 0xffffff, 0.9).setDepth(4 * TILE),
+          s.add
+            .rectangle((20 + (n % 4) * 0.6) * TILE, 3 * TILE + n, 2, 2, 0xffffff, 0.9)
+            .setDepth(4 * TILE),
         );
-        await Promise.all(flakes.map((p, n) => tween(s, p, { y: p.y + 20, alpha: 0 }, 1400 + n * 80)));
+        await Promise.all(
+          flakes.map((p, n) => tween(s, p, { y: p.y + 20, alpha: 0 }, 1400 + n * 80)),
+        );
         flakes.forEach((p) => p.destroy());
       });
   },
@@ -467,7 +525,12 @@ const SCENES = {
           walkers.map(async (w, n) => {
             const key = w.key;
             const known = r.walk?.[key];
-            const sprite = known ? known.setVisible(true).setPosition(from.x * TILE + 8, from.y * TILE).setAlpha(1) : temp(s, 'rv_company', key, from.x, from.y, 'down');
+            const sprite = known
+              ? known
+                  .setVisible(true)
+                  .setPosition(from.x * TILE + 8, from.y * TILE)
+                  .setAlpha(1)
+              : temp(s, 'rv_company', key, from.x, from.y, 'down');
             sprite.setAlpha(1);
             await pause(s, n * 180);
             await walk(s, sprite, w.x, w.y, 70);
@@ -476,8 +539,20 @@ const SCENES = {
         );
         face(s.player, 'down');
       });
-    if (i === at('names')) beat(s, () => gesture(s, r.temp.find((t) => t.texture.key === 'elrond')));
-    if (i === at('sword')) beat(s, () => gesture(s, r.temp.find((t) => t.texture.key === 'dunadan')));
+    if (i === at('names'))
+      beat(s, () =>
+        gesture(
+          s,
+          r.temp.find((t) => t.texture.key === 'elrond'),
+        ),
+      );
+    if (i === at('sword'))
+      beat(s, () =>
+        gesture(
+          s,
+          r.temp.find((t) => t.texture.key === 'dunadan'),
+        ),
+      );
     if (i === at('depart'))
       beat(s, async () => {
         focus(s, 30, 41);

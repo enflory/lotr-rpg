@@ -3,7 +3,15 @@
 // in portrait and in landscape. Chromium emulating an iPhone 13, not real Safari.
 import { test, expect } from '@playwright/test';
 import { AFTER_BREE, through } from './longRoadRoute.js';
-import { PHONE, LANDSCAPE, continueAt, scene, holdPad, tapThrough, controlsCover } from './phone.js';
+import {
+  PHONE,
+  LANDSCAPE,
+  continueAt,
+  scene,
+  holdPad,
+  tapThrough,
+  controlsCover,
+} from './phone.js';
 
 for (const [label, device] of [
   ['portrait', PHONE],

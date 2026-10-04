@@ -117,4 +117,3 @@ export async function controlsCover(page) {
   }
   return covered;
 }
-

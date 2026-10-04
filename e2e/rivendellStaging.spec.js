@@ -3,7 +3,17 @@
 // Company at the gate, sequence breaks, older saves and reloads that land in
 // the middle of a scene.
 import { test, expect } from '@playwright/test';
-import { checkpoint, walk, zone, act, flag, reload, press, dialogue, watchErrors } from './journeyRoute.js';
+import {
+  checkpoint,
+  walk,
+  zone,
+  act,
+  flag,
+  reload,
+  press,
+  dialogue,
+  watchErrors,
+} from './journeyRoute.js';
 import { AFTER_ROAD, through, autoStory } from './rivendellRoute.js';
 import { PAGE } from '../src/data/rivendellDialogues.js';
 
@@ -28,7 +38,13 @@ async function untilPage(page, key, id) {
   const at = PAGE[key][id];
   for (let n = 0; n < 80; n++) {
     await idle(page);
-    if (await ev(page, `s.dialogKey === ${JSON.stringify(key)} && s.dialogIndex >= ${at} && !s.typing`)) return;
+    if (
+      await ev(
+        page,
+        `s.dialogKey === ${JSON.stringify(key)} && s.dialogIndex >= ${at} && !s.typing`,
+      )
+    )
+      return;
     await press(page);
   }
   throw new Error(`page ${key}.${id} never appeared`);
@@ -59,7 +75,8 @@ async function bootSaved(page, zoneKey, entry, flags) {
   await page.waitForFunction(() => window.__game?.scene.isActive('TitleScene'));
   await press(page, 'Enter');
 }
-const shot = (page, name) => page.locator('canvas').screenshot({ path: test.info().outputPath(`${name}.png`) });
+const shot = (page, name) =>
+  page.locator('canvas').screenshot({ path: test.info().outputPath(`${name}.png`) });
 
 test('the sword prompt waits; the flood sweeps the Nine; Continue after it lands in the house', async ({
   page,
@@ -79,7 +96,10 @@ test('the sword prompt waits; the flood sweeps the Nine; Continue after it lands
   // Three Riders are already in the water; nothing the player does moves Frodo.
   expect(await ev(page, 's.road.riders.filter((r) => r.x > 28 * 16).length')).toBe(3);
   await page.keyboard.press('ArrowRight', { delay: 300 });
-  expect(await ev(page, '({ x: s.player.x, y: s.player.y })')).toEqual({ x: waiting.x, y: waiting.y });
+  expect(await ev(page, '({ x: s.player.x, y: s.player.y })')).toEqual({
+    x: waiting.x,
+    y: waiting.y,
+  });
   await shot(page, 'flood-sword');
   await press(page);
   await untilPage(page, 'rv_flood', 'roar');
@@ -113,7 +133,9 @@ test('a reload in the gap after the flood still wakes in the house of Elrond', a
   // Mid-wake reload: nothing was saved but the flood, so the waking replays.
   await bootSaved(page, 'rivendellroom', 'bed', { ...AFTER_ROAD, fordFlooded: true });
   await zone(page, 'rivendellroom');
-  await page.waitForFunction(() => window.__game.scene.getScene('WorldScene').dialogKey === 'rv_wake');
+  await page.waitForFunction(
+    () => window.__game.scene.getScene('WorldScene').dialogKey === 'rv_wake',
+  );
   await idle(page);
   expect(await ev(page, '({ angle: s.player.angle, gandalf: !!s.rv.gandalf?.visible })')).toEqual({
     angle: 90,
@@ -143,11 +165,13 @@ test('the evening is for the hall: the way out is shut until the Hall of Fire, a
   await page.keyboard.down('ArrowRight');
   await page.waitForTimeout(900);
   await page.keyboard.up('ArrowRight');
-  expect((await ev(page, 's.zoneKey'))).toBe('rivendellhall');
+  expect(await ev(page, 's.zoneKey')).toBe('rivendellhall');
   await act(page, 'rv_feast');
   await shot(page, 'feast-done');
   // After the feast Bilbo is at the hearth and the high table is empty.
-  expect(await ev(page, 's.npcs.map((n) => n.getData("key")).sort().join()')).toBe('bilboelder,lindir');
+  expect(await ev(page, 's.npcs.map((n) => n.getData("key")).sort().join()')).toBe(
+    'bilboelder,lindir',
+  );
   await act(page, 'rv_song');
   await flag(page, 'hallOfFire');
   expect(await ev(page, 's.entryKey')).toBe('hearth');
@@ -197,11 +221,16 @@ test('Rise and speak waits for the player; the Ring lies on the stone for one pa
   expect(errors).toEqual([]);
 });
 
-test('the weeks turn the valley to winter and Merry and Pippin come up the path', async ({ page }) => {
+test('the weeks turn the valley to winter and Merry and Pippin come up the path', async ({
+  page,
+}) => {
   test.setTimeout(150000);
   const errors = watchErrors(page);
   await checkpoint(page, 'rivendell', 'porch', through('rv_weeks'));
-  const autumn = await ev(page, '({ a: s.rv.sky.alpha, c: s.rv.sky.fillColor, n: s.rv.fx.fall.length })');
+  const autumn = await ev(
+    page,
+    '({ a: s.rv.sky.alpha, c: s.rv.sky.fillColor, n: s.rv.fx.fall.length })',
+  );
   await walk(page, 36, 33);
   await press(page);
   await expect.poll(() => ev(page, 's.dialogActive')).toBe(true);
@@ -244,7 +273,9 @@ test('the Company stands at the gate; nobody is on blocked ground; mashing chang
       count: sprites.length,
       onSolid: sprites
         .filter((p) =>
-          COLLISION_TILES.includes(s.zone.map[Math.floor((p.y + (p === s.player ? 8 : 0) + 4) / 16)][Math.floor(p.x / 16)]),
+          COLLISION_TILES.includes(
+            s.zone.map[Math.floor((p.y + (p === s.player ? 8 : 0) + 4) / 16)][Math.floor(p.x / 16)],
+          ),
         )
         .map((p) => p.getData('key') ?? 'frodo'),
     };

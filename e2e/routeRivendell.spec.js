@@ -40,7 +40,9 @@ test('walks the flood, the waking, the feast and the Hall of Fire', async ({ pag
   expect(errors).toEqual([]);
 });
 
-test('walks the Council, the long weeks, the gifts and the Company at the gate', async ({ page }, info) => {
+test('walks the Council, the long weeks, the gifts and the Company at the gate', async ({
+  page,
+}, info) => {
   info.setTimeout(process.env.CI ? 480000 : 300000);
   const errors = watchErrors(page);
   await checkpoint(page, 'rivendell', 'porch', through('rv_council1'));

@@ -4,7 +4,15 @@
 // not real Safari.
 import { test, expect } from '@playwright/test';
 import { through } from './rivendellRoute.js';
-import { PHONE, LANDSCAPE, continueAt, scene, holdPad, tapThrough, controlsCover } from './phone.js';
+import {
+  PHONE,
+  LANDSCAPE,
+  continueAt,
+  scene,
+  holdPad,
+  tapThrough,
+  controlsCover,
+} from './phone.js';
 
 for (const [label, device] of [
   ['portrait', PHONE],
@@ -52,7 +60,9 @@ for (const [label, device] of [
       await tapThrough(page, (s) => s.dialogIndex >= 2 && !s.typing);
       expect(await controlsCover(page)).toEqual([]);
       await tapThrough(page, (_s) => !!window.__state.flags.chapter6Complete);
-      await page.waitForFunction(() => window.__game.scene.getScene('WorldScene').rv.temp.length === 0);
+      await page.waitForFunction(
+        () => window.__game.scene.getScene('WorldScene').rv.temp.length === 0,
+      );
       await page.screenshot({ path: test.info().outputPath(`gate-${label}.png`) });
       expect(await scene(page, (s) => s.entryKey)).toBe('gate');
     });

@@ -34,17 +34,17 @@ Play as Frodo Baggins from the round green door of Bag End to the breaking of th
 |  ![Three stone trolls in a glade of the Trollshaws](assets/screenshots/long-road-trolls.png)   | ![Asfaloth and the Nine at the Ford](assets/screenshots/long-road-ford-ride.png) |
 |                               The stone trolls of the Trollshaws                               |                         The ride to the Ford of Bruinen                          |
 
-| ![The Nine swept away by white horses of foam at the Ford](assets/screenshots/rivendell-flood.png) | ![Frodo wakes in the house of Elrond, Gandalf at the window](assets/screenshots/rivendell-wake.png) |
-| :-------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------: |
-|                                    The flood at the Ford of Bruinen                                     |                                     Waking in the house of Elrond                                     |
-| ![The high table at the feast: Elrond, Arwen, Glóin and Bilbo](assets/screenshots/rivendell-feast.png) | ![Bilbo reciting his song by the great hearth](assets/screenshots/rivendell-hall-of-fire.png) |
-|                                      The feast in the hall                                      |                                  The Hall of Fire                                  |
-| ![The Council of Elrond on the porch above the gorge](assets/screenshots/rivendell-council.png) | ![The Last Homely House and its gardens](assets/screenshots/rivendell-valley.png) |
-|                                  The Council of Elrond                                   |                          The house and gardens in autumn                           |
-| ![Rivendell in winter, snow falling over the garden](assets/screenshots/rivendell-winter.png) | ![The Company of nine at the southern gate](assets/screenshots/rivendell-company.png) |
-|                                   The turning of the year                                    |                              The Company at the gate                               |
-| ![Rise and speak, on a phone in portrait](assets/screenshots/rivendell-phone-portrait.png) | ![The Council prompt on a phone in landscape](assets/screenshots/rivendell-phone-landscape.png) |
-|                          "Rise and speak" with the thumb pad, portrait                          |                          The same prompt in landscape                          |
+|   ![The Nine swept away by white horses of foam at the Ford](assets/screenshots/rivendell-flood.png)   | ![Frodo wakes in the house of Elrond, Gandalf at the window](assets/screenshots/rivendell-wake.png) |
+| :----------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------: |
+|                                    The flood at the Ford of Bruinen                                    |                                    Waking in the house of Elrond                                    |
+| ![The high table at the feast: Elrond, Arwen, Glóin and Bilbo](assets/screenshots/rivendell-feast.png) |    ![Bilbo reciting his song by the great hearth](assets/screenshots/rivendell-hall-of-fire.png)    |
+|                                         The feast in the hall                                          |                                          The Hall of Fire                                           |
+|    ![The Council of Elrond on the porch above the gorge](assets/screenshots/rivendell-council.png)     |          ![The Last Homely House and its gardens](assets/screenshots/rivendell-valley.png)          |
+|                                         The Council of Elrond                                          |                                   The house and gardens in autumn                                   |
+|     ![Rivendell in winter, snow falling over the garden](assets/screenshots/rivendell-winter.png)      |        ![The Company of nine at the southern gate](assets/screenshots/rivendell-company.png)        |
+|                                        The turning of the year                                         |                                       The Company at the gate                                       |
+|       ![Rise and speak, on a phone in portrait](assets/screenshots/rivendell-phone-portrait.png)       |   ![The Council prompt on a phone in landscape](assets/screenshots/rivendell-phone-landscape.png)   |
+|                             "Rise and speak" with the thumb pad, portrait                              |                                    The same prompt in landscape                                     |
 
 ## Running Locally
 
