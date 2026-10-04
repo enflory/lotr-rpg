@@ -9,7 +9,7 @@ export function turnToWinter(s, fx) {
   if (fx.winter) return;
   fx.winter = true;
   fx.fall?.forEach((p) => p.setVisible(false));
-  s.add.rectangle(0, 0, s.mapWidth * 16, s.mapHeight * 16, 0xeaf2ff, 0.2).setOrigin(0).setDepth(4);
+  s.add.rectangle(0, 0, s.mapWidth * 16, s.mapHeight * 16, 0xeaf2ff, 0.3).setOrigin(0).setDepth(4);
   fx.snow = drifters(s, 56, {
     colors: [0xffffff, 0xe6eefa],
     w: 3,

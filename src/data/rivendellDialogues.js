@@ -442,7 +442,10 @@ Object.assign(RIVENDELL_DIALOGUES, {
       chosen,
       'GLOIN: So the Ring is the thing. Strange that a Baggins should be mixed in it twice.',
     ],
-    [councilNow, 'GLOIN: I have said my piece. Now it is for the wiser heads.'],
+    [
+      (f) => councilNow(f) && f.councilOpened,
+      'GLOIN: I have said my piece. Now it is for the wiser heads.',
+    ],
     [
       null,
       'GLOIN: Our halls are rich again, though not as rich as an old Dwarf remembers. I am glad of the wine here.',
@@ -452,6 +455,10 @@ Object.assign(RIVENDELL_DIALOGUES, {
     'Gimli',
     [done, 'GIMLI: Dwarves are slow to give their word, Master Frodo. But I have given mine.'],
     [chosen, 'GIMLI: If it comes to Moria, I will show you halls the Elves never dreamed of.'],
+    [
+      (f) => f.councilTales,
+      'GIMLI: I am a Dwarf, and slow to trust the tongues of others. But I have heard enough to be afraid.',
+    ],
     [null, 'GIMLI: Ask me nothing yet. The Council has not heard all the Dwarves have to say.'],
   ),
   legolas: guest(
@@ -477,6 +484,10 @@ Object.assign(RIVENDELL_DIALOGUES, {
   ),
   lindir: guest(
     'Lindir',
+    [
+      (f) => f.hallOfFire && !f.ringBearerChosen,
+      'LINDIR: The song is ended, and the fire burns low. Rest while you may.',
+    ],
     [
       chosen,
       'LINDIR: There is a song in every stone of this house. Sit by the fire and listen, if you will.',

@@ -36,19 +36,19 @@ export const RIVENDELL_BEATS = [
     key: 'rv_council2',
     flag: 'councilTales',
     zone: 'rivendell',
-    objective: 'Hear the Council out',
+    objective: 'Return to the porch above the river. The Council goes on',
   },
   {
     key: 'rv_council3',
     flag: 'ringBearerChosen',
     zone: 'rivendell',
-    objective: 'Hear the Council out. Someone must carry the Ring',
+    objective: 'Return to the porch above the river. Someone must carry the Ring',
   },
   {
     key: 'rv_weeks',
     flag: 'weeksPassed',
     zone: 'rivendell',
-    objective: 'Rest in Rivendell while the scouts are abroad',
+    objective: 'Rest in Rivendell: sit on the garden bench south of the house',
   },
   {
     key: 'rv_gifts',
@@ -90,7 +90,7 @@ export const winterNow = (f) => !!f.weeksPassed;
 export function skyFor(f, zoneKey) {
   if (zoneKey !== 'rivendell' || !f.chapter5Complete) return null;
   if (f.giftsGiven) return { color: 0x141c40, alpha: 0.4 }; // the Company's last dusk
-  if (f.weeksPassed) return { color: 0xcfd8ec, alpha: 0.16 }; // winter silver
+  if (f.weeksPassed) return { color: 0xcfd8ec, alpha: 0.24 }; // winter silver
   if (f.ringBearerChosen) return { color: 0xffe8b0, alpha: 0.06 }; // the Council day, afternoon
   if (f.hallOfFire) return { color: 0xffd890, alpha: 0.1 }; // the Council dawn
   return { color: 0x30204a, alpha: 0.2 }; // the evening of the feast
