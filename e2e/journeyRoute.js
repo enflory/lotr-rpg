@@ -80,7 +80,8 @@ export async function press(page, key = 'Space') {
 }
 
 export async function dialogue(page) {
-  for (let n = 0; n < 30; n++) {
+  // Two presses a page at worst (finish the typing, then advance); Rivendell's Council runs to 19 pages.
+  for (let n = 0; n < 60; n++) {
     await page.waitForFunction(
       () => !window.__game.scene.getScene('WorldScene').storyBeat?.busy,
       null,

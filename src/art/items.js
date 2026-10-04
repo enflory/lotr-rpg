@@ -112,6 +112,27 @@ function drawTomSong(c,ox) {
   rc(c,ox+7,7,3,2,'#edcf66');
 }
 
+function drawSting(c, ox) {
+  // A slim elven blade with a faint blue edge-light.
+  for (let i = 0; i < 8; i++) {
+    px(c, ox + 2 + i, 9 - i, OUTLINE);
+    px(c, ox + 3 + i, 9 - i, '#cfe4f4');
+  }
+  px(c, ox + 10, 1, '#9ad0f0');
+  rc(c, ox + 1, 8, 3, 1, '#c9a64f');
+  rc(c, ox + 2, 9, 1, 2, '#6a4a30');
+}
+function drawMithril(c, ox) {
+  // A mail shirt of tiny silver rings.
+  rc(c, ox + 2, 2, 8, 8, OUTLINE);
+  rc(c, ox + 3, 3, 6, 7, '#dfe8f2');
+  rc(c, ox + 1, 3, 2, 3, OUTLINE);
+  rc(c, ox + 9, 3, 2, 3, OUTLINE);
+  for (const [x, y] of [[4, 4], [6, 4], [5, 5], [7, 5], [4, 6], [6, 6], [5, 7], [7, 7], [4, 8], [6, 8]])
+    px(c, ox + x, y, '#a4b4c8');
+  px(c, ox + 5, 3, '#ffffff');
+}
+
 export const ICON_FNS = [
   drawMushroom,
   drawMathom,
@@ -122,6 +143,8 @@ export const ICON_FNS = [
   drawBasket,
   drawBarrowBlades,
   drawTomSong,
+  drawSting,
+  drawMithril,
 ];
 
 export function makeItemIconsDataURL() {

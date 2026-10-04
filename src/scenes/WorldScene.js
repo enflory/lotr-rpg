@@ -844,9 +844,10 @@ export class WorldScene extends Phaser.Scene {
       for (const flag of [].concat(stage.set)) setFlag(flag);
     }
     if (stage.give) {
-      addItem(stage.give);
+      const given = [].concat(stage.give);
+      for (const item of given) addItem(item);
       sfx.jingle();
-      this.showBanner(`Got: ${ITEMS[stage.give].name}!`);
+      this.showBanner(`Got: ${given.map((item) => ITEMS[item].name).join(' and ')}!`);
     }
     if (stage.take) removeItem(stage.take);
     if (stage.join && !gameState.follower) {

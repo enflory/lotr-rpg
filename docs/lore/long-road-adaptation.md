@@ -18,7 +18,7 @@ Source: J. R. R. Tolkien, _The Fellowship of the Ring_, Book I, chapter 11, “A
 | 10  | `road_glorfindel` (`glorfindelMet`)        | Ch. 12: hoofbeats, the white horse, Glorfindel's greeting, his warning of Riders before and behind.               |
 | 11  | `road_ford` (`chapter5Complete`)           | Ch. 12: Frodo set on Asfaloth, the Nine chasing, the crossing, Frodo turning on the far bank.                     |
 
-The chapter begins from the end of Bree (`chapter4Complete`) and ends with Frodo across the water and the Nine gathered on the western bank. The flood of the Bruinen, Frodo's words at the water, his healing and Rivendell belong to the next chapter. `docs/game-reference.md` places “Flood at the Ford” in chapter six, and the game honours that.
+The chapter begins from the end of Bree (`chapter4Complete`) and ends with Frodo across the water and the Nine gathered on the western bank. The flood of the Bruinen, Frodo's words at the water, his healing and Rivendell belong to the next chapter, which is now playable (see `rivendell-adaptation.md`). `docs/game-reference.md` places “Flood at the Ford” in chapter six, and the game honours that.
 
 ## Deliberate compression and reordering
 

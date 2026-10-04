@@ -908,6 +908,68 @@ CHAR_DEFS.glorfindel = {
   pal: { ...CHAR_DEFS.gildor.pal, h: '#e0b838', l: '#f8e47a', b: '#f0d050', V: '#d8dce4', v: '#f4f6fa', G: '#aab2c0' },
 };
 
+// Rivendell: the Elves keep the established ELF template; Dwarves and Men are
+// recolours of the Bree sprites. Each palette is chosen to be told apart at a glance.
+const elf = (pal, feet = ['#8898a8', '#68788a']) => ({
+  ...CHAR_DEFS.gildor,
+  pal: { ...CHAR_DEFS.gildor.pal, ...pal },
+  feet,
+});
+CHAR_DEFS.elrond = elf({ h: '#2a2430', l: '#4a4458', b: '#d8dce8', V: '#4a5878', v: '#6c7ea0', G: '#33405a' });
+CHAR_DEFS.arwen = {
+  ...CHAR_DEFS.goldberry,
+  pal: { ...CHAR_DEFS.goldberry.pal, h: '#241c2a', l: '#463c52', b: '#d8dce8', V: '#8a94a8', v: '#b8c0d0', G: '#5a6478', X: '#6c7890', B: '#e8ecf4' },
+  feet: ['#a8b0c0', '#6c7488'],
+  extra(c, x, y, dir) {
+    const hx = dir === 'left' ? x + 10 : x + 4;
+    rc(c, hx, y + 7, 2, 6, '#241c2a');
+    px(c, hx, y + 10, '#463c52');
+    px(c, x + 7, y + 15, '#e8ecf4');
+  },
+};
+CHAR_DEFS.lindir = elf({ h: '#3a3030', l: '#5c4a44', V: '#5c7a90', v: '#88a6b8', G: '#3e5666' });
+CHAR_DEFS.erestor = elf({ h: '#2e2a34', l: '#4c4658', V: '#6a5a7a', v: '#8e7ea0', G: '#463c58' });
+CHAR_DEFS.galdor = elf({ h: '#c8c8d0', l: '#e8e8ee', V: '#8a9aaa', v: '#b4c2d0', G: '#5e6e80' });
+CHAR_DEFS.legolas = elf(
+  { h: '#b89a58', l: '#d8be7a', V: '#5a7a48', v: '#7c9a64', G: '#3e5632', X: '#4e6a3c', B: '#7a5a38' },
+  ['#6a5236', '#40301f'],
+);
+CHAR_DEFS.gloin = {
+  ...CHAR_DEFS.breedwarf,
+  pal: { ...CHAR_DEFS.breedwarf.pal, H: '#d4d2cc', h: '#e8e6e0', l: '#f6f4f0', V: '#e2e0d6', v: '#f4f2ea', G: '#a8a69c' },
+  extra(c, x, y, dir) {
+    if (dir === 'up') return;
+    const bx = dir === 'left' ? 2 : dir === 'right' ? 8 : 5;
+    rc(c, x + bx, y + 7, 6, 5, '#e8e8ee');
+    rc(c, x + bx + 1, y + 12, 4, 2, '#c8c8d0');
+    rc(c, x + bx + 2, y + 14, 2, 1, '#c8c8d0');
+  },
+};
+CHAR_DEFS.gimli = {
+  ...CHAR_DEFS.breedwarf,
+  pal: { ...CHAR_DEFS.breedwarf.pal, H: '#8a3e1e', h: '#a8532a', l: '#c46c3a', V: '#7a8088', v: '#9aa2aa', G: '#545a62' },
+  extra(c, x, y, dir) {
+    if (dir === 'up') return;
+    const bx = dir === 'left' ? 2 : dir === 'right' ? 8 : 5;
+    rc(c, x + bx, y + 7, 6, 5, '#a2522c');
+    rc(c, x + bx + 1, y + 12, 4, 2, '#7a3a1c');
+    rc(c, x + bx + 2, y + 14, 2, 1, '#7a3a1c');
+  },
+};
+CHAR_DEFS.bilboelder = {
+  ...CHAR_DEFS.bilbo,
+  pal: { ...CHAR_DEFS.bilbo.pal, H: '#c8c4b8', h: '#e0dcd0', l: '#f6f2e8', V: '#4a6a3a', v: '#5e8048', P: '#6a4a38' },
+};
+CHAR_DEFS.gandalfrv = CHAR_DEFS.gandalf;
+CHAR_DEFS.dunadan = {
+  ...CHAR_DEFS.strider,
+  pal: { ...CHAR_DEFS.strider.pal, V: '#2c3a5c', v: '#4a5a82', G: '#1e2842', C: '#6c8a5c' },
+};
+CHAR_DEFS.boromir = {
+  ...CHAR_DEFS.strider,
+  pal: { ...CHAR_DEFS.strider.pal, H: '#2a2420', h: '#4a3e34', l: '#70624e', E: '#5c6670', V: '#6a4a32', v: '#8a6644', G: '#3e2c1e', C: '#d8dce4' },
+};
+
 export const CHAR_NAMES = Object.keys(CHAR_DEFS);
 
 export function makeCharSheet(name) {

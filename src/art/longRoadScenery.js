@@ -4,13 +4,13 @@
 import { drawTroll, drawRuneStone } from './longRoadArt.js';
 
 // A small integer hash, so the two axes of one scatter are independent.
-const rnd = (i, n) => {
+export const rnd = (i, n) => {
   let h = Math.imul(i + 1, 374761393) ^ Math.imul(n + 7, 668265263);
   h = Math.imul(h ^ (h >>> 13), 1274126177);
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 };
 
-function drifters(s, count, { colors, w, h, dx, dy, alpha, depth, time }) {
+export function drifters(s, count, { colors, w, h, dx, dy, alpha, depth, time }) {
   const out = [];
   for (let i = 0; i < count; i++) {
     const x = rnd(i, 1) * s.mapWidth * 16,

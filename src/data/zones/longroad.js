@@ -2,6 +2,8 @@ import { T } from '../tileTypes.js';
 import { field, wind, clearing, smoothNoise, point, edge } from './journeyMap.js';
 import { isRoadBeat } from '../../state/longRoadProgress.js';
 import { roadCreate, roadUpdate, roadDialogue } from '../../events/longRoadEvent.js';
+import { isRvBeat } from '../../state/rivendellProgress.js';
+import { rvCreate, rvUpdate, rvDialogue } from '../../events/rivendellEvent.js';
 
 // Chapter 5, "The Long Road": Midgewater, Weathertop, the Trollshaws and the
 // Ford of Bruinen. Routes are carved last so that scatter can never seal them.
@@ -199,8 +201,21 @@ export const bruinen = {
   interactions: [
     cue(5, 11, 'road_ford', 'Glorfindel and the white horse'),
     inspect(26, 9, 'road_river', 'The Bruinen'),
-    inspect(38, 11, 'road_nine', 'The Riders across the water', (f) => f.chapter5Complete),
+    inspect(36, 13, 'road_nine', 'The Riders across the water', (f) => f.chapter5Complete && !f.fordFlooded),
+    { x: 36, y: 11, dialogue: 'rv_flood', label: 'Turn and face the Nine', when: (f) => isRvBeat(f, 'rv_flood') },
   ],
   exits: [exit(0, 11, 'trollshaws', 'east')],
-  ...hooks,
+  // The flood (chapter 6) plays here, on top of the ride that ends chapter 5.
+  onCreate: (s) => {
+    roadCreate(s);
+    rvCreate(s);
+  },
+  onUpdate: (s, delta) => {
+    roadUpdate(s, delta);
+    rvUpdate(s);
+  },
+  onDialogueLine: (s) => {
+    roadDialogue(s);
+    rvDialogue(s);
+  },
 };

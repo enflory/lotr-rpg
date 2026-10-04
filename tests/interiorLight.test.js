@@ -8,6 +8,8 @@ const centre = (art, tx, ty) => alphaAt(art, tx * 16 + 8, ty * 16 + 8);
 
 // Find one cell of a tile type, so the test does not hard-code a layout that
 // the zone files are free to rearrange.
+const has = (map, tile) => map.some((row) => row.includes(tile));
+const hearthOf = (map) => [T.FIREPLACE, T.GREAT_HEARTH].find((t) => has(map, t));
 const find = (map, tile) => {
   for (let y = 0; y < map.length; y++)
     for (let x = 0; x < map[y].length; x++) if (map[y][x] === tile) return { x, y };
@@ -24,12 +26,12 @@ describe.each([...LIT_INTERIORS])('%s is lit by its own fire and windows', (key)
   });
 
   it('is brightest at a light source and dimmest in the far corners', () => {
-    const fire = find(map, map.some((row) => row.includes(T.FIREPLACE)) ? T.FIREPLACE : T.WINDOW_I);
+    const fire = find(map, hearthOf(map) ?? T.WINDOW_I);
     const byTheFire = alphaAt(art, fire.x * 16 + 8, fire.y * 16 + 24);
     let darkest = 0;
     for (let y = 0; y < map.length; y++)
       for (let x = 0; x < map[y].length; x++) {
-        if (map[y][x] !== T.FLOOR) continue;
+        if (map[y][x] !== T.FLOOR && map[y][x] !== T.ELF_FLOOR) continue;
         darkest = Math.max(darkest, centre(art, x, y));
       }
     // Alpha is darkness, so the hearth must be the lowest reading in the room.
@@ -59,14 +61,19 @@ it('the hearth glow fades out and never paints the earth outside either interior
     for (let y = 0; y < art.height; y++)
       for (let x = 0; x < art.width; x++)
         if (map[y >> 4][x >> 4] === T.VOID) expect(alphaAt(art, x, y)).toBe(0);
-    if (!map.some((row) => row.includes(T.FIREPLACE))) {
+    if (!hearthOf(map)) {
       expect(art.pixels.filter((_, i) => i % 4 === 3).every((value) => value === 0)).toBe(true);
       continue;
     }
-    const fire = find(map, T.FIREPLACE);
+    const fire = find(map, hearthOf(map));
     const x = fire.x * 16 + 8;
-    const near = alphaAt(art, x, fire.y * 16 + 18);
-    const farther = alphaAt(art, x, fire.y * 16 + 32);
+    // The great hearth is two cells deep and bright enough to saturate beside itself,
+    // so it is measured along the floor, away from the wall.
+    const wide = map[fire.y][fire.x] === T.GREAT_HEARTH;
+    const near = wide ? alphaAt(art, x + 20, fire.y * 16 + 18) : alphaAt(art, x, fire.y * 16 + 18);
+    const farther = wide
+      ? alphaAt(art, x + 40, fire.y * 16 + 18)
+      : alphaAt(art, x, fire.y * 16 + 32);
     expect(near).toBeGreaterThan(farther);
     expect(farther).toBeGreaterThan(0);
     const levels = new Set(art.pixels.filter((_, i) => i % 4 === 3));
