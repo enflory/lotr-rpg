@@ -105,6 +105,36 @@ const SONGS = {
       { type: 'sine', vol: 0.4, notes: [[0,45,1],[1,45,1],[2,43,1],[3,43,1],[4,41,1],[5,41,1],[6,40,2]] },
     ],
   },
+  // Rivendell (original): a flowing valley theme, a quiet hearth, a grave council, a stately parting.
+  rivendell: {
+    bpm: 66, beats: 16,
+    tracks: [
+      { type: 'sine', vol: 0.42, notes: [[0,69,2],[2,74,1],[3,73,1],[4,71,2],[6,66,1],[7,69,1],[8,74,3],[11,76,1],[12,73,2],[14,71,1],[15,69,1]] },
+      { type: 'triangle', vol: 0.22, notes: [[0,45,4],[4,50,4],[8,47,4],[12,45,4]] },
+      { type: 'sine', vol: 0.12, notes: [[2,81,.5],[6,85,.5],[10,83,.5],[14,81,.5]] },
+    ],
+  },
+  hallfire: {
+    bpm: 54, beats: 16,
+    tracks: [
+      { type: 'triangle', vol: 0.34, notes: [[0,62,3],[3,66,1],[4,69,3],[7,67,1],[8,64,3],[11,62,1],[12,57,4]] },
+      { type: 'sine', vol: 0.24, notes: [[0,38,8],[8,36,8]] },
+    ],
+  },
+  council: {
+    bpm: 58, beats: 16,
+    tracks: [
+      { type: 'sine', vol: 0.4, notes: [[0,57,4],[4,60,2],[6,59,2],[8,55,4],[12,57,3],[15,56,1]] },
+      { type: 'triangle', vol: 0.22, notes: [[0,33,8],[8,31,8]] },
+    ],
+  },
+  parting: {
+    bpm: 60, beats: 16,
+    tracks: [
+      { type: 'triangle', vol: 0.4, notes: [[0,62,2],[2,69,2],[4,67,1],[5,65,1],[6,64,2],[8,62,2],[10,65,2],[12,64,2],[14,62,2]] },
+      { type: 'sine', vol: 0.3, notes: [[0,38,4],[4,43,4],[8,41,4],[12,38,4]] },
+    ],
+  },
   // Original chapter motifs: damp unease, a dancing refuge, wind, cold stone.
   oldforest: {
     bpm: 76, beats: 16,

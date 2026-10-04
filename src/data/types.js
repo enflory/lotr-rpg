@@ -88,7 +88,7 @@
  * @property {string|string[]} [set] flag(s) set when the dialogue closes
  * @property {string} [objective] new objective banner text
  * @property {string} [join] character key that becomes the follower
- * @property {string} [give] item key granted when the dialogue closes
+ * @property {string|string[]} [give] item key(s) granted when the dialogue closes
  * @property {string} [take] item key removed when the dialogue closes
  */
 

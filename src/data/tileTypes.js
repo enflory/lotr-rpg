@@ -107,6 +107,18 @@ export const T = {
   AUTUMN_TREE: 90, // red-gold beech (solid)
   FORD: 91, // shallows of the Bruinen (walkable)
   FIRE_PIT: 92, // ring of stones around a camp fire (solid)
+  // Rivendell
+  ELF_PILLAR: 93, // carved pale pillar (solid)
+  ELF_FLOOR: 94, // inlaid silver-grey floor (walkable)
+  FALLS: 95, // waterfall on the valley wall (solid)
+  BALUSTRADE: 96, // carved stone rail (solid)
+  ELF_WALL: 97, // carved wall with leaf panels (solid)
+  GREAT_HEARTH: 98, // the fire in the Hall of Fire (solid)
+  FIR: 99, // dark fir on the valley slopes (solid)
+  STEPS: 100, // broad stone steps (walkable)
+  ELF_LAMP: 101, // tall lamp on a stone foot (solid)
+  ELF_ROOF: 102, // pale copper-green slates (solid)
+  ELF_TABLE: 103, // long board under a white cloth, with a candle (solid)
 };
 
 export const COLLISION_TILES = [
@@ -179,6 +191,15 @@ export const COLLISION_TILES = [
   T.RUIN,
   T.AUTUMN_TREE,
   T.FIRE_PIT,
+  T.ELF_PILLAR,
+  T.FALLS,
+  T.BALUSTRADE,
+  T.ELF_WALL,
+  T.GREAT_HEARTH,
+  T.FIR,
+  T.ELF_LAMP,
+  T.ELF_ROOF,
+  T.ELF_TABLE,
 ];
 
 export const TILE_SIZE = 16;

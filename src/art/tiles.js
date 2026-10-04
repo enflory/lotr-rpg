@@ -7,6 +7,8 @@ import { drawForestFloor, drawOldTree, drawRoots, drawDeadTree, drawDarkWater, d
 
 import { drawRuin, drawRubble, drawLeaves, drawAutumnTree, drawFord, drawFirePit } from './longRoadTiles.js';
 
+import { drawElfPillar, drawElfFloor, drawFalls, drawBalustrade, drawElfWall, drawGreatHearth, drawFir, drawSteps, drawElfLamp, drawElfRoof, drawElfTable } from './rivendellTiles.js';
+
 const TS = 16;
 
 function drawGrass(c, ox) {
@@ -1051,6 +1053,7 @@ export const TILE_FNS = [
   drawHedgerow, drawStook, drawSkep, drawBench, drawMilestone, drawCorn, drawHay,
   drawPegs, drawChest, drawMapWall, drawPanel, drawSettle,
   drawRuin, drawRubble, drawLeaves, drawAutumnTree, drawFord, drawFirePit,
+  drawElfPillar, drawElfFloor, drawFalls, drawBalustrade, drawElfWall, drawGreatHearth, drawFir, drawSteps, drawElfLamp, drawElfRoof, drawElfTable,
 ];
 
 export function makeTilesetDataURL() {

@@ -18,6 +18,14 @@ export const ITEMS = {
     name: 'Tom’s Song',
     desc: 'Remembered words to call Tom in need. A song, not a carried object.',
   },
+  sting: {
+    name: 'Sting',
+    desc: 'Bilbo’s small elven blade, in its old sheath. It glows when Orcs are near.',
+  },
+  mithril_coat: {
+    name: 'Mithril Coat',
+    desc: 'A shirt of silver rings, light as linen. Bilbo’s gift, to be worn out of sight.',
+  },
 };
 
 export const ITEM_KEYS = Object.keys(ITEMS);

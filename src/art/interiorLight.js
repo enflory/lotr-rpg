@@ -19,6 +19,10 @@ const SOURCES = new Map([
   [T.LANTERN, { reach: 52, strength: 0.75 }],
   // A candle on every table: an inn full of them is an inn full of small lights.
   [T.TABLE, { reach: 46, strength: 0.6 }],
+  // Rivendell: tall lamps, the great hearth and a candle on every long table.
+  [T.ELF_LAMP, { reach: 72, strength: 0.85 }],
+  [T.GREAT_HEARTH, { reach: 120, strength: 1.2 }],
+  [T.ELF_TABLE, { reach: 50, strength: 0.6 }],
 ]);
 const SHADOW = 0x120c07;
 const AMBIENT = 0.42; // how much of the room is lit before any source
@@ -64,6 +68,8 @@ export function bakeInteriorShadow(map) {
   return { width, height, pixels };
 }
 
+const isHearth = (t) => t === T.FIREPLACE || t === T.GREAT_HEARTH;
+
 /** A clipped, stepped falloff for the fire, animated only in brightness. */
 export function bakeInteriorGlow(map) {
   const width = map[0].length * 16;
@@ -73,10 +79,10 @@ export function bakeInteriorGlow(map) {
   const hearths = [];
   for (let y = 0; y < map.length; y++)
     for (let x = 0; x < map[y].length; x++) {
-      if (map[y][x] !== T.FIREPLACE) continue;
-      if (map[y][x - 1] === T.FIREPLACE) continue; // the same fire, one cell on
+      if (!isHearth(map[y][x])) continue;
+      if (isHearth(map[y][x - 1])) continue; // the same fire, one cell on
       let span = 1;
-      while (map[y][x + span] === T.FIREPLACE) span++;
+      while (isHearth(map[y][x + span])) span++;
       hearths.push({ x: x * 16 + span * 8, y: y * 16 + 16 });
     }
   for (let y = 0; y < height; y++)
@@ -99,7 +105,7 @@ export function bakeInteriorGlow(map) {
 // Chapter 1's two interiors. The houses in the later chapters stage their own
 // light as part of their set pieces (the hearth at Crickhollow, the fire and
 // the dream in Tom's house), so a second baked layer is left off them.
-export const LIT_INTERIORS = new Set(['bagend', 'greendragon', 'ponycommon', 'ponyparlour', 'ponyrooms']);
+export const LIT_INTERIORS = new Set(['bagend', 'greendragon', 'ponycommon', 'ponyparlour', 'ponyrooms', 'rivendellroom', 'rivendellhall']);
 
 export function drawInteriorLight(scene) {
   if (!LIT_INTERIORS.has(scene.zoneKey)) return;
