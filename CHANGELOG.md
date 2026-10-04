@@ -3,6 +3,42 @@
 Versions track chapter milestones: `0.<chapter>.x` while a chapter is in
 progress, `1.0.0` when all ten chapters of _Fellowship_ are playable.
 
+## 0.6.0 — 2026-10-04
+
+Chapter 6, "Rivendell": from Frodo's stand at the Ford to the Company of nine
+at the southern gate.
+
+### Game
+
+- Three new zones (the valley with its bridge, gardens, east porch and gate;
+  the room-wing; the hall with the Hall of Fire at its far end) and the Ford of
+  Bruinen gains the flood
+- Ten story beats in order (Fellowship Book I ch. 12 and Book II ch. 1–3): the
+  flood, the waking, the feast, the Hall of Fire, the Council of Elrond in three
+  parts, the turning of the year, Bilbo's gifts, the Company at the gate
+- One player prompt at the Ford ("Draw your sword") and one at the Council
+  ("Rise and speak"); the Ring on the stone is a transient prop and never a
+  usable power
+- Twelve new characters (Elrond, Arwen, Glóin, Gimli, Legolas, Boromir, Lindir,
+  Erestor, Galdor, elder Bilbo, Gandalf and Aragorn as guests); every guest's
+  talk changes with the story
+- Eleven new tiles (carved pillar, inlaid floor, falls, balustrade, carved wall,
+  great hearth, fir, steps, lamp, slate roof, long table), four original songs
+  (rivendell, hallfire, council, parting), two story items (Sting, the mithril
+  coat); dusk, dawn, noon and winter skies; falling leaf then snow
+- No combat, no stamina, no timer, no dialogue choices; decisions are recorded in
+  `docs/lore/rivendell-adaptation.md`
+- Continue works from the end of chapter five and at every checkpoint in the
+  chapter; save format unchanged (v1)
+
+### Infrastructure
+
+- `dialogue stage .give` accepts a list; the interior light bake knows the great
+  hearth, lamps and long tables
+- `e2e/phone.js` shares the thumb-pad helpers between chapters 5 and 6
+- Route spec (two segments), staging spec and iPhone 13 portrait/landscape
+  spec for the chapter; two new CI shards
+
 ## 0.5.0 — 2026-09-30
 
 Chapter 5, "The Long Road": from the road out of Bree to the Ford of Bruinen.

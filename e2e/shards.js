@@ -46,6 +46,9 @@ export const SHARDS = {
   // The long road: two route segments, then staging and phone coverage.
   shard8: ['routeLongRoad.spec.js'],
   shard9: ['longRoadStaging.spec.js', 'longRoadTouch.spec.js'],
+  // Rivendell: two route segments, then staging and phone coverage.
+  shard10: ['routeRivendell.spec.js'],
+  shard11: ['rivendellStaging.spec.js', 'rivendellTouch.spec.js'],
 };
 
 export const SHARD_NAMES = Object.keys(SHARDS);
